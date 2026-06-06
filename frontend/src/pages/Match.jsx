@@ -6,7 +6,7 @@ import { supabase } from '../config/supabaseClient';
 import { sendMessage } from '../services/chatServiceTEMP';
 import AppLayout from '../layouts/AppLayout';
 
-const COLORS = ['#6c63ff', '#3ecfcf', '#f59e0b', '#8b5cf6', '#22c55e', '#ec4899'];
+const COLORS = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#845EC2', '#FF9671', '#00C9A7'];
 const getAvatarColor = (id) => COLORS[id % COLORS.length];
 
 export default function Match() {
@@ -126,293 +126,629 @@ export default function Match() {
             addToast('Lỗi ghép đôi học tập, vui lòng thử lại.', 'error');
           }
         } else {
-          addToast(`Đã gửi tín hiệu ghép học với ${currentCandidate.full_name}!`, 'info');
+          addToast(`Đã gửi lời mời học cùng đến ${currentCandidate.full_name}!`, 'info');
         }
       }
 
       setCurrentIndex(prev => prev + 1);
       setSwipeDirection(null);
-    }, 300);
+    }, 400);
   };
 
   return (
     <AppLayout>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '0 8px', width: '100%', position: 'relative' }}>
+      <div className="match-page-container">
         <style>{`
-          .premium-match-wrapper {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 16px;
-            padding: 20px 16px;
-            box-shadow: 0 10px 32px rgba(0,0,0,0.2);
-            text-align: center;
-          }
-          .match-tinder-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            padding: 20px 16px;
-            box-shadow: 0 10px 28px rgba(0,0,0,0.16);
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          .match-page-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 290px;
-            justify-content: space-between;
+            justify-content: flex-start;
+            padding: 20px 12px;
             width: 100%;
-            margin-top: 12px;
+            min-height: calc(100vh - 80px);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
           }
+          /* Subtle ambient background glow */
+          .match-page-container::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(108,99,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+          }
+
+          .header-section {
+            text-align: center;
+            margin-bottom: 24px;
+            z-index: 10;
+            position: relative;
+          }
+
+          .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(90deg, rgba(108,99,255,0.1), rgba(62,207,207,0.1));
+            border: 1px solid rgba(108,99,255,0.2);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px);
+          }
+          
+          .header-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+          }
+
+          .header-subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            max-width: 320px;
+            margin: 0 auto;
+            line-height: 1.5;
+          }
+
+          .major-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.05);
+          }
+
+          .card-container {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            height: 500px;
+            z-index: 10;
+            perspective: 1000px;
+          }
+
+          .match-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2), opacity 0.4s ease;
+            transform-origin: 50% 100%;
+          }
+
           .swipe-left-anim {
-            transform: translate3d(-150%, 40px, 0) rotate(-20deg);
+            transform: translate3d(-120%, 50px, 0) rotate(-15deg);
             opacity: 0;
           }
           .swipe-right-anim {
-            transform: translate3d(150%, 40px, 0) rotate(20deg);
+            transform: translate3d(120%, 50px, 0) rotate(15deg);
             opacity: 0;
           }
-          .action-btn-circle {
-            width: 44px;
-            height: 44px;
+
+          .card-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 55%;
+            background: #1a1d29;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+          }
+
+          .card-image-bg-blur {
+            position: absolute;
+            top: -20%; left: -20%; width: 140%; height: 140%;
+            filter: blur(40px);
+            opacity: 0.6;
+            z-index: 1;
+          }
+
+          .card-avatar-main {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2;
+            object-fit: cover;
+            background: #2d3748;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+          }
+
+          .card-content {
+            padding: 24px 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, rgba(15,23,42,0.8), rgba(15,23,42,0.95));
+          }
+
+          .candidate-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .candidate-bio {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            font-style: italic;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+
+          .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: auto;
+          }
+
+          .info-tag {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+          }
+
+          .action-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            padding-bottom: 8px;
+          }
+
+          .action-btn {
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 28px;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
           }
-          .action-btn-circle:hover {
-            transform: scale(1.12) translateY(-1px);
+
+          .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
           }
-          .action-btn-circle:active {
+
+          .btn-nope {
+            background: rgba(244, 63, 94, 0.1);
+            color: #f43f5e;
+            border: 2px solid rgba(244, 63, 94, 0.3);
+            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.15);
+          }
+          .btn-nope:hover {
+            transform: scale(1.1);
+            background: rgba(244, 63, 94, 0.2);
+            border-color: rgba(244, 63, 94, 0.5);
+            box-shadow: 0 12px 32px rgba(244, 63, 94, 0.3);
+          }
+
+          .btn-like {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+            border: 2px solid rgba(16, 185, 129, 0.5);
+          }
+          .btn-like:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.4);
+            border-color: rgba(16, 185, 129, 0.8);
+          }
+          
+          .action-btn:active {
             transform: scale(0.95);
           }
-          @keyframes pulseMatchOverlay {
-            0% { transform: scale(0.9); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); }
-          }
-          .match-modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(8, 10, 18, 0.75);
-            backdrop-filter: blur(10px);
-            z-index: 10000;
+
+          /* Empty State */
+          .empty-state-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 40px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            text-align: center;
+            height: 100%;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.2);
           }
+
+          .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+          }
+
+          @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+          }
+
+          .empty-title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+          }
+
+          .empty-desc {
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+          }
+
+          .btn-restart {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            transition: all 0.2s;
+          }
+          .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(99, 102, 241, 0.4);
+          }
+
+          /* Match Modal Overlay */
+          @keyframes modalPop {
+            0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+          }
+          @keyframes glowPulse {
+            0% { box-shadow: 0 0 30px rgba(255, 107, 107, 0.3); }
+            50% { box-shadow: 0 0 60px rgba(255, 107, 107, 0.6); }
+            100% { box-shadow: 0 0 30px rgba(255, 107, 107, 0.3); }
+          }
+
+          .match-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+          }
+
+          .match-modal-content {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px;
+            padding: 40px 32px;
+            text-align: center;
+            width: 100%;
+            max-width: 380px;
+            animation: modalPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .match-modal-content::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,107,107,0.1) 0%, rgba(0,0,0,0) 60%);
+            z-index: 0;
+            pointer-events: none;
+            animation: spin 20s linear infinite;
+          }
+
+          @keyframes spin { 100% { transform: rotate(360deg); } }
+
+          .match-title-effect {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(to right, #FF6B6B, #FF8E53);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+          }
+
+          .avatars-match-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 32px 0;
+            position: relative;
+            z-index: 1;
+          }
+
+          .avatar-ring {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            animation: glowPulse 2s infinite;
+          }
+
+          .avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 3px solid #0f172a;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+          }
+
+          .heart-icon {
+            font-size: 32px;
+            margin: 0 -16px;
+            z-index: 10;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            animation: float 2s infinite;
+          }
+          
+          .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+          }
+          
+          .btn-modal-primary {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);
+            transition: transform 0.2s;
+          }
+          .btn-modal-primary:hover { transform: translateY(-2px); }
+          
+          .btn-modal-secondary {
+            background: rgba(255,255,255,0.05);
+            color: #cbd5e1;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+          }
+          .btn-modal-secondary:hover { background: rgba(255,255,255,0.1); }
         `}</style>
 
-        <div style={{ width: '100%', maxWidth: '340px', marginTop: '8px' }}>
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.15)', padding: '4px 10px', borderRadius: '30px', fontSize: '11px', fontWeight: 700, color: 'var(--primary-light)', marginBottom: '8px' }}>
-              🤝 Ghép Đôi Học Tập
-            </div>
-            <h1 style={{ fontSize: '19px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px', letterSpacing: '-0.3px' }}>
-              Tìm Bạn Đồng Hành
-            </h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '12px', maxWidth: '300px', margin: '0 auto', lineHeight: 1.35 }}>
-              Hệ thống tự động đề xuất những bạn có cùng chuyên ngành để học tập cùng nhau.
-            </p>
-
-            <div style={{ marginTop: '8px' }}>
-              {myMajor ? (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(255, 122, 0, 0.08)', border: '1px solid rgba(255, 122, 0, 0.15)', padding: '3px 10px', borderRadius: '20px', fontSize: '10.5px', fontWeight: 700, color: 'var(--secondary)' }}>
-                  🎯 Chuyên ngành: {myMajor}
-                </span>
-              ) : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.15)', padding: '3px 10px', borderRadius: '20px', fontSize: '10.5px', fontWeight: 700, color: '#ef4444' }}>
-                  ⚠️ Chưa thiết lập chuyên ngành trong hồ sơ
-                </span>
-              )}
-            </div>
+        {/* Header Area */}
+        <div className="header-section">
+          <div className="header-badge">
+            <span style={{fontSize: '16px'}}>🔥</span> Ghép Đôi Học Tập
           </div>
-
-          {/* Tinder Stack */}
-          <div style={{ position: 'relative', minHeight: '320px' }}>
-            {loading ? (
-              <div className="premium-match-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '240px' }}>
-                <div className="spinner" style={{ marginBottom: '12px' }} />
-                <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0 }}>Đang tìm kiếm bạn học...</p>
-              </div>
-            ) : currentCandidate ? (
-              <div>
-                {/* Tinder Card */}
-                <div className={`match-tinder-card ${swipeDirection === 'left' ? 'swipe-left-anim' : swipeDirection === 'right' ? 'swipe-right-anim' : ''}`}>
-                  
-                  {/* Profile Header */}
-                  <div style={{ width: '100%' }}>
-                    <div style={{
-                      width: '72px', height: '72px', borderRadius: '50%',
-                      background: `linear-gradient(135deg, ${currentCandidate.avatar_color || '#6c63ff'}, #2563eb)`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '24px', fontWeight: 800, color: '#fff',
-                      margin: '0 auto 12px',
-                      boxShadow: '0 6px 18px rgba(99, 102, 241, 0.2)',
-                      overflow: 'hidden',
-                      border: '2px solid rgba(255, 255, 255, 0.05)'
-                    }}>
-                      {currentCandidate.avatar ? (
-                        <img src={currentCandidate.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        currentCandidate.full_name.split(' ').slice(-1)[0][0]
-                      )}
-                    </div>
-
-                    <h2 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                      {currentCandidate.full_name}
-                    </h2>
-
-                    <p style={{
-                      fontSize: '12.5px', color: 'var(--text-secondary)',
-                      lineHeight: 1.45, padding: '0 8px', margin: '0 auto 16px',
-                      maxWidth: '280px', fontStyle: 'italic'
-                    }}>
-                      "{currentCandidate.bio}"
-                    </p>
-                  </div>
-
-                  {/* College Info & Actions */}
-                  <div style={{ width: '100%' }}>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '16px' }}>
-                      <span style={{
-                        background: 'rgba(99, 102, 241, 0.08)',
-                        color: 'var(--primary-light)',
-                        border: '1px solid rgba(99, 102, 241, 0.12)',
-                        padding: '4px 8px', borderRadius: '8px', fontSize: '10.5px', fontWeight: 700
-                      }}>
-                        🏫 {currentCandidate.university}
-                      </span>
-                      <span style={{
-                        background: 'rgba(62, 207, 207, 0.08)',
-                        color: 'var(--secondary)',
-                        border: '1px solid rgba(62, 207, 207, 0.12)',
-                        padding: '4px 8px', borderRadius: '8px', fontSize: '10.5px', fontWeight: 700
-                      }}>
-                        📚 {currentCandidate.major}
-                      </span>
-                    </div>
-
-                    {/* Yes/No Swipe Buttons */}
-                    <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-                      <button
-                        onClick={() => handleSwipe('left')}
-                        className="action-btn-circle"
-                        style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.15)', color: '#ef4444' }}
-                        title="Bỏ qua"
-                      >
-                        ✕
-                      </button>
-                      <button
-                        onClick={() => handleSwipe('right')}
-                        className="action-btn-circle"
-                        style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-light))', color: 'white', boxShadow: '0 6px 18px rgba(108, 99, 255, 0.25)' }}
-                        title="Muốn học cùng!"
-                      >
-                        🤝
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            ) : (
-              <div className="premium-match-wrapper" style={{ padding: '32px 16px' }}>
-                <div style={{ fontSize: '36px', marginBottom: '12px' }}>🎉</div>
-                <h3 style={{ color: 'var(--text-primary)', marginBottom: '6px', fontWeight: 800, fontSize: '16px' }}>Đã duyệt hết danh sách!</h3>
-                <p style={{ maxWidth: '280px', margin: '0 auto 16px', fontSize: '12.5px', lineHeight: 1.45, color: 'var(--text-muted)' }}>
-                  Không tìm thấy bạn học cùng chuyên ngành "{myMajor}" lúc này. Bạn có thể xem lại từ đầu.
-                </p>
-                <button className="btn btn-secondary" onClick={() => setCurrentIndex(0)} style={{ borderRadius: '10px', padding: '8px 20px', fontWeight: 700, fontSize: '12.5px' }}>
-                  Xem lại từ đầu
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Matched Dialog overlay */}
-          {matchData && (
-            <div className="match-modal-overlay">
-              <div style={{
-                textAlign: 'center',
-                maxWidth: '320px',
-                width: '100%',
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border)',
-                borderRadius: '20px',
-                padding: '24px 20px',
-                boxShadow: '0 20px 48px rgba(0,0,0,0.5)',
-                animation: 'pulseMatchOverlay 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center'
-              }}>
-                <div style={{ fontSize: '24px', marginBottom: '12px', filter: 'drop-shadow(0 0 8px rgba(255,122,0,0.3))' }}>⚡ MATCHED! ⚡</div>
-                <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                  Ghép Đôi Thành Công!
-                </h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '12.5px', marginBottom: '20px', lineHeight: 1.45 }}>
-                  Bạn và <strong>{matchData.full_name}</strong> đã bắt cặp học cùng nhau trên hệ thống.
-                </p>
-
-                {/* Connecting Avatar visuals */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
-                  <div style={{
-                    width: '54px', height: '54px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
-                    border: '2px solid var(--secondary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700, color: '#fff',
-                    boxShadow: '0 5px 12px rgba(99,102,241,0.25)',
-                    overflow: 'hidden'
-                  }}>
-                    {user?.avatar ? <img src={user.avatar} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} alt="" /> : user?.fullName?.[0]}
-                  </div>
-                  <span style={{ fontSize: '20px', animation: 'pulse 1.5s infinite' }}>🤝</span>
-                  <div style={{
-                    width: '54px', height: '54px', borderRadius: '50%',
-                    background: `linear-gradient(135deg, ${matchData.avatar_color}, #2563eb)`,
-                    border: '2px solid var(--secondary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700, color: '#fff',
-                    boxShadow: '0 5px 12px rgba(255,107,157,0.25)',
-                    overflow: 'hidden'
-                  }}>
-                    {matchData.avatar ? <img src={matchData.avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : matchData.full_name.split(' ').slice(-1)[0][0]}
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-                  <button
-                    onClick={() => {
-                      setMatchData(null);
-                      navigate('/chat');
-                    }}
-                    className="btn btn-primary"
-                    style={{ borderRadius: '10px', padding: '10px 14px', fontSize: '13px', fontWeight: 700, width: '100%', boxShadow: '0 5px 15px rgba(108,99,255,0.2)' }}
-                  >
-                    💬 Trò chuyện ngay
-                  </button>
-                  <button
-                    onClick={() => setMatchData(null)}
-                    className="btn btn-secondary"
-                    style={{ borderRadius: '10px', padding: '8px 14px', fontSize: '12px', fontWeight: 600, width: '100%' }}
-                  >
-                    Tiếp tục ghép đôi
-                  </button>
-                </div>
-              </div>
+          <h1 className="header-title">Tìm Bạn Đồng Hành</h1>
+          <p className="header-subtitle">
+            Khám phá và kết nối với những người bạn cùng chung mục tiêu và đam mê học tập.
+          </p>
+          {myMajor ? (
+            <div className="major-badge">
+              <span>🎯</span> Ngành: {myMajor}
+            </div>
+          ) : (
+            <div className="major-badge" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)' }}>
+              <span>⚠️</span> Cập nhật hồ sơ để ghép đôi tốt hơn
             </div>
           )}
-
         </div>
+
+        {/* Card Area */}
+        <div className="card-container">
+          {loading ? (
+            <div className="empty-state-card">
+              <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '20px' }}></div>
+              <h3 className="empty-title">Đang tìm kiếm...</h3>
+              <p className="empty-desc">Đang quét radar để tìm kiếm những người bạn phù hợp nhất với bạn.</p>
+            </div>
+          ) : currentCandidate ? (
+            <div className={`match-card ${swipeDirection === 'left' ? 'swipe-left-anim' : swipeDirection === 'right' ? 'swipe-right-anim' : ''}`}>
+              
+              <div className="card-image-wrapper">
+                {currentCandidate.avatar && (
+                  <img src={currentCandidate.avatar} className="card-image-bg-blur" alt="blur-bg" />
+                )}
+                {currentCandidate.avatar ? (
+                  <img src={currentCandidate.avatar} className="card-avatar-main" alt="avatar" />
+                ) : (
+                  <div className="card-avatar-main" style={{ background: `linear-gradient(135deg, ${currentCandidate.avatar_color}, #2563eb)` }}>
+                    {currentCandidate.full_name.split(' ').slice(-1)[0][0]}
+                  </div>
+                )}
+              </div>
+
+              <div className="card-content">
+                <h2 className="candidate-name">
+                  {currentCandidate.full_name}
+                  <span style={{ fontSize: '18px', color: '#10b981' }}>●</span>
+                </h2>
+                
+                <p className="candidate-bio">"{currentCandidate.bio}"</p>
+                
+                <div className="tags-row">
+                  <div className="info-tag">
+                    <span>🏫</span> {currentCandidate.university}
+                  </div>
+                  <div className="info-tag">
+                    <span>📚</span> {currentCandidate.major}
+                  </div>
+                </div>
+
+                <div className="action-buttons-container">
+                  <button 
+                    className="action-btn btn-nope" 
+                    onClick={() => handleSwipe('left')}
+                    title="Bỏ qua"
+                  >
+                    ✕
+                  </button>
+                  <button 
+                    className="action-btn btn-like" 
+                    onClick={() => handleSwipe('right')}
+                    title="Kết bạn học!"
+                  >
+                    🤝
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          ) : (
+            <div className="empty-state-card">
+              <div className="empty-icon">🌟</div>
+              <h3 className="empty-title">Đã hết danh sách!</h3>
+              <p className="empty-desc">
+                Bạn đã duyệt qua toàn bộ danh sách bạn bè tiềm năng cùng chuyên ngành hiện có trên hệ thống. Hãy quay lại sau nhé!
+              </p>
+              <button className="btn-restart" onClick={() => setCurrentIndex(0)}>
+                ↻ Xem lại từ đầu
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Matched Modal */}
+        {matchData && (
+          <div className="match-modal-overlay">
+            <div className="match-modal-content">
+              <div className="match-title-effect">MATCHED!</div>
+              <p style={{ color: '#94a3b8', fontSize: '15px', marginBottom: '10px' }}>
+                Bạn và <strong style={{ color: '#fff' }}>{matchData.full_name}</strong> đã trở thành bạn học!
+              </p>
+
+              <div className="avatars-match-wrapper">
+                <div className="avatar-ring" style={{ transform: 'translateX(10px)' }}>
+                  {user?.avatar ? (
+                    <img src={user.avatar} className="avatar-inner" alt="You" />
+                  ) : (
+                    <div className="avatar-inner">{user?.full_name?.[0] || 'U'}</div>
+                  )}
+                </div>
+                
+                <div className="heart-icon">💖</div>
+                
+                <div className="avatar-ring" style={{ transform: 'translateX(-10px)' }}>
+                  {matchData.avatar ? (
+                    <img src={matchData.avatar} className="avatar-inner" alt="Match" />
+                  ) : (
+                    <div className="avatar-inner" style={{ background: `linear-gradient(135deg, ${matchData.avatar_color}, #2563eb)` }}>
+                      {matchData.full_name.split(' ').slice(-1)[0][0]}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="modal-buttons">
+                <button 
+                  className="btn-modal-primary"
+                  onClick={() => {
+                    setMatchData(null);
+                    navigate('/chat');
+                  }}
+                >
+                  💬 Gửi lời chào ngay
+                </button>
+                <button 
+                  className="btn-modal-secondary"
+                  onClick={() => setMatchData(null)}
+                >
+                  Để sau
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </AppLayout>
   );
