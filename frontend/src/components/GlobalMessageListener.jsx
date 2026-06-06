@@ -76,6 +76,10 @@ export default function GlobalMessageListener() {
             ]);
             const raw = msg.content || '';
             if (raw.startsWith('[meetroom:')) {
+              const match = raw.match(/^\[meetroom:([^\]]+)\]/);
+              const rId = match ? match[1] : null;
+              if (rId && window.location.pathname.startsWith(`/room/${rId}`)) return;
+
               const text = raw.replace(/^\[meetroom:[^\]]+\]\s*/, '');
               addToast(`📞 ${text} — Nhóm "${sender?.full_name || ''}"`, 'info', 6000, `/groups/${msg.group_id}?tab=chat`, '📞');
               return;
