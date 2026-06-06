@@ -593,12 +593,11 @@ export default function MeetRoom() {
   const hideTimerRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Auto-hide controls when fullscreen
   const resetHideTimer = useCallback(() => {
     setShowControls(true);
     clearTimeout(hideTimerRef.current);
     if (document.fullscreenElement) {
-      hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+      hideTimerRef.current = setTimeout(() => setShowControls(false), 5000);
     }
   }, []);
 
@@ -612,7 +611,7 @@ export default function MeetRoom() {
     const t = setTimeout(() => {
       setShowControls(true);
       clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+      hideTimerRef.current = setTimeout(() => setShowControls(false), 5000);
     }, 0);
     return () => { clearTimeout(t); clearTimeout(hideTimerRef.current); };
   }, [isFullscreen]);

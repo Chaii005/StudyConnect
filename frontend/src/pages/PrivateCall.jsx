@@ -404,11 +404,11 @@ export default function PrivateCall() {
     return () => clearInterval(iv);
   }, [connected]);
 
-  // Auto-hide controls sau 4s
+  // Auto-hide controls sau 5s
   const resetHideTimer = useCallback(() => {
     setShowControls(true);
     clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => setShowControls(false), 4000);
+    hideTimer.current = setTimeout(() => setShowControls(false), 5000);
   }, []);
 
   useEffect(() => {
@@ -466,6 +466,7 @@ export default function PrivateCall() {
           fontFamily: "'Inter', 'Segoe UI', sans-serif",
           color: '#fff',
           userSelect: 'none',
+          cursor: showControls ? 'default' : 'none',
         }}
       >
         {/* ── Header ── */}
@@ -476,6 +477,7 @@ export default function PrivateCall() {
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)',
           zIndex: 10,
           opacity: showControls ? 1 : 0,
+          pointerEvents: showControls ? 'auto' : 'none',
           transform: showControls ? 'translateY(0)' : 'translateY(-10px)',
           transition: 'opacity 0.35s, transform 0.35s',
         }}>
@@ -613,6 +615,7 @@ export default function PrivateCall() {
             alignItems: 'center', gap: '16px',
             zIndex: 10,
             opacity: showControls ? 1 : 0,
+            pointerEvents: showControls ? 'auto' : 'none',
             transform: showControls ? 'translateY(0)' : 'translateY(10px)',
           }}
         >
