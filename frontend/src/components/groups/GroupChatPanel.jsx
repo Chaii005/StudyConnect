@@ -17,7 +17,7 @@ const formatBytes = (bytes, decimals = 2) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-const downloadBaseFile = (dataUrl, fileName) => {
+const downloadBaseFile = async (dataUrl, fileName) => {
   try {
     if (!dataUrl) return;
     if (!dataUrl.startsWith('data:')) {
@@ -30,16 +30,10 @@ const downloadBaseFile = (dataUrl, fileName) => {
       document.body.removeChild(link);
       return;
     }
-    const parts = dataUrl.split(';base64,');
-    if (parts.length < 2) return;
-    const contentType = parts[0].split(':')[1];
-    const raw = window.atob(parts[1]);
-    const rawLength = raw.length;
-    const uInt8Array = new Uint8Array(rawLength);
-    for (let i = 0; i < rawLength; ++i) {
-      uInt8Array[i] = raw.charCodeAt(i);
-    }
-    const blob = new Blob([uInt8Array], { type: contentType });
+    
+    // Use fetch to safely parse base64 data URLs into a Blob
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -47,7 +41,9 @@ const downloadBaseFile = (dataUrl, fileName) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    
+    // Delay revocation so the browser has time to start the download
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   } catch (err) {
     console.error('Lỗi download file:', err);
     window.open(dataUrl, '_blank');
