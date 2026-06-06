@@ -128,43 +128,20 @@ export default function Schedule() {
 
   return (
     <AppLayout hideSidebar={true}>
-      {/* Main */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px', position: 'relative', zIndex: 1 }}>
-
+      <div className="schedule-container">
         {/* Page Header */}
-        <div style={{ marginBottom: '36px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '10px' }}>
-            
-            <div>
-              <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
-                Lịch học &amp; Deadline
-              </h1>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0 0' }}>
-                Quản lý buổi học nhóm và thời hạn nộp bài tập của bạn
-              </p>
-            </div>
-          </div>
+        <div>
+          <h1 className="page-title">Lịch học & Deadline</h1>
+          <p className="page-subtitle">Quản lý buổi học nhóm và thời hạn nộp bài tập của bạn</p>
 
           {/* Stats bar */}
           {!loading && (
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px', flexWrap: 'wrap' }}>
+            <div className="stats-grid">
               {stats.map((stat, i) => (
-                <div key={i} style={{
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: '14px 20px',
-                  display: 'flex', alignItems: 'center', gap: '14px',
-                  flex: '1', minWidth: '160px',
-                  transition: 'var(--transition)',
-                }}>
+                <div key={i} className="stat-card" style={{ borderColor: stat.color.replace(')', ', 0.3)').replace('rgb', 'rgba') }}>
                   <div>
-                    <div style={{ fontSize: '22px', fontWeight: 800, color: stat.color, lineHeight: 1 }}>
-                      {stat.value}
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                      {stat.label}
-                    </div>
+                    <div className="stat-value" style={{ color: stat.color }}>{stat.value}</div>
+                    <div className="stat-label">{stat.label}</div>
                   </div>
                 </div>
               ))}
@@ -174,21 +151,13 @@ export default function Schedule() {
 
         {/* Urgent Banner */}
         {!loading && urgentCount > 0 && (
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.08))',
-            border: '1.5px solid rgba(239,68,68,0.4)',
-            borderRadius: 'var(--radius)',
-            padding: '16px 22px',
-            display: 'flex', alignItems: 'center', gap: '14px',
-            marginBottom: '28px',
-            boxShadow: '0 4px 20px rgba(239,68,68,0.1)'
-          }}>
-            
+          <div className="urgent-banner">
+            <div style={{ fontSize: '28px' }}>⚠️</div>
             <div>
-              <div style={{ color: 'var(--error)', fontWeight: 800, fontSize: '15px' }}>
+              <div style={{ color: '#ef4444', fontWeight: 800, fontSize: '16px' }}>
                 {urgentCount} deadline sắp đến hạn trong 24 giờ!
               </div>
-              <div style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '2px' }}>
+              <div style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>
                 Hãy hoàn thành trước khi quá muộn nhé.
               </div>
             </div>
@@ -202,22 +171,18 @@ export default function Schedule() {
           </div>
         ) : (
           <div className="grid-responsive">
-
             {/* LEFT: Schedules */}
-            <div id="schedules-section" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '12px', borderBottom: '2px solid rgba(108,99,255,0.3)' }}>
-                
-                <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                  Buổi học sắp diễn ra
-                </h2>
-                <span style={{ marginLeft: 'auto', background: 'rgba(108,99,255,0.15)', color: 'var(--primary-light)', fontSize: '12px', fontWeight: 700, padding: '2px 10px', borderRadius: '20px' }}>
+            <div id="schedules-section" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="section-header" style={{ borderBottomColor: 'rgba(108,99,255,0.3)' }}>
+                <h2 className="section-title">Buổi học sắp diễn ra</h2>
+                <span className="badge-count" style={{ background: 'rgba(108,99,255,0.2)', color: '#a5b4fc' }}>
                   {schedules.length}
                 </span>
               </div>
 
               {schedules.length === 0 ? (
-                <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 'var(--radius)', padding: '48px 24px', textAlign: 'center' }}>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Chưa có lịch học nhóm nào sắp tới.</p>
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px', padding: '48px 24px', textAlign: 'center' }}>
+                  <p style={{ color: '#94a3b8', fontSize: '14px' }}>Chưa có lịch học nhóm nào sắp tới.</p>
                 </div>
               ) : (
                 schedules.map(sched => {
@@ -227,55 +192,38 @@ export default function Schedule() {
                   return (
                     <div key={sched.id} 
                       onClick={() => navigate(`/groups/${sched.groupId}?tab=schedule`)}
-                      style={{
-                        background: isPast ? 'var(--bg-card)' : 'linear-gradient(135deg, rgba(108,99,255,0.07), rgba(62,207,207,0.04))',
-                        border: isPast ? '1px solid var(--border)' : '1.5px solid rgba(108,99,255,0.35)',
-                        borderRadius: 'var(--radius)',
-                        padding: '18px 20px',
-                        opacity: isPast ? 0.55 : 1,
-                        transition: 'transform 0.2s, box-shadow 0.2s, opacity 0.2s',
-                        boxShadow: isPast ? 'none' : '0 4px 20px rgba(108,99,255,0.12)',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isPast) {
-                          e.currentTarget.style.transform = 'translateY(-2px)';
-                          e.currentTarget.style.boxShadow = '0 6px 24px rgba(108,99,255,0.18)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isPast) {
-                          e.currentTarget.style.transform = 'none';
-                          e.currentTarget.style.boxShadow = '0 4px 20px rgba(108,99,255,0.12)';
-                        }
-                      }}
+                      className={`item-card ${isPast ? 'is-past' : ''}`}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                        <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{sched.topic}</h4>
-                        {countdown && (
-                          <span style={{ background: 'rgba(108,99,255,0.15)', color: 'var(--primary-light)', fontSize: '11px', fontWeight: 700, padding: '3px 9px', borderRadius: '20px', flexShrink: 0 }}>{countdown}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+                        <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', margin: 0 }}>{sched.topic}</h4>
+                        {countdown && !isPast && (
+                          <span style={{ background: 'rgba(108,99,255,0.2)', color: '#a5b4fc', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px', flexShrink: 0 }}>
+                            ⏳ {countdown}
+                          </span>
                         )}
                         {isPast && (
-                          <span style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, padding: '3px 9px', borderRadius: '20px', flexShrink: 0 }}>Đã qua</span>
+                          <span style={{ background: 'rgba(255,255,255,0.1)', color: '#94a3b8', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px', flexShrink: 0 }}>
+                            Đã qua
+                          </span>
                         )}
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{formatDate(sched.dateTime)}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#cbd5e1', fontSize: '14px' }}>
+                          📅 {formatDate(sched.dateTime)}
                         </div>
                         {sched.location && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {isLink ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#cbd5e1', fontSize: '14px' }}>
+                            📍 {isLink ? (
                               <a href={sched.location} target="_blank" rel="noreferrer" 
                                 onClick={(e) => e.stopPropagation()}
-                                style={{ fontSize: '13px', color: 'var(--secondary)', textDecoration: 'none', fontWeight: 600 }}>Tham gia online →</a>
+                                style={{ color: '#3ecfcf', textDecoration: 'none', fontWeight: 600 }}>Tham gia online →</a>
                             ) : (
-                              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{sched.location}</span>
+                              sched.location
                             )}
                           </div>
                         )}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '13px', color: 'var(--primary-light)', fontWeight: 600 }}>📂 {sched.groupName}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a5b4fc', fontSize: '14px', fontWeight: 600 }}>
+                          📂 Nhóm: {sched.groupName}
                         </div>
                       </div>
                     </div>
@@ -285,19 +233,18 @@ export default function Schedule() {
             </div>
 
             {/* RIGHT: Deadlines */}
-            <div id="deadlines-section" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '12px', borderBottom: '2px solid rgba(239,68,68,0.35)' }}>
-                
-                <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Deadline chưa hoàn thành</h2>
-                <span style={{ marginLeft: 'auto', background: incompleteDeadlines.length > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.12)', color: incompleteDeadlines.length > 0 ? 'var(--error)' : 'var(--success)', fontSize: '12px', fontWeight: 700, padding: '2px 10px', borderRadius: '20px' }}>
+            <div id="deadlines-section" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="section-header" style={{ borderBottomColor: 'rgba(239,68,68,0.3)' }}>
+                <h2 className="section-title">Deadline chưa hoàn thành</h2>
+                <span className="badge-count" style={{ background: incompleteDeadlines.length > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)', color: incompleteDeadlines.length > 0 ? '#fca5a5' : '#86efac' }}>
                   {incompleteDeadlines.length}
                 </span>
               </div>
 
               {incompleteDeadlines.length === 0 ? (
-                <div style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(62,207,207,0.05))', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 'var(--radius)', padding: '32px 24px', textAlign: 'center' }}>
-                  
-                  <p style={{ color: 'var(--success)', fontSize: '14px', fontWeight: 600 }}>Tuyệt vời! Không còn deadline nào chưa làm.</p>
+                <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '20px', padding: '48px 24px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎉</div>
+                  <p style={{ color: '#4ade80', fontSize: '15px', fontWeight: 600, margin: 0 }}>Tuyệt vời! Không còn deadline nào chưa làm.</p>
                 </div>
               ) : (
                 incompleteDeadlines.map(d => {
@@ -305,39 +252,23 @@ export default function Schedule() {
                   return (
                     <div key={d.id} 
                       onClick={() => navigate(`/groups/${d.groupId}?tab=deadlines`)}
-                      style={{
-                        background: d.dueSoon ? 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.05))' : d.overdue ? 'rgba(255,255,255,0.02)' : 'linear-gradient(135deg, rgba(62,207,207,0.05), rgba(108,99,255,0.04))',
-                        border: d.dueSoon ? '1.5px solid rgba(239,68,68,0.5)' : d.overdue ? '1px solid rgba(100,100,120,0.3)' : '1.5px solid rgba(62,207,207,0.3)',
-                        borderRadius: 'var(--radius)',
-                        padding: '16px 18px',
-                        display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between',
-                        boxShadow: d.dueSoon ? '0 0 16px rgba(239,68,68,0.12)' : 'none',
-                        transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = d.dueSoon ? '0 6px 24px rgba(239,68,68,0.2)' : '0 6px 24px rgba(62,207,207,0.12)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'none';
-                        e.currentTarget.style.boxShadow = d.dueSoon ? '0 0 16px rgba(239,68,68,0.12)' : 'none';
-                      }}
+                      className={`item-card ${d.dueSoon ? 'is-urgent' : ''}`}
+                      style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}
                     >
                       <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
-                          <h4 style={{ fontSize: '14px', fontWeight: 600, margin: 0, color: 'var(--text-primary)' }}>{d.title}</h4>
-                          <span style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: 600, flexShrink: 0 }}>📂 {d.groupName}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                          <h4 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: '#fff' }}>{d.title}</h4>
+                          <span style={{ fontSize: '12px', color: '#3ecfcf', fontWeight: 600, flexShrink: 0 }}>📂 {d.groupName}</span>
                         </div>
                         {d.description && (
-                          <p style={{ color: 'var(--text-muted)', fontSize: '12px', margin: '0 0 6px 0', lineHeight: 1.4 }}>{d.description}</p>
+                          <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 10px 0', lineHeight: 1.5 }}>{d.description}</p>
                         )}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '12px', color: d.dueSoon ? 'var(--error)' : d.overdue ? 'var(--text-muted)' : 'var(--text-secondary)', fontWeight: 600 }}>
-                            {new Date(d.dueDate).toLocaleString('vi-VN')}
+                          <span style={{ fontSize: '13px', color: d.dueSoon ? '#f87171' : d.overdue ? '#64748b' : '#cbd5e1', fontWeight: 600 }}>
+                            ⏳ {new Date(d.dueDate).toLocaleString('vi-VN')}
                           </span>
-                          {d.dueSoon && <span style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--error)', fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: '4px' }}>&lt; 24h</span>}
-                          {d.overdue && <span style={{ background: 'rgba(100,100,120,0.15)', color: 'var(--text-muted)', fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: '4px' }}>Quá hạn</span>}
+                          {d.dueSoon && <span style={{ background: 'rgba(239,68,68,0.2)', color: '#fca5a5', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>&lt; 24h</span>}
+                          {d.overdue && <span style={{ background: 'rgba(100,100,120,0.3)', color: '#94a3b8', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>Quá hạn</span>}
                         </div>
                       </div>
 
@@ -347,23 +278,20 @@ export default function Schedule() {
                           navigate(`/groups/${d.groupId}?tab=deadlines`);
                         }}
                         style={{
-                          background: 'rgba(62,207,207,0.12)',
-                          border: '1.5px solid rgba(62,207,207,0.3)',
-                          color: 'var(--secondary)',
+                          background: 'rgba(62,207,207,0.1)',
+                          border: '1px solid rgba(62,207,207,0.3)',
+                          color: '#5eead4',
                           cursor: 'pointer',
-                          borderRadius: '8px',
-                          padding: '8px 12px',
+                          borderRadius: '12px',
+                          padding: '10px 16px',
                           fontSize: '13px',
-                          fontWeight: 600,
+                          fontWeight: 700,
                           whiteSpace: 'nowrap',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          transition: 'background 0.2s, border-color 0.2s',
+                          transition: 'all 0.2s',
                           flexShrink: 0
                         }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(62,207,207,0.22)'; e.currentTarget.style.borderColor = 'var(--secondary)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(62,207,207,0.12)'; e.currentTarget.style.borderColor = 'rgba(62,207,207,0.3)'; }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(62,207,207,0.2)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(62,207,207,0.1)'; }}
                       >
                         📋 Bài nộp ({subCount})
                       </button>
@@ -373,19 +301,18 @@ export default function Schedule() {
               )}
 
               {completedDeadlines.length > 0 && (
-                <div style={{ marginTop: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '10px', borderBottom: '1px dashed var(--border)', marginBottom: '12px' }}>
-                    
-                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)', margin: 0 }}>Đã hoàn thành ({completedDeadlines.length})</h3>
+                <div style={{ marginTop: '24px' }}>
+                  <div className="section-header" style={{ borderBottomColor: 'rgba(255,255,255,0.05)', paddingBottom: '12px' }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#64748b', margin: 0 }}>Đã hoàn thành ({completedDeadlines.length})</h3>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.55 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: 0.6 }}>
                     {completedDeadlines.map(d => (
-                      <div key={d.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border)', borderRadius: 'var(--radius-sm)', padding: '10px 14px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <div key={d.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '12px 16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
                         <input type="checkbox" checked={d.completed} onChange={() => handleDeadlineToggle(d.id)}
-                          style={{ width: '15px', height: '15px', cursor: 'pointer', accentColor: 'var(--primary)', flexShrink: 0 }} />
+                          style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#6366f1', flexShrink: 0 }} />
                         <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-                          <span style={{ fontSize: '13px', textDecoration: 'line-through', color: 'var(--text-muted)', fontWeight: 500 }}>{d.title}</span>
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', flexShrink: 0 }}>{d.groupName}</span>
+                          <span style={{ fontSize: '14px', textDecoration: 'line-through', color: '#94a3b8', fontWeight: 500 }}>{d.title}</span>
+                          <span style={{ fontSize: '12px', color: '#64748b', flexShrink: 0 }}>{d.groupName}</span>
                         </div>
                       </div>
                     ))}
@@ -396,6 +323,141 @@ export default function Schedule() {
           </div>
         )}
       </div>
-    </AppLayout>
+
+      <style>{`
+        .schedule-container {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 40px 24px;
+          font-family: 'Inter', sans-serif;
+          position: relative;
+          z-index: 1;
+        }
+        .page-title {
+          font-size: 32px;
+          font-weight: 800;
+          color: #fff;
+          margin: 0 0 8px 0;
+          line-height: 1.2;
+        }
+        .page-subtitle {
+          color: #94a3b8;
+          font-size: 15px;
+          margin: 0;
+        }
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+          margin-top: 24px;
+        }
+        .stat-card {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 24px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          transition: all 0.3s;
+        }
+        .stat-card:hover {
+          background: rgba(255, 255, 255, 0.06);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .stat-value {
+          font-size: 36px;
+          font-weight: 800;
+          line-height: 1;
+        }
+        .stat-label {
+          font-size: 13px;
+          color: #94a3b8;
+          margin-top: 6px;
+          font-weight: 500;
+        }
+        
+        .urgent-banner {
+          background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.05));
+          border: 1px solid rgba(239,68,68,0.3);
+          border-radius: 20px;
+          padding: 20px 24px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-top: 24px;
+          box-shadow: 0 8px 24px rgba(239,68,68,0.1);
+        }
+        
+        .grid-responsive {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 32px;
+          margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+          .grid-responsive { grid-template-columns: 1fr; }
+        }
+        
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          margin-bottom: 20px;
+        }
+        .section-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #fff;
+          margin: 0;
+        }
+        .badge-count {
+          background: rgba(255,255,255,0.1);
+          color: #fff;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 4px 12px;
+          border-radius: 20px;
+          margin-left: auto;
+        }
+        
+        .item-card {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 16px;
+          padding: 20px;
+          transition: all 0.3s;
+          cursor: pointer;
+          margin-bottom: 16px;
+        }
+        .item-card:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: rgba(255,255,255,0.15);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        
+        .item-card.is-past {
+          opacity: 0.5;
+        }
+        .item-card.is-past:hover {
+          transform: none;
+          box-shadow: none;
+          background: rgba(255,255,255,0.02);
+        }
+        
+        .item-card.is-urgent {
+          background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.03));
+          border-color: rgba(239,68,68,0.3);
+        }
+        .item-card.is-urgent:hover {
+          box-shadow: 0 8px 24px rgba(239,68,68,0.15);
+        }
+      `}</style>    </AppLayout>
   );
 }

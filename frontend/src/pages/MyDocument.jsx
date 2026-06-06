@@ -91,97 +91,64 @@ function FileCard({ file, onDelete, onPreview }) {
   };
 
   return (
-    <div className="flex-responsive" style={{
-      background: 'var(--bg-card)', border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)', padding: '16px',
-      transition: 'var(--transition)',
-    }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(108,99,255,0.1)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none'; }}
-    >
+    <div className="file-card-item">
       {/* Icon */}
-      <div style={{
-        width: 48, height: 48, borderRadius: 'var(--radius-sm)', flexShrink: 0,
-        background: 'rgba(108,99,255,0.15)', border: '1px solid rgba(108,99,255,0.25)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px',
-      }}>
+      <div className="file-icon-box">
         {fileIconSvg(file.fileType)}
       </div>
 
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)',
-          marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+          fontWeight: 700, fontSize: '15px', color: '#fff',
+          marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
         }}>
           {file.fileName}
         </div>
-        <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <span> {file.groupName}</span>
-          <span> {formatFileSize(file.fileSize)}</span>
-          <span> {new Date(file.createdAt).toLocaleDateString('vi-VN')}</span>
+        <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <span>📂 {file.groupName}</span>
+          <span>💾 {formatFileSize(file.fileSize)}</span>
+          <span>📅 {new Date(file.createdAt).toLocaleDateString('vi-VN')}</span>
         </div>
       </div>
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: '8px', flexShrink: 0, alignItems: 'center' }}>
         {file.fileData && file.fileType?.startsWith('image/') && (
-          <button onClick={() => onPreview(file)} style={{
-            background: 'rgba(62,207,207,0.12)', border: '1px solid rgba(62,207,207,0.25)',
-            color: 'var(--secondary)', padding: '6px 14px', borderRadius: '20px',
-            cursor: 'pointer', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit',
-            transition: 'var(--transition)',
-          }}
-            onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
-            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-          >
+          <button onClick={() => onPreview(file)} className="file-action-btn">
              Xem
           </button>
         )}
-        <button onClick={handleDownload} disabled={!file.fileData} style={{
-          background: 'rgba(108,99,255,0.12)', border: '1px solid rgba(108,99,255,0.25)',
-          color: 'var(--primary-light)', padding: '6px 14px', borderRadius: '20px',
-          cursor: file.fileData ? 'pointer' : 'default', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit',
-          transition: 'var(--transition)', opacity: file.fileData ? 1 : 0.4,
-        }}
-          onMouseEnter={e => { if (file.fileData) e.currentTarget.style.opacity = '0.8'; }}
-          onMouseLeave={e => e.currentTarget.style.opacity = file.fileData ? '1' : '0.4'}
-        >
+        <button onClick={handleDownload} disabled={!file.fileData} className="file-action-btn" style={{ opacity: file.fileData ? 1 : 0.4 }}>
            Tải về
         </button>
         <div style={{ position: 'relative' }} ref={menuRef}>
-          <button onClick={() => setMenuOpen(v => !v)} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--text-muted)', fontSize: '20px', padding: '4px 6px',
-            borderRadius: '8px', fontFamily: 'inherit',
-            transition: 'var(--transition)',
-          }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >···</button>
+          <button onClick={() => setMenuOpen(v => !v)} className="file-action-btn" style={{ padding: '8px 12px' }}>
+            ···
+          </button>
           {menuOpen && (
             <div style={{
-              position: 'absolute', right: 0, top: '34px', zIndex: 50,
-              background: 'var(--bg-card)', border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)', overflow: 'hidden', minWidth: '140px',
-              boxShadow: 'var(--shadow)',
+              position: 'absolute', right: 0, top: '42px', zIndex: 50,
+              background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '12px', overflow: 'hidden', minWidth: '150px',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
             }}>
               <Link to={`/groups/${file.groupId}?tab=files`} style={{
-                display: 'block', padding: '10px 16px', fontSize: '14px', fontWeight: 500,
-                color: 'var(--text-primary)', textDecoration: 'none', transition: 'var(--transition)',
+                display: 'block', padding: '12px 16px', fontSize: '14px', fontWeight: 500,
+                color: '#fff', textDecoration: 'none', transition: 'background 0.2s',
               }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}
               >
                  Đến nhóm
               </Link>
               <button onClick={() => { setMenuOpen(false); onDelete(file); }} style={{
-                display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px',
-                fontSize: '14px', fontWeight: 500, color: 'var(--error)',
+                display: 'block', width: '100%', textAlign: 'left', padding: '12px 16px',
+                fontSize: '14px', fontWeight: 500, color: '#ef4444',
                 background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                transition: 'var(--transition)',
+                transition: 'background 0.2s',
               }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}
               >
                  Xóa tài liệu
@@ -271,69 +238,43 @@ export default function MyDocuments() {
 
 
       {/* Main content */}
-      <main style={{ minWidth: 0 }}>
+      <main className="document-page-container">
           {/* Header + Stats */}
-          <div style={{
-            background: 'var(--bg-card)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)', padding: '20px 24px', marginBottom: '20px'
-          }}>
-            <h1 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '4px' }}> Tài liệu của tôi</h1>
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+          <div className="premium-panel">
+            <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: '#fff' }}>Tài liệu của tôi</h1>
+            <p style={{ fontSize: '15px', color: '#94a3b8', marginBottom: '24px' }}>
               Tất cả tài liệu bạn đã tải lên trong các nhóm học.
             </p>
 
             {/* Stats row */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
               {[
                 { label: 'Tổng tài liệu', value: files.length },
                 { label: 'Nhóm đã chia sẻ', value: new Set(files.map(f => f.groupId)).size },
               ].map(s => (
-                <div key={s.label} style={{
-                  background: 'var(--bg-input)', border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)', padding: '12px 20px',
-                  display: 'flex', flexDirection: 'column', gap: '4px', flex: 1,
-                }}>
-                  <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--primary-light)' }}>{s.value}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{s.label}</div>
+                <div key={s.label} className="stat-box">
+                  <div style={{ fontSize: '32px', fontWeight: 800, color: '#818cf8' }}>{s.value}</div>
+                  <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>{s.label}</div>
                 </div>
               ))}
             </div>
 
             {/* Search */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              background: 'var(--bg-input)', border: '1px solid var(--border)',
-              borderRadius: '20px', padding: '10px 18px',
-              transition: 'var(--transition)'
-            }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <span style={{ fontSize: '15px' }}></span>
+            <div className="search-container">
+              <span style={{ fontSize: '16px' }}>🔍</span>
               <input
-                placeholder="Tìm tài liệu"
+                className="search-input"
+                placeholder="Tìm tên tài liệu hoặc tên nhóm..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{
-                  background: 'none', border: 'none', outline: 'none', flex: 1,
-                  color: 'var(--text-primary)', fontSize: '14px', fontFamily: 'inherit'
-                }}
               />
             </div>
           </div>
 
           {/* Type filter */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto', paddingBottom: '4px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '8px', width: '100%' }}>
             {typeOptions.map(opt => (
-              <button key={opt.value} onClick={() => setFilterType(opt.value)} style={{
-                padding: '7px 16px', borderRadius: '20px', cursor: 'pointer',
-                fontFamily: 'inherit', fontSize: '13px', fontWeight: 600, flexShrink: 0,
-                background: filterType === opt.value ? 'var(--primary)' : 'var(--bg-card)',
-                color: filterType === opt.value ? 'white' : 'var(--text-secondary)',
-                border: filterType === opt.value ? 'none' : '1px solid var(--border)',
-                boxShadow: filterType === opt.value ? '0 4px 12px rgba(108,99,255,0.3)' : 'none',
-                transition: 'var(--transition)',
-              }}>
+              <button key={opt.value} onClick={() => setFilterType(opt.value)} className={`filter-btn ${filterType === opt.value ? 'active' : ''}`}>
                 {opt.label}
               </button>
             ))}
@@ -341,35 +282,32 @@ export default function MyDocuments() {
 
           {/* File list */}
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px' }}></div>
+            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8', width: '100%' }}>
               Đang tải tài liệu...
             </div>
           ) : filtered.length === 0 ? (
-            <div style={{
-              textAlign: 'center', padding: '60px 24px', color: 'var(--text-muted)',
-              background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '12px' }}>{files.length === 0 ? '' : ''}</div>
-              <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>
+            <div className="premium-panel" style={{ textAlign: 'center', padding: '60px 24px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📫</div>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>
                 {files.length === 0 ? 'Chưa có tài liệu nào' : 'Không tìm thấy tài liệu'}
               </div>
-              <div style={{ fontSize: '14px' }}>
+              <div style={{ fontSize: '14px', color: '#94a3b8' }}>
                 {files.length === 0
                   ? 'Vào các nhóm học để tải lên tài liệu đầu tiên của bạn.'
-                  : 'Thử thay đổi từ khóa hoặc bộ lọc.'}
+                  : 'Thử thay đổi từ khóa hoặc bộ lọc khác.'}
               </div>
               {files.length === 0 && (
                 <Link to="/groups" style={{
-                  display: 'inline-block', marginTop: '16px',
-                  padding: '10px 24px', borderRadius: '20px',
-                  background: 'var(--primary)', color: 'white',
-                  textDecoration: 'none', fontSize: '14px', fontWeight: 600,
+                  display: 'inline-block', marginTop: '24px',
+                  padding: '12px 28px', borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white',
+                  textDecoration: 'none', fontSize: '14px', fontWeight: 700,
+                  boxShadow: '0 4px 15px rgba(99,102,241,0.3)', transition: 'all 0.2s'
                 }}>Đến nhóm học</Link>
               )}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0', width: '100%' }}>
               {filtered.map(file => (
                 <FileCard
                   key={file.id}
@@ -383,9 +321,118 @@ export default function MyDocuments() {
         </main>
 
       <style>{`
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(20px); }
-          to   { opacity: 1; transform: translateX(0); }
+        .document-page-container {
+          padding: 40px 16px;
+          max-width: 1000px;
+          margin: 0 auto;
+          font-family: 'Inter', sans-serif;
+        }
+        .premium-panel {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          padding: 32px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+          margin-bottom: 24px;
+        }
+        .stat-box {
+          background: rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 16px;
+          padding: 20px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          transition: all 0.3s;
+        }
+        .stat-box:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(99, 102, 241, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .search-container {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: rgba(0,0,0,0.2);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 16px;
+          padding: 12px 20px;
+          transition: all 0.3s;
+        }
+        .search-container:focus-within {
+          border-color: #6366f1;
+          background: rgba(0,0,0,0.3);
+          box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+        .search-input {
+          background: none; border: none; outline: none; flex: 1;
+          color: #fff; font-size: 14px; font-family: inherit;
+        }
+        .filter-btn {
+          padding: 8px 20px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 600;
+          transition: all 0.2s;
+          background: rgba(255,255,255,0.05);
+          color: #94a3b8;
+          border: 1px solid rgba(255,255,255,0.1);
+          white-space: nowrap;
+        }
+        .filter-btn:hover {
+          background: rgba(255,255,255,0.1);
+          color: #fff;
+        }
+        .filter-btn.active {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: white;
+          border: none;
+          box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+        .file-card-item {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px;
+          padding: 16px 20px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          transition: all 0.3s;
+          margin-bottom: 12px;
+        }
+        .file-card-item:hover {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(108,99,255,0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(108,99,255,0.15);
+        }
+        .file-icon-box {
+          width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+          background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.25);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .file-action-btn {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: #e2e8f0;
+          padding: 8px 16px;
+          border-radius: 12px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .file-action-btn:hover {
+          background: rgba(108,99,255,0.15);
+          color: #818cf8;
+          border-color: rgba(108,99,255,0.3);
         }
       `}</style>
     </AppLayout>
