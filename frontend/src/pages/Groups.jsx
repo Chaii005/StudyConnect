@@ -70,24 +70,23 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
     }
   };
 
-  const handleCustomLocationChange = (name, addr) => {
+  const handleCustomLocationChange = (name) => {
     setCustomName(name);
-    setCustomAddress(addr);
     setSelectedLocation({
       name,
-      address: addr,
+      address: name,
       lat: null,
       lng: null
     });
   };
 
   useEffect(() => {
-    if (meetingMode !== 'offline' || !customAddress || customAddress.trim().length <= 10) return;
+    if (meetingMode !== 'offline' || !customName || customName.trim().length <= 5) return;
 
     const timer = setTimeout(async () => {
-      const geo = await geocodeAddress(customAddress);
+      const geo = await geocodeAddress(customName);
       if (geo) {
-        const parts = customAddress.split(',').map(p => p.trim());
+        const parts = customName.split(',').map(p => p.trim());
         const province = parts[parts.length - 1] || 'Hà Nội';
         const district = parts[parts.length - 2] || '';
         const ward = parts[parts.length - 3] || '';
@@ -103,7 +102,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [customAddress, meetingMode, setSelectedLocation]);
+  }, [customName, meetingMode, setSelectedLocation]);
 
   const handleModeSelect = (mode) => {
     setMeetingMode(mode);
@@ -219,21 +218,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                         style={{ padding: '8px 12px', fontSize: 13 }}
                         placeholder="Nhập tên quán cà phê, thư viện..."
                         value={customName}
-                        onChange={e => handleCustomLocationChange(e.target.value, customAddress)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Địa chỉ chi tiết *</label>
-                    <div className="form-input-wrap">
-                      <input
-                        className="form-input"
-                        style={{ padding: '8px 12px', fontSize: 13 }}
-                        placeholder="Số nhà, tên đường, quận/huyện, tỉnh/TP"
-                        value={customAddress}
-                        onChange={e => handleCustomLocationChange(customName, e.target.value)}
+                        onChange={e => handleCustomLocationChange(e.target.value)}
                         required
                       />
                     </div>
@@ -241,7 +226,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
                   {selectedLocation && (
                     <div style={{ fontSize: 11, color: '#10b981', display: 'flex', alignItems: 'center', gap: 5, padding: '4px 6px', background: 'rgba(16,185,129,0.08)', borderRadius: 6, border: '1px solid rgba(16,185,129,0.2)' }}>
-                      <span>✓ Đã chọn: {selectedLocation.name} {selectedLocation.lat ? `(Định vị GPS thành công)` : `(Lưu dạng địa chỉ văn bản)`}</span>
+                      <span>✓ Đã chọn: {selectedLocation.name}</span>
                     </div>
                   )}
                 </div>
