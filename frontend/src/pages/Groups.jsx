@@ -921,16 +921,16 @@ export default function Groups() {
         </div>
 
         {filteredGroups.length === 0 ? (
-          <div className="premium-panel" style={{ textAlign: 'center', padding: '60px 24px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏫</div>
-            <p style={{ color: '#fff', fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>
+          <div className="premium-panel" style={{ textAlign: 'center', padding: '40px 16px' }}>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🏫</div>
+            <p style={{ color: '#fff', fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>
               {searchQuery.trim().length > 0 && searchQuery.trim().length < 6
                 ? 'Vui lòng nhập chính xác 6 chữ số ID phòng học...'
                 : searchQuery.trim().length >= 6
                   ? 'Không tìm thấy nhóm nào phù hợp với ID này!'
                   : 'Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!'}
             </p>
-            <p style={{ color: '#94a3b8', fontSize: '14px', margin: 0 }}>
+            <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>
               {searchQuery.trim().length === 0 && 'Tạo nhóm để kết nối và học tập cùng bạn bè ngay.'}
             </p>
           </div>

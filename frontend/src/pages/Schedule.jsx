@@ -181,8 +181,8 @@ export default function Schedule() {
               </div>
 
               {schedules.length === 0 ? (
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px', padding: '48px 24px', textAlign: 'center' }}>
-                  <p style={{ color: '#94a3b8', fontSize: '14px' }}>Chưa có lịch học nhóm nào sắp tới.</p>
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px 16px', textAlign: 'center' }}>
+                  <p style={{ color: '#94a3b8', fontSize: '13px' }}>Chưa có lịch học nhóm nào sắp tới.</p>
                 </div>
               ) : (
                 schedules.map(sched => {
@@ -242,9 +242,9 @@ export default function Schedule() {
               </div>
 
               {incompleteDeadlines.length === 0 ? (
-                <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '20px', padding: '48px 24px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎉</div>
-                  <p style={{ color: '#4ade80', fontSize: '15px', fontWeight: 600, margin: 0 }}>Tuyệt vời! Không còn deadline nào chưa làm.</p>
+                <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '16px', padding: '24px 16px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎉</div>
+                  <p style={{ color: '#4ade80', fontSize: '14px', fontWeight: 600, margin: 0 }}>Tuyệt vời! Không còn deadline nào chưa làm.</p>
                 </div>
               ) : (
                 incompleteDeadlines.map(d => {

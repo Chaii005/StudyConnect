@@ -241,27 +241,27 @@ export default function MyDocuments() {
       <main className="document-page-container">
           {/* Header + Stats */}
           <div className="premium-panel">
-            <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '6px', color: '#fff' }}>Tài liệu của tôi</h1>
-            <p style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '20px' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '4px', color: '#fff' }}>Tài liệu của tôi</h1>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>
               Tất cả tài liệu bạn đã tải lên trong các nhóm học.
             </p>
 
             {/* Stats row */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
               {[
                 { label: 'Tổng tài liệu', value: files.length },
                 { label: 'Nhóm đã chia sẻ', value: new Set(files.map(f => f.groupId)).size },
               ].map(s => (
                 <div key={s.label} className="stat-box">
-                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#818cf8' }}>{s.value}</div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>{s.label}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#818cf8' }}>{s.value}</div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{s.label}</div>
                 </div>
               ))}
             </div>
 
             {/* Search */}
             <div className="search-container">
-              <span style={{ fontSize: '16px' }}>🔍</span>
+              <span style={{ fontSize: '14px' }}>🔍</span>
               <input
                 className="search-input"
                 placeholder="Tìm tên tài liệu hoặc tên nhóm..."
@@ -272,7 +272,7 @@ export default function MyDocuments() {
           </div>
 
           {/* Type filter */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '8px', width: '100%' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto', paddingBottom: '4px', width: '100%' }}>
             {typeOptions.map(opt => (
               <button key={opt.value} onClick={() => setFilterType(opt.value)} className={`filter-btn ${filterType === opt.value ? 'active' : ''}`}>
                 {opt.label}
@@ -286,22 +286,22 @@ export default function MyDocuments() {
               Đang tải tài liệu...
             </div>
           ) : filtered.length === 0 ? (
-            <div className="premium-panel" style={{ textAlign: 'center', padding: '60px 24px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📫</div>
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>
+            <div className="premium-panel" style={{ textAlign: 'center', padding: '32px 16px' }}>
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>📫</div>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>
                 {files.length === 0 ? 'Chưa có tài liệu nào' : 'Không tìm thấy tài liệu'}
               </div>
-              <div style={{ fontSize: '14px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '12px', color: '#94a3b8' }}>
                 {files.length === 0
                   ? 'Vào các nhóm học để tải lên tài liệu đầu tiên của bạn.'
                   : 'Thử thay đổi từ khóa hoặc bộ lọc khác.'}
               </div>
               {files.length === 0 && (
                 <Link to="/groups" style={{
-                  display: 'inline-block', marginTop: '24px',
-                  padding: '12px 28px', borderRadius: '12px',
+                  display: 'inline-block', marginTop: '16px',
+                  padding: '8px 20px', borderRadius: '12px',
                   background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white',
-                  textDecoration: 'none', fontSize: '14px', fontWeight: 700,
+                  textDecoration: 'none', fontSize: '13px', fontWeight: 700,
                   boxShadow: '0 4px 15px rgba(99,102,241,0.3)', transition: 'all 0.2s'
                 }}>Đến nhóm học</Link>
               )}
@@ -322,7 +322,7 @@ export default function MyDocuments() {
 
       <style>{`
         .document-page-container {
-          padding: 24px 16px;
+          padding: 16px;
           max-width: 1000px;
           margin: 0 auto;
           font-family: 'Inter', sans-serif;
@@ -332,16 +332,16 @@ export default function MyDocuments() {
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 20px;
-          padding: 20px 24px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
-          margin-bottom: 20px;
+          border-radius: 16px;
+          padding: 16px 20px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+          margin-bottom: 16px;
         }
         .stat-box {
           background: rgba(0, 0, 0, 0.2);
           border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 12px;
-          padding: 12px;
+          border-radius: 10px;
+          padding: 8px;
           flex: 1;
           display: flex;
           flex-direction: column;
@@ -357,11 +357,11 @@ export default function MyDocuments() {
         .search-container {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 8px;
           background: rgba(0,0,0,0.2);
           border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 16px;
-          padding: 12px 20px;
+          border-radius: 12px;
+          padding: 8px 12px;
           transition: all 0.3s;
         }
         .search-container:focus-within {
@@ -371,14 +371,14 @@ export default function MyDocuments() {
         }
         .search-input {
           background: none; border: none; outline: none; flex: 1;
-          color: #fff; font-size: 14px; font-family: inherit;
+          color: #fff; font-size: 13px; font-family: inherit;
         }
         .filter-btn {
-          padding: 8px 20px;
-          border-radius: 20px;
+          padding: 6px 16px;
+          border-radius: 16px;
           cursor: pointer;
           font-family: inherit;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
           transition: all 0.2s;
           background: rgba(255,255,255,0.05);
@@ -399,13 +399,13 @@ export default function MyDocuments() {
         .file-card-item {
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 14px;
-          padding: 12px 16px;
+          border-radius: 12px;
+          padding: 10px 12px;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
           transition: all 0.3s;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
         .file-card-item:hover {
           background: rgba(255,255,255,0.06);
@@ -414,7 +414,7 @@ export default function MyDocuments() {
           box-shadow: 0 8px 25px rgba(108,99,255,0.15);
         }
         .file-icon-box {
-          width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+          width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
           background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.25);
           display: flex; align-items: center; justify-content: center;
         }
@@ -422,9 +422,9 @@ export default function MyDocuments() {
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.1);
           color: #e2e8f0;
-          padding: 8px 16px;
-          border-radius: 12px;
-          font-size: 13px;
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-size: 12px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s;

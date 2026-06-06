@@ -73,7 +73,7 @@ function PersonCard({ person, actions, isOnline }) {
         )}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           {person.friendSince ? (
             <Link to={`/friends/${person.userId}`} style={{ 
               color: 'var(--text-primary)', 
@@ -139,8 +139,8 @@ function Btn({ children, onClick, variant = 'primary', disabled = false }) {
   return (
     <button onClick={onClick} disabled={disabled} style={{
       ...styles[variant],
-      padding: '6px 16px', borderRadius: '20px', cursor: disabled ? 'default' : 'pointer',
-      fontSize: '13px', fontWeight: 600, fontFamily: 'inherit',
+      padding: '5px 12px', borderRadius: '16px', cursor: disabled ? 'default' : 'pointer',
+      fontSize: '12px', fontWeight: 600, fontFamily: 'inherit',
       transition: 'var(--transition)', opacity: disabled ? 0.5 : 1,
       whiteSpace: 'nowrap',
     }}
@@ -167,9 +167,9 @@ function TabBtn({ label, count, active, onClick, highlight = false }) {
 //  Empty state 
 function EmptyState({ icon, text }) {
   return (
-    <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--text-muted)' }}>
-      <div style={{ fontSize: '48px', marginBottom: '12px' }}>{icon}</div>
-      <div style={{ fontSize: '15px' }}>{text}</div>
+    <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--text-muted)' }}>
+      {icon && <div style={{ fontSize: '32px', marginBottom: '8px' }}>{icon}</div>}
+      <div style={{ fontSize: '13px' }}>{text}</div>
     </div>
   );
 }
@@ -406,14 +406,14 @@ export default function Friends() {
       <main className="friend-page-container">
           {/* Header */}
           <div className="premium-panel">
-            <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '6px', color: '#fff' }}>Kết bạn</h1>
-            <p style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '20px' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '4px', color: '#fff' }}>Kết bạn</h1>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>
               Kết nối với sinh viên cùng trường, cùng ngành và mở rộng mạng lưới học tập.
             </p>
 
             {/* Search */}
             <div className="search-container">
-              <span style={{ fontSize: '16px' }}>🔍</span>
+              <span style={{ fontSize: '14px' }}>🔍</span>
               <input
                 className="search-input"
                 placeholder="Tìm kiếm theo tên, trường..."
@@ -617,7 +617,7 @@ export default function Friends() {
 
       <style>{`
         .friend-page-container {
-          padding: 24px 16px;
+          padding: 16px;
           max-width: 1000px;
           margin: 0 auto;
           font-family: 'Inter', sans-serif;
@@ -627,19 +627,19 @@ export default function Friends() {
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 20px;
-          padding: 20px 24px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
-          margin-bottom: 20px;
+          border-radius: 16px;
+          padding: 16px 20px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+          margin-bottom: 16px;
         }
         .search-container {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 8px;
           background: rgba(0,0,0,0.2);
           border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 16px;
-          padding: 12px 20px;
+          border-radius: 12px;
+          padding: 8px 12px;
           transition: all 0.3s;
         }
         .search-container:focus-within {
@@ -649,15 +649,15 @@ export default function Friends() {
         }
         .search-input {
           background: none; border: none; outline: none; flex: 1;
-          color: #fff; font-size: 14px; font-family: inherit;
+          color: #fff; font-size: 13px; font-family: inherit;
         }
         
         .tab-btn {
-          padding: 8px 20px;
-          border-radius: 20px;
+          padding: 6px 14px;
+          border-radius: 16px;
           cursor: pointer;
           font-family: inherit;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
           transition: all 0.2s;
           background: rgba(255,255,255,0.05);
@@ -705,13 +705,13 @@ export default function Friends() {
         .person-card {
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 14px;
-          padding: 12px 16px;
+          border-radius: 12px;
+          padding: 10px 12px;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
           transition: all 0.3s;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
         .person-card:hover {
           background: rgba(255,255,255,0.06);
