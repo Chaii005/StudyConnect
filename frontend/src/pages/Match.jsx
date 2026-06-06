@@ -143,8 +143,8 @@ export default function Match() {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px 12px;
+            justify-content: flex-start; /* Move up instead of center */
+            padding: 60px 12px 20px 12px; /* Add top padding to position it well */
             width: 100%;
             min-height: calc(100vh - 80px);
             position: relative;
@@ -191,7 +191,7 @@ export default function Match() {
             position: relative;
             width: 100%;
             max-width: 320px;
-            height: 420px;
+            height: 360px; /* Reduced further from 420px */
             z-index: 10;
             perspective: 1000px;
           }
@@ -228,7 +228,7 @@ export default function Match() {
           .card-image-wrapper {
             position: relative;
             width: 100%;
-            height: 50%;
+            height: 45%; /* Slightly less than half */
             background: #1a1d29;
             display: flex;
             align-items: center;
@@ -245,10 +245,10 @@ export default function Match() {
           }
 
           .card-avatar-main {
-            width: 120px;
-            height: 120px;
+            width: 100px; /* Shrunk from 120px */
+            height: 100px;
             border-radius: 50%;
-            border: 4px solid rgba(255,255,255,0.1);
+            border: 3px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 2;
             object-fit: cover;
@@ -256,13 +256,13 @@ export default function Match() {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 36px;
             font-weight: 800;
             color: #fff;
           }
 
           .card-content {
-            padding: 20px 16px;
+            padding: 16px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
