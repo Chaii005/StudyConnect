@@ -56,6 +56,23 @@ body {
   overflow-y: scroll;
 }
 
+/* GLOBAL BUTTON STYLES */
+button {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  box-shadow: none;
+}
+
 /* ═══════════════════════════════════════════
    AUTH LAYOUT (Login/Register/ForgotPass)
 ═══════════════════════════════════════════ */
