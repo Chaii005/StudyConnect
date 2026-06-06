@@ -19,56 +19,8 @@ const SIDEBAR_ITEMS = [
 // ── CREATE GROUP MODAL (2-Step) ────────────────────────────────────────────
 function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, isPrivate, setIsPrivate, isSubmitting, onClose, onSubmit, selectedLocation, setSelectedLocation }) {
   const [step, setStep] = useState(1); // 1 = pick mode, 2 = fill form
-  const [spaces, setSpaces] = useState([]);
 
-  const [selectedSpaceId, setSelectedSpaceId] = useState('');
   const [customName, setCustomName] = useState('');
-  const [customAddress, setCustomAddress] = useState('');
-
-  // Fetch spaces on mount
-  useEffect(() => {
-    const fetchSpaces = async () => {
-      try {
-        const { data, error } = await supabase.from('community_spaces').select('*');
-        if (!error && data) {
-          setSpaces(data);
-        }
-      } catch (err) {
-        console.warn('Error fetching community spaces:', err);
-      }
-    };
-    fetchSpaces();
-  }, []);
-
-  const handleSpaceChange = async (spaceId) => {
-    setSelectedSpaceId(spaceId);
-    if (!spaceId) {
-      setSelectedLocation(null);
-    } else if (spaceId === 'custom') {
-      setSelectedLocation({ name: customName, address: customAddress });
-    } else {
-      const sp = spaces.find(s => String(s.id) === String(spaceId));
-      if (sp) {
-        setSelectedLocation({
-          name: sp.name,
-          address: sp.address,
-          province: sp.province,
-          district: sp.district,
-          ward: sp.ward,
-          lat: null,
-          lng: null
-        });
-        const geo = await geocodeAddress(sp.address);
-        if (geo) {
-          setSelectedLocation(prev => ({
-            ...prev,
-            lat: geo.lat,
-            lng: geo.lng
-          }));
-        }
-      }
-    }
-  };
 
   const handleCustomLocationChange = (name) => {
     setCustomName(name);

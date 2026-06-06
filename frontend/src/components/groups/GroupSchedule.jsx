@@ -81,17 +81,20 @@ export default function GroupSchedule({
 
   const isLeaderOrDeputy = user?.id === group?.creatorId || user?.id === group?.deputyId;
 
+  const getLocationStr = (loc) => typeof loc === 'string' ? loc : (loc?.name || loc?.address || '');
+
   const activeGeoPreview = (!overrideLocation && group?.location?.lat)
     ? {
         lat: group.location.lat,
         lng: group.location.lng,
-        formattedAddress: group.location.name,
+        formattedAddress: getLocationStr(group.location),
         imgUrl: staticMapUrl({ lat: group.location.lat, lng: group.location.lng }),
-        mapsUrl: googleMapsSearchUrl(group.location.name),
+        mapsUrl: googleMapsSearchUrl(getLocationStr(group.location)),
       }
     : geoPreview;
 
-  const activeLocationName = (!overrideLocation && group?.location) ? group.location.name : newScheduleLocation;
+  const activeLocationName = (!overrideLocation && group?.location) ? getLocationStr(group.location) : newScheduleLocation;
+
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
@@ -151,7 +154,7 @@ export default function GroupSchedule({
                       type="text"
                       className="form-input no-icon"
                       placeholder="Nhập tên nơi gặp mặt"
-                      value={!overrideLocation && group?.location ? group.location.name : newScheduleLocation}
+                      value={!overrideLocation && group?.location ? getLocationStr(group.location) : newScheduleLocation}
                       onChange={(e) => { 
                         if (!overrideLocation && group?.location) setOverrideLocation(true);
                         setNewScheduleLocation(e.target.value); 
