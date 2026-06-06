@@ -2021,8 +2021,10 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
                   <span style={{ fontSize: '12px', color: unread > 0 ? '#cbd5e1' : '#94a3b8', fontWeight: unread > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
                     {last
                       ? (last.type === 'image' || last.content?.startsWith('data:image')
-                        ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi ảnh ️' : 'Đã gửi ảnh ️')
-                        : (String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '') + last.content)
+                        ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi ảnh' : 'Đã gửi ảnh')
+                        : last.fileAttachment
+                          ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi một tệp' : 'Đã gửi một tệp')
+                          : (String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '') + last.content)
                       : 'Bắt đầu nhắn tin...'}
                   </span>
                   {unread > 0 && (
