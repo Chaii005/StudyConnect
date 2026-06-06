@@ -7,7 +7,7 @@ import { getFriends } from '../services/friendService';
 import { sendGroupInvite, getGroupInvitesSent } from '../services/groupInviteService';
 import AppLayout from '../layouts/AppLayout';
 import ConfirmModal from '../components/ConfirmModal';
-import { supabase } from '../config/supabaseClient';
+
 import { geocodeAddress } from '../utils/geocoding';
 
 const SIDEBAR_ITEMS = [
