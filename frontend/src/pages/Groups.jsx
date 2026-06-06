@@ -70,7 +70,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
     }
   };
 
-  const handleCustomLocationChange = async (name, addr) => {
+  const handleCustomLocationChange = (name, addr) => {
     setCustomName(name);
     setCustomAddress(addr);
     setSelectedLocation({
@@ -79,10 +79,15 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
       lat: null,
       lng: null
     });
-    if (addr.trim().length > 10) {
-      const geo = await geocodeAddress(addr);
+  };
+
+  useEffect(() => {
+    if (meetingMode !== 'offline' || !customAddress || customAddress.trim().length <= 10) return;
+
+    const timer = setTimeout(async () => {
+      const geo = await geocodeAddress(customAddress);
       if (geo) {
-        const parts = addr.split(',').map(p => p.trim());
+        const parts = customAddress.split(',').map(p => p.trim());
         const province = parts[parts.length - 1] || 'Hà Nội';
         const district = parts[parts.length - 2] || '';
         const ward = parts[parts.length - 3] || '';
@@ -95,8 +100,10 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
           lng: geo.lng
         }));
       }
-    }
-  };
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [customAddress, meetingMode, setSelectedLocation]);
 
   const handleModeSelect = (mode) => {
     setMeetingMode(mode);
