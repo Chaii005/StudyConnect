@@ -81,6 +81,18 @@ export default function GroupSchedule({
 
   const isLeaderOrDeputy = user?.id === group?.creatorId || user?.id === group?.deputyId;
 
+  const activeGeoPreview = (!overrideLocation && group?.location?.lat)
+    ? {
+        lat: group.location.lat,
+        lng: group.location.lng,
+        formattedAddress: group.location.name,
+        imgUrl: staticMapUrl({ lat: group.location.lat, lng: group.location.lng }),
+        mapsUrl: googleMapsSearchUrl(group.location.name),
+      }
+    : geoPreview;
+
+  const activeLocationName = (!overrideLocation && group?.location) ? group.location.name : newScheduleLocation;
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
       {isLeaderOrDeputy && (
@@ -134,16 +146,54 @@ export default function GroupSchedule({
               </label>
               {group.meetingMode === 'offline' ? (
                 <div>
-                  <div className="form-input-wrap">
+                  <div className="form-input-wrap" style={{ position: 'relative' }}>
                     <input
                       type="text"
                       className="form-input no-icon"
                       placeholder="Nhập tên nơi gặp mặt"
-                      value={newScheduleLocation}
-                      onChange={(e) => { setNewScheduleLocation(e.target.value); setGeoPreview(null); }}
+                      value={!overrideLocation && group?.location ? group.location.name : newScheduleLocation}
+                      onChange={(e) => { 
+                        if (!overrideLocation && group?.location) setOverrideLocation(true);
+                        setNewScheduleLocation(e.target.value); 
+                        setGeoPreview(null); 
+                      }}
                       onBlur={(e) => handleLocationBlur(e.target.value)}
                       required
+                      readOnly={!overrideLocation && group?.location}
+                      style={{
+                        paddingRight: (!overrideLocation && group?.location) ? '100px' : '12px',
+                        backgroundColor: (!overrideLocation && group?.location) ? 'rgba(255,255,255,0.05)' : undefined,
+                        color: (!overrideLocation && group?.location) ? 'var(--text-secondary)' : undefined
+                      }}
                     />
+                    {!overrideLocation && group?.location && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOverrideLocation(true);
+                          setNewScheduleLocation('');
+                          setGeoPreview(null);
+                        }}
+                        title="Thay đổi địa điểm"
+                        style={{
+                          position: 'absolute',
+                          right: '6px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.15))',
+                          border: '1.5px solid rgba(16,185,129,0.4)',
+                          borderRadius: 'var(--radius-sm)',
+                          color: '#10b981',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          padding: '4px 12px',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        Thay đổi
+                      </button>
+                    )}
                   </div>
 
                   {/* Map preview */}
@@ -153,11 +203,11 @@ export default function GroupSchedule({
                       Đang tìm địa điểm...
                     </div>
                   )}
-                  {!geoLoading && geoPreview && (
+                  {!geoLoading && activeGeoPreview && (
                     <div style={{ marginTop: 10, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.05)' }}>
-                      {geoPreview.imgUrl && (
+                      {activeGeoPreview.imgUrl && (
                         <img
-                          src={geoPreview.imgUrl}
+                          src={activeGeoPreview.imgUrl}
                           alt="Bản đồ địa điểm"
                           style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
                           onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -165,13 +215,13 @@ export default function GroupSchedule({
                       )}
                       <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#10b981' }}>📍 {newScheduleLocation}</div>
-                          {geoPreview.formattedAddress && geoPreview.formattedAddress !== newScheduleLocation && (
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{geoPreview.formattedAddress}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#10b981' }}>📍 {activeLocationName}</div>
+                          {activeGeoPreview.formattedAddress && activeGeoPreview.formattedAddress !== activeLocationName && (
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{activeGeoPreview.formattedAddress}</div>
                           )}
                         </div>
                         <a
-                          href={geoPreview.mapsUrl}
+                          href={activeGeoPreview.mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#10b981,#059669)', padding: '6px 12px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(16,185,129,0.35)' }}
