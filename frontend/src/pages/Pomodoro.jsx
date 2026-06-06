@@ -24,13 +24,13 @@ export default function Pomodoro() {
 
   useEffect(() => {
     if (!activeRoom) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/immutability
       fetchRooms();
       // Setup realtime subscription for rooms
       const channel = supabase
         .channel('public:pomodoro_rooms')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'pomodoro_rooms' }, () => {
-          // eslint-disable-next-line react-hooks/exhaustive-deps
+         
           fetchRooms();
         })
         .subscribe();
