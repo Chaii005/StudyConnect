@@ -147,6 +147,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
             >
               <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, var(--primary), #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0, boxShadow: '0 4px 14px rgba(99,102,241,0.4)' }}>🌐</div>
               <div style={{ flex: 1 }}>
+                
                 <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>Học Online</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>Không cần ra ngoài — học mọi lúc mọi nơi, kết nối và cộng tác cùng nhóm dù ở bất kỳ đâu.</div>
               </div>
@@ -666,6 +667,7 @@ export default function Groups() {
   const [showModal, setShowModal] = useState(false);
   const [showNearbyModal, setShowNearbyModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inviteGroup, setInviteGroup] = useState(null);
 
@@ -915,9 +917,51 @@ export default function Groups() {
           </div>
         </div>
 
-        <div className="premium-panel search-panel">
-          <span style={{ fontSize: '18px' }}>🔍</span>
-          <input type="text" className="search-input" placeholder="Nhập ID phòng học để tìm kiếm..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px', height: '48px' }}>
+          {!isSearchExpanded ? (
+            <button
+              onClick={() => setIsSearchExpanded(true)}
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '20px',
+                transition: 'all 0.3s ease',
+                boxShadow: 'var(--shadow)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'rgba(108,99,255,0.4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+            >
+              🔍
+            </button>
+          ) : (
+            <div className="premium-panel search-panel" style={{ flex: 1, margin: 0, animation: 'slideIn 0.3s ease', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '18px' }}>🔍</span>
+              <input 
+                type="text" 
+                className="search-input" 
+                placeholder="Nhập ID phòng học để tìm kiếm..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                autoFocus
+              />
+              <button 
+                onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
+                style={{
+                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
 
         {filteredGroups.length === 0 ? (
