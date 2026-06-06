@@ -734,6 +734,32 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendText(input); }
   };
 
+  const handlePaste = (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          const MAX_FILE_SIZE = 20 * 1024 * 1024;
+          if (file.size > MAX_FILE_SIZE) {
+            alert('File đính kèm quá lớn! Vui lòng chọn file nhỏ hơn 20MB.');
+            return;
+          }
+          setAttachedFile(file);
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            setImgPreview(ev.target.result);
+            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+          };
+          reader.readAsDataURL(file);
+          e.preventDefault();
+          break;
+        }
+      }
+    }
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1406,6 +1432,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKey}
+            onPaste={handlePaste}
             placeholder="Nhập tin nhắn..."
             rows={1}
             style={{
