@@ -36,7 +36,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Họ và tên *</label>
-              <input type="text" style={IS} placeholder="Nguyễn Văn A" value={userForm.fullName} onChange={(e) => setUserForm({ ...userForm, fullName: e.target.value })} required />
+              <input type="text" style={IS} placeholder="Nhập họ và tên đầy đủ" value={userForm.fullName} onChange={(e) => setUserForm({ ...userForm, fullName: e.target.value })} required />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Vai trò</label>
@@ -51,7 +51,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Email *</label>
-              <input type="email" style={IS} placeholder="sv@student.edu.vn" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} required />
+              <input type="email" style={IS} placeholder="Nhập địa chỉ email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} required />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>

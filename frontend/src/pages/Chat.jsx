@@ -1657,7 +1657,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                   setBgInputVal(e.target.value);
                   setBgFilePreview('');
                 }}
-                placeholder="https://example.com/image.jpg"
+                placeholder="Nhập đường dẫn hình ảnh..."
                 style={{
                   width: '100%',
                   background: 'var(--bg-input, #0e0e1e)',

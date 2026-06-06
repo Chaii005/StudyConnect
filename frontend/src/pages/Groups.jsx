@@ -230,7 +230,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                           <input
                             className="form-input"
                             style={{ padding: '8px 12px', fontSize: 13 }}
-                            placeholder="Cà phê Aha Chùa Láng"
+                            placeholder="Nhập tên quán cà phê, thư viện..."
                             value={customName}
                             onChange={e => handleCustomLocationChange(e.target.value, customAddress)}
                             required

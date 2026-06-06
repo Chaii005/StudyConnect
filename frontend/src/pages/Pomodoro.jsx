@@ -350,7 +350,7 @@ export default function Pomodoro() {
                 <input 
                   type="text" 
                   className="form-input" 
-                  placeholder="VD: Luyện đề Toán cao cấp..."
+                  placeholder="Nhập tên phòng hoặc mục tiêu học tập..."
                   value={newRoomName}
                   onChange={e => setNewRoomName(e.target.value)}
                   autoFocus
