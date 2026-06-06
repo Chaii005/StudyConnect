@@ -42,6 +42,7 @@ export default function Pomodoro() {
         supabase.removeChannel(channel);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRoom]);
 
   const fetchRooms = async () => {
@@ -155,6 +156,7 @@ export default function Pomodoro() {
         fetchRooms();
       }
     } catch (err) {
+      console.error(err);
       addToast('Lỗi khi xóa phòng', 'error');
     } finally {
       setRoomToDelete(null);
