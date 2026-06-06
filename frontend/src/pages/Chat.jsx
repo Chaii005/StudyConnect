@@ -363,6 +363,7 @@ function ShareModal({ message, friends, onSend, onClose }) {
           {sent ? ' Đã gửi!' : `Gửi${selected.length > 0 ? ` (${selected.length})` : ''}`}
         </button>
       </div>
+
     </div>
   );
 }
@@ -503,6 +504,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
   const [showBgModal, setShowBgModal] = useState(false);
   const [bgInputVal, setBgInputVal] = useState('');
   const [bgFilePreview, setBgFilePreview] = useState('');
+  const [viewingImage, setViewingImage] = useState(null);
 
   useEffect(() => {
     const n = localStorage.getItem(`sc_nickname_${user.id}_${friend.userId}`) || '';
@@ -1171,7 +1173,12 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                       cursor: 'context-menu', position: 'relative',
                     }}>
                     {isImage ? (
-                      <img src={m.content} alt="Ảnh" style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '12px', display: 'block', objectFit: 'cover' }} />
+                      <img 
+                        src={m.content} 
+                        alt="Ảnh" 
+                        onClick={() => setViewingImage(m.content)}
+                        style={{ maxWidth: '300px', maxHeight: '350px', borderRadius: '12px', display: 'block', objectFit: 'cover', cursor: 'zoom-in' }} 
+                      />
                     ) : m.content}
                   </div>
 
@@ -1388,6 +1395,52 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
         setImgPreview(d);
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
       }} onClose={() => setShowCamera(false)} />}
+
+      {/* ── IMAGE VIEW MODAL ── */}
+      {viewingImage && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexDirection: 'column',
+        }} onClick={() => setViewingImage(null)}>
+          <button style={{
+            position: 'absolute', top: 20, right: 20,
+            background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
+            width: 40, height: 40, color: 'white', fontSize: 20, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'background 0.2s'
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+          onClick={(e) => { e.stopPropagation(); setViewingImage(null); }}>
+            ✕
+          </button>
+          
+          <img src={viewingImage} alt="View" style={{
+            maxWidth: '90%', maxHeight: '80%', objectFit: 'contain',
+            borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+            userSelect: 'none'
+          }} onClick={e => e.stopPropagation()} />
+          
+          <a href={viewingImage} download="studyconect_image.png" style={{
+            marginTop: 24, padding: '12px 24px', background: 'var(--primary)',
+            color: 'white', textDecoration: 'none', borderRadius: '12px',
+            fontWeight: 600, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px',
+            boxShadow: '0 4px 15px rgba(108,99,255,0.4)', transition: 'transform 0.2s'
+          }} 
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          onClick={e => e.stopPropagation()}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Tải ảnh chất lượng cao
+          </a>
+        </div>
+      )}
 
       {showRenameModal && (
         <div
