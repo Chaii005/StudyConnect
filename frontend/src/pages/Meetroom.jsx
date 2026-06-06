@@ -478,8 +478,30 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
 
       if (msg.type === 'force-mute') {
         if (msg.to === myId.current) {
-          if (msg.muteCam && onForceMute) onForceMute('cam');
-          if (msg.muteMic && onForceMute) onForceMute('mic');
+          if (msg.muteCam) {
+            // Tắt track video ngay lập tức
+            if (localRef.current) {
+              localRef.current.getVideoTracks().forEach(t => { t.enabled = false; });
+            }
+            // Broadcast để peer khác cập nhật UI
+            channelRef.current?.send({
+              type: 'broadcast', event: 'signal',
+              payload: { type: 'state-change', from: myId.current, room: roomId, camOn: false, micOn: micOnRef.current }
+            });
+            if (onForceMute) onForceMute('cam');
+          }
+          if (msg.muteMic) {
+            // Tắt track audio ngay lập tức
+            if (localRef.current) {
+              localRef.current.getAudioTracks().forEach(t => { t.enabled = false; });
+            }
+            // Broadcast để peer khác cập nhật UI
+            channelRef.current?.send({
+              type: 'broadcast', event: 'signal',
+              payload: { type: 'state-change', from: myId.current, room: roomId, camOn: camOnRef.current, micOn: false }
+            });
+            if (onForceMute) onForceMute('mic');
+          }
         }
       }
 
@@ -1490,23 +1512,25 @@ export default function MeetRoom() {
                                 }} />
                               </div>
                               <div>
-                                <div style={{ fontSize: '13px', fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  <span>{f.name} {f.isLocal ? ' (Bạn)' : ''}</span>
-                                  {role === 'Trưởng phòng' && (
+                                <div style={{ fontSize: '13px', fontWeight: 600, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
+                                  {f.name}{f.isLocal ? ' (Bạn)' : ''}
+                                </div>
+                                <div style={{ marginTop: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                  {role === 'Trưởng phòng' ? (
                                     <span style={{
                                       background: 'rgba(245,158,11,0.15)',
                                       color: '#fbbf24',
-                                      fontSize: '9px',
+                                      fontSize: '10px',
                                       fontWeight: 700,
-                                      padding: '2px 6px',
+                                      padding: '1px 7px',
                                       borderRadius: '5px',
                                       border: '1px solid rgba(245,158,11,0.3)',
-                                      lineHeight: 1
+                                      lineHeight: '16px',
+                                      whiteSpace: 'nowrap',
                                     }}>👑 Trưởng phòng</span>
+                                  ) : (
+                                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>Thành viên</span>
                                   )}
-                                </div>
-                                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>
-                                  {role}
                                 </div>
                               </div>
                             </div>
