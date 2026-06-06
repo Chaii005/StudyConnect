@@ -51,15 +51,8 @@ function PersonCard({ person, actions, isOnline }) {
   };
 
   return (
-    <div className="flex-responsive" style={{
-      background: 'var(--bg-card)', border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)', padding: '16px',
-      transition: 'var(--transition)',
-      cursor: person.friendSince ? 'pointer' : 'default'
-    }}
+    <div className="person-card" style={{ cursor: person.friendSince ? 'pointer' : 'default' }}
       onClick={handleCardClick}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(108,99,255,0.1)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none'; }}
     >
       <div style={{ position: 'relative', flexShrink: 0 }}>
         {person.friendSince ? (
@@ -162,24 +155,10 @@ function Btn({ children, onClick, variant = 'primary', disabled = false }) {
 //  Tab button 
 function TabBtn({ label, count, active, onClick, highlight = false }) {
   return (
-    <button onClick={onClick} style={{
-      padding: '9px 18px', borderRadius: '20px', cursor: 'pointer',
-      fontFamily: 'inherit', fontSize: '14px', fontWeight: 600,
-      background: active ? 'var(--primary)' : highlight ? 'rgba(239,68,68,0.1)' : 'var(--bg-card)',
-      color: active ? 'white' : highlight ? '#ef4444' : 'var(--text-secondary)',
-      border: active ? 'none' : highlight ? '1px solid rgba(239,68,68,0.5)' : '1px solid var(--border)',
-      boxShadow: active ? '0 4px 12px rgba(108,99,255,0.3)' : highlight ? '0 0 0 3px rgba(239,68,68,0.15)' : 'none',
-      transition: 'var(--transition)', display: 'flex', alignItems: 'center', gap: '6px',
-      animation: highlight ? 'pulse 1.2s ease-in-out infinite' : 'none',
-    }}>
+    <button onClick={onClick} className={`tab-btn ${active ? 'active' : ''} ${highlight ? 'highlight' : ''}`}>
       {label}
       {count > 0 && (
-        <span style={{
-          background: active ? 'rgba(255,255,255,0.25)' : 'rgba(239,68,68,0.15)',
-          color: active ? 'white' : '#ef4444',
-          fontSize: '11px', fontWeight: 800, padding: '1px 7px', borderRadius: '12px',
-          minWidth: '18px', textAlign: 'center',
-        }}>{count}</span>
+        <span className="tab-badge">{count}</span>
       )}
     </button>
   );
@@ -424,36 +403,22 @@ export default function Friends() {
       <AppLayout>
 
       {/* Main content */}
-      <main style={{ minWidth: 0 }}>
+      <main className="friend-page-container">
           {/* Header */}
-          <div style={{
-            background: 'var(--bg-card)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)', padding: '20px 24px', marginBottom: '20px'
-          }}>
-            <h1 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '4px' }}>Kết bạn</h1>
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+          <div className="premium-panel">
+            <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: '#fff' }}>Kết bạn</h1>
+            <p style={{ fontSize: '15px', color: '#94a3b8', marginBottom: '24px' }}>
               Kết nối với sinh viên cùng trường, cùng ngành và mở rộng mạng lưới học tập.
             </p>
 
             {/* Search */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              background: 'var(--bg-input)', border: '1px solid var(--border)',
-              borderRadius: '20px', padding: '10px 18px', marginTop: '16px',
-              transition: 'var(--transition)'
-            }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              
+            <div className="search-container">
+              <span style={{ fontSize: '16px' }}>🔍</span>
               <input
+                className="search-input"
                 placeholder="Tìm kiếm theo tên, trường..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{
-                  background: 'none', border: 'none', outline: 'none', flex: 1,
-                  color: 'var(--text-primary)', fontSize: '14px', fontFamily: 'inherit'
-                }}
               />
             </div>
           </div>
@@ -651,9 +616,113 @@ export default function Friends() {
       )}
 
       <style>{`
+        .friend-page-container {
+          padding: 40px 16px;
+          max-width: 1000px;
+          margin: 0 auto;
+          font-family: 'Inter', sans-serif;
+        }
+        .premium-panel {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          padding: 32px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+          margin-bottom: 24px;
+        }
+        .search-container {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: rgba(0,0,0,0.2);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 16px;
+          padding: 12px 20px;
+          transition: all 0.3s;
+        }
+        .search-container:focus-within {
+          border-color: #6366f1;
+          background: rgba(0,0,0,0.3);
+          box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+        .search-input {
+          background: none; border: none; outline: none; flex: 1;
+          color: #fff; font-size: 14px; font-family: inherit;
+        }
+        
+        .tab-btn {
+          padding: 8px 20px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 600;
+          transition: all 0.2s;
+          background: rgba(255,255,255,0.05);
+          color: #94a3b8;
+          border: 1px solid rgba(255,255,255,0.1);
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .tab-btn:hover {
+          background: rgba(255,255,255,0.1);
+          color: #fff;
+        }
+        .tab-btn.active {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: white;
+          border: none;
+          box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+        .tab-btn.highlight {
+          border-color: rgba(239,68,68,0.5);
+          color: #ef4444;
+          background: rgba(239,68,68,0.1);
+          animation: pulse 1.2s ease-in-out infinite;
+        }
+        .tab-badge {
+          background: rgba(255,255,255,0.25);
+          color: white;
+          font-size: 11px;
+          font-weight: 800;
+          padding: 1px 7px;
+          border-radius: 12px;
+          min-width: 18px;
+          text-align: center;
+        }
+        .tab-btn:not(.active) .tab-badge {
+          background: rgba(255,255,255,0.1);
+        }
+        .tab-btn.highlight:not(.active) .tab-badge {
+          background: rgba(239,68,68,0.2);
+          color: #fca5a5;
+        }
+
+        .person-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px;
+          padding: 16px 20px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          transition: all 0.3s;
+          margin-bottom: 12px;
+        }
+        .person-card:hover {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(108,99,255,0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(108,99,255,0.15);
+        }
+
         @keyframes slideIn {
-          from { opacity: 0; transform: translateX(20px); }
-          to   { opacity: 1; transform: translateX(0); }
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulse {
           0%, 100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.15); }

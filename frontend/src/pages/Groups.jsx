@@ -899,9 +899,12 @@ export default function Groups() {
         </button>
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px', position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', gap: '16px' }}>
-          <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', flexShrink: 0 }}>Nhóm Học Tập</h2>
+      <div className="groups-page-container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', gap: '16px', flexWrap: 'wrap' }}>
+          <div>
+            <h2 className="page-title">Nhóm Học Tập</h2>
+            <p className="page-subtitle">Khám phá và tham gia các nhóm học phù hợp với bạn</p>
+          </div>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button className="btn btn-primary" style={{ padding: '10px 22px', whiteSpace: 'nowrap', flexShrink: 0, width: 'auto', minWidth: 0, display: 'inline-flex' }} onClick={() => setShowModal(true)}>
               + Tạo nhóm mới
@@ -912,21 +915,23 @@ export default function Groups() {
           </div>
         </div>
 
-        <div style={{ marginBottom: '28px', maxWidth: '440px' }}>
-          <div className="form-input-wrap">
-            <input type="text" className="form-input" placeholder="Nhập ID phòng" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          </div>
+        <div className="premium-panel search-panel">
+          <span style={{ fontSize: '18px' }}>🔍</span>
+          <input type="text" className="search-input" placeholder="Nhập ID phòng học để tìm kiếm..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
 
         {filteredGroups.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 24px', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-            
-            <p style={{ color: 'var(--text-muted)', fontSize: 15 }}>
+          <div className="premium-panel" style={{ textAlign: 'center', padding: '60px 24px' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏫</div>
+            <p style={{ color: '#fff', fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>
               {searchQuery.trim().length > 0 && searchQuery.trim().length < 6
                 ? 'Vui lòng nhập chính xác 6 chữ số ID phòng học...'
                 : searchQuery.trim().length >= 6
                   ? 'Không tìm thấy nhóm nào phù hợp với ID này!'
                   : 'Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!'}
+            </p>
+            <p style={{ color: '#94a3b8', fontSize: '14px', margin: 0 }}>
+              {searchQuery.trim().length === 0 && 'Tạo nhóm để kết nối và học tập cùng bạn bè ngay.'}
             </p>
           </div>
         ) : (
@@ -937,12 +942,12 @@ export default function Groups() {
               const isDeputy = group.deputyId === user?.id;
 
               return (
-                <div key={group.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '20px', display: 'flex', flexDirection: 'column', gap: '0px', transition: 'var(--transition)' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: '8px' }}>
-                    <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', margin: 0, lineHeight: 1.3 }}>{group.name}</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, background: 'rgba(108, 99, 255, 0.12)', color: 'var(--primary-light)', padding: '4px 10px', borderRadius: 20, border: '1px solid rgba(108,99,255,0.25)', whiteSpace: 'nowrap' }}>
-                        {group?.members?.length || 0}/{group.maxMembers || 10} thành viên
+                <div key={group.id} className="group-card">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: '12px' }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.3 }}>{group.name}</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                      <span className="badge-outline" style={{ borderColor: 'rgba(108,99,255,0.3)', color: '#a5b4fc', background: 'rgba(108,99,255,0.1)' }}>
+                        👥 {group?.members?.length || 0}/{group.maxMembers || 10}
                       </span>
                       <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, whiteSpace: 'nowrap', background: group.meetingMode === 'offline' ? 'rgba(16,185,129,0.12)' : 'rgba(99,179,237,0.12)', color: group.meetingMode === 'offline' ? '#10b981' : '#63b3ed', border: group.meetingMode === 'offline' ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(99,179,237,0.3)' }}>
                         {group.meetingMode === 'offline' ? 'Offline' : 'Online'}
@@ -1016,6 +1021,76 @@ export default function Groups() {
           </div>
         )}
       </div>
+      <style>{`
+        .groups-page-container {
+          padding: 40px 16px;
+          max-width: 1100px;
+          margin: 0 auto;
+          font-family: 'Inter', sans-serif;
+        }
+        .page-title {
+          font-size: 32px;
+          font-weight: 800;
+          color: #fff;
+          margin: 0 0 8px 0;
+          line-height: 1.2;
+        }
+        .page-subtitle {
+          color: #94a3b8;
+          font-size: 15px;
+          margin: 0;
+        }
+        .premium-panel {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .search-panel {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 24px;
+          margin-bottom: 32px;
+          max-width: 500px;
+          transition: all 0.3s;
+        }
+        .search-panel:focus-within {
+          border-color: #6366f1;
+          background: rgba(0,0,0,0.2);
+          box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+        .search-input {
+          background: none; border: none; outline: none; flex: 1;
+          color: #fff; font-size: 15px; font-family: inherit;
+        }
+        .group-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 20px;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          transition: all 0.3s;
+        }
+        .group-card:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: rgba(99,102,241,0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+        }
+        .badge-outline {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: 20px;
+          white-space: nowrap;
+          border: 1px solid;
+        }
+      `}</style>
     </AppLayout>
 
     {inviteGroup && (

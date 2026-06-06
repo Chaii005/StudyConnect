@@ -1974,16 +1974,16 @@ export default function Chat() {
 
   return (
     <AppLayout hideSidebar={true}>
-      <div style={{
-        flex: 1, maxWidth: '1000px', width: '100%', margin: isMobile ? '0 auto' : '16px auto',
+      <div className="chat-page-container" style={{
+        flex: 1, maxWidth: '1200px', width: '100%', margin: isMobile ? '0 auto' : '20px auto',
         padding: isMobile ? '0' : '0 16px', display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : (selectedFriend ? '320px 1fr' : '1fr'),
-        gap: '0', height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 100px)',
+        gridTemplateColumns: isMobile ? '1fr' : (selectedFriend ? '340px 1fr' : '1fr'),
+        gap: isMobile ? '0' : '16px', height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 120px)',
       }}>
         {(!isMobile || !selectedFriend) && (
-          <div style={{
-            background: 'var(--bg-card)', border: isMobile ? 'none' : '1px solid var(--border)',
-            borderRadius: isMobile ? '0' : (selectedFriend ? '16px 0 0 16px' : '16px'),
+          <div className={isMobile ? "" : "premium-panel"} style={{
+            padding: 0,
+            background: isMobile ? 'var(--bg-card)' : undefined, border: isMobile ? 'none' : undefined,
             overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%',
           }}>
             <div style={{
@@ -2059,13 +2059,9 @@ export default function Chat() {
         )}
 
         {selectedFriend && (
-          <div style={{
-            background: 'var(--bg-card)',
-            borderTop: isMobile ? 'none' : '1px solid var(--border)',
-            borderRight: isMobile ? 'none' : '1px solid var(--border)',
-            borderBottom: isMobile ? 'none' : '1px solid var(--border)',
-            borderLeft: 'none',
-            borderRadius: isMobile ? '0' : '0 16px 16px 0',
+          <div className={isMobile ? "" : "premium-panel"} style={{
+            padding: 0,
+            background: isMobile ? 'var(--bg-card)' : undefined,
             overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%',
           }}>
             <ConversationView
@@ -2079,6 +2075,19 @@ export default function Chat() {
           </div>
         )}
       </div>
+      <style>{`
+        .chat-page-container {
+          font-family: 'Inter', sans-serif;
+        }
+        .premium-panel {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+      `}</style>
     </AppLayout>
   );
 }
