@@ -308,7 +308,7 @@ export default function Home() {
         </span>
       ))}
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0', height: '100%' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start', height: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'stretch', height: '100%' }}>
 
           {/* MIDDLE COLUMN: Feed */}
           <main style={{ minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', paddingRight: '4px' }}>
@@ -328,7 +328,7 @@ export default function Home() {
             </div>
 
             {/* Post List - Scrollable Area */}
-            <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
+            <div className="no-scrollbar" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
               <PostList
                 posts={sortedPosts}
                 currentUser={user}

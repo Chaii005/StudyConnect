@@ -415,7 +415,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           children
         ) : (
           <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '24px 16px', height: '100%' }}>
-            <div className="layout-2col" style={{ height: '100%' }}>
+            <div className="layout-2col" style={{ height: '100%', alignItems: 'stretch' }}>
               {/* Unified desktop left sidebar */}
               <aside className="desktop-only no-scrollbar" style={{ position: 'sticky', top: 0, display: 'flex', flexDirection: 'column', gap: '2px', zIndex: 10, maxHeight: '100%', overflowY: 'auto' }}>
                 {/* Profile Widget */}
