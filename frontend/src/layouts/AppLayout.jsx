@@ -416,12 +416,12 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         </div>
       </div>
 
-      <main style={{ position: 'relative', zIndex: 1 }}>
+      <main style={{ position: 'relative', zIndex: 1, height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
         {shouldHideSidebar ? (
           children
         ) : (
-          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '24px 16px' }}>
-            <div className="layout-2col">
+          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '24px 16px', height: '100%' }}>
+            <div className="layout-2col" style={{ height: '100%' }}>
               {/* Unified desktop left sidebar */}
               <aside className="desktop-only no-scrollbar" style={{ position: 'sticky', top: '80px', display: 'flex', flexDirection: 'column', gap: '2px', zIndex: 10, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                 {/* Profile Widget */}
@@ -654,7 +654,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   );
                 })}
               </aside>
-              <div style={{ minWidth: 0 }}>
+              <div style={{ minWidth: 0, height: '100%', overflowY: 'auto' }} className="no-scrollbar">
                 {children}
               </div>
             </div>

@@ -409,11 +409,11 @@ export default function Home() {
           {p.char}
         </span>
       ))}
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start' }}>
+      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0', height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start', flex: 1, minHeight: 0 }}>
 
           {/* MIDDLE COLUMN: Feed */}
-          <main style={{ minWidth: 0 }}>
+          <main style={{ minWidth: 0, height: '100%', overflowY: 'auto', paddingRight: '4px' }} className="no-scrollbar">
             {/* Create Question Box */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', padding: '16px 18px', marginBottom: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
               <Avatar src={user?.avatar} initial={user?.fullName || 'U'} size={42} />
