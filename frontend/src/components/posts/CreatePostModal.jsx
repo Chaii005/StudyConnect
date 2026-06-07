@@ -73,7 +73,7 @@ export default function CreatePostModal({ user, onClose, onSubmit }) {
             <div>
               <div style={{ fontWeight: 700, fontSize: '15px' }}>{user?.fullName}</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '1px' }}>
-                Đăng bài công khai
+                Chia sẻ với bạn bè của bạn
               </div>
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function CreatePostModal({ user, onClose, onSubmit }) {
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={`${user?.fullName?.split(' ').pop() || 'Bạn'} đang nghĩ gì?`}
+            placeholder={`${user?.fullName || 'Bạn'} đang nghĩ gì?`}
             rows={5}
             style={{
               width: '100%',
