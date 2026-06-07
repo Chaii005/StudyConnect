@@ -307,7 +307,7 @@ export default function Home() {
           {p.char}
         </span>
       ))}
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', height: '100%' }}>
 
           {/* MIDDLE COLUMN: Feed */}
