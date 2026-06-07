@@ -476,6 +476,9 @@ export default function useNotifications(userId) {
             replies
               .filter(r => (now - new Date(r.created_at)) < ONE_DAY_MS)
               .forEach(r => {
+                // Tránh duplicate nếu bình luận này cũng nằm trên bài viết của chính user
+                if (notifsList.some(n => n.key === `comment:${r.id}`)) return;
+
                 const replierName = r.users?.full_name || 'Người dùng';
                 notifsList.push({
                   key: `reply:${r.id}`,
