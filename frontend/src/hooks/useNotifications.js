@@ -446,6 +446,48 @@ export default function useNotifications(userId) {
               });
             });
         }
+        
+        // Fetch all comments by this user to find replies to them
+        const { data: myComments } = await supabase
+          .from('comments')
+          .select('id')
+          .eq('user_id', uid);
+
+        if (myComments && myComments.length > 0) {
+          const myCommentIds = myComments.map(c => c.id);
+          const { data: replies } = await supabase
+            .from('comments')
+            .select(`
+              id,
+              post_id,
+              user_id,
+              content,
+              created_at,
+              users:users (
+                full_name
+              )
+            `)
+            .in('parent_id', myCommentIds)
+            .neq('user_id', uid)
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+          if (replies) {
+            replies
+              .filter(r => (now - new Date(r.created_at)) < ONE_DAY_MS)
+              .forEach(r => {
+                const replierName = r.users?.full_name || 'Người dùng';
+                notifsList.push({
+                  key: `reply:${r.id}`,
+                  type: 'comment',
+                  title: `💬 Trả lời bình luận`,
+                  body: `${replierName} đã trả lời bình luận của bạn: "${r.content}"`,
+                  createdAt: r.created_at,
+                  postId: r.post_id.toString(),
+                });
+              });
+          }
+        }
 
         // Fetch user information for likes
         const likerIds = [];
