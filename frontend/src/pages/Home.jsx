@@ -409,10 +409,10 @@ export default function Home() {
           {p.char}
         </span>
       ))}
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0', height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start', flex: 1, minHeight: 0 }}>
+      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0', height: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start', height: '100%' }}>
 
-          {/* MIDDLE COLUMN: Feed */}
+          {/* MIDDLE COLUMN: Feed - only this scrolls */}
           <main style={{ minWidth: 0, height: '100%', overflowY: 'auto', paddingRight: '4px' }} className="no-scrollbar">
             {/* Create Question Box */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', padding: '16px 18px', marginBottom: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -438,8 +438,8 @@ export default function Home() {
             />
           </main>
  
-          {/* RIGHT COLUMN: Lịch & Deadline gộp 1 card */}
-          <aside className="no-scrollbar" style={{ position: 'sticky', top: '80px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+          {/* RIGHT COLUMN: fixed, does not scroll with posts */}
+          <aside className="no-scrollbar" style={{ position: 'sticky', top: 0, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '100vh', overflowY: 'auto' }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', maxHeight: '420px' }}>
 
               {/* ─ Header chung ─ */}
