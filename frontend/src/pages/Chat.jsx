@@ -1203,6 +1203,17 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
           );
           const m = item.data;
           const isMine = String(m.fromUserId) === String(user.id);
+          
+          if (m.content?.startsWith('[chat_background]')) {
+            return (
+              <div key={m.id} style={{ textAlign: 'center', margin: '16px 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+                <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'rgba(0,0,0,0.4)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)' }}>
+                  {isMine ? 'Bạn đã thay đổi hình nền' : `${nickname || friend.fullName} đã thay đổi hình nền`}
+                </span>
+              </div>
+            );
+          }
+
           const isImage = m.type === 'image' || m.content?.startsWith('data:image');
           const msgReactions = reactions[m.id] || [];
 
@@ -2072,11 +2083,13 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
                   <span style={{ fontSize: '12px', color: unread > 0 ? '#cbd5e1' : '#94a3b8', fontWeight: unread > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
                     {last
-                      ? (last.type === 'image' || last.content?.startsWith('data:image')
-                        ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi ảnh' : 'Đã gửi ảnh')
-                        : last.fileAttachment
-                          ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi một tệp' : 'Đã gửi một tệp')
-                          : (String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '') + last.content)
+                      ? (last.content?.startsWith('[chat_background]')
+                        ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã thay đổi hình nền' : `${nickname} đã thay đổi hình nền`)
+                        : (last.type === 'image' || last.content?.startsWith('data:image')
+                          ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi ảnh' : 'Đã gửi ảnh')
+                          : last.fileAttachment
+                            ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi một tệp' : 'Đã gửi một tệp')
+                            : (String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '') + last.content))
                       : 'Bắt đầu nhắn tin...'}
                   </span>
                   {unread > 0 && (
