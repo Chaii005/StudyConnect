@@ -1183,7 +1183,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
           position: 'relative',
           overscrollBehavior: 'contain',
           background: chatBg 
-            ? `linear-gradient(rgba(10, 10, 20, 0.6), rgba(10, 10, 20, 0.6)), url(${chatBg}) center/cover no-repeat`
+            ? `linear-gradient(rgba(10, 10, 20, 0.6), rgba(10, 10, 20, 0.6)), url(${chatBg}) top center/cover no-repeat`
             : undefined,
           transition: 'background 0.3s ease',
         }}>
@@ -1802,6 +1802,8 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
               width: '420px',
               maxWidth: '100%',
               boxShadow: '0 24px 64px rgba(0, 0, 0, 0.7)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -1887,7 +1889,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                     width: '100%',
                     height: '120px',
                     borderRadius: '14px',
-                    background: `linear-gradient(rgba(10, 10, 20, 0.5), rgba(10, 10, 20, 0.5)), url(${bgFilePreview || bgInputVal}) center/cover no-repeat`,
+                    background: `linear-gradient(rgba(10, 10, 20, 0.5), rgba(10, 10, 20, 0.5)), url(${bgFilePreview || bgInputVal}) top center/cover no-repeat`,
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                   }}
                 />
