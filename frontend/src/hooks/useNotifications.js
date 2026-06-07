@@ -518,19 +518,10 @@ export default function useNotifications(userId) {
         privateMsgs
           .filter(m => (now - new Date(m.created_at)) < ONE_DAY_MS)
           .forEach(m => {
+            // Bỏ qua hoàn toàn tin nhắn đổi hình nền - không hiện toast
+            if (m.content?.startsWith('[chat_background]:')) return;
+
             const senderName = m.users?.full_name || 'Người dùng';
-            // Bỏ qua tin nhắn đổi nền - không hiện thông báo kiểu privatemsg
-            if (m.content?.startsWith('[chat_background]:')) {
-              notifsList.push({
-                key: `bgchange:${m.id}`,
-                type: 'privatemsg',
-                title: `🖼️ ${senderName}`,
-                body: `${senderName} đã thay đổi hình nền trò chuyện`,
-                createdAt: m.created_at,
-                senderId: m.sender_id.toString(),
-              });
-              return;
-            }
             const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
               ? '📷 Đã gửi một ảnh'
               : m.content || '';
