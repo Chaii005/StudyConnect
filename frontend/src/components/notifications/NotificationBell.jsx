@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotificationContext } from '@/context/NotificationContext';
 import NotificationItem from './NotificationItem';
@@ -22,71 +22,71 @@ export default function NotificationBell({ style }) {
   } = useNotificationContext();
 
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0, width: 280 });
   const btnRef = useRef(null);
-
-  const calcPos = () => {
-    if (!btnRef.current) return;
-    const rect = btnRef.current.getBoundingClientRect();
-    // Tìm khung profile cha (card chứa chuông + avatar)
-    const card = btnRef.current.closest('[data-profilecard]');
-    if (card) {
-      const cardRect = card.getBoundingClientRect();
-      setPos({
-        top: cardRect.bottom + 6,
-        left: cardRect.left,
-        width: cardRect.width,
-      });
-    } else {
-      // fallback
-      setPos({
-        top: rect.bottom + 6,
-        left: 8,
-        width: rect.right - 8,
-      });
-    }
-  };
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
 
   const handleOpen = () => {
-    if (!open) calcPos();
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const dropW = 320;
+      const gap = 6;
+      // Position dropdown directly below the bell button, left-aligned with it
+      let left = rect.left;
+      // Don't let it go off the right edge of the screen
+      if (left + dropW > window.innerWidth - gap) {
+        left = window.innerWidth - dropW - gap;
+      }
+      if (left < gap) left = gap;
+      setDropPos({ top: rect.bottom + gap, left });
+    }
     setOpen((o) => {
       if (o) markAllRead();
       return !o;
     });
   };
 
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e) => {
-      if (btnRef.current && !document.querySelector('[data-notif-dropdown]')?.contains(e.target) && !btnRef.current.contains(e.target)) {
-        markAllRead();
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open, markAllRead]);
-
   const handleActionClick = (n) => {
     markAllRead();
     setOpen(false);
-    if (n.type === 'groupmsg' || n.type === 'groupcall') navigate(`/groups/${n.groupId}?tab=chat`);
-    else if (n.type === 'fileupload') navigate(`/groups/${n.groupId}?tab=documents`);
-    else if (['groupjoin','groupdeputy','othergroupjoin'].includes(n.type)) navigate(`/groups/${n.groupId}`);
-    else if (n.type === 'schedule') navigate(`/groups/${n.groupId}?tab=schedule`);
-    else if (n.type === 'deadline' || n.type === 'deadline-urgent') navigate(`/groups/${n.groupId}?tab=deadlines`);
-    else if (n.type === 'comment' || n.type === 'like') navigate('/');
-    else if (n.type === 'friendaccept') navigate('/friends');
-    else if (n.type === 'joinrequest') navigate(`/groups/${n.groupId}`);
+    if (n.type === 'groupmsg') {
+      navigate(`/groups/${n.groupId}?tab=chat`);
+    } else if (n.type === 'groupcall') {
+      navigate(`/groups/${n.groupId}?tab=chat`);
+    } else if (n.type === 'fileupload') {
+      navigate(`/groups/${n.groupId}?tab=documents`);
+    } else if (n.type === 'groupjoin' || n.type === 'groupdeputy' || n.type === 'othergroupjoin') {
+      navigate(`/groups/${n.groupId}`);
+    } else if (n.type === 'schedule') {
+      navigate(`/groups/${n.groupId}?tab=schedule`);
+    } else if (n.type === 'deadline' || n.type === 'deadline-urgent') {
+      navigate(`/groups/${n.groupId}?tab=deadlines`);
+    } else if (n.type === 'comment' || n.type === 'like') {
+      navigate('/');
+    } else if (n.type === 'friendaccept') {
+      navigate('/friends');
+    } else if (n.type === 'joinrequest') {
+      navigate(`/groups/${n.groupId}`);
+    }
   };
 
-  const onAcceptInvite = (n) => { acceptInvite(n.inviteId); };
-  const onDeclineInvite = (n) => { declineInvite(n.inviteId); };
-  const onAcceptFriend = (n) => { acceptFriendRequest(n.requestId); };
-  const onDeclineFriend = (n) => { declineFriendRequest(n.requestId); };
+  const onAcceptInvite = (n) => {
+    acceptInvite(n.inviteId);
+  };
+
+  const onDeclineInvite = (n) => {
+    declineInvite(n.inviteId);
+  };
+
+  const onAcceptFriend = (n) => {
+    acceptFriendRequest(n.requestId);
+  };
+
+  const onDeclineFriend = (n) => {
+    declineFriendRequest(n.requestId);
+  };
 
   return (
-    <div style={{ position: 'relative', display: 'inline-flex' }}>
+    <div style={{ position: 'relative' }}>
       <button
         ref={btnRef}
         onClick={handleOpen}
@@ -104,27 +104,40 @@ export default function NotificationBell({ style }) {
           position: 'relative',
           transition: 'background 0.2s',
           padding: 0,
-          flexShrink: 0,
           ...style,
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(108,99,255,0.1)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = open ? 'rgba(108,99,255,0.15)' : 'transparent'; }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(108,99,255,0.1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = open ? 'rgba(108,99,255,0.15)' : 'transparent';
+        }}
       >
-        <span style={{ fontSize: 18, lineHeight: 1 }}>🔔</span>
+        <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>🔔</span>
         {unreadCount > 0 && (
-          <span style={{
-            position: 'absolute',
-            top: '-3px', right: '-3px',
-            background: '#ef4444', color: '#fff',
-            borderRadius: '50%',
-            minWidth: '16px', height: '16px',
-            fontSize: '9px', fontWeight: 800,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '0 4px', lineHeight: 1, whiteSpace: 'nowrap',
-            boxSizing: 'border-box',
-            boxShadow: '0 0 6px rgba(239,68,68,0.6)',
-            zIndex: 2,
-          }}>
+          <span
+            style={{
+              position: 'absolute',
+              top: '-3px',
+              right: '-3px',
+              background: '#ef4444',
+              color: '#fff',
+              borderRadius: '50%',
+              minWidth: '16px',
+              height: '16px',
+              fontSize: '9px',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 4px',
+              lineHeight: 1,
+              whiteSpace: 'nowrap',
+              boxSizing: 'border-box',
+              boxShadow: '0 0 6px rgba(239, 68, 68, 0.6)',
+              zIndex: 2,
+            }}
+          >
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -132,75 +145,80 @@ export default function NotificationBell({ style }) {
 
       {open && (
         <>
+          {/* Backdrop to close */}
           <div
-            onClick={() => { markAllRead(); setOpen(false); }}
-            style={{ position: 'fixed', inset: 0, zIndex: 8998 }}
+            onClick={() => {
+              markAllRead();
+              setOpen(false);
+            }}
+            style={{ position: 'fixed', inset: 0, zIndex: 8999 }}
           />
           <div
-            data-notif-dropdown
             style={{
               position: 'fixed',
-              top: pos.top,
-              left: pos.left,
-              width: pos.width,
+              top: dropPos.top,
+              left: dropPos.left,
+              width: 320,
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
               borderRadius: '14px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
-              zIndex: 8999,
+              zIndex: 9000,
+              overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              overflow: 'hidden',
             }}
           >
-            {/* Header */}
-            <div style={{
-              padding: '12px 14px',
-              borderBottom: '1px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexShrink: 0,
-            }}>
+            <div
+              style={{
+                padding: '14px 16px',
+                borderBottom: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontWeight: 700, fontSize: 14 }}>🔔 Thông báo</span>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>Thông báo</span>
                 <button
                   onClick={toggleToast}
-                  title={toastEnabled ? 'Tắt popup' : 'Bật popup'}
+                  title={toastEnabled ? 'Tắt thông báo nổi (Popup)' : 'Bật thông báo nổi (Popup)'}
                   style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    fontSize: 15, padding: '2px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     opacity: toastEnabled ? 1 : 0.5,
                     filter: toastEnabled ? 'none' : 'grayscale(100%)',
                     transition: 'all 0.2s',
                   }}
                 >
-                  {toastEnabled ? '🔊' : '🔇'}
+                  {toastEnabled ? '💬' : '🔕'}
                 </button>
               </div>
               {notifs.length > 0 && (
                 <button
                   onClick={markAllRead}
                   style={{
-                    background: 'none', border: 'none',
-                    color: 'var(--primary)', fontSize: 11,
-                    cursor: 'pointer', fontWeight: 600,
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--primary)',
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    fontWeight: 600,
                   }}
                 >
                   Đánh dấu đã đọc
                 </button>
               )}
             </div>
-
-            {/* Danh sách scroll ~2 items */}
-            <div style={{
-              overflowY: 'auto',
-              maxHeight: '160px',
-              overscrollBehavior: 'contain',
-            }}>
+            <div style={{ overflowY: 'auto', flex: 1, overscrollBehavior: 'contain' }}>
               {notifs.length === 0 ? (
-                <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
+                <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
                   Không có thông báo nào
                 </div>
               ) : (
