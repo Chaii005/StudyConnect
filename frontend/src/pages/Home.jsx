@@ -310,10 +310,10 @@ export default function Home() {
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 0', height: '100%' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start', height: '100%' }}>
 
-          {/* MIDDLE COLUMN: Feed - only this scrolls */}
-          <main style={{ minWidth: 0, height: '100%', overflowY: 'auto', paddingRight: '4px' }} className="no-scrollbar">
-            {/* Create Question Box - Sticky Top */}
-            <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'var(--bg)', paddingBottom: '14px' }}>
+          {/* MIDDLE COLUMN: Feed */}
+          <main style={{ minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', paddingRight: '4px' }}>
+            {/* Create Question Box - Fixed Top */}
+            <div style={{ flexShrink: 0, paddingBottom: '14px', zIndex: 20 }}>
               <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', padding: '16px 18px', display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <Avatar src={user?.avatar} initial={user?.fullName || 'U'} size={42} />
                 <button
@@ -327,15 +327,17 @@ export default function Home() {
               </div>
             </div>
 
-
-            <PostList
-              posts={sortedPosts}
-              currentUser={user}
-              onLike={handleLikePost}
-              onDelete={handleDeletePost}
-              onComment={handleCommentPost}
-              onPin={handlePinPost}
-            />
+            {/* Post List - Scrollable Area */}
+            <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
+              <PostList
+                posts={sortedPosts}
+                currentUser={user}
+                onLike={handleLikePost}
+                onDelete={handleDeletePost}
+                onComment={handleCommentPost}
+                onPin={handlePinPost}
+              />
+            </div>
           </main>
  
           {/* RIGHT COLUMN: fixed, does not scroll with posts */}
