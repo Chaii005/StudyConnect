@@ -5,6 +5,7 @@ import useNotifications from '../hooks/useNotifications';
 
 const NotificationContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useNotificationContext = () => {
   const context = useContext(NotificationContext);
   if (!context) {
@@ -24,6 +25,18 @@ export const NotificationProvider = ({ children }) => {
   // Track keys that have already been notified (toasted) to prevent duplicates
   const notifiedKeysRef = useRef(new Set());
   const isInitialLoadRef = useRef(true);
+
+  // Tracks if toast popups are enabled
+  const [toastEnabled, setToastEnabled] = useState(() => {
+    return localStorage.getItem('studyconect_toast_enabled') !== 'false';
+  });
+  const toastEnabledRef = useRef(toastEnabled);
+  useEffect(() => {
+    toastEnabledRef.current = toastEnabled;
+    localStorage.setItem('studyconect_toast_enabled', toastEnabled ? 'true' : 'false');
+  }, [toastEnabled]);
+
+  const toggleToast = () => setToastEnabled(prev => !prev);
 
   useEffect(() => {
     if (!userId) {
@@ -46,7 +59,9 @@ export const NotificationProvider = ({ children }) => {
             notifiedKeysRef.current.add(n.key);
 
             // Map notification type to navigation link and icon
+            // eslint-disable-next-line no-useless-assignment
             let link = null;
+            // eslint-disable-next-line no-useless-assignment
             let icon = '🔔';
 
             switch (n.type) {
@@ -119,8 +134,10 @@ export const NotificationProvider = ({ children }) => {
             // Chặn tuyệt đối - không hiện toast cho tin nhắn đổi hình nền
             if (n.body?.includes('[chat_background]') || n.key?.startsWith('bgchange:')) return;
 
-            // Trigger Toast popup (Display for 5 seconds as requested)
-            addToast(n.body, 'notification', 5000, link, icon);
+            // Trigger Toast popup ONLY if user enabled it
+            if (toastEnabledRef.current) {
+              addToast(n.body, 'notification', 5000, link, icon);
+            }
           }
         });
       }
@@ -128,7 +145,7 @@ export const NotificationProvider = ({ children }) => {
   }, [notifs, userId, addToast]);
 
   return (
-    <NotificationContext.Provider value={notifications}>
+    <NotificationContext.Provider value={{ ...notifications, toastEnabled, toggleToast }}>
       {children}
     </NotificationContext.Provider>
   );

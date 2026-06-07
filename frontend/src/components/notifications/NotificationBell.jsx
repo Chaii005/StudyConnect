@@ -16,7 +16,9 @@ export default function NotificationBell({ style }) {
     acceptFriendRequest,
     declineFriendRequest,
     acceptJoinReq,
-    declineJoinReq
+    declineJoinReq,
+    toastEnabled,
+    toggleToast
   } = useNotificationContext();
 
   const [open, setOpen] = useState(false);
@@ -176,7 +178,28 @@ export default function NotificationBell({ style }) {
                 justifyContent: 'space-between',
               }}
             >
-              <span style={{ fontWeight: 700, fontSize: 15 }}>🔔 Thông báo</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>🔔 Thông báo</span>
+                <button
+                  onClick={toggleToast}
+                  title={toastEnabled ? 'Tắt thông báo nổi (Popup)' : 'Bật thông báo nổi (Popup)'}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: 16,
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: toastEnabled ? 1 : 0.5,
+                    filter: toastEnabled ? 'none' : 'grayscale(100%)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {toastEnabled ? '🔊' : '🔇'}
+                </button>
+              </div>
               {notifs.length > 0 && (
                 <button
                   onClick={markAllRead}
