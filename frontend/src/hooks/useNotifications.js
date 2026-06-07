@@ -673,32 +673,7 @@ export default function useNotifications(userId) {
         console.warn('Error parsing local messages:', err);
       }
 
-      // Local Comments
-      try {
-        const localComments = JSON.parse(localStorage.getItem('sc_comments') || '[]');
-        if (Array.isArray(localComments)) {
-          localComments.forEach(c => {
-            const age = now - new Date(c.created_at);
-            if (age > 0 && age < 60 * 60 * 1000) { // 1 hour
-              if (String(c.post_owner_id) === String(uid) && String(c.user_id) !== String(uid)) {
-                const key = `comment:local:${c.id || c.created_at}`;
-                if (!notifsList.some(n => n.key === key)) {
-                  notifsList.push({
-                    key,
-                    type: 'comment',
-                    title: `💬 Bình luận bài viết`,
-                    body: `${c.commenter_name || 'Người dùng'} đã bình luận: "${c.content}"`,
-                    createdAt: c.created_at,
-                    postId: String(c.post_id)
-                  });
-                }
-              }
-            }
-          });
-        }
-      } catch (err) {
-        console.warn('Error parsing local comments:', err);
-      }
+
 
       // Local Reactions
       try {

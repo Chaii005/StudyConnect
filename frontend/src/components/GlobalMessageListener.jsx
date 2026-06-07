@@ -5,7 +5,13 @@ import { useToast } from '../context/ToastContext';
 
 export default function GlobalMessageListener() {
   const { user } = useAuth();
-  const { addToast } = useToast();
+  const { addToast: originalAddToast } = useToast();
+
+  const addToast = (...args) => {
+    if (localStorage.getItem('studyconect_toast_enabled') !== 'false') {
+      originalAddToast(...args);
+    }
+  };
 
   useEffect(() => {
     if (!user?.id) return;

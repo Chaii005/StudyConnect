@@ -27,6 +27,7 @@ export const NotificationProvider = ({ children }) => {
   const isInitialLoadRef = useRef(true);
 
   // Tracks if toast popups are enabled
+  // eslint-disable-next-line no-undef
   const [toastEnabled, setToastEnabled] = useState(() => {
     return localStorage.getItem('studyconect_toast_enabled') !== 'false';
   });
@@ -131,18 +132,11 @@ export const NotificationProvider = ({ children }) => {
                 icon = '🔔';
             }
 
-            // Chặn tuyệt đối - không hiện toast cho tin nhắn đổi hình nền
-            if (n.body?.includes('[chat_background]') || n.key?.startsWith('bgchange:')) return;
-
-            // Trigger Toast popup ONLY if user enabled it
-            if (toastEnabledRef.current) {
-              addToast(n.body, 'notification', 5000, link, icon);
-            }
           }
         });
       }
     }
-  }, [notifs, userId, addToast]);
+  }, [notifs, userId]);
 
   return (
     <NotificationContext.Provider value={{ ...notifications, toastEnabled, toggleToast }}>
