@@ -322,7 +322,7 @@ export default function Home() {
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)'; e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg-input)'; }}
                 >
-                  Bạn có câu hỏi học tập nào không? Đăng ngay...
+                  Bạn muốn chia sẻ điều gì hôm nay? Đăng bài ngay...
                 </button>
               </div>
             </div>
