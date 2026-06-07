@@ -28,26 +28,17 @@ export default function NotificationBell({ style }) {
   const handleOpen = () => {
     if (!open && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
+      // Anchor dropdown to right side of screen - never overlaps center feed
+      // Uses right edge positioning so it stays in the right-sidebar zone
       const dropW = 360;
       const gap = 8;
-
-      // Try to place it starting from the right edge of the button
-      let left = rect.right + gap;
-
-      // If it overflows the right edge of the screen, push it left
-      if (left + dropW > window.innerWidth - gap) {
-        left = window.innerWidth - dropW - gap;
-      }
-
-      // Never let it go off the left edge
-      if (left < gap) left = gap;
-
-      setDropPos({ top: rect.bottom + gap, left });
+      const rightEdge = window.innerWidth - gap;
+      const left = Math.max(gap, rightEdge - dropW);
+      const top = Math.max(64, rect.bottom + gap);
+      setDropPos({ top, left });
     }
     setOpen((o) => {
-      if (o) {
-        markAllRead();
-      }
+      if (o) markAllRead();
       return !o;
     });
   };
@@ -166,11 +157,13 @@ export default function NotificationBell({ style }) {
               top: dropPos.top,
               left: dropPos.left,
               width: 360,
-              height: 300,
+              maxHeight: 'calc(100vh - 80px)',
+              height: 'auto',
+              minHeight: 200,
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
               borderRadius: '16px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
               zIndex: 9000,
               overflow: 'hidden',
               display: 'flex',
