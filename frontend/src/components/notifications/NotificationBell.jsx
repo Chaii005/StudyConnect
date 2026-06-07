@@ -29,12 +29,20 @@ export default function NotificationBell({ style }) {
     if (!open && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
       const dropW = 360;
-      let left = rect.left;
-      if (left + dropW > window.innerWidth - 8) {
-        left = window.innerWidth - dropW - 8;
+      const gap = 8;
+
+      // Try to place it starting from the right edge of the button
+      let left = rect.right + gap;
+
+      // If it overflows the right edge of the screen, push it left
+      if (left + dropW > window.innerWidth - gap) {
+        left = window.innerWidth - dropW - gap;
       }
-      if (left < 8) left = 8;
-      setDropPos({ top: rect.bottom + 8, left });
+
+      // Never let it go off the left edge
+      if (left < gap) left = gap;
+
+      setDropPos({ top: rect.bottom + gap, left });
     }
     setOpen((o) => {
       if (o) {
