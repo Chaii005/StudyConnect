@@ -94,15 +94,19 @@ button:active:not(:disabled) {
 /* ═══════════════════════════════════════════
    AUTH LAYOUT (Login/Register/ForgotPass)
 ═══════════════════════════════════════════ */
+/* Auth pages need their own scroll context because html/body/root have overflow:hidden for the main app */
 .auth-page {
-  min-height: 100vh;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 40px 24px;
-  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 24px 60px;
+  position: fixed;
+  inset: 0;
   background: var(--bg);
   overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 0;
 }
 
 /* Animated background blobs */
