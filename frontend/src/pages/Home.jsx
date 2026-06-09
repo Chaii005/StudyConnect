@@ -341,7 +341,7 @@ export default function Home() {
           </main>
  
           {/* RIGHT COLUMN: fixed, does not scroll with posts */}
-          <aside className="no-scrollbar" style={{ position: 'sticky', top: 0, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '100%', overflowY: 'auto' }}>
+          <aside className="no-scrollbar" style={{ position: 'sticky', top: 0, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '100%', overflowY: 'auto', paddingBottom: '16px' }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', maxHeight: '420px' }}>
 
               {/* ─ Header chung ─ */}
@@ -465,6 +465,7 @@ export default function Home() {
                 overflowY: 'auto',
                 overscrollBehavior: 'contain',
                 paddingRight: '4px',
+                paddingBottom: '4px',
               }}>
                 {friends.length === 0 ? (
                   <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', padding: '10px 0' }}>
