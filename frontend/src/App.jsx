@@ -21,7 +21,7 @@ import Chat from './pages/Chat';
 import MeetRoom from './pages/Meetroom';
 import PrivateCall from './pages/PrivateCall';
 import FriendDetail from './pages/FriendDetail';
-import Match from './pages/Match';
+
 
 
 // Global error listener to auto-reload on any remaining chunk load failures
@@ -102,7 +102,7 @@ function AppRoutes() {
         <Route path="/chat"         element={<PrivateRoute><Chat /></PrivateRoute>} />
         <Route path="/room/:roomId" element={<PrivateRoute><MeetRoom /></PrivateRoute>} />
         <Route path="/call/:callId" element={<PrivateRoute><PrivateCall /></PrivateRoute>} />
-        <Route path="/match"        element={<PrivateRoute><Match /></PrivateRoute>} />
+
 
         {/* Admin */}
         <Route path="/admin-login" element={<Admin />} />

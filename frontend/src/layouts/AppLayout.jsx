@@ -52,16 +52,10 @@ const NAV_ICONS = {
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
   ),
-  match: (isActive) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.3s', color: isActive ? 'var(--secondary)' : 'var(--text-secondary)' }}>
-      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-    </svg>
-  ),
 };
 
 const NAV_ITEMS = [
   { icon: 'home', label: 'Trang chủ', to: '/', key: 'home' },
-  { icon: 'match', label: 'Ghép học tập', to: '/match', key: 'match' },
   { icon: 'groups', label: 'Nhóm học', to: '/groups', key: 'groups' },
   { icon: 'schedule', label: 'Lịch & Deadline', to: '/schedule', key: 'schedule' },
   { icon: 'friends', label: 'Kết bạn', to: '/friends', key: 'friends' },
@@ -376,9 +370,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
               <span>🏠</span> Trang chủ
             </Link>
-            <Link to="/match" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/match' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/match' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>🤝</span> Ghép học tập
-            </Link>
+
             <Link to="/flashcards" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/flashcards' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/flashcards' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
               <span>🗂️</span> Thẻ học &amp; Trắc nghiệm
             </Link>

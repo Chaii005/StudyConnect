@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCall } from '../context/CallContext';
 import AppLayout from '../layouts/AppLayout';
-import { getFriends } from '../services/friendService.js';
+import { getFriends, acceptFriendRequest, removeFriend } from '../services/friendService.js';
 import {
   sendMessage,
   getConversation,
@@ -482,7 +482,7 @@ function MenuBtn({ icon, label, onClick, danger }) {
 }
 
 // ── ConversationView ───────────────────────────────────────────────
-function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNicknameChange }) {
+function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNicknameChange, onRelationChange }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -1114,43 +1114,47 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
         {/* Cụm nút chức năng bên phải */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
           {/* Nút gọi video */}
-          <button
-            onClick={() => initiateCall(friend)}
-            title="Gọi video"
-            style={{
-              width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
-              background: 'linear-gradient(135deg, #6c63ff, #5b53e0)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 10px rgba(108,99,255,0.4)', transition: 'all 0.2s', flexShrink: 0,
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-              <path d="M15 10l4.553-2.277A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4zm-2 8H4a2 2 0 01-2-2V8a2 2 0 012-2h9a2 2 0 012 2v8a2 2 0 01-2 2z"/>
-            </svg>
-          </button>
+          {(!friend.status || friend.status === 'accepted') && (
+            <button
+              onClick={() => initiateCall(friend)}
+              title="Gọi video"
+              style={{
+                width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #6c63ff, #5b53e0)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 10px rgba(108,99,255,0.4)', transition: 'all 0.2s', flexShrink: 0,
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                <path d="M15 10l4.553-2.277A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4zm-2 8H4a2 2 0 01-2-2V8a2 2 0 012-2h9a2 2 0 012 2v8a2 2 0 01-2 2z"/>
+              </svg>
+            </button>
+          )}
 
           {/* Nút menu 3 gạch */}
-          <button
-            onClick={() => setShowMenuDropdown(prev => !prev)}
-            title="Tùy chọn"
-            style={{
-              width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
-              background: 'rgba(255, 255, 255, 0.05)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s', flexShrink: 0,
-              color: 'var(--text-primary)',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
+          {(!friend.status || friend.status === 'accepted') && (
+            <button
+              onClick={() => setShowMenuDropdown(prev => !prev)}
+              title="Tùy chọn"
+              style={{
+                width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                background: 'rgba(255, 255, 255, 0.05)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s', flexShrink: 0,
+                color: 'var(--text-primary)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+          )}
 
           {/* Dropdown Menu */}
           {showMenuDropdown && (
@@ -1290,8 +1294,22 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
         }}>
         {groupedMsgs.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)', fontSize: '14px' }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>💬</div>
-            Bắt đầu nhắn tin với <strong>{nickname || friend.fullName}</strong>!
+            <div style={{ fontSize: '40px', marginBottom: '12px' }}>{friend.status === 'pending' ? '🤝' : '💬'}</div>
+            {friend.status === 'pending' ? (
+              friend.fromUserId === String(user.id) ? (
+                <>
+                  Đang chờ <strong>{nickname || friend.fullName}</strong> phản hồi lời mời kết bạn.
+                </>
+              ) : (
+                <>
+                  Bạn có một lời mời kết bạn từ <strong>{nickname || friend.fullName}</strong>.
+                </>
+              )
+            ) : (
+              <>
+                Bắt đầu nhắn tin với <strong>{nickname || friend.fullName}</strong>!
+              </>
+            )}
           </div>
         )}
         {groupedMsgs.map((item, idx) => {
@@ -1507,93 +1525,195 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
         </div>
       )}
 
-      {/* Input area */}
-      <div style={{
-        padding: '12px 20px', borderTop: '1px solid var(--border)',
-        background: 'var(--bg-card)', flexShrink: 0, position: 'relative',
-      }}>
-        {showEmoji && <EmojiPicker onSelect={addEmoji} onClose={() => setShowEmoji(false)} />}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-          <button onClick={() => setShowEmoji(v => !v)} title="Biểu cảm" style={{
-            background: showEmoji ? 'rgba(108,99,255,0.15)' : 'var(--bg-input)',
-            border: '1px solid var(--border)', borderRadius: '12px',
-            width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'var(--transition)', flexShrink: 0,
-            color: showEmoji ? 'var(--primary-light)' : 'var(--text-muted)',
+      {/* Input area / Relationship Panel */}
+      {friend.status === 'pending' ? (
+        friend.toUserId === String(user.id) ? (
+          <div style={{
+            padding: '24px 20px',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--bg-card)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '16px',
+            flexShrink: 0,
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
-              <line x1="9" y1="9" x2="9.01" y2="9"/>
-              <line x1="15" y1="9" x2="15.01" y2="9"/>
-            </svg>
-          </button>
+            <div style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              <strong>{nickname || friend.fullName}</strong> đã gửi cho bạn một lời mời kết bạn. Kết bạn để bắt đầu trò chuyện học tập!
+            </div>
+            <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '320px' }}>
+              <button
+                onClick={async () => {
+                  try {
+                    await acceptFriendRequest(friend.requestId);
+                    if (onRelationChange) {
+                      onRelationChange({ ...friend, status: 'accepted' });
+                    }
+                  } catch (e) {
+                    alert(e.message);
+                  }
+                }}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '14px', border: 'none',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white', fontWeight: 700, cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s',
+                  boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
+                }}
+              >
+                Chấp nhận
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await removeFriend(friend.requestId);
+                    if (onRelationChange) {
+                      onRelationChange(null);
+                    }
+                  } catch (e) {
+                    alert(e.message);
+                  }
+                }}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '14px',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  background: 'rgba(239, 68, 68, 0.05)',
+                  color: '#ef4444', fontWeight: 600, cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s',
+                }}
+              >
+                Từ chối
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            padding: '24px 20px',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--bg-card)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '16px',
+            flexShrink: 0,
+          }}>
+            <div style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.6, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '18px' }}>⌛</span>
+              Đang chờ <strong>{nickname || friend.fullName}</strong> chấp nhận lời mời kết bạn...
+            </div>
+            <button
+              onClick={async () => {
+                try {
+                  await removeFriend(friend.requestId);
+                  if (onRelationChange) {
+                    onRelationChange(null);
+                  }
+                } catch (e) {
+                  alert(e.message);
+                }
+              }}
+              style={{
+                padding: '10px 20px', borderRadius: '12px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-input)',
+                color: 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer',
+                fontFamily: 'inherit', fontSize: '13px', transition: 'all 0.2s',
+              }}
+            >
+              Thu hồi lời mời
+            </button>
+          </div>
+        )
+      ) : (
+        <div style={{
+          padding: '12px 20px', borderTop: '1px solid var(--border)',
+          background: 'var(--bg-card)', flexShrink: 0, position: 'relative',
+        }}>
+          {showEmoji && <EmojiPicker onSelect={addEmoji} onClose={() => setShowEmoji(false)} />}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+            <button onClick={() => setShowEmoji(v => !v)} title="Biểu cảm" style={{
+              background: showEmoji ? 'rgba(108,99,255,0.15)' : 'var(--bg-input)',
+              border: '1px solid var(--border)', borderRadius: '12px',
+              width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'var(--transition)', flexShrink: 0,
+              color: showEmoji ? 'var(--primary-light)' : 'var(--text-muted)',
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
+                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                <line x1="15" y1="9" x2="15.01" y2="9"/>
+              </svg>
+            </button>
 
-          <input ref={fileInputRef} type="file" accept="*/*" onChange={handleFileChange} style={{ display: 'none' }} />
-          <button onClick={() => fileInputRef.current?.click()} title="Gửi file/ảnh" style={{
-            background: 'var(--bg-input)', border: '1px solid var(--border)',
-            borderRadius: '12px', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'var(--transition)', flexShrink: 0, color: 'var(--text-muted)',
-          }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-            </svg>
-          </button>
-
-          <button onClick={() => setShowCamera(true)} title="Chụp ảnh" style={{
-            background: 'var(--bg-input)', border: '1px solid var(--border)',
-            borderRadius: '12px', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'var(--transition)', flexShrink: 0, color: 'var(--text-muted)',
-          }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-              <circle cx="12" cy="13" r="4"/>
-            </svg>
-          </button>
-
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKey}
-            onPaste={handlePaste}
-            placeholder="Nhập tin nhắn..."
-            rows={1}
-            style={{
-              flex: 1, background: 'var(--bg-input)', border: '1px solid var(--border)',
-              borderRadius: '20px', padding: '10px 16px', resize: 'none',
-              color: 'var(--text-primary)', fontSize: '14px', fontFamily: 'inherit',
-              outline: 'none', lineHeight: 1.5, maxHeight: '100px', overflowY: 'auto',
-              overscrollBehavior: 'contain',
-              transition: 'border-color 0.2s',
+            <input ref={fileInputRef} type="file" accept="*/*" onChange={handleFileChange} style={{ display: 'none' }} />
+            <button onClick={() => fileInputRef.current?.click()} title="Gửi file/ảnh" style={{
+              background: 'var(--bg-input)', border: '1px solid var(--border)',
+              borderRadius: '12px', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'var(--transition)', flexShrink: 0, color: 'var(--text-muted)',
             }}
-            onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-            onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
-          />
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
 
-          <button onClick={() => handleSendText(input)} disabled={!input.trim() || sending} title="Gửi (Enter)" style={{
-            background: input.trim() ? 'linear-gradient(135deg, var(--primary), #5b53e0)' : 'var(--bg-input)',
-            border: 'none', borderRadius: '50%', width: '40px', height: '40px',
-            cursor: input.trim() ? 'pointer' : 'default',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '16px', flexShrink: 0, transition: 'var(--transition)',
-            opacity: input.trim() ? 1 : 0.4, color: input.trim() ? 'white' : 'var(--text-muted)',
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-          </button>
+            <button onClick={() => setShowCamera(true)} title="Chụp ảnh" style={{
+              background: 'var(--bg-input)', border: '1px solid var(--border)',
+              borderRadius: '12px', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'var(--transition)', flexShrink: 0, color: 'var(--text-muted)',
+            }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </button>
+
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKey}
+              onPaste={handlePaste}
+              placeholder="Nhập tin nhắn..."
+              rows={1}
+              style={{
+                flex: 1, background: 'var(--bg-input)', border: '1px solid var(--border)',
+                borderRadius: '20px', padding: '10px 16px', resize: 'none',
+                color: 'var(--text-primary)', fontSize: '14px', fontFamily: 'inherit',
+                outline: 'none', lineHeight: 1.5, maxHeight: '100px', overflowY: 'auto',
+                overscrollBehavior: 'contain',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
+            />
+
+            <button onClick={() => handleSendText(input)} disabled={!input.trim() || sending} title="Gửi (Enter)" style={{
+              background: input.trim() ? 'linear-gradient(135deg, var(--primary), #5b53e0)' : 'var(--bg-input)',
+              border: 'none', borderRadius: '50%', width: '40px', height: '40px',
+              cursor: input.trim() ? 'pointer' : 'default',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '16px', flexShrink: 0, transition: 'var(--transition)',
+              opacity: input.trim() ? 1 : 0.4, color: input.trim() ? 'white' : 'var(--text-muted)',
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Reaction picker (opened via hover button) */}
       {contextMenu && (
@@ -2210,7 +2330,21 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                   <span style={{ fontWeight: unread > 0 ? 700 : 600, fontSize: '13px', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nickname}</span>
-                  {last && <span style={{ fontSize: '11px', color: 'var(--text-muted)', flexShrink: 0 }}>{fmtTime(last.createdAt)}</span>}
+                  {f.status === 'pending' ? (
+                    <span style={{
+                      fontSize: '9px',
+                      background: f.fromUserId === String(user.id) ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)',
+                      color: f.fromUserId === String(user.id) ? '#fbbf24' : '#818cf8',
+                      padding: '2px 6px',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}>
+                      {f.fromUserId === String(user.id) ? 'Đã gửi' : 'Lời mời'}
+                    </span>
+                  ) : (
+                    last && <span style={{ fontSize: '11px', color: 'var(--text-muted)', flexShrink: 0 }}>{fmtTime(last.createdAt)}</span>
+                  )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
                   <span style={{ fontSize: '12px', color: unread > 0 ? '#cbd5e1' : '#94a3b8', fontWeight: unread > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
@@ -2224,7 +2358,9 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
                             : last.fileAttachment
                               ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi một tệp' : 'Đã gửi một tệp')
                               : (String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '') + last.content))
-                      : 'Bắt đầu nhắn tin...'}
+                      : (f.status === 'pending'
+                        ? (f.fromUserId === String(user.id) ? '⌛ Chờ chấp nhận kết bạn...' : '🤝 Lời mời kết nối từ đối phương')
+                        : 'Bắt đầu nhắn tin...')}
                   </span>
                   {unread > 0 && (
                     <span style={{ background: 'var(--primary)', color: 'white', fontSize: '11px', fontWeight: 800, padding: '2px 7px', borderRadius: '10px', flexShrink: 0, minWidth: '20px', textAlign: 'center' }}>{unread}</span>
@@ -2309,7 +2445,7 @@ export default function Chat() {
     const refresh = async () => {
       try {
         await refreshCache(user.id);
-        const list = await getFriends(String(user.id));
+        const list = await getFriends(String(user.id), true);
         setFriends(list);
         const lm = getLastMessages(user.id);
         setLastMessages(lm);
@@ -2424,6 +2560,19 @@ export default function Chat() {
               onBack={() => setSelectedFriend(null)}
               onlineUserIds={onlineUserIds}
               onNicknameChange={() => setFriends([...friends])}
+              onRelationChange={(updatedFriend) => {
+                if (updatedFriend) {
+                  setSelectedFriend(updatedFriend);
+                  setFriends(prev => prev.map(f => f.userId === updatedFriend.userId ? updatedFriend : f));
+                } else {
+                  setSelectedFriend(null);
+                  const refresh = async () => {
+                    const list = await getFriends(String(user.id), true);
+                    setFriends(list);
+                  };
+                  refresh();
+                }
+              }}
             />
           </div>
         )}

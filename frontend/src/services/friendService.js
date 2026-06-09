@@ -80,13 +80,17 @@ export const removeFriend = async (requestId) => {
 };
 
 // ─── LẤY DANH SÁCH BẠN BÈ CỦA USER ─────────────────────
-export const getFriends = async (userId) => {
+export const getFriends = async (userId, includePending = false) => {
   const uid = Number(userId);
 
-  const { data: friendships, error: fetchError } = await supabase
-    .from('friendships')
-    .select('*')
-    .eq('status', 'accepted')
+  let query = supabase.from('friendships').select('*');
+  if (includePending) {
+    query = query.in('status', ['accepted', 'pending']);
+  } else {
+    query = query.eq('status', 'accepted');
+  }
+
+  const { data: friendships, error: fetchError } = await query
     .or(`from_user_id.eq.${uid},to_user_id.eq.${uid}`);
 
   if (fetchError || !friendships || friendships.length === 0) return [];
@@ -114,7 +118,10 @@ export const getFriends = async (userId) => {
       major: friendUser.major || '',
       avatar: friendUser.avatar || '',
       initial: (friendUser.full_name || 'U')[0].toUpperCase(),
-      friendSince: f.accepted_at || f.created_at
+      friendSince: f.accepted_at || f.created_at,
+      status: f.status,
+      fromUserId: f.from_user_id.toString(),
+      toUserId: f.to_user_id.toString()
     };
   }).filter(Boolean);
 };
