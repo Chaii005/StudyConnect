@@ -1072,7 +1072,7 @@ export default function MeetRoom() {
         </nav>
 
         {/* ── Body ── */}
-        <div className="meet-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', height: 'calc(100vh - 64px)', position: 'relative' }}>
+        <div className="meet-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100%', position: 'relative' }}>
 
           {/* ── Video Area ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: isFullscreen ? '0' : '20px', position: 'relative' }}>
@@ -1230,7 +1230,28 @@ export default function MeetRoom() {
                   );
                 }
 
-                // TRƯỜNG HỢP: Phòng nhiều người (> 2 hoặc = 1), dùng Grid chuyên nghiệp
+                // TRƯỜNG HỢP: Phòng chỉ có 1 người, hiển thị toàn bộ màn hình
+                if (allFeeds.length === 1) {
+                  const f = allFeeds[0];
+                  return (
+                    <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: isFullscreen ? '0' : '24px' }}>
+                      <VideoTile
+                        key={`${f.id}-${f.screenSharing}`}
+                        stream={f.stream}
+                        name={f.name}
+                        avatar={f.avatar}
+                        isLocal={f.isLocal}
+                        camOff={f.camOff}
+                        muted={f.isLocal ? !micOn : f.micMuted}
+                        mirrored={f.isLocal}
+                        screenSharing={f.screenSharing}
+                        fullScreen={true}
+                      />
+                    </div>
+                  );
+                }
+
+                // TRƯỜNG HỢP: Phòng nhiều người (> 2), dùng Grid chuyên nghiệp
                 return (
                   <div style={{
                     display: 'grid',
