@@ -96,7 +96,7 @@ export default function GlobalMessageListener() {
               if (rId && window.location.pathname.startsWith(`/room/${rId}`)) return;
 
               const text = raw.replace(/^\[meetroom:[^\]]+\]\s*/, '');
-              addToast(`Cuộc gọi mới từ ${sender?.full_name || ''}`, 'info', 6000, `/groups/${msg.group_id}?tab=chat`, '📞');
+              addToast(`[Phòng họp] ${sender?.full_name || 'Thành viên'}: ${text}`, 'info', 6000, `/groups/${msg.group_id}?tab=chat`, '📞');
               return;
             }
             addToast(
