@@ -52,6 +52,25 @@ const NAV_ICONS = {
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
   ),
+  flashcards: (isActive) => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.3s', color: isActive ? 'var(--secondary)' : 'var(--text-secondary)' }}>
+      <rect width="18" height="10" x="3" y="3" rx="2" ry="2"/>
+      <rect width="18" height="10" x="3" y="11" rx="2" ry="2"/>
+    </svg>
+  ),
+  profile: (isActive) => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.3s', color: isActive ? 'var(--secondary)' : 'var(--text-secondary)' }}>
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
+  more: (isActive) => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.3s', color: isActive ? 'var(--secondary)' : 'var(--text-secondary)' }}>
+      <line x1="4" x2="20" y1="12" y2="12"/>
+      <line x1="4" x2="20" y1="6" y2="6"/>
+      <line x1="4" x2="20" y1="18" y2="18"/>
+    </svg>
+  ),
 };
 
 const NAV_ITEMS = [
@@ -187,7 +206,12 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           boxShadow: '0 4px 30px rgba(0, 0, 0, 0.2)'
         }}>
           <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-            <div className="nav-brand-icon" style={{ fontSize: '20px' }}>📚</div>
+            <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--secondary)' }}>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+            </div>
             <span className="nav-brand-text" style={{
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontSize: '20px',
@@ -346,7 +370,10 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         <div className={`mobile-drawer ${mobileMenuOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ fontSize: '20px' }}>📚</div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--secondary)' }}>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
               <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Studyconect</span>
             </div>
             <button onClick={() => setMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
@@ -367,30 +394,38 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           )}
 
           <div style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>🏠</span> Trang chủ
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.home(location.pathname === '/')}
+              Trang chủ
             </Link>
 
-            <Link to="/flashcards" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/flashcards' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/flashcards' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>🗂️</span> Thẻ học &amp; Trắc nghiệm
+            <Link to="/flashcards" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/flashcards' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/flashcards' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.flashcards(location.pathname === '/flashcards')}
+              Thẻ học &amp; Trắc nghiệm
             </Link>
-            <Link to="/groups" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname.startsWith('/groups') ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname.startsWith('/groups') ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>👥</span> Nhóm học
+            <Link to="/groups" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname.startsWith('/groups') ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname.startsWith('/groups') ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.groups(location.pathname.startsWith('/groups'))}
+              Nhóm học
             </Link>
-            <Link to="/schedule" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/schedule' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/schedule' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>📅</span> Lịch học &amp; Deadline
+            <Link to="/schedule" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/schedule' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/schedule' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.schedule(location.pathname === '/schedule')}
+              Lịch học &amp; Deadline
             </Link>
-            <Link to="/friends" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/friends' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/friends' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>🤝</span> Kết bạn
+            <Link to="/friends" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/friends' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/friends' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.friends(location.pathname === '/friends')}
+              Kết bạn
             </Link>
-            <Link to="/my-documents" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/my-documents' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/my-documents' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>📁</span> Tài liệu của tôi
+            <Link to="/my-documents" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/my-documents' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/my-documents' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.docs(location.pathname === '/my-documents')}
+              Tài liệu của tôi
             </Link>
-            <Link to="/chat" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/chat' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/chat' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>💬</span> Nhắn tin
+            <Link to="/chat" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/chat' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/chat' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.chat(location.pathname === '/chat')}
+              Nhắn tin
             </Link>
-            <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/profile' ? 'var(--primary-light)' : 'var(--text-primary)', background: location.pathname === '/profile' ? 'rgba(108,99,255,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              <span>👤</span> Hồ sơ cá nhân
+            <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/profile' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/profile' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.profile(location.pathname === '/profile')}
+              Hồ sơ cá nhân
             </Link>
           </div>
 
@@ -502,8 +537,14 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                     {/* Matching Groups */}
                     {filteredGroups.length > 0 && (
                       <div>
-                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--primary-light)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
-                          👥 Nhóm học tập ({filteredGroups.length})
+                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--primary-light)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                          </svg>
+                          Nhóm học tập ({filteredGroups.length})
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           {filteredGroups.slice(0, 3).map(g => (
@@ -521,12 +562,16 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                         </div>
                       </div>
                     )}
-
+ 
                     {/* Matching Users */}
                     {filteredUsers.length > 0 && (
                       <div>
-                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
-                          🎓 Thành viên ({filteredUsers.length})
+                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                            <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+                          </svg>
+                          Thành viên ({filteredUsers.length})
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           {filteredUsers.slice(0, 3).map(u => (
@@ -651,19 +696,27 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       {/* Mobile Bottom Navigation Bar (Thanh điều hướng dưới di động) */}
       <div className="mobile-bottom-nav">
         <Link to="/" className={`mobile-bottom-nav-item ${location.pathname === '/' ? 'active' : ''}`}>
-          <span className="mobile-bottom-nav-icon">🏠</span>
+          <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+            {NAV_ICONS.home(location.pathname === '/')}
+          </span>
           <span>Trang chủ</span>
         </Link>
         <Link to="/groups" className={`mobile-bottom-nav-item ${location.pathname.startsWith('/groups') ? 'active' : ''}`}>
-          <span className="mobile-bottom-nav-icon">👥</span>
+          <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+            {NAV_ICONS.groups(location.pathname.startsWith('/groups'))}
+          </span>
           <span>Nhóm học</span>
         </Link>
         <Link to="/schedule" className={`mobile-bottom-nav-item ${location.pathname === '/schedule' ? 'active' : ''}`}>
-          <span className="mobile-bottom-nav-icon">📅</span>
+          <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+            {NAV_ICONS.schedule(location.pathname === '/schedule')}
+          </span>
           <span>Lịch học</span>
         </Link>
         <Link to="/chat" className={`mobile-bottom-nav-item ${location.pathname === '/chat' ? 'active' : ''}`}>
-          <span className="mobile-bottom-nav-icon">💬</span>
+          <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px', position: 'relative' }}>
+            {NAV_ICONS.chat(location.pathname === '/chat')}
+          </span>
           <span>Nhắn tin</span>
           {unreadCount > 0 && (
             <span className="mobile-bottom-nav-badge">
@@ -672,7 +725,9 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           )}
         </Link>
         <button className="mobile-bottom-nav-item" onClick={() => setMobileMenuOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <span className="mobile-bottom-nav-icon">☰</span>
+          <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+            {NAV_ICONS.more(mobileMenuOpen)}
+          </span>
           <span>Thêm</span>
         </button>
       </div>
