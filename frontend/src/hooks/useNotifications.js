@@ -735,44 +735,73 @@ export default function useNotifications(userId) {
       } catch (err) {
         console.warn('Error parsing local files:', err);
       }
-      // Post Tag Notifications (from localStorage)
+      // Post Tag Notifications (from Supabase post_tags)
       try {
-        const postTagNotifs = JSON.parse(localStorage.getItem('sc_post_tag_notifs') || '[]');
-        postTagNotifs
-          .filter(n => (now - new Date(n.createdAt)) < ONE_DAY_MS)
-          .forEach(n => {
-            if (n.type === 'posttag_user' && String(n.receiverId) === String(uid)) {
-              const key = `posttag:${n.id}`;
-              if (!notifsList.some(x => x.key === key)) {
-                notifsList.push({
-                  key,
-                  type: 'posttag_user',
-                  title: '🏷️ Bạn được tag trong một bài viết',
-                  body: `${n.taggerName || 'Ai đó'} đã tag bạn trong một bài viết`,
-                  createdAt: n.createdAt,
-                  postId: n.postId,
-                });
+        const joinedGroupIdsStr = Array.from(userGroupIds).map(String);
+        let orFilter = `and(target_type.eq.user,target_id.eq.${uid})`;
+        if (joinedGroupIdsStr.length > 0) {
+          orFilter += `,and(target_type.eq.group,target_id.in.(${joinedGroupIdsStr.join(',')}))`;
+        }
+
+        const { data: dbTags, error: dbTagsError } = await supabase
+          .from('post_tags')
+          .select(`
+            id,
+            post_id,
+            target_type,
+            target_id,
+            created_at,
+            posts (
+              user_id,
+              users (
+                full_name
+              )
+            )
+          `)
+          .or(orFilter);
+
+        if (!dbTagsError && dbTags) {
+          dbTags
+            .filter(t => (now - new Date(t.created_at)) < ONE_DAY_MS)
+            .forEach(t => {
+              const taggerName = t.posts?.users?.full_name || 'Ai đó';
+              const isCreator = String(t.posts?.user_id) === String(uid);
+              if (isCreator) return; // don't notify self
+
+              if (t.target_type === 'user' && String(t.target_id) === String(uid)) {
+                const key = `posttag:db:${t.id}`;
+                if (!notifsList.some(x => x.key === key)) {
+                  notifsList.push({
+                    key,
+                    type: 'posttag_user',
+                    title: '🏷️ Bạn được tag trong một bài viết',
+                    body: `${taggerName} đã tag bạn trong một bài viết`,
+                    createdAt: t.created_at,
+                    postId: String(t.post_id),
+                  });
+                }
               }
-            }
-            if (n.type === 'posttag_group' && userGroupIds.has(Number(n.groupId))) {
-              const key = `posttagg:${n.id}`;
-              if (!notifsList.some(x => x.key === key)) {
-                const gMem = joinedMembers && joinedMembers.find(m => Number(m.group_id) === Number(n.groupId));
-                const gName = gMem?.study_groups?.name || 'Nhóm học';
-                notifsList.push({
-                  key,
-                  type: 'posttag_group',
-                  title: `🏷️ Nhóm "${gName}" được tag`,
-                  body: `${n.taggerName || 'Ai đó'} đã tag nhóm "${gName}" trong một bài viết`,
-                  createdAt: n.createdAt,
-                  postId: n.postId,
-                  groupId: n.groupId,
-                });
+
+              if (t.target_type === 'group' && userGroupIds.has(Number(t.target_id))) {
+                const key = `posttagg:db:${t.id}`;
+                if (!notifsList.some(x => x.key === key)) {
+                  const gMem = joinedMembers && joinedMembers.find(m => Number(m.group_id) === Number(t.target_id));
+                  const gName = gMem?.study_groups?.name || 'Nhóm học';
+                  notifsList.push({
+                    key,
+                    type: 'posttag_group',
+                    title: `🏷️ Nhóm "${gName}" được tag`,
+                    body: `${taggerName} đã tag nhóm "${gName}" trong một bài viết`,
+                    createdAt: t.created_at,
+                    postId: String(t.post_id),
+                    groupId: String(t.target_id),
+                  });
+                }
               }
-            }
-          });
+            });
+        }
       } catch (err) {
-        console.warn('Error parsing post tag notifications:', err);
+        console.warn('Error fetching post tag notifications:', err);
       }
 
       notifsList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
