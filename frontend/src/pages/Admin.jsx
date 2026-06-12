@@ -264,9 +264,6 @@ export default function Admin() {
               {loginLoading ? 'Đang xác thực...' : 'Đăng nhập Quản trị'}
             </button>
           </form>
-          <div style={{ marginTop: '24px', background: 'rgba(108,99,255,0.08)', border: '1px solid rgba(108,99,255,0.2)', borderRadius: 'var(--radius-sm)', padding: '12px 16px', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
-            <strong>Tài khoản Admin mặc định:</strong><br />- Email: admin@studyconect.com<br />- Mật khẩu: admin123
-          </div>
         </div>
       </div>
     );
