@@ -61,6 +61,8 @@ export const runStorageCleanup = () => {
       }
     }
   } catch (err) {
-    console.warn('[Storage Cleanup] Error running localStorage cleanup:', err);
+    if (import.meta.env.DEV) {
+      console.warn('[Storage Cleanup] Error running localStorage cleanup:', err);
+    }
   }
 };
