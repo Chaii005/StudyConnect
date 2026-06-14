@@ -461,7 +461,12 @@ export default function PrivateCall() {
   // Khi callStatus thay đổi trong context (bên caller)
   useEffect(() => {
     if (callStatus === 'no_answer') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCallEndedMsg('no_answer');
+      setTimeout(() => navigate('/chat'), 2000);
+    }
+    if (callStatus === 'rejected') {
+      setCallEndedMsg('rejected');
       setTimeout(() => navigate('/chat'), 2000);
     }
   }, [callStatus, navigate]);
@@ -707,28 +712,44 @@ export default function PrivateCall() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(0,0,0,0.85)', zIndex: 16,
-              flexDirection: 'column', gap: '16px', padding: '32px',
+              background: 'rgba(0,0,0,0.88)', zIndex: 16,
+              flexDirection: 'column', gap: '20px', padding: '32px',
               textAlign: 'center',
               animation: 'pc-fade-in 0.3s ease',
             }}>
+              {/* Premium icon container */}
               <div style={{
-                width: 64, height: 64, borderRadius: '50%',
-                background: 'rgba(239,68,68,0.15)',
+                position: 'relative',
+                width: 80, height: 80,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '1.5px solid rgba(239,68,68,0.35)',
               }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
+                {/* Outer glow ring */}
+                <div style={{
+                  position: 'absolute', inset: 0, borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, transparent 70%)',
+                  animation: 'pc-pulse-ring 2s ease-in-out infinite',
+                }} />
+                {/* Icon circle */}
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(239,68,68,0.25) 0%, rgba(239,68,68,0.08) 100%)',
+                  border: '1.5px solid rgba(239,68,68,0.4)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 0 24px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
+                }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 6px rgba(239,68,68,0.5))' }}>
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                    <line x1="17" y1="7" x2="7" y2="17" />
+                  </svg>
+                </div>
               </div>
-              <div style={{ fontWeight: 700, fontSize: '18px', color: '#fca5a5' }}>
-                {callEndedMsg === 'no_answer' ? 'Người nhận không bắt máy' : 'Cuộc gọi đã bị hủy'}
-              </div>
-              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', maxWidth: '300px', lineHeight: 1.6 }}>
-                Đang quay lại phòng chat...
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '20px', color: '#fca5a5', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                  {callEndedMsg === 'no_answer' ? 'Người nhận không bắt máy' : callEndedMsg === 'rejected' ? 'Người nhận đang bận' : 'Cuộc gọi đã bị hủy'}
+                </div>
+                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+                  Đang quay lại phòng chat...
+                </div>
               </div>
             </div>
           )}

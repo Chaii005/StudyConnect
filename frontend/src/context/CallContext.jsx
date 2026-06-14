@@ -107,7 +107,7 @@ export const CallProvider = ({ children }) => {
         }
         // Gửi tin nhắn vào chat + lưu thông báo chuông (bên gọi)
         if (outCall?.receiverId && user?.id) {
-          sendMessage(user.id, outCall.receiverId, '📵 Cuộc gọi bị từ chối').catch(() => {});
+          sendMessage(user.id, outCall.receiverId, '📵 Người nhận đang bận').catch(() => {});
         }
       }
 
