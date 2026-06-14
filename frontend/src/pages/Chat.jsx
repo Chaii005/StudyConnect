@@ -1270,13 +1270,22 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
           boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
           animation: 'fadeIn 0.25s ease',
         }}>
-          {callStatus === 'rejected' 
-            ? '📵 Cuộc gọi bị từ chối' 
-            : callStatus === 'no_answer' 
-            ? '📵 Người nhận không bắt máy' 
-            : '📵 Bạn bỏ lỡ cuộc gọi'}
+          {/* SVG icon + text thay emoji thô */}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
+              fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.9)" strokeWidth="1.8"
+            />
+            <line x1="16" y1="6" x2="6" y2="16" stroke="rgba(255,255,255,0.9)" strokeWidth="2.2" />
+          </svg>
+          {callStatus === 'rejected'
+            ? 'Người nhận đang bận'
+            : callStatus === 'no_answer'
+            ? 'Người nhận không bắt máy'
+            : 'Bạn bỏ lỡ cuộc gọi'}
         </div>
       )}
+
 
       {/* Messages */}
       <div
@@ -1372,33 +1381,53 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                   color: isMissed ? '#fca5a5' : 'rgba(200,200,255,0.85)',
                   boxShadow: isMissed ? '0 2px 12px rgba(239,68,68,0.10)' : '0 2px 12px rgba(108,99,255,0.10)',
                 }}>
-                  {/* Icon container — clean phone SVG renders tốt mọi browser */}
+                  {/* Icon container — circular premium style */}
                   <span style={{
-                    width: '26px', height: '26px', borderRadius: '7px', flexShrink: 0,
+                    position: 'relative',
+                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
                     background: isMissed
-                      ? 'linear-gradient(135deg, rgba(239,68,68,0.28), rgba(239,68,68,0.12))'
-                      : 'linear-gradient(135deg, rgba(108,99,255,0.28), rgba(108,99,255,0.12))',
+                      ? 'radial-gradient(circle at 35% 35%, rgba(239,68,68,0.45), rgba(239,68,68,0.12))'
+                      : 'radial-gradient(circle at 35% 35%, rgba(108,99,255,0.45), rgba(108,99,255,0.12))',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    border: `1px solid ${isMissed ? 'rgba(239,68,68,0.32)' : 'rgba(108,99,255,0.32)'}`,
+                    border: `1.5px solid ${isMissed ? 'rgba(252,165,165,0.45)' : 'rgba(165,180,252,0.45)'}`,
                     boxShadow: isMissed
-                      ? '0 0 8px rgba(239,68,68,0.28), inset 0 1px 0 rgba(255,255,255,0.08)'
-                      : '0 0 8px rgba(108,99,255,0.28), inset 0 1px 0 rgba(255,255,255,0.08)',
+                      ? '0 0 12px rgba(239,68,68,0.35), 0 0 24px rgba(239,68,68,0.15), inset 0 1px 0 rgba(255,255,255,0.12)'
+                      : '0 0 12px rgba(108,99,255,0.35), 0 0 24px rgba(108,99,255,0.15), inset 0 1px 0 rgba(255,255,255,0.12)',
                   }}>
                     {isMissed ? (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                        <line x1="17" y1="7" x2="7" y2="17" />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 3px rgba(252,165,165,0.7))' }}>
+                        {/* Thân máy có fill mờ */}
+                        <path
+                          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
+                          fill="rgba(252,165,165,0.18)"
+                          stroke="#fca5a5"
+                          strokeWidth="1.8"
+                        />
+                        {/* Gạch chéo đậm */}
+                        <line x1="16" y1="6" x2="6" y2="16" stroke="#fca5a5" strokeWidth="2.2" />
                       </svg>
                     ) : (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m22 8-6 4 6 4V8Z" />
-                        <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 3px rgba(165,180,252,0.7))' }}>
+                        {/* Thân camera có fill mờ */}
+                        <rect
+                          width="14" height="12" x="2" y="6" rx="2" ry="2"
+                          fill="rgba(165,180,252,0.15)"
+                          stroke="#a5b4fc"
+                          strokeWidth="1.8"
+                        />
+                        {/* Tam giác play có fill */}
+                        <path
+                          d="m22 8-6 4 6 4V8Z"
+                          fill="rgba(165,180,252,0.25)"
+                          stroke="#a5b4fc"
+                          strokeWidth="1.8"
+                        />
                       </svg>
                     )}
                   </span>
                   {labelText}
                 </span>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '5px' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '6px' }}>
                   {fmtFull(m.createdAt)}
                 </div>
               </div>

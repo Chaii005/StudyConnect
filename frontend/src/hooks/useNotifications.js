@@ -546,7 +546,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `missedcall:in:${m.id}`,
                 type: 'missedcall',
-                title: '📵 Cuộc gọi nhỡ',
+                title: 'Cuộc gọi nhỡ',
                 body: `Bạn đã bỏ lỡ cuộc gọi từ ${senderName}`,
                 createdAt: m.created_at,
                 senderId: m.sender_id.toString(),
@@ -839,7 +839,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key,
                 type: 'missedcall',
-                title: m.content?.startsWith('📵 Cuộc gọi bị từ chối') ? '📵 Cuộc gọi bị từ chối' : '📵 Cuộc gọi nhỡ',
+                title: m.content?.startsWith('📵 Người nhận đang bận') ? 'Người nhận đang bận' : 'Cuộc gọi nhỡ',
                 body: `${receiverName} không bắt máy`,
                 createdAt: m.created_at,
                 senderId: String(uid),
