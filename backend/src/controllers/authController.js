@@ -9,10 +9,14 @@ const { sendEmail, resetPasswordEmail } = require('../utils/email');
 
 const router = express.Router();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || 'http://localhost:8000',
-  process.env.SUPABASE_SERVICE_KEY || 'placeholder'
-);
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  throw new Error(
+    '[Auth] SUPABASE_URL hoặc SUPABASE_SERVICE_KEY chưa cấu hình'
+  );
+}
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // POST /register
 router.post('/register', async (req, res) => {

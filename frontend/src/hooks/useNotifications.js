@@ -540,6 +540,20 @@ export default function useNotifications(userId) {
             // Bỏ qua hoàn toàn tin nhắn đổi hình nền - không hiện toast
             if (m.content?.startsWith('[chat_background]:')) return;
 
+            // Tin nhắn cuộc gọi nhỡ → hiển thị kiểu missedcall riêng
+            if (m.content?.startsWith('📵')) {
+              const senderName = m.users?.full_name || 'Người dùng';
+              notifsList.push({
+                key: `missedcall:in:${m.id}`,
+                type: 'missedcall',
+                title: '📵 Cuộc gọi nhỡ',
+                body: `Bạn đã bỏ lỡ cuộc gọi từ ${senderName}`,
+                createdAt: m.created_at,
+                senderId: m.sender_id.toString(),
+              });
+              return;
+            }
+
             const senderName = m.users?.full_name || 'Người dùng';
             const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
               ? '📷 Đã gửi một ảnh'

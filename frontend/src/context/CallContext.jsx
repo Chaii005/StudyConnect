@@ -116,18 +116,9 @@ export const CallProvider = ({ children }) => {
         (payload.type === 'cancel' || payload.type === 'no_answer') &&
         incomingCallRef.current?.callId === payload.callId
       ) {
-        const incCall = incomingCallRef.current;
         clearTimeout(ringTimerRef.current);
         setIncomingCall(null);
         setCallStatus('missed');
-        // Gửi message vào DB từ receiver → caller để hiện trong bell của caller
-        if (incCall?.callerId && user?.id) {
-          sendMessage(
-            user.id,
-            incCall.callerId,
-            `📵 Bạn đã bỏ lỡ cuộc gọi từ ${incCall.callerName || 'Người dùng'}`
-          ).catch(() => {});
-        }
         clearTimeout(statusTimerRef.current);
         statusTimerRef.current = setTimeout(() => setCallStatus(null), 3000);
         if (locationRef.current.startsWith('/call/')) {
@@ -176,7 +167,6 @@ export const CallProvider = ({ children }) => {
     // Timeout 10s không ai bắt máy → no_answer
     clearTimeout(ringTimerRef.current);
     const receiverId = friend.userId;
-    const receiverName = friend.fullName || 'Người dùng';
     ringTimerRef.current = setTimeout(() => {
       channelRef.current?.send({
         type: 'broadcast',
