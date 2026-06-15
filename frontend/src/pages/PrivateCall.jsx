@@ -34,6 +34,23 @@ function Avatar({ src, name = '', size = 80 }) {
 }
 
 
+/* ─── ICE Servers — STUN + TURN (cross-network support) ── */
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    {
+      urls: [
+        'turn:openrelay.metered.ca:80',
+        'turn:openrelay.metered.ca:443',
+        'turn:openrelay.metered.ca:443?transport=tcp',
+      ],
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+  ],
+};
+
 /* ─── Hook WebRTC cho cuộc gọi 1-1 ─────────────────────── */
 function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
   const [localStream, setLocalStream]   = useState(null);
@@ -41,12 +58,13 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
   const [connected, setConnected]       = useState(false);
   const [error, setError]               = useState(null);
 
-  const pcRef        = useRef(null);
-  const localRef     = useRef(null);
-  const channelRef   = useRef(null);
-  const micOnRef     = useRef(micOn);
-  const camOnRef     = useRef(camOn);
-  const readyIntervalRef = useRef(null);
+  const pcRef             = useRef(null);
+  const localRef          = useRef(null);
+  const channelRef        = useRef(null);
+  const micOnRef          = useRef(micOn);
+  const camOnRef          = useRef(camOn);
+  const readyIntervalRef  = useRef(null);
+  const iceCandidateQueue = useRef([]); // Queue ICE trước khi setRemoteDescription
 
   useEffect(() => { micOnRef.current = micOn; }, [micOn]);
   useEffect(() => { camOnRef.current = camOn; }, [camOn]);
@@ -57,13 +75,6 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
     () => `${user?.id || 'u'}_${Math.random().toString(36).slice(2, 6)}`,
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
-
-  const ICE = {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-    ]
-  };
 
   // Bắt đầu media
   const startMedia = useCallback(async () => {
@@ -78,7 +89,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
       stream.getVideoTracks().forEach(t => { t.enabled = camOnRef.current; });
       return stream;
     } catch (err) {
-      console.warn('Full media request failed in PrivateCall, trying audio only...', err);
+      if (import.meta.env.DEV) console.warn('[PrivateCall] Full media failed, trying audio only:', err);
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: false,
@@ -89,7 +100,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         stream.getAudioTracks().forEach(t => { t.enabled = micOnRef.current; });
         return stream;
       } catch (err2) {
-        console.error('Audio-only media request failed too in PrivateCall', err2);
+        if (import.meta.env.DEV) console.error('[PrivateCall] Audio-only also failed:', err2);
         setError(err.name === 'NotAllowedError' || err2.name === 'NotAllowedError'
           ? 'Vui lòng cấp quyền camera và microphone để gọi video.'
           : 'Không thể truy cập camera/microphone.');
@@ -136,7 +147,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
       channelRef.current = ch;
 
       const createPC = (localStreamObj) => {
-        const pc = new RTCPeerConnection(ICE);
+        const pc = new RTCPeerConnection(ICE_SERVERS);
         pcRef.current = pc;
 
         if (localStreamObj) {
@@ -200,6 +211,11 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           const currentStream = localRef.current;
           const pc = createPC(currentStream);
           await pc.setRemoteDescription(msg.offer);
+          // Flush ICE candidates đã queue trước khi setRemoteDescription
+          while (iceCandidateQueue.current.length > 0) {
+            const c = iceCandidateQueue.current.shift();
+            await pc.addIceCandidate(c).catch(() => {});
+          }
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           ch.send({
@@ -216,6 +232,11 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         if (msg.type === 'answer') {
           if (pcRef.current) {
             await pcRef.current.setRemoteDescription(msg.answer);
+            // Flush ICE candidates đã queue trước khi setRemoteDescription
+            while (iceCandidateQueue.current.length > 0) {
+              const c = iceCandidateQueue.current.shift();
+              await pcRef.current.addIceCandidate(c).catch(() => {});
+            }
             setConnected(true);
             if (readyIntervalRef.current) {
               clearInterval(readyIntervalRef.current);
@@ -225,7 +246,14 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         }
 
         if (msg.type === 'ice') {
-          pcRef.current?.addIceCandidate(msg.candidate).catch(() => {});
+          const pc = pcRef.current;
+          if (pc && pc.remoteDescription) {
+            // Remote description đã set → thêm ngay
+            pc.addIceCandidate(msg.candidate).catch(() => {});
+          } else {
+            // Chưa có remote description → queue lại
+            iceCandidateQueue.current.push(msg.candidate);
+          }
         }
 
         if (msg.type === 'hangup') {
