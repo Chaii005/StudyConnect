@@ -58,7 +58,7 @@ export const refreshCache = async (userId) => {
   try {
     let query = supabase
       .from('messages')
-      .select('*')
+      .select('id, sender_id, receiver_id, content, file_attachment, is_read, created_at')
       .is('group_id', null)
       .or(`sender_id.eq.${uid},receiver_id.eq.${uid}`);
 
@@ -127,7 +127,7 @@ export const syncConversation = async (userId, friendId) => {
 
   let query = supabase
     .from('messages')
-    .select('*')
+    .select('id, sender_id, receiver_id, content, file_attachment, is_read, created_at')
     .is('group_id', null)
     .or(`and(sender_id.eq.${uid},receiver_id.eq.${fid}),and(sender_id.eq.${fid},receiver_id.eq.${uid})`)
     .order('created_at', { ascending: true });
@@ -165,7 +165,7 @@ export const getConversation = async (userId, friendId) => {
 
   const { data, error } = await supabase
     .from('messages')
-    .select('*')
+    .select('id, sender_id, receiver_id, content, file_attachment, is_read, created_at')
     .is('group_id', null)
     .or(`and(sender_id.eq.${uid},receiver_id.eq.${fid}),and(sender_id.eq.${fid},receiver_id.eq.${uid})`)
     .order('created_at', { ascending: true });

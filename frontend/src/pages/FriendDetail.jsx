@@ -148,7 +148,7 @@ export default function FriendDetail() {
       try {
         const { data, error } = await supabase
           .from('users')
-          .select('*')
+          .select('id, full_name, email, avatar, university, major, bio, created_at')
           .eq('id', parseInt(id, 10))
           .single();
 

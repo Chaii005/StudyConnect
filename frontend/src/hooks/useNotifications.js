@@ -201,13 +201,14 @@ export default function useNotifications(userId) {
         const { data: schedules } = await supabase
           .from('schedules')
           .select(`
-            *,
+            id, group_id, topic, date_time, created_at,
             study_groups (
               name
             )
           `)
           .in('group_id', joinedIds)
-          .gte('date_time', now.toISOString());
+          .gte('date_time', now.toISOString())
+          .limit(50);
 
         if (schedules) {
           schedules
@@ -228,13 +229,14 @@ export default function useNotifications(userId) {
         const { data: deadlines } = await supabase
           .from('deadlines')
           .select(`
-            *,
+            id, group_id, title, due_date, assignee_id, created_at,
             study_groups (
               name
             )
           `)
           .in('group_id', joinedIds)
-          .eq('completed', false);
+          .eq('completed', false)
+          .limit(50);
 
         if (deadlines) {
           deadlines
@@ -651,96 +653,6 @@ export default function useNotifications(userId) {
         console.warn('Error reading local demotions:', err);
       }
 
-      // 4b. Fetch messages, comments, reactions, and files from localStorage (as fallback/offline/fast sync)
-      // Local Private Messages
-      try {
-        const localChats = JSON.parse(localStorage.getItem('sc_chats') || '[]');
-        if (Array.isArray(localChats)) {
-          localChats.forEach(m => {
-            if (String(m.receiver_id) === String(uid) && String(m.sender_id) !== String(uid)) {
-              const age = now - new Date(m.created_at);
-              if (age > 0 && age < 5 * 60 * 1000) { // 5 minutes
-                const key = `privatemsg:local:${m.id || m.created_at}`;
-                if (!notifsList.some(n => n.key === key)) {
-                  notifsList.push({
-                    key,
-                    type: 'privatemsg',
-                    title: `💬 Tin nhắn từ ${m.sender_name || 'Người dùng'}`,
-                    body: m.content || '',
-                    createdAt: m.created_at,
-                    senderId: String(m.sender_id)
-                  });
-                }
-              }
-            }
-          });
-        }
-      } catch (err) {
-        console.warn('Error parsing local messages:', err);
-      }
-
-
-
-      // Local Reactions
-      try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const lKey = localStorage.key(i);
-          if (lKey && lKey.startsWith('reactions_')) {
-            const postId = lKey.replace('reactions_', '');
-            const localReactions = JSON.parse(localStorage.getItem(lKey) || '[]');
-            if (Array.isArray(localReactions)) {
-              localReactions.forEach(r => {
-                const age = now - new Date(r.createdAt || r.created_at);
-                if (age > 0 && age < 60 * 60 * 1000) { // 1 hour
-                  if (String(r.postOwnerId || r.post_owner_id) === String(uid) && String(r.userId || r.user_id) !== String(uid)) {
-                    const key = `like:local:${postId}:${r.userId || r.user_id}`;
-                    if (!notifsList.some(n => n.key === key)) {
-                      const emoji = r.emoji || '❤️';
-                      notifsList.push({
-                        key,
-                        type: 'like',
-                        title: `${emoji} Tương tác bài viết`,
-                        body: `${r.userName || r.user_name || 'Người dùng'} đã thả cảm xúc vào bài viết của bạn`,
-                        createdAt: r.createdAt || r.created_at,
-                        postId: postId
-                      });
-                    }
-                  }
-                }
-              });
-            }
-          }
-        }
-      } catch (err) {
-        console.warn('Error parsing local reactions:', err);
-      }
-
-      // Local Files
-      try {
-        const localFiles = JSON.parse(localStorage.getItem('sc_files') || '[]');
-        if (Array.isArray(localFiles)) {
-          localFiles.forEach(f => {
-            const age = now - new Date(f.created_at);
-            if (age > 0 && age < 24 * 60 * 60 * 1000) { // 24 hours
-              if (String(f.user_id) !== String(uid) && userGroupIds.has(Number(f.group_id))) {
-                const key = `file:local:${f.id || f.created_at}`;
-                if (!notifsList.some(n => n.key === key)) {
-                  notifsList.push({
-                    key,
-                    type: 'fileupload',
-                    title: '📎 Tài liệu nhóm mới',
-                    body: `${f.user_name || 'Thành viên'} đã tải lên tài liệu "${f.file_name}" trong nhóm "${f.group_name || 'học'}"`,
-                    createdAt: f.created_at,
-                    groupId: String(f.group_id)
-                  });
-                }
-              }
-            }
-          });
-        }
-      } catch (err) {
-        console.warn('Error parsing local files:', err);
-      }
       // Post Tag Notifications (from Supabase post_tags)
       try {
         const joinedGroupIdsStr = Array.from(userGroupIds).map(String);

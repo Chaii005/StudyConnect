@@ -492,7 +492,7 @@ export const getFiles = async (groupId) => {
     // Fallback if table files doesn't support approved filter or relations
     const { data: fallbackData, error: fallbackError } = await supabase
       .from('files')
-      .select('*')
+      .select('id, group_id, user_id, file_name, file_size, file_type, file_url, approved, created_at')
       .eq('group_id', parseInt(groupId, 10))
       .eq('approved', true);
     
@@ -543,7 +543,7 @@ export const getPendingFiles = async () => {
   if (error) {
     const { data: fallbackData } = await supabase
       .from('files')
-      .select('*')
+      .select('id, group_id, user_id, file_name, file_size, file_type, file_url, approved, created_at')
       .eq('approved', false);
     return (fallbackData || []).map(f => ({
       id: f.id.toString(),
@@ -642,9 +642,10 @@ export const deleteFile = async (fileId) => {
 export const getSchedules = async (groupId) => {
   const { data, error } = await supabase
     .from('schedules')
-    .select('*')
+    .select('id, group_id, topic, date_time, location, description, creator_id, created_at')
     .eq('group_id', parseInt(groupId, 10))
-    .order('date_time', { ascending: true });
+    .order('date_time', { ascending: true })
+    .limit(50);
 
   if (error) return [];
 
@@ -747,7 +748,7 @@ export const getDeadlines = async (groupId) => {
 
   if (error) {
     // Fallback if relation not supported
-    const { data: fbData } = await supabase.from('deadlines').select('*').eq('group_id', parseInt(groupId, 10));
+    const { data: fbData } = await supabase.from('deadlines').select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at').eq('group_id', parseInt(groupId, 10)).limit(50);
     return (fbData || []).map(d => ({
       id: d.id.toString(),
       groupId: d.group_id.toString(),
@@ -976,7 +977,8 @@ export const getChatMessages = async (groupId) => {
   const { data, error } = await supabase
     .from('messages')
     .select(`
-      *,
+      id, group_id, sender_id, content, file_attachment,
+      reply_to, is_pinned, created_at,
       users:users!sender_id (
         full_name,
         avatar
@@ -1147,14 +1149,15 @@ export const getUserPosts = async (friendId) => {
   const { data: commentsData } = await supabase
     .from('comments')
     .select(`
-      *,
+      id, post_id, user_id, parent_id, content, created_at,
       users (
         full_name,
         avatar
       )
     `)
     .in('post_id', postIds)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .limit(50);
 
   return postsData.map(p => {
     const pCommentsRaw = (commentsData || []).filter(c => c.post_id === p.id);

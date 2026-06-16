@@ -228,7 +228,7 @@ export default function useGroupDetail(groupId, user, addToast) {
     try {
       const { data, error } = await supabase
         .from('friendships')
-        .select('*')
+        .select('id, from_user_id, to_user_id, status')
         .or(`from_user_id.eq.${parseInt(user.id, 10)},to_user_id.eq.${parseInt(user.id, 10)}`);
       
       if (!error && data) {
