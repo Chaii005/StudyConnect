@@ -1106,8 +1106,8 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
           {(() => {
             const isOnline = onlineUserIds.includes(String(friend.userId));
             return (
-              <div style={{ fontSize: '12px', color: isOnline ? '#34D399' : '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#34D399' : '#ef4444' }} />
+              <div style={{ fontSize: '12px', color: isOnline ? '#2A7576' : '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#2A7576' : '#ef4444' }} />
                 {isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}
               </div>
             );
@@ -2397,9 +2397,9 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
                     width: '12px',
                     height: '12px',
                     borderRadius: '50%',
-                    background: isOnline ? '#34D399' : '#ef4444',
+                    background: isOnline ? '#2A7576' : '#ef4444',
                     border: '2px solid var(--bg-card)',
-                    boxShadow: isOnline ? '0 0 6px rgba(52, 211, 153, 0.45)' : 'none'
+                    boxShadow: isOnline ? '0 0 6px rgba(42, 117, 118, 0.45)' : 'none'
                   }} />
                 </div>
               <div style={{ flex: 1, minWidth: 0 }}>

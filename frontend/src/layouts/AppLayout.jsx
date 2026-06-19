@@ -169,8 +169,8 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           zIndex: 0,
           pointerEvents: 'none',
           backgroundImage: `
-            radial-gradient(circle at top right, rgba(45, 212, 191, 0.18), transparent 60%),
-            radial-gradient(circle at bottom left, rgba(56, 189, 248, 0.12), transparent 60%)
+            radial-gradient(circle at top right, rgba(42, 117, 118, 0.15), transparent 60%),
+            radial-gradient(circle at bottom left, rgba(214, 158, 46, 0.1), transparent 60%)
           `,
         }}
       />
@@ -310,17 +310,17 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
             {displayUser && (
               <button className="btn-logout desktop-only" onClick={handleLogout} style={{
                 background: 'transparent',
-                border: '1px solid #2DD4BF',
+                border: '1px solid #2A7576',
                 borderRadius: '8px',
-                color: '#0F766E',
+                color: '#2A7576',
                 padding: '6px 14px',
                 fontSize: '13px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'var(--transition)'
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0f766e'; e.currentTarget.style.background = 'rgba(45, 212, 191, 0.08)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#2DD4BF'; e.currentTarget.style.color = '#0F766E'; e.currentTarget.style.background = 'transparent'; }}>
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#1f5859'; e.currentTarget.style.background = 'rgba(42, 117, 118, 0.08)'; e.currentTarget.style.color = '#1f5859'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#2A7576'; e.currentTarget.style.color = '#2A7576'; e.currentTarget.style.background = 'transparent'; }}>
                 Đăng xuất
               </button>
             )}
@@ -390,7 +390,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           </div>
 
           <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
-            <button onClick={handleLogout} className="btn-logout" style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid #2DD4BF', color: '#0F766E', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+            <button onClick={handleLogout} className="btn-logout" style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid #2A7576', color: '#2A7576', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
               Đăng xuất
             </button>
           </div>
@@ -454,7 +454,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                           gap: '12px', 
                           padding: '11px 14px', 
                           borderRadius: '12px', 
-                          background: isActive ? 'linear-gradient(135deg, #2DD4BF, #38BDF8)' : 'none', 
+                          background: isActive ? '#2A7576' : 'none', 
                           border: isActive ? '1px solid transparent' : '1px solid transparent',
                           transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', 
                           transform: 'translateY(0)',
@@ -481,7 +481,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                           alignItems: 'center', 
                           justifyContent: 'center', 
                           flexShrink: 0, 
-                          filter: isActive ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.5))' : 'none' 
+                          filter: isActive ? 'drop-shadow(0 0 8px rgba(42, 117, 118, 0.5))' : 'none' 
                         }}>
                           {NAV_ICONS[item.icon] ? NAV_ICONS[item.icon](isActive, '#FFFFFF') : item.icon}
                         </span>

@@ -4,27 +4,28 @@
    DESIGN TOKENS - ENERGETIC FOCUS REDESIGN
    ═══════════════════════════════════════════ */
 :root {
-  --bg: #F4F9FB;
+  --bg: #E6F7F4;
   --bg-card: #FFFFFF;
-  --bg-input: #F4F9FB;
-  --border: #E2E8F0;
-  --border-hover: #CBD5E1;
-  --text-primary: #1E293B;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
-  --primary: #2DD4BF;
-  --primary-dark: #0F766E;
-  --primary-light: #99F6E4;
-  --secondary: #38BDF8;
-  --accent: #F97316;
-  --success: #34D399;
-  --error: #EF4444;
-  --warning: #F97316;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+  --bg-input: #F0FAF8;
+  --border: #D2EBE6;
+  --border-hover: #B8E0D9;
+  --text-primary: #1A365D;
+  --text-secondary: #2D3748;
+  --text-muted: #5A6B7A;
+  --primary: #2A7576;
+  --primary-dark: #1F5859;
+  --primary-light: #4FA3A4;
+  --secondary: #D69E2E;
+  --accent: #D69E2E;
+  --success: #2A7576;
+  --error: #E53E3E;
+  --warning: #D69E2E;
+  --shadow: 0 1px 3px rgba(26, 54, 93, 0.06);
+  --shadow-lg: 0 4px 14px rgba(26, 54, 93, 0.08);
   --shadow-glow: 0 0 0 rgba(0,0,0,0);
   --radius: 16px;
   --radius-sm: 10px;
+  --radius-md: 14px;
   --radius-lg: 18px;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -47,13 +48,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 body {
-  font-family: 'Inter', 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg);
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(45, 212, 191, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.06) 0%, transparent 45%);
+    radial-gradient(circle at 10% 20%, rgba(42, 117, 118, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(214, 158, 46, 0.04) 0%, transparent 45%);
   color: var(--text-primary);
   line-height: 1.6;
   height: 100%;
@@ -426,14 +427,14 @@ select.form-input option {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   width: 100%;
-  box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
+  box-shadow: 0 4px 16px rgba(42, 117, 118, 0.3);
 }
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(45, 212, 191, 0.45);
+  box-shadow: 0 8px 24px rgba(42, 117, 118, 0.45);
 }
 .btn-primary:active { transform: translateY(0); }
 

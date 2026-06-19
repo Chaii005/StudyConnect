@@ -387,9 +387,9 @@ export default function FriendDetail() {
               <span style={{
                 position: 'absolute', bottom: '8px', right: '8px',
                 width: '16px', height: '16px', borderRadius: '50%',
-                background: isOnline ? '#34D399' : '#ef4444',
+                background: isOnline ? '#2A7576' : '#ef4444',
                 border: '3px solid var(--bg-card)',
-                boxShadow: isOnline ? '0 0 10px rgba(52, 211, 153, 0.45)' : 'none',
+                boxShadow: isOnline ? '0 0 10px rgba(42, 117, 118, 0.45)' : 'none',
                 zIndex: 2
               }} />
             </div>
@@ -414,11 +414,11 @@ export default function FriendDetail() {
                 fontWeight: 700,
                 padding: '4px 10px',
                 borderRadius: '20px',
-                background: isOnline ? 'rgba(52,211,153,0.12)' : 'rgba(239,68,68,0.12)',
-                color: isOnline ? '#34D399' : '#ef4444',
-                border: isOnline ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(239,68,68,0.3)'
+                background: isOnline ? 'rgba(42,117,118,0.12)' : 'rgba(239,68,68,0.12)',
+                color: isOnline ? '#2A7576' : '#ef4444',
+                border: isOnline ? '1px solid rgba(42,117,118,0.3)' : '1px solid rgba(239,68,68,0.3)'
               }}>
-                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#34D399' : '#ef4444' }} />
+                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#2A7576' : '#ef4444' }} />
                 {isOnline ? 'Trực tuyến' : 'Ngoại tuyến'}
               </span>
             </div>

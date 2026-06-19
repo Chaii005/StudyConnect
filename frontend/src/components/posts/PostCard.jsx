@@ -75,14 +75,14 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
-        borderRadius: '18px',
+        borderRadius: 'var(--radius-lg)',
         marginBottom: '14px',
         overflow: 'hidden',
-        transition: 'border-color 0.2s, box-shadow 0.2s',
+        transition: 'border-color 0.25s, box-shadow 0.25s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(108,99,255,0.4)';
-        e.currentTarget.style.boxShadow = '0 4px 24px rgba(108,99,255,0.08)';
+        e.currentTarget.style.borderColor = 'rgba(42, 117, 118, 0.35)';
+        e.currentTarget.style.boxShadow = '0 4px 24px rgba(42, 117, 118, 0.06)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = 'var(--border)';
