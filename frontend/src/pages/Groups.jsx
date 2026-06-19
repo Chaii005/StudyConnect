@@ -1174,19 +1174,19 @@ export default function Groups() {
         {filteredGroups.length === 0 ? (
           <div className="premium-panel" style={{ textAlign: 'center', padding: '40px 16px' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', color: 'var(--text-muted)' }}>
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 <polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <p style={{ color: '#fff', fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>
+            <p style={{ color: 'var(--text-primary)', fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>
               {searchQuery.trim().length > 0 && searchQuery.trim().length < 6
                 ? 'Vui lòng nhập chính xác 6 chữ số ID phòng học...'
                 : searchQuery.trim().length >= 6
                   ? 'Không tìm thấy nhóm nào phù hợp với ID này!'
                   : 'Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!'}
             </p>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>
               {searchQuery.trim().length === 0 && 'Tạo nhóm để kết nối và học tập cùng bạn bè ngay.'}
             </p>
           </div>
@@ -1446,22 +1446,20 @@ export default function Groups() {
         .page-title {
           font-size: 24px;
           font-weight: 800;
-          color: #fff;
+          color: var(--primary);
           margin: 0 0 6px 0;
           line-height: 1.2;
         }
         .page-subtitle {
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-size: 14px;
           margin: 0;
         }
         .premium-panel {
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 20px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow);
         }
         .search-panel {
           display: flex;
@@ -1471,19 +1469,24 @@ export default function Groups() {
           margin-bottom: 24px;
           max-width: 500px;
           transition: all 0.3s;
+          background: var(--bg-card);
+          border: 1.5px solid var(--border);
         }
         .search-panel:focus-within {
-          border-color: #6366f1;
-          background: rgba(0,0,0,0.2);
-          box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+          border-color: var(--primary);
+          background: var(--bg-card);
+          box-shadow: 0 0 0 2px rgba(42, 117, 118, 0.15);
         }
         .search-input {
           background: none; border: none; outline: none; flex: 1;
-          color: #fff; font-size: 14px; font-family: inherit;
+          color: var(--text-primary); font-size: 14px; font-family: inherit;
+        }
+        .search-input::placeholder {
+          color: var(--text-secondary);
         }
         .group-card {
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           border-radius: 20px;
           padding: 20px;
           display: flex;
@@ -1492,9 +1495,7 @@ export default function Groups() {
           transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
           overflow: hidden;
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          box-shadow: var(--shadow);
         }
         .group-card::before {
           content: '';
@@ -1509,10 +1510,10 @@ export default function Groups() {
           pointer-events: none;
         }
         .group-card:hover {
-          background: linear-gradient(135deg, rgba(108, 99, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-          border-color: rgba(108, 99, 255, 0.35);
+          background: rgba(42, 117, 118, 0.04);
+          border-color: rgba(42, 117, 118, 0.3);
           transform: translateY(-5px);
-          box-shadow: 0 20px 40px rgba(108, 99, 255, 0.12), 0 0 0 1px rgba(108, 99, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          box-shadow: 0 20px 40px rgba(42, 117, 118, 0.12);
         }
         .group-card:hover::before {
           left: 125%;
