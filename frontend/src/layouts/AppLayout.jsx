@@ -209,9 +209,9 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   textDecoration: 'none',
                   fontSize: '13px',
                   fontWeight: 700,
-                  color: location.pathname === '/' ? 'var(--secondary)' : 'var(--text-secondary)',
-                  border: location.pathname === '/' ? '1.5px solid var(--secondary)' : '1.5px solid var(--border)',
-                  background: location.pathname === '/' ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                  color: location.pathname === '/' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  border: location.pathname === '/' ? '1.5px solid var(--text-primary)' : '1.5px solid var(--border)',
+                  background: location.pathname === '/' ? 'var(--bg-input)' : 'rgba(255, 255, 255, 0.02)',
                   padding: '6px 14px',
                   borderRadius: '10px',
                   display: 'inline-flex',
@@ -219,15 +219,15 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   transition: 'all 0.2s ease-in-out'
                 }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--secondary)';
-                    e.currentTarget.style.color = 'var(--secondary)';
-                    e.currentTarget.style.background = 'rgba(255, 122, 0, 0.08)';
+                    e.currentTarget.style.borderColor = 'var(--text-primary)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.background = 'var(--bg-input)';
                   }}
                   onMouseLeave={(e) => {
                     const isActive = location.pathname === '/';
-                    e.currentTarget.style.borderColor = isActive ? 'var(--secondary)' : 'var(--border)';
-                    e.currentTarget.style.color = isActive ? 'var(--secondary)' : 'var(--text-secondary)';
-                    e.currentTarget.style.background = isActive ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.borderColor = isActive ? 'var(--text-primary)' : 'var(--border)';
+                    e.currentTarget.style.color = isActive ? 'var(--text-primary)' : 'var(--text-secondary)';
+                    e.currentTarget.style.background = isActive ? 'var(--bg-input)' : 'rgba(255, 255, 255, 0.02)';
                   }}
                 >
                   Trang chủ
@@ -237,9 +237,9 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   textDecoration: 'none',
                   fontSize: '13px',
                   fontWeight: 700,
-                  color: location.pathname.startsWith('/groups') ? 'var(--secondary)' : 'var(--text-secondary)',
-                  border: location.pathname.startsWith('/groups') ? '1.5px solid var(--secondary)' : '1.5px solid var(--border)',
-                  background: location.pathname.startsWith('/groups') ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                  color: location.pathname.startsWith('/groups') ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  border: location.pathname.startsWith('/groups') ? '1.5px solid var(--text-primary)' : '1.5px solid var(--border)',
+                  background: location.pathname.startsWith('/groups') ? 'var(--bg-input)' : 'rgba(255, 255, 255, 0.02)',
                   padding: '6px 14px',
                   borderRadius: '10px',
                   display: 'inline-flex',
@@ -247,15 +247,15 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   transition: 'all 0.2s ease-in-out'
                 }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--secondary)';
-                    e.currentTarget.style.color = 'var(--secondary)';
-                    e.currentTarget.style.background = 'rgba(255, 122, 0, 0.08)';
+                    e.currentTarget.style.borderColor = 'var(--text-primary)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.background = 'var(--bg-input)';
                   }}
                   onMouseLeave={(e) => {
                     const isActive = location.pathname.startsWith('/groups');
-                    e.currentTarget.style.borderColor = isActive ? 'var(--secondary)' : 'var(--border)';
-                    e.currentTarget.style.color = isActive ? 'var(--secondary)' : 'var(--text-secondary)';
-                    e.currentTarget.style.background = isActive ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.borderColor = isActive ? 'var(--text-primary)' : 'var(--border)';
+                    e.currentTarget.style.color = isActive ? 'var(--text-primary)' : 'var(--text-secondary)';
+                    e.currentTarget.style.background = isActive ? 'var(--bg-input)' : 'rgba(255, 255, 255, 0.02)';
                   }}
                 >
                   Nhóm học
@@ -265,9 +265,9 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   textDecoration: 'none',
                   fontSize: '13px',
                   fontWeight: 700,
-                  color: location.pathname === '/schedule' ? 'var(--secondary)' : 'var(--text-secondary)',
-                  border: location.pathname === '/schedule' ? '1.5px solid var(--secondary)' : '1.5px solid var(--border)',
-                  background: location.pathname === '/schedule' ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                  color: location.pathname === '/schedule' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  border: location.pathname === '/schedule' ? '1.5px solid var(--text-primary)' : '1.5px solid var(--border)',
+                  background: location.pathname === '/schedule' ? 'var(--bg-input)' : 'rgba(255, 255, 255, 0.02)',
                   padding: '6px 14px',
                   borderRadius: '10px',
                   display: 'inline-flex',
@@ -275,15 +275,15 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   transition: 'all 0.2s ease-in-out'
                 }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--secondary)';
-                    e.currentTarget.style.color = 'var(--secondary)';
-                    e.currentTarget.style.background = 'rgba(255, 122, 0, 0.08)';
+                    e.currentTarget.style.borderColor = 'var(--text-primary)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.background = 'var(--bg-input)';
                   }}
                   onMouseLeave={(e) => {
                     const isActive = location.pathname === '/schedule';
-                    e.currentTarget.style.borderColor = isActive ? 'var(--secondary)' : 'var(--border)';
-                    e.currentTarget.style.color = isActive ? 'var(--secondary)' : 'var(--text-secondary)';
-                    e.currentTarget.style.background = isActive ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.borderColor = isActive ? 'var(--text-primary)' : 'var(--border)';
+                    e.currentTarget.style.color = isActive ? 'var(--text-primary)' : 'var(--text-secondary)';
+                    e.currentTarget.style.background = isActive ? 'var(--bg-input)' : 'rgba(255, 255, 255, 0.02)';
                   }}
                 >
                   Lịch &amp; Deadline
@@ -310,17 +310,17 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
             {displayUser && (
               <button className="btn-logout desktop-only" onClick={handleLogout} style={{
                 background: 'transparent',
-                border: '1px solid #2A7576',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
-                color: '#2A7576',
+                color: 'var(--text-secondary)',
                 padding: '6px 14px',
                 fontSize: '13px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'var(--transition)'
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#1f5859'; e.currentTarget.style.background = 'rgba(42, 117, 118, 0.08)'; e.currentTarget.style.color = '#1f5859'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#2A7576'; e.currentTarget.style.color = '#2A7576'; e.currentTarget.style.background = 'transparent'; }}>
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}>
                 Đăng xuất
               </button>
             )}
@@ -354,43 +354,43 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           )}
 
           <div style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.home(location.pathname === '/')}
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/' ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname === '/' ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.home(location.pathname === '/', '#FFFFFF')}
               Trang chủ
             </Link>
 
-            <Link to="/flashcards" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/flashcards' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/flashcards' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.flashcards(location.pathname === '/flashcards')}
+            <Link to="/flashcards" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/flashcards' ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname === '/flashcards' ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.flashcards(location.pathname === '/flashcards', '#FFFFFF')}
               Thẻ học &amp; Trắc nghiệm
             </Link>
-            <Link to="/groups" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname.startsWith('/groups') ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname.startsWith('/groups') ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.groups(location.pathname.startsWith('/groups'))}
+            <Link to="/groups" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname.startsWith('/groups') ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname.startsWith('/groups') ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.groups(location.pathname.startsWith('/groups'), '#FFFFFF')}
               Nhóm học
             </Link>
-            <Link to="/schedule" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/schedule' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/schedule' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.schedule(location.pathname === '/schedule')}
+            <Link to="/schedule" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/schedule' ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname === '/schedule' ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.schedule(location.pathname === '/schedule', '#FFFFFF')}
               Lịch học &amp; Deadline
             </Link>
-            <Link to="/friends" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/friends' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/friends' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.friends(location.pathname === '/friends')}
+            <Link to="/friends" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/friends' ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname === '/friends' ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.friends(location.pathname === '/friends', '#FFFFFF')}
               Kết bạn
             </Link>
-            <Link to="/my-documents" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/my-documents' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/my-documents' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.docs(location.pathname === '/my-documents')}
+            <Link to="/my-documents" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/my-documents' ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname === '/my-documents' ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.docs(location.pathname === '/my-documents', '#FFFFFF')}
               Tài liệu của tôi
             </Link>
-            <Link to="/chat" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/chat' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/chat' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.chat(location.pathname === '/chat')}
+            <Link to="/chat" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/chat' ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname === '/chat' ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.chat(location.pathname === '/chat', '#FFFFFF')}
               Nhắn tin
             </Link>
-            <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/profile' ? 'var(--secondary)' : 'var(--text-primary)', background: location.pathname === '/profile' ? 'rgba(255,122,0,0.1)' : 'none', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.profile(location.pathname === '/profile')}
+            <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: location.pathname === '/profile' ? '#FFFFFF' : 'var(--text-primary)', background: location.pathname === '/profile' ? '#23615F' : 'none', fontWeight: 600, fontSize: '14px' }}>
+              {NAV_ICONS.profile(location.pathname === '/profile', '#FFFFFF')}
               Hồ sơ cá nhân
             </Link>
           </div>
 
           <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
-            <button onClick={handleLogout} className="btn-logout" style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid #2A7576', color: '#2A7576', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+            <button onClick={handleLogout} className="btn-logout" style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
               Đăng xuất
             </button>
           </div>
@@ -454,7 +454,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                           gap: '12px', 
                           padding: '11px 14px', 
                           borderRadius: '12px', 
-                          background: isActive ? '#2A7576' : 'none', 
+                          background: isActive ? '#23615F' : 'none', 
                           border: isActive ? '1px solid transparent' : '1px solid transparent',
                           transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', 
                           transform: 'translateY(0)',

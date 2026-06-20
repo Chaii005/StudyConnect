@@ -301,7 +301,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                       )}
                       <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#10b981' }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
                             📍 {selectedLocation.name}
                           </div>
                           {selectedLocation.formattedAddress && selectedLocation.formattedAddress !== selectedLocation.name && (
@@ -480,7 +480,7 @@ function InviteFriendsModal({ group, currentUser, onClose, addToast }) {
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {friend.fullName}
                         {isGroupAdmin && (
-                          <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 4, padding: '1px 5px', verticalAlign: 'middle' }}>
+                          <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 4, padding: '1px 5px', verticalAlign: 'middle' }}>
                             Trưởng nhóm
                           </span>
                         )}
@@ -488,7 +488,7 @@ function InviteFriendsModal({ group, currentUser, onClose, addToast }) {
                       {friend.university && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{friend.university}</div>}
                     </div>
                     {isGroupAdmin ? (
-                      <span style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontWeight: 600, fontSize: 11, whiteSpace: 'nowrap' }}>
+                      <span style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: 'var(--text-primary)', fontWeight: 600, fontSize: 11, whiteSpace: 'nowrap' }}>
                         Trưởng nhóm
                       </span>
                     ) : isPending ? (
@@ -666,7 +666,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                         {isOnline ? 'Online' : 'Offline'}
                       </span>
                       {group.sameMajor && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 20, padding: '2px 9px' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 20, padding: '2px 9px' }}>
                           ✨ Cùng ngành
                         </span>
                       )}
@@ -700,7 +700,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                     ) : (() => {
                       const reqStatus = joinRequestStatus[group.id];
                       if (group.isPrivate && reqStatus === 'pending') {
-                        return <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 600 }}>Đang chờ duyệt</span>;
+                        return <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 600 }}>Đang chờ duyệt</span>;
                       }
                       return (
                         <button onClick={() => handleJoin(group)}
@@ -1081,7 +1081,7 @@ export default function Groups() {
                 gap: '8px',
                 background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.05))',
                 border: '1px solid rgba(16,185,129,0.35)',
-                color: '#10b981',
+                color: 'var(--text-primary)',
                 fontWeight: 700,
                 borderRadius: '12px',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)',
@@ -1202,7 +1202,7 @@ export default function Groups() {
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: '12px' }}>
                     <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.3, letterSpacing: '-0.01em' }}>{group.name}</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-                      <span className="badge-outline" style={{ borderColor: 'rgba(108,99,255,0.25)', color: '#a5b4fc', background: 'rgba(108,99,255,0.08)', display: 'inline-flex', alignItems: 'center', gap: '5px', borderRadius: '10px', padding: '4px 10px', fontSize: '11px', fontWeight: 700 }}>
+                      <span className="badge-outline" style={{ borderColor: 'rgba(108,99,255,0.25)', color: 'var(--text-secondary)', background: 'rgba(108,99,255,0.08)', display: 'inline-flex', alignItems: 'center', gap: '5px', borderRadius: '10px', padding: '4px 10px', fontSize: '11px', fontWeight: 700 }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                           <circle cx="9" cy="7" r="4" />
@@ -1211,7 +1211,7 @@ export default function Groups() {
                         </svg>
                         {group?.members?.length || 0}/{group.maxMembers || 10}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 10, whiteSpace: 'nowrap', background: group.meetingMode === 'offline' ? 'rgba(16,185,129,0.08)' : 'rgba(99,179,237,0.08)', color: group.meetingMode === 'offline' ? '#10b981' : '#63b3ed', border: group.meetingMode === 'offline' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(99,179,237,0.25)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 10, whiteSpace: 'nowrap', background: group.meetingMode === 'offline' ? 'rgba(16,185,129,0.08)' : 'rgba(99,179,237,0.08)', color: 'var(--text-primary)', border: group.meetingMode === 'offline' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(99,179,237,0.25)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                         {group.meetingMode === 'offline' ? (
                           <>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1260,10 +1260,10 @@ export default function Groups() {
                         <line x1="10" y1="3" x2="8" y2="21" />
                         <line x1="16" y1="3" x2="14" y2="21" />
                       </svg>
-                      ID: <strong style={{ color: 'var(--primary-light)' }}>{group.id}</strong>
+                      ID: <strong style={{ color: 'var(--text-primary)' }}>{group.id}</strong>
                     </span>
-                    {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(255,193,7,0.15)', color: '#f59e0b', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(245,158,11,0.3)' }}>Trưởng nhóm</span>}
-                    {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(108,99,255,0.12)', color: 'var(--primary-light)', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(108,99,255,0.25)' }}>Phó nhóm</span>}
+                    {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(255,193,7,0.15)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(245,158,11,0.3)' }}>Trưởng nhóm</span>}
+                    {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(108,99,255,0.12)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(108,99,255,0.25)' }}>Phó nhóm</span>}
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-input)', border: '1px solid var(--border)', marginBottom: '8px', marginTop: '4px', padding: '6px 12px', borderRadius: '10px' }}>
@@ -1278,15 +1278,15 @@ export default function Groups() {
 
                   {group.meetingMode === 'offline' && group.location && (
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', background: 'rgba(16, 185, 129, 0.04)', padding: '6px 12px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.15)', marginBottom: '8px' }}>
-                      <span style={{ fontSize: 13, flexShrink: 0, display: 'inline-flex', alignItems: 'center', color: '#10b981', marginTop: '1px' }}>
+                      <span style={{ fontSize: 13, flexShrink: 0, display: 'inline-flex', alignItems: 'center', color: 'var(--text-primary)', marginTop: '1px' }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                           <circle cx="12" cy="10" r="3" />
                         </svg>
                       </span>
                       <div style={{ minWidth: 0 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#10b981', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.name}</span>
-                        {group.location.address && <span style={{ fontSize: 11, color: 'var(--primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.address}</span>}
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.name}</span>
+                        {group.location.address && <span style={{ fontSize: 11, color: 'var(--text-secondary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.address}</span>}
                       </div>
                     </div>
                   )}
@@ -1335,7 +1335,7 @@ export default function Groups() {
                               fontWeight: 600, 
                               borderRadius: '8px', 
                               background: 'rgba(255,59,48,0.08)', 
-                              color: '#ff453a', 
+                              color: 'var(--text-primary)', 
                               border: '1px solid rgba(255,59,48,0.2)', 
                               cursor: 'pointer', 
                               transition: 'all 0.2s ease' 
@@ -1362,7 +1362,7 @@ export default function Groups() {
                             borderRadius: '8px', 
                             border: '1px solid rgba(42, 117, 118, 0.3)', 
                             background: 'rgba(42, 117, 118, 0.06)', 
-                            color: 'var(--primary)', 
+                            color: 'var(--text-primary)', 
                             cursor: 'pointer', 
                             fontFamily: 'inherit', 
                             display: 'flex', 
@@ -1395,7 +1395,7 @@ export default function Groups() {
                       const reqStatus = joinRequestStatus[group.id];
                       if (group.isPrivate && reqStatus === 'pending') {
                         return (
-                          <div style={{ width: '100%', padding: '9px', borderRadius: '8px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b', fontSize: '13px', fontWeight: 700, textAlign: 'center' }}>
+                          <div style={{ width: '100%', padding: '9px', borderRadius: '8px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 700, textAlign: 'center' }}>
                             ⏳ Đang chờ trưởng nhóm duyệt...
                           </div>
                         );
@@ -1580,7 +1580,7 @@ export default function Groups() {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '12px' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>
               Thông tin nhóm học
             </h3>
             <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>

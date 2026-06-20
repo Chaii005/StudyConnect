@@ -140,10 +140,10 @@ export default function Schedule() {
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
             <div>
-              <div style={{ color: '#ef4444', fontWeight: 800, fontSize: '16px' }}>
+              <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '16px' }}>
                 {urgentCount} deadline sắp đến hạn trong 24 giờ!
               </div>
-              <div style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '4px' }}>
                 Hãy hoàn thành trước khi quá muộn nhé.
               </div>
             </div>
@@ -246,7 +246,7 @@ export default function Schedule() {
                       <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
                   </div>
-                  <p style={{ color: '#4ade80', fontSize: '14px', fontWeight: 600, margin: 0 }}>Tuyệt vời! Không còn deadline nào chưa làm.</p>
+                  <p style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600, margin: 0 }}>Tuyệt vời! Không còn deadline nào chưa làm.</p>
                 </div>
               ) : (
                 incompleteDeadlines.map(d => {
@@ -260,7 +260,7 @@ export default function Schedule() {
                       <div style={{ flex: 1, overflow: 'hidden' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
                           <h4 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{d.title}</h4>
-                          <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600, flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-primary)', fontWeight: 600, flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                               <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
                             </svg>
@@ -271,15 +271,15 @@ export default function Schedule() {
                           <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: '0 0 10px 0', lineHeight: 1.5 }}>{d.description}</p>
                         )}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '13px', color: d.dueSoon ? '#f87171' : d.overdue ? '#64748b' : 'var(--text-secondary)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10"/>
                               <polyline points="12 6 12 12 16 14"/>
                             </svg>
                             {new Date(d.dueDate).toLocaleString('vi-VN')}
                           </span>
-                          {d.dueSoon && <span style={{ background: 'rgba(239,68,68,0.2)', color: '#fca5a5', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>&lt; 24h</span>}
-                          {d.overdue && <span style={{ background: 'rgba(100,100,120,0.3)', color: '#94a3b8', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>Quá hạn</span>}
+                          {d.dueSoon && <span style={{ background: 'rgba(239,68,68,0.2)', color: 'var(--text-primary)', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>&lt; 24h</span>}
+                          {d.overdue && <span style={{ background: 'rgba(100,100,120,0.3)', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>Quá hạn</span>}
                         </div>
                       </div>
 
@@ -291,7 +291,7 @@ export default function Schedule() {
                         style={{
                           background: 'rgba(42, 117, 118, 0.08)',
                           border: '1px solid rgba(42, 117, 118, 0.35)',
-                          color: 'var(--primary)',
+                          color: 'var(--text-primary)',
                           cursor: 'pointer',
                           borderRadius: '12px',
                           padding: '10px 16px',

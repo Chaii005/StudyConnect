@@ -422,10 +422,7 @@ export default function Home() {
               {/* ─ Deadline cần nộp ─ */}
               <div style={{ padding: '10px 16px 14px' }}>
                 <Link to="/schedule#deadlines" style={{ textDecoration: 'none', display: 'block' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#D69E2E', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#F59E0B'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#D69E2E'}
-                  >
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                     </svg>
