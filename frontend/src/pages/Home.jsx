@@ -459,10 +459,6 @@ export default function Home() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  background: 'linear-gradient(135deg, rgba(217, 158, 46, 0.08), rgba(217, 158, 46, 0.03))',
-                  border: '1px solid rgba(217, 158, 46, 0.2)',
-                  padding: '4px 10px',
-                  borderRadius: '20px'
                 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
