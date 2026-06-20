@@ -12,7 +12,7 @@ const ReplyIcon = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      color: 'var(--primary-light)',
+      color: 'var(--text-primary)',
       display: 'inline-block',
       verticalAlign: 'middle'
     }}
@@ -32,7 +32,7 @@ export default function CommentRow({ comment: c, onReply }) {
             {c.userFullName}
           </div>
           {c.replyToName && (
-            <div style={{ fontSize: '11px', color: 'var(--primary-light)', fontWeight: 600, marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <ReplyIcon /> Trả lời <strong>{c.replyToName}</strong>
             </div>
           )}

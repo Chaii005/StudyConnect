@@ -294,7 +294,7 @@ export default function GroupDeadlines({
                             padding: '2px 8px',
                             borderRadius: '6px',
                           background: d.assigneeId ? 'rgba(108,99,255,0.12)' : 'rgba(62,207,207,0.10)',
-                          color: d.assigneeId ? 'var(--primary-light)' : 'var(--secondary)',
+                          color: 'var(--text-primary)',
                           border: `1px solid ${
                             d.assigneeId ? 'rgba(108,99,255,0.25)' : 'rgba(62,207,207,0.25)'
                           }`,
@@ -362,9 +362,9 @@ export default function GroupDeadlines({
                         onClick={() => handleRemindDeadline(d)}
                         disabled={remindingIds[d.id]}
                         style={{
-                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : 'rgba(245,158,11,0.08)',
-                          border: remindingIds[d.id] ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(245,158,11,0.25)',
-                          color: remindingIds[d.id] ? 'var(--text-muted)' : '#f59e0b',
+                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : 'rgba(17, 24, 39, 0.04)',
+                          border: remindingIds[d.id] ? '1px solid rgba(255,255,255,0.1)' : '1px solid var(--border)',
+                          color: remindingIds[d.id] ? 'var(--text-muted)' : 'var(--text-primary)',
                           cursor: remindingIds[d.id] ? 'default' : 'pointer',
                           borderRadius: '6px',
                           padding: '5px 12px',
@@ -376,12 +376,16 @@ export default function GroupDeadlines({
                         onMouseEnter={(e) => {
                           if (!remindingIds[d.id]) {
                             e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 4px 10px rgba(245,158,11,0.2)';
+                            e.currentTarget.style.background = 'rgba(17, 24, 39, 0.08)';
+                            e.currentTarget.style.borderColor = 'var(--text-primary)';
                           }
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = 'none';
+                          if (!remindingIds[d.id]) {
+                            e.currentTarget.style.background = 'rgba(17, 24, 39, 0.04)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                          }
                         }}
                       >
                         {remindingIds[d.id] ? (
@@ -405,7 +409,7 @@ export default function GroupDeadlines({
                           style={{
                             background: 'rgba(108, 99, 255, 0.08)',
                             border: '1px solid rgba(108, 99, 255, 0.2)',
-                            color: 'var(--primary-light)',
+                            color: 'var(--text-primary)',
                             cursor: 'pointer',
                             borderRadius: '6px',
                             padding: '5px 12px',
@@ -459,7 +463,7 @@ export default function GroupDeadlines({
                             style={{
                               background: 'rgba(62,207,207,0.08)',
                               border: '1px solid rgba(62,207,207,0.25)',
-                              color: 'var(--secondary)',
+                              color: 'var(--text-primary)',
                               cursor: 'pointer',
                               borderRadius: '6px',
                               padding: '5px 12px',
@@ -1047,7 +1051,7 @@ export default function GroupDeadlines({
                           padding: '5px 12px',
                           fontSize: '12px',
                           fontWeight: 600,
-                          color: 'var(--primary-light)',
+                          color: 'var(--text-primary)',
                           textDecoration: 'none',
                         }}
                         onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(108,99,255,0.18)')}

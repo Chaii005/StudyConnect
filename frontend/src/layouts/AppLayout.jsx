@@ -419,7 +419,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                           <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {user.fullName || 'Người dùng'}
                           </div>
-                          <div style={{ fontSize: '11px', color: 'var(--primary-light)', fontWeight: 600 }}>Xem hồ sơ</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>Xem hồ sơ</div>
                         </div>
                       </div>
                     </Link>

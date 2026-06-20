@@ -42,7 +42,7 @@ export default function NotificationItem({
           width: 8,
           height: 8,
           borderRadius: '50%',
-          background: isUrgentDeadline ? '#ef4444' : (isUnread ? 'var(--primary)' : 'transparent'),
+          background: isUrgentDeadline ? '#ef4444' : (isUnread ? 'var(--text-primary)' : 'transparent'),
           flexShrink: 0,
           marginTop: 6,
           border: (!isUrgentDeadline && !isUnread) ? '1px solid var(--border)' : 'none',

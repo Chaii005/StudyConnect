@@ -147,8 +147,8 @@ export default function NotificationBell({ style }) {
           transition: 'all 0.25s ease',
           padding: 0,
           flexShrink: 0,
-          color: open || hovered ? 'var(--secondary)' : unreadCount > 0 ? 'var(--secondary)' : 'var(--text-primary)',
-          filter: unreadCount > 0 ? 'drop-shadow(0 0 6px var(--secondary))' : 'none',
+          color: 'var(--text-primary)',
+          filter: 'none',
           ...style,
         }}
         onMouseEnter={() => setHovered(true)}
@@ -235,7 +235,7 @@ export default function NotificationBell({ style }) {
                   }}
                 >
                   {toastEnabled ? (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                   ) : (
@@ -253,7 +253,7 @@ export default function NotificationBell({ style }) {
                   onClick={markAllRead}
                   style={{
                     background: 'none', border: 'none',
-                    color: 'var(--primary)', fontSize: 11,
+                    color: 'var(--text-primary)', fontSize: 11,
                     cursor: 'pointer', fontWeight: 600,
                   }}
                 >

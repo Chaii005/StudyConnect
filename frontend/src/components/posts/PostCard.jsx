@@ -16,7 +16,7 @@ const ReplyIcon = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      color: 'var(--primary-light)',
+      color: 'var(--text-primary)',
       display: 'inline-block',
       verticalAlign: 'middle'
     }}
@@ -157,7 +157,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'var(--primary-light)',
+              color: 'var(--text-primary)',
               fontWeight: 600,
               fontSize: '13px',
               padding: '4px 0 0',
@@ -187,8 +187,8 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
             <span key={`tg:${i}`} style={{
               display: 'inline-flex', alignItems: 'center',
               padding: '3px 10px', borderRadius: '20px',
-              background: 'rgba(255,122,0,0.1)', border: '1px solid rgba(255,122,0,0.25)',
-              color: 'var(--secondary)', fontSize: '12px', fontWeight: 700,
+              background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)',
+              color: 'var(--text-primary)', fontSize: '12px', fontWeight: 700,
             }}>
               @{name}
             </span>
@@ -289,7 +289,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   background: 'rgba(108, 99, 255, 0.08)',
-                  borderLeft: '3px solid var(--primary-light)',
+                  borderLeft: '3px solid var(--text-primary)',
                   padding: '8px 16px',
                   borderRadius: '8px',
                   marginBottom: '8px',
@@ -297,10 +297,10 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
                   transition: 'all 0.2s ease',
                 }}>
                   <span style={{ fontSize: '12.5px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ color: 'var(--primary-light)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <ReplyIcon /> Trả lời
                     </span>
-                    <strong style={{ color: 'var(--primary-light)' }}>{replyTo.name}</strong>
+                    <strong style={{ color: 'var(--text-primary)' }}>{replyTo.name}</strong>
                   </span>
                   <button
                     onClick={() => setReplyTo(null)}
@@ -342,7 +342,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
                     flex: 1,
                     display: 'flex',
                     background: isInputFocused ? 'rgba(108, 99, 255, 0.05)' : 'var(--bg-input)',
-                    border: isInputFocused ? '1px solid var(--primary-light)' : '1px solid var(--border)',
+                    border: isInputFocused ? '1px solid var(--text-primary)' : '1px solid var(--border)',
                     borderRadius: '24px',
                     overflow: 'hidden',
                     boxShadow: isInputFocused ? '0 0 12px rgba(108, 99, 255, 0.15)' : 'none',

@@ -192,7 +192,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
             >
               {/* Section header friends */}
               {sugs.some(s => s.type === 'friend') && (
-                <div style={{ padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--primary-light)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(108,99,255,0.05)' }}>
+                <div style={{ padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(108,99,255,0.05)' }}>
                   👤 Bạn bè
                 </div>
               )}
@@ -218,8 +218,8 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
 
               {/* Section header groups */}
               {sugs.some(s => s.type === 'group') && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(255,122,0,0.05)', borderTop: sugs.some(s => s.type === 'friend') ? '1px solid var(--border)' : 'none' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--secondary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(17, 24, 39, 0.04)', borderTop: sugs.some(s => s.type === 'friend') ? '1px solid var(--border)' : 'none' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -237,13 +237,13 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
                     style={{
                       display: 'flex', alignItems: 'center', gap: '10px',
                       padding: '8px 14px', cursor: 'pointer',
-                      background: realIdx === suggestIdx ? 'rgba(255,122,0,0.1)' : 'transparent',
+                      background: realIdx === suggestIdx ? 'rgba(17, 24, 39, 0.06)' : 'transparent',
                       transition: 'background 0.15s',
                     }}
                     onMouseEnter={() => setSuggestIdx(realIdx)}
                   >
-                    <div style={{ width: 28, height: 28, borderRadius: '8px', background: 'rgba(255,122,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <div style={{ width: 28, height: 28, borderRadius: '8px', background: 'rgba(17, 24, 39, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                         <circle cx="9" cy="7" r="4" />
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -269,9 +269,9 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
                 padding: '4px 10px 4px 8px',
                 borderRadius: '20px',
-                background: t.type === 'friend' ? '#E0F2FE' : 'rgba(255,122,0,0.12)',
-                border: t.type === 'friend' ? '1px solid #BAE6FD' : '1px solid rgba(255,122,0,0.3)',
-                color: t.type === 'friend' ? '#0369A1' : 'var(--secondary)',
+                background: t.type === 'friend' ? '#E0F2FE' : 'rgba(17, 24, 39, 0.04)',
+                border: t.type === 'friend' ? '1px solid #BAE6FD' : '1px solid var(--border)',
+                color: t.type === 'friend' ? '#0369A1' : 'var(--text-primary)',
                 fontSize: '12px', fontWeight: 700,
               }}>
                 {t.type === 'friend' ? (
@@ -305,7 +305,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
             <line x1="9" y1="18" x2="15" y2="18" />
             <line x1="10" y1="22" x2="14" y2="22" />
           </svg>
-          <span>Gõ <strong style={{ color: 'var(--primary-light)' }}>@</strong> để tag bạn bè hoặc nhóm học bạn đang làm trưởng nhóm</span>
+          <span>Gõ <strong style={{ color: 'var(--text-primary)' }}>@</strong> để tag bạn bè hoặc nhóm học bạn đang làm trưởng nhóm</span>
         </div>
 
         {/* Footer */}

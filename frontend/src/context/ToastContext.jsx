@@ -65,7 +65,7 @@ export const ToastProvider = ({ children }) => {
               background: toast.type === 'error'
                 ? 'var(--danger-gradient, linear-gradient(135deg, #ff416c, #ff4b2b))'
                 : toast.type === 'message'
-                ? 'linear-gradient(135deg, #ff7a00, #ff9500)'
+                ? 'var(--primary-gradient, linear-gradient(135deg, #6c63ff, #3ecfcf))'
                 : toast.type === 'notification'
                 ? 'linear-gradient(135deg, #3a7bd5, #3a6073)' // Elegant dark blue/grey gradient for notifications
                 : 'var(--primary-gradient, linear-gradient(135deg, #6c63ff, #3ecfcf))',

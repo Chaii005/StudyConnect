@@ -23,14 +23,14 @@ export default function GroupMembers({
 
       {/* Yêu cầu tham gia — chỉ trưởng nhóm thấy, nhóm riêng tư */}
       {isLeader && group?.isPrivate && joinRequests.length > 0 && (
-        <div style={{ background: 'rgba(245,158,11,0.06)', border: '1.5px solid rgba(245,158,11,0.3)', borderRadius: 'var(--radius-lg)', padding: '20px 24px' }}>
-          <h3 style={{ margin: '0 0 4px 0', fontSize: 16, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: 'rgba(17, 24, 39, 0.04)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '20px 24px' }}>
+          <h3 style={{ margin: '0 0 4px 0', fontSize: 16, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
             Yêu cầu tham gia nhóm
-            <span style={{ fontSize: 12, background: '#f59e0b', color: '#000', borderRadius: 20, padding: '2px 8px', fontWeight: 800 }}>{joinRequests.length}</span>
+            <span style={{ fontSize: 12, background: 'var(--text-primary)', color: 'var(--bg-card)', borderRadius: 20, padding: '2px 8px', fontWeight: 800 }}>{joinRequests.length}</span>
           </h3>
           <p style={{ margin: '0 0 14px 0', fontSize: 12, color: 'var(--text-muted)' }}>Duyệt hoặc từ chối các yêu cầu tham gia nhóm riêng tư.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -109,7 +109,7 @@ export default function GroupMembers({
             style={{
               background: 'var(--bg-card)',
               border: isLeader
-                ? '1.5px solid rgba(245, 158, 11, 0.4)'
+                ? '1.5px solid var(--text-primary)'
                 : isDeputy
                 ? '1.5px solid rgba(108, 99, 255, 0.35)'
                 : '1px solid var(--border)',
@@ -177,12 +177,12 @@ export default function GroupMembers({
                   <span
                     style={{
                       fontSize: '11px',
-                      background: 'rgba(245, 158, 11, 0.15)',
-                      color: '#f59e0b',
+                      background: 'rgba(17, 24, 39, 0.04)',
+                      color: 'var(--text-primary)',
                       padding: '2px 8px',
                       borderRadius: '10px',
                       fontWeight: 700,
-                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                      border: '1px solid var(--border)',
                     }}
                   >
                     Trưởng nhóm
@@ -193,7 +193,7 @@ export default function GroupMembers({
                     style={{
                       fontSize: '11px',
                       background: 'rgba(108, 99, 255, 0.12)',
-                      color: 'var(--primary-light)',
+                      color: 'var(--text-primary)',
                       padding: '2px 8px',
                       borderRadius: '10px',
                       fontWeight: 700,
@@ -231,11 +231,11 @@ export default function GroupMembers({
                     style={{
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(245, 158, 11, 0.1)',
-                      color: '#f59e0b',
+                      background: 'rgba(17, 24, 39, 0.04)',
+                      color: 'var(--text-primary)',
                       fontWeight: 600,
                       fontSize: '13px',
-                      border: '1px solid rgba(245,158,11,0.3)',
+                      border: '1px solid var(--border)',
                     }}
                   >
                     Chờ phản hồi
@@ -246,7 +246,7 @@ export default function GroupMembers({
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
                       background: 'rgba(108, 99, 255, 0.1)',
-                      color: 'var(--primary-light)',
+                      color: 'var(--text-primary)',
                       fontWeight: 600,
                       fontSize: '13px',
                       border: '1px solid rgba(108,99,255,0.3)',
@@ -264,7 +264,7 @@ export default function GroupMembers({
                       border: '1px solid rgba(108, 99, 255, 0.35)',
                       cursor: 'pointer',
                       background: 'rgba(108, 99, 255, 0.08)',
-                      color: 'var(--primary-light)',
+                      color: 'var(--text-primary)',
                       fontWeight: 600,
                       fontSize: '13px',
                     }}
@@ -300,7 +300,7 @@ export default function GroupMembers({
                       border: '1px solid rgba(108, 99, 255, 0.35)',
                       cursor: 'pointer',
                       background: 'rgba(108, 99, 255, 0.08)',
-                      color: 'var(--primary-light)',
+                      color: 'var(--text-primary)',
                       fontWeight: 600,
                       fontSize: '13px',
                     }}

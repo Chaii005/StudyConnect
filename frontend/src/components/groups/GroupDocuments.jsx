@@ -115,7 +115,7 @@ export default function GroupDocuments({
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                style={{ color: 'var(--primary-light)' }}
+                style={{ color: 'var(--text-primary)' }}
               >
                 <path
                   strokeLinecap="round"
@@ -127,7 +127,7 @@ export default function GroupDocuments({
             </div>
             {selectedFile ? (
               <div>
-                <p style={{ fontWeight: 600, color: 'var(--primary-light)', fontSize: '13px' }}>Đã chọn: {selectedFile.name}</p>
+                <p style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '13px' }}>Đã chọn: {selectedFile.name}</p>
                 <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                   Dung lượng: {formatBytes(selectedFile.size)}
                 </p>
@@ -257,7 +257,7 @@ export default function GroupDocuments({
                             fontSize: '11px',
                             fontWeight: 700,
                             background: 'rgba(108,99,255,0.15)',
-                            color: 'var(--primary-light)',
+                            color: 'var(--text-primary)',
                             padding: '2px 8px',
                             borderRadius: '4px',
                             border: '1px solid rgba(108,99,255,0.2)'

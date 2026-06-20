@@ -1881,13 +1881,13 @@ export default function MeetRoom() {
                                 <div style={{ marginTop: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                   {role === 'Trưởng phòng' ? (
                                     <span style={{
-                                      background: 'rgba(245,158,11,0.15)',
-                                      color: '#fbbf24',
+                                      background: 'rgba(255,255,255,0.08)',
+                                      color: 'rgba(255,255,255,0.85)',
                                       fontSize: '10px',
                                       fontWeight: 700,
                                       padding: '1px 7px',
                                       borderRadius: '5px',
-                                      border: '1px solid rgba(245,158,11,0.3)',
+                                      border: '1px solid rgba(255,255,255,0.15)',
                                       lineHeight: '16px',
                                       whiteSpace: 'nowrap',
                                       display: 'inline-flex',

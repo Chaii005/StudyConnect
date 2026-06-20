@@ -50,11 +50,11 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
                 <tr key={g.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '13.5px', verticalAlign: 'middle' }} className="table-row-hover">
                   <td style={{ padding: '16px 10px' }}>
                     <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{g.name}</div>
-                    <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>ID: <strong style={{ color: 'var(--secondary)' }}>{g.id}</strong></div>
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>ID: <strong style={{ color: 'var(--text-primary)' }}>{g.id}</strong></div>
                     <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>{g.description || 'Chưa có mô tả.'}</div>
                   </td>
                   <td style={{ padding: '16px 10px', whiteSpace: 'nowrap' }}>
-                    <span style={{ background: 'rgba(108,99,255,0.1)', color: 'var(--primary-light)', padding: '4px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 600 }}>
+                    <span style={{ background: 'rgba(108,99,255,0.1)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 600 }}>
                       {g.subject}
                     </span>
                   </td>
@@ -85,7 +85,7 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
                     ) : <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>—</span>}
                   </td>
                   <td style={{ padding: '16px 10px', whiteSpace: 'nowrap' }}>
-                    <strong style={{ color: 'var(--secondary)', fontSize: '14px' }}>{g.members?.length || 0}</strong>
+                    <strong style={{ color: 'var(--text-primary)', fontSize: '14px' }}>{g.members?.length || 0}</strong>
                     <span style={{ color: 'var(--text-muted)', fontSize: '11.5px', marginLeft: '4px' }}>thành viên</span>
                   </td>
                   <td style={{ padding: '16px 10px', color: 'var(--text-muted)', fontSize: '12.5px', whiteSpace: 'nowrap' }}>

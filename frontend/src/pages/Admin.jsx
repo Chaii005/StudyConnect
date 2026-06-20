@@ -35,7 +35,7 @@ function MembersModal({ group, users, onClose }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
             <h3 style={{ fontSize: '20px', fontWeight: 750, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                 <circle cx="9" cy="7" r="4" />
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -44,7 +44,7 @@ function MembersModal({ group, users, onClose }) {
               Thành viên phòng học
             </h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: '4px 0 0 0' }}>
-              Phòng: <strong style={{ color: 'var(--primary-light)' }}>{group.name}</strong> ({group.subject})
+              Phòng: <strong style={{ color: 'var(--text-primary)' }}>{group.name}</strong> ({group.subject})
             </p>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
@@ -65,12 +65,12 @@ function MembersModal({ group, users, onClose }) {
                 <tr key={m.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '13.5px' }}>
                   <td style={{ padding: '12px 14px', fontWeight: 600, color: 'var(--text-primary)' }}>
                     {m.fullName}
-                    {m.id === group.creatorId && <span style={{ fontSize: '11px', color: 'var(--secondary)', background: 'rgba(245,158,11,0.1)', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Trưởng nhóm</span>}
+                    {m.id === group.creatorId && <span style={{ fontSize: '11px', color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Trưởng nhóm</span>}
                     {m.id === group.deputyId  && <span style={{ fontSize: '11px', color: '#34d399',         background: 'rgba(52,211,153,0.1)',  padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Phó nhóm</span>}
                   </td>
                   <td style={{ padding: '12px 14px', color: 'var(--text-secondary)', fontSize: '12.5px' }}>{m.email}</td>
                   <td style={{ padding: '12px 14px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 650, padding: '2px 8px', borderRadius: '4px', background: m.role === 'admin' ? 'rgba(239,68,68,0.1)' : 'rgba(108,99,255,0.1)', color: m.role === 'admin' ? 'var(--error)' : 'var(--primary-light)' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 650, padding: '2px 8px', borderRadius: '4px', background: m.role === 'admin' ? 'rgba(239,68,68,0.1)' : 'rgba(108,99,255,0.1)', color: m.role === 'admin' ? 'var(--error)' : 'var(--text-primary)' }}>
                       {m.role === 'admin' ? 'Admin' : 'Học sinh'}
                     </span>
                   </td>
@@ -799,7 +799,7 @@ export default function Admin() {
                     fontFamily: 'inherit',
                     fontSize: '13.5px',
                     fontWeight: isActive ? 700 : 600,
-                    color: isActive ? 'var(--primary-light)' : 'var(--text-secondary)',
+                    color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
@@ -816,7 +816,7 @@ export default function Admin() {
                         : (isActive ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255,255,255,0.06)'),
                       color: tab.key === 'pendingFiles' && tab.count > 0
                         ? '#f87171'
-                        : (isActive ? 'var(--primary-light)' : 'var(--text-muted)'),
+                        : (isActive ? 'var(--text-primary)' : 'var(--text-muted)'),
                       borderRadius: '8px',
                       padding: '2px 8px',
                       fontSize: '11px',
@@ -861,7 +861,7 @@ export default function Admin() {
         {/* Content */}
         <div style={{ padding: '0 8px' }}>
           {loading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '100px 0', color: 'var(--primary-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '100px 0', color: 'var(--text-primary)' }}>
               <span style={{ fontSize: '18px', fontWeight: 600 }}>Đang cập nhật dữ liệu quản trị...</span>
             </div>
           ) : (
@@ -921,7 +921,7 @@ export default function Admin() {
                                     <td style={{ padding: '16px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{new Date(p.createdAt).toLocaleString('vi-VN')}</td>
                                     <td style={{ padding: '16px', width: '1%', whiteSpace: 'nowrap' }}>
                                       <div style={{ display: 'flex', gap: '6px' }}>
-                                        <button onClick={() => setPreviewingPost(p)} style={{ padding: '5px 10px', background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', color: 'var(--primary-light)', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}>Xem</button>
+                                        <button onClick={() => setPreviewingPost(p)} style={{ padding: '5px 10px', background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', color: 'var(--text-primary)', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}>Xem</button>
                                         <button
                                           onClick={async () => {
                                             try {
@@ -993,7 +993,7 @@ export default function Admin() {
                                 {pendingFiles.map((f) => (
                             <tr key={f.id} style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-primary)' }}>
                               <td style={{ padding: '16px', fontWeight: 600 }}>
-                                <a href={f.fileData} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-light)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <a href={f.fileData} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                                     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
                                     <polyline points="14 2 14 8 20 8"/>
@@ -1009,7 +1009,7 @@ export default function Admin() {
                                 <div style={{ display: 'flex', gap: '6px' }}>
                                   <button
                                     onClick={() => setPreviewingFile(f)}
-                                    style={{ padding: '5px 10px', background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', color: 'var(--primary-light)', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap' }}
+                                    style={{ padding: '5px 10px', background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', color: 'var(--text-primary)', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap' }}
                                   >
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

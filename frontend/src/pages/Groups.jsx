@@ -106,7 +106,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                   'Tạo Nhóm Học Mới'
                 ) : meetingMode === 'online' ? (
                   <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary-light)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
                       <circle cx="12" cy="12" r="10" />
                       <line x1="2" y1="12" x2="22" y2="12" />
                       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -480,7 +480,7 @@ function InviteFriendsModal({ group, currentUser, onClose, addToast }) {
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {friend.fullName}
                         {isGroupAdmin && (
-                          <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 4, padding: '1px 5px', verticalAlign: 'middle' }}>
+                          <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', borderRadius: 4, padding: '1px 5px', verticalAlign: 'middle' }}>
                             Trưởng nhóm
                           </span>
                         )}
@@ -488,18 +488,18 @@ function InviteFriendsModal({ group, currentUser, onClose, addToast }) {
                       {friend.university && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{friend.university}</div>}
                     </div>
                     {isGroupAdmin ? (
-                      <span style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: 'var(--text-primary)', fontWeight: 600, fontSize: 11, whiteSpace: 'nowrap' }}>
+                      <span style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontWeight: 600, fontSize: 11, whiteSpace: 'nowrap' }}>
                         Trưởng nhóm
                       </span>
                     ) : isPending ? (
-                      <span style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 8, background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.3)', color: 'var(--primary-light)', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap' }}>
+                      <span style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 8, background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.3)', color: 'var(--text-primary)', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap' }}>
                         Đã mời
                       </span>
                     ) : (
                       <button
                         onClick={() => handleInvite(friend)}
                         disabled={isInviting}
-                        style={{ flexShrink: 0, padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(108,99,255,0.4)', background: isInviting ? 'rgba(108,99,255,0.05)' : 'rgba(108,99,255,0.12)', color: 'var(--primary-light)', fontWeight: 700, fontSize: 12, cursor: isInviting ? 'not-allowed' : 'pointer', opacity: isInviting ? 0.6 : 1, transition: 'all 0.15s', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                        style={{ flexShrink: 0, padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(108,99,255,0.4)', background: isInviting ? 'rgba(108,99,255,0.05)' : 'rgba(108,99,255,0.12)', color: 'var(--text-primary)', fontWeight: 700, fontSize: 12, cursor: isInviting ? 'not-allowed' : 'pointer', opacity: isInviting ? 0.6 : 1, transition: 'all 0.15s', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                       >
                         {isInviting ? '...' : '+ Mời'}
                       </button>
@@ -646,7 +646,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
               const isMember = group?.members?.some(m => Number(m) === Number(user?.id));
               const isOnline = group.meetingMode === 'online';
               const distanceText = group.distance !== null ? `${group.distance.toFixed(1)} km` : group.matchedByText ? 'Gần bạn' : '';
-              const modeColor = isOnline ? '#818cf8' : '#10b981';
+              const modeColor = isOnline ? 'var(--text-primary)' : 'var(--text-primary)';
               const modeBg = isOnline ? 'rgba(99,102,241,0.1)' : 'rgba(16,185,129,0.1)';
               const modeBorder = isOnline ? 'rgba(99,102,241,0.25)' : 'rgba(16,185,129,0.25)';
 
@@ -666,7 +666,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                         {isOnline ? 'Online' : 'Offline'}
                       </span>
                       {group.sameMajor && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 20, padding: '2px 9px' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', borderRadius: 20, padding: '2px 9px' }}>
                           ✨ Cùng ngành
                         </span>
                       )}
@@ -704,7 +704,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                       }
                       return (
                         <button onClick={() => handleJoin(group)}
-                          style={{ padding: '5px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: 'none', background: isOnline ? 'linear-gradient(135deg, var(--primary), #8b5cf6)' : 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.2s' }}
+                          style={{ padding: '5px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: 'none', background: 'var(--text-primary)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.2s' }}
                           onMouseEnter={e => { e.currentTarget.style.opacity = '0.82'; }}
                           onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
                         >
@@ -951,7 +951,7 @@ export default function Groups() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--primary)' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-primary)' }}>
         Đang tải danh sách nhóm...
       </div>
     );
@@ -970,18 +970,18 @@ export default function Groups() {
       <aside style={{ position: 'fixed', top: 0, left: 0, height: '100%', width: '260px', background: 'var(--bg-card)', borderRight: '1px solid var(--border)', transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 300, display: 'flex', flexDirection: 'column', boxShadow: sidebarOpen ? 'var(--shadow-glow)' : 'none' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 16px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, var(--primary), var(--secondary))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px' }}>
+            <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, var(--text-primary), var(--text-primary))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px' }}>
               📚
             </div>
-            <span style={{ fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.3px' }}>Studyconect</span>
+            <span style={{ fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--text-primary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.3px' }}>Studyconect</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '2px 6px', borderRadius: 6, transition: 'var(--transition)' }}>✕</button>
         </div>
 
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12 }}>
           {user?.avatar
-            ? <img src={user.avatar} alt="avatar" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
-            : <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: '#fff', border: '2px solid var(--primary)' }}>{initials}</div>
+            ? <img src={user.avatar} alt="avatar" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--text-primary)' }} />
+            : <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--text-primary), var(--text-primary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: '#fff', border: '2px solid var(--text-primary)' }}>{initials}</div>
           }
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{user?.fullName || 'Người dùng'}</div>
@@ -993,7 +993,7 @@ export default function Groups() {
           {SIDEBAR_ITEMS.map(item => (
             <Link key={item.to} to={item.to} onClick={() => setSidebarOpen(false)}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, textDecoration: 'none', color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500, transition: 'var(--transition)', marginBottom: 4 }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(108,99,255,0.12)'; e.currentTarget.style.color = 'var(--primary-light)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(108,99,255,0.12)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
             >
               <span>{item.label}</span>
@@ -1011,8 +1011,8 @@ export default function Groups() {
       {/* Button to open sidebar drawer (Mobile Only) */}
       <div className="mobile-only" style={{ maxWidth: '1100px', margin: '40px auto 0', padding: '0 24px' }}>
         <button onClick={() => setSidebarOpen(true)}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99, 102, 241, 0.12)', border: '1.5px solid rgba(99, 102, 241, 0.3)', color: 'var(--primary-light)', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'var(--transition)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.22)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99, 102, 241, 0.12)', border: '1.5px solid rgba(99, 102, 241, 0.3)', color: 'var(--text-primary)', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'var(--transition)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.22)'; e.currentTarget.style.borderColor = 'var(--text-primary)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.12)'; e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)'; }}
         >
           ☰ Menu Tiện ích
@@ -1039,23 +1039,23 @@ export default function Groups() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)',
+                background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-primary) 100%)',
                 border: 'none',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(108, 99, 255, 0.35)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
                 cursor: 'pointer',
                 transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                 fontFamily: 'inherit',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(108, 99, 255, 0.5)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.5)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(108, 99, 255, 0.35)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.35)';
               }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1262,12 +1262,12 @@ export default function Groups() {
                       </svg>
                       ID: <strong style={{ color: 'var(--text-primary)' }}>{group.id}</strong>
                     </span>
-                    {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(255,193,7,0.15)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(245,158,11,0.3)' }}>Trưởng nhóm</span>}
+                    {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: 10, border: '1px solid var(--border)' }}>Trưởng nhóm</span>}
                     {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(108,99,255,0.12)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(108,99,255,0.25)' }}>Phó nhóm</span>}
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-input)', border: '1px solid var(--border)', marginBottom: '8px', marginTop: '4px', padding: '6px 12px', borderRadius: '10px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary-light)', flexShrink: 0 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)', flexShrink: 0 }}>
                       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                     </svg>
@@ -1312,18 +1312,18 @@ export default function Groups() {
                               fontWeight: 700, 
                               borderRadius: '8px', 
                               color: '#fff', 
-                              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)', 
-                              boxShadow: '0 4px 12px rgba(42, 117, 118, 0.2)', 
+                              background: 'var(--text-primary)', 
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', 
                               transition: 'all 0.2s ease',
                               display: 'inline-block'
                             }}
                             onMouseEnter={e => {
                               e.currentTarget.style.transform = 'translateY(-1px)';
-                              e.currentTarget.style.boxShadow = '0 6px 16px rgba(42, 117, 118, 0.35)';
+                              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.35)';
                             }}
                             onMouseLeave={e => {
                               e.currentTarget.style.transform = 'translateY(0)';
-                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(42, 117, 118, 0.2)';
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
                             }}
                           >
                             Vào nhóm
@@ -1360,8 +1360,8 @@ export default function Groups() {
                             fontSize: '12px', 
                             fontWeight: 600, 
                             borderRadius: '8px', 
-                            border: '1px solid rgba(42, 117, 118, 0.3)', 
-                            background: 'rgba(42, 117, 118, 0.06)', 
+                            border: '1px solid var(--text-primary)', 
+                            background: 'rgba(0, 0, 0, 0.06)', 
                             color: 'var(--text-primary)', 
                             cursor: 'pointer', 
                             fontFamily: 'inherit', 
@@ -1372,13 +1372,13 @@ export default function Groups() {
                             transition: 'all 0.2s ease' 
                           }}
                           onMouseEnter={e => { 
-                            e.currentTarget.style.background = 'rgba(42, 117, 118, 0.15)'; 
-                            e.currentTarget.style.borderColor = 'rgba(42, 117, 118, 0.5)'; 
+                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.15)'; 
+                            e.currentTarget.style.borderColor = 'var(--text-primary)'; 
                             e.currentTarget.style.transform = 'translateY(-1px)';
                           }}
                           onMouseLeave={e => { 
-                            e.currentTarget.style.background = 'rgba(42, 117, 118, 0.06)'; 
-                            e.currentTarget.style.borderColor = 'rgba(42, 117, 118, 0.3)'; 
+                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.06)'; 
+                            e.currentTarget.style.borderColor = 'var(--text-primary)'; 
                             e.currentTarget.style.transform = 'translateY(0)';
                           }}
                         >
@@ -1395,7 +1395,7 @@ export default function Groups() {
                       const reqStatus = joinRequestStatus[group.id];
                       if (group.isPrivate && reqStatus === 'pending') {
                         return (
-                          <div style={{ width: '100%', padding: '9px', borderRadius: '8px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 700, textAlign: 'center' }}>
+                          <div style={{ width: '100%', padding: '9px', borderRadius: '8px', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 700, textAlign: 'center' }}>
                             ⏳ Đang chờ trưởng nhóm duyệt...
                           </div>
                         );
@@ -1409,20 +1409,20 @@ export default function Groups() {
                             fontWeight: 700, 
                             borderRadius: '8px', 
                             border: 'none', 
-                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)', 
+                            background: 'var(--text-primary)', 
                             color: '#fff', 
-                            boxShadow: '0 4px 12px rgba(42, 117, 118, 0.2)', 
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', 
                             cursor: 'pointer', 
                             transition: 'all 0.2s ease' 
                           }} 
                           onClick={() => handleJoin(group)}
                           onMouseEnter={e => {
                             e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 6px 16px rgba(42, 117, 118, 0.35)';
+                            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.35)';
                           }}
                           onMouseLeave={e => {
                             e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(42, 117, 118, 0.2)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
                           }}
                         >
                           {group.isPrivate ? '🔒 Gửi yêu cầu tham gia' : 'Tham gia nhóm'}
@@ -1446,7 +1446,7 @@ export default function Groups() {
         .page-title {
           font-size: 24px;
           font-weight: 800;
-          color: var(--primary);
+          color: var(--text-primary);
           margin: 0 0 6px 0;
           line-height: 1.2;
         }
@@ -1473,9 +1473,9 @@ export default function Groups() {
           border: 1.5px solid var(--border);
         }
         .search-panel:focus-within {
-          border-color: var(--primary);
+          border-color: var(--text-primary);
           background: var(--bg-card);
-          box-shadow: 0 0 0 2px rgba(42, 117, 118, 0.15);
+          box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
         }
         .search-input {
           background: none; border: none; outline: none; flex: 1;
@@ -1510,10 +1510,10 @@ export default function Groups() {
           pointer-events: none;
         }
         .group-card:hover {
-          background: rgba(42, 117, 118, 0.04);
-          border-color: rgba(42, 117, 118, 0.3);
+          background: rgba(0, 0, 0, 0.04);
+          border-color: rgba(0, 0, 0, 0.3);
           transform: translateY(-5px);
-          box-shadow: 0 20px 40px rgba(42, 117, 118, 0.12);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
         }
         .group-card:hover::before {
           left: 125%;
@@ -1567,7 +1567,7 @@ export default function Groups() {
         maxHeight: '450px',
         background: 'rgba(16, 20, 35, 0.95)',
         backdropFilter: 'blur(16px)',
-        border: '1.5px solid var(--primary)',
+        border: '1.5px solid var(--text-primary)',
         borderRadius: '16px',
         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), var(--shadow-glow)',
         zIndex: 11000,
@@ -1604,7 +1604,7 @@ export default function Groups() {
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
               Tên nhóm
             </div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--primary-light)', marginTop: '2px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
               {reviewGroup.name}
             </div>
           </div>
@@ -1656,7 +1656,7 @@ export default function Groups() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {reviewGroupFiles.map((file, idx) => (
                   <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary-light)', flexShrink: 0 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)', flexShrink: 0 }}>
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
                     </svg>

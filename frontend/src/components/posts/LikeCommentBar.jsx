@@ -46,7 +46,7 @@ export default function LikeCommentBar({ isLiked, showComments, onLike, onToggle
           borderRadius: '12px',
           fontSize: '13px',
           fontWeight: 600,
-          color: showComments ? 'var(--primary-light)' : 'var(--text-muted)',
+          color: showComments ? 'var(--text-primary)' : 'var(--text-muted)',
           transition: 'background 0.15s, color 0.15s',
           fontFamily: 'inherit',
         }}

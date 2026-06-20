@@ -2207,7 +2207,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                     Xem trước hình nền
                   </label>
                   <label style={{
-                    fontSize: '11px', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer',
+                    fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer',
                     background: 'rgba(35,97,95,0.1)', padding: '4px 10px', borderRadius: '6px', margin: 0
                   }}>
                     Đổi ảnh
@@ -2352,7 +2352,7 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
               <>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}></div>
                 <div style={{ fontWeight: 600, marginBottom: '8px' }}>Chưa có bạn bè nào</div>
-                <Link to="/friends" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '13px' }}>Tìm bạn bè ngay</Link>
+                <Link to="/friends" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontSize: '13px' }}>Tìm bạn bè ngay</Link>
               </>
             ) : 'Không tìm thấy kết quả.'}
           </div>
@@ -2403,8 +2403,8 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
                   {f.status === 'pending' ? (
                     <span style={{
                       fontSize: '9px',
-                      background: f.fromUserId === String(user.id) ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)',
-                      color: f.fromUserId === String(user.id) ? '#fbbf24' : '#818cf8',
+                      background: f.fromUserId === String(user.id) ? 'rgba(17, 24, 39, 0.04)' : 'rgba(99,102,241,0.15)',
+                      color: f.fromUserId === String(user.id) ? 'var(--text-primary)' : '#818cf8',
                       padding: '2px 6px',
                       borderRadius: '8px',
                       fontWeight: 700,
@@ -2562,21 +2562,21 @@ export default function Chat() {
                 gap: '6px',
                 padding: '6px 12px',
                 borderRadius: '8px',
-                background: 'rgba(255, 122, 0, 0.08)',
-                border: '1px solid rgba(255, 122, 0, 0.25)',
-                color: 'var(--secondary)',
+                background: 'rgba(17, 24, 39, 0.04)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
                 fontSize: '12px',
                 fontWeight: 700,
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 122, 0, 0.18)';
-                e.currentTarget.style.borderColor = 'var(--secondary)';
+                e.currentTarget.style.background = 'rgba(17, 24, 39, 0.08)';
+                e.currentTarget.style.borderColor = 'var(--text-primary)';
                 e.currentTarget.style.transform = 'translateX(-2px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 122, 0, 0.08)';
-                e.currentTarget.style.borderColor = 'rgba(255, 122, 0, 0.25)';
+                e.currentTarget.style.background = 'rgba(17, 24, 39, 0.04)';
+                e.currentTarget.style.borderColor = 'var(--border)';
                 e.currentTarget.style.transform = 'none';
               }}
               >

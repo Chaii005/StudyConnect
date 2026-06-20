@@ -242,12 +242,12 @@ export default function GroupChatPanel({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', flex: 1 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: 'var(--primary-light)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: 'var(--text-primary)' }}>
                 <line x1="12" y1="17" x2="12" y2="22" />
                 <path d="M5 17h14v-1.76a2 2 0 0 0-.44-1.24l-2.78-3.5A2 2 0 0 1 15 9.26V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4.26a2 2 0 0 1-.78 1.24l-2.78 3.5A2 2 0 0 0 5 15.24z" />
               </svg>
               <div style={{ fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>
-                <strong style={{ color: 'var(--primary-light)' }}>Tin nhắn đã ghim:</strong>{' '}
+                <strong style={{ color: 'var(--text-primary)' }}>Tin nhắn đã ghim:</strong>{' '}
                 {lastPinned.content || (lastPinned.fileAttachment ? `📎 [Tệp] ${lastPinned.fileAttachment.fileName}` : 'Tin nhắn trống')}
               </div>
             </div>
@@ -274,7 +274,7 @@ export default function GroupChatPanel({
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--primary-light)',
+                  color: 'var(--text-primary)',
                   cursor: 'pointer',
                   fontSize: '12px',
                   fontWeight: 700,
@@ -412,7 +412,7 @@ export default function GroupChatPanel({
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {msg.isPinned && (
-                      <span title="Tin nhắn đã ghim" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--secondary)', fontWeight: 600 }}>
+                      <span title="Tin nhắn đã ghim" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--text-primary)', fontWeight: 600 }}>
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <line x1="12" y1="17" x2="12" y2="22" />
                           <path d="M5 17h14v-1.76a2 2 0 0 0-.44-1.24l-2.78-3.5A2 2 0 0 1 15 9.26V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4.26a2 2 0 0 1-.78 1.24l-2.78 3.5A2 2 0 0 0 5 15.24z" />
@@ -713,7 +713,7 @@ export default function GroupChatPanel({
           <div
             style={{
               background: 'rgba(108,99,255,0.1)',
-              border: '1.5px dashed var(--primary-light)',
+              border: '1.5px dashed var(--text-primary)',
               padding: '8px 14px',
               borderRadius: '10px',
               display: 'flex',
@@ -722,7 +722,7 @@ export default function GroupChatPanel({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', color: 'var(--primary-light)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-primary)' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
                 </svg>

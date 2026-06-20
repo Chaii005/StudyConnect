@@ -710,7 +710,7 @@ export default function Friends() {
           transition: all 0.2s;
           background: var(--bg-card);
           color: var(--text-muted);
-          border: 1px solid var(--border);
+          border: 1px solid rgba(17, 24, 39, 0.12);
           white-space: nowrap;
           display: flex;
           align-items: center;
