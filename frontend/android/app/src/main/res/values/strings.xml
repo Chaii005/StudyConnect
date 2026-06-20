@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StudyConect</string>
+    <string name="title_activity_main">StudyConect</string>
+    <string name="package_name">com.studyconect.app</string>
+    <string name="custom_url_scheme">com.studyconect.app</string>
+</resources>
