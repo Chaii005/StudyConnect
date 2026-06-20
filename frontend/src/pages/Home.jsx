@@ -368,7 +368,7 @@ export default function Home() {
             </div>
 
             {/* Post List - Scrollable Area */}
-            <div className="no-scrollbar sc-card-animated sc-card-hover" style={{ flex: 1, height: 0, overflowY: 'auto', animationDelay: '0.05s' }}>
+            <div className="no-scrollbar sc-card-animated" style={{ flex: 1, height: 0, overflowY: 'auto', animationDelay: '0.05s' }}>
               <PostList
                 posts={sortedPosts}
                 currentUser={user}
@@ -382,7 +382,7 @@ export default function Home() {
  
           {/* RIGHT COLUMN: fixed, does not scroll with posts */}
           <aside className="no-scrollbar" style={{ position: 'sticky', top: 0, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto', paddingBottom: '24px' }}>
-            <div className="sc-card-animated sc-card-hover" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', maxHeight: '420px', animationDelay: '0.1s' }}>
+            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', maxHeight: '420px', animationDelay: '0.1s' }}>
 
               {/* ─ Header chung ─ */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 12px', borderBottom: '1px solid var(--border)' }}>
@@ -449,29 +449,26 @@ export default function Home() {
 
               {/* ─ Deadline cần nộp ─ */}
               <div style={{ padding: '10px 16px 14px' }}>
-                <Link to="/schedule#deadlines" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    color: '#d99e2e',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    marginBottom: '8px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    cursor: 'pointer',
-                    background: 'linear-gradient(135deg, rgba(217, 158, 46, 0.08), rgba(217, 158, 46, 0.03))',
-                    border: '1px solid rgba(217, 158, 46, 0.2)',
-                    padding: '4px 10px',
-                    borderRadius: '20px'
-                  }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    Deadline cần nộp
-                  </div>
-                </Link>
+                <div style={{
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  color: 'var(--text-primary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  marginBottom: '8px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'linear-gradient(135deg, rgba(217, 158, 46, 0.08), rgba(217, 158, 46, 0.03))',
+                  border: '1px solid rgba(217, 158, 46, 0.2)',
+                  padding: '4px 10px',
+                  borderRadius: '20px'
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Deadline cần nộp
+                </div>
                 {deadlines.length === 0 ? (
                   <div style={{ padding: '10px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     Không còn deadline nào
@@ -533,7 +530,7 @@ export default function Home() {
             </div>
 
             {/* ── Bạn bè trực tuyến ── */}
-            <div className="sc-card-animated sc-card-hover" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', animationDelay: '0.15s' }}>
+            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', animationDelay: '0.15s' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 12px', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
                   <span className="sc-online-dot" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#2A7576', boxShadow: '0 0 8px rgba(42, 117, 118, 0.45)' }} />

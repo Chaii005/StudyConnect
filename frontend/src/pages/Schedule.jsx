@@ -158,7 +158,7 @@ export default function Schedule() {
         ) : (
           <div className="grid-responsive">
             {/* LEFT: Schedules */}
-            <div id="schedules-section" className="sc-card-animated sc-card-hover" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div id="schedules-section" className="sc-card-animated" style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="section-header" style={{ borderBottomColor: 'rgba(42, 117, 118, 0.3)' }}>
                 <h2 className="section-title">Buổi học sắp diễn ra</h2>
               </div>
@@ -243,7 +243,7 @@ export default function Schedule() {
             </div>
 
             {/* RIGHT: Deadlines */}
-            <div id="deadlines-section" className="sc-card-animated sc-card-hover" style={{ display: 'flex', flexDirection: 'column', animationDelay: '0.1s' }}>
+            <div id="deadlines-section" className="sc-card-animated" style={{ display: 'flex', flexDirection: 'column', animationDelay: '0.1s' }}>
               <div className="section-header" style={{ borderBottomColor: 'rgba(239,68,68,0.3)' }}>
                 <h2 className="section-title">Deadline chưa hoàn thành</h2>
               </div>
