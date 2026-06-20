@@ -202,7 +202,16 @@ function TabBtn({ label, count, active, onClick, highlight = false }) {
 function EmptyState({ icon, text }) {
   return (
     <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--text-muted)' }}>
-      {icon && <div style={{ fontSize: '32px', marginBottom: '8px' }}>{icon}</div>}
+      {icon ? (
+        <div style={{ fontSize: '32px', marginBottom: '8px' }}>{icon}</div>
+      ) : (
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '12px', opacity: 0.85 }}>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      )}
       <div style={{ fontSize: '14px', fontWeight: 500 }}>{text}</div>
     </div>
   );
@@ -439,7 +448,7 @@ export default function Friends() {
       {/* Main content */}
       <main className="friend-page-container">
           {/* Header */}
-          <div className="premium-panel">
+          <div className="premium-panel sc-card-animated sc-card-hover">
             <h1 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '4px', color: 'var(--text-primary)' }}>Kết bạn</h1>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
               Kết nối với sinh viên cùng trường, cùng ngành và mở rộng mạng lưới học tập.

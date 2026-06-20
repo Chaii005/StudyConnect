@@ -158,14 +158,24 @@ export default function Schedule() {
         ) : (
           <div className="grid-responsive">
             {/* LEFT: Schedules */}
-            <div id="schedules-section" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div id="schedules-section" className="sc-card-animated sc-card-hover" style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="section-header" style={{ borderBottomColor: 'rgba(42, 117, 118, 0.3)' }}>
                 <h2 className="section-title">Buổi học sắp diễn ra</h2>
               </div>
 
               {schedules.length === 0 ? (
                 <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '24px 16px', textAlign: 'center' }}>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>Chưa có lịch học nhóm nào sắp tới.</p>
+                  <svg width="72" height="56" viewBox="0 0 72 56" style={{ marginBottom: '8px' }}>
+                    <rect x="8" y="10" width="56" height="40" rx="6" fill="var(--bg-input)" stroke="var(--primary)" strokeWidth="1.5" />
+                    <line x1="8" y1="22" x2="64" y2="22" stroke="var(--primary)" strokeWidth="1.5" />
+                    <line x1="20" y1="4" x2="20" y2="16" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="52" y1="4" x2="52" y2="16" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" />
+                    <circle cx="22" cy="32" r="2.5" fill="var(--border)" />
+                    <circle cx="36" cy="32" r="2.5" fill="var(--border)" />
+                    <circle cx="50" cy="32" r="2.5" fill="var(--border)" />
+                    <circle cx="22" cy="42" r="2.5" fill="var(--border)" />
+                  </svg>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>Chưa có lịch học nhóm nào sắp tới.</p>
                 </div>
               ) : (
                 schedules.map(sched => {
@@ -233,7 +243,7 @@ export default function Schedule() {
             </div>
 
             {/* RIGHT: Deadlines */}
-            <div id="deadlines-section" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div id="deadlines-section" className="sc-card-animated sc-card-hover" style={{ display: 'flex', flexDirection: 'column', animationDelay: '0.1s' }}>
               <div className="section-header" style={{ borderBottomColor: 'rgba(239,68,68,0.3)' }}>
                 <h2 className="section-title">Deadline chưa hoàn thành</h2>
               </div>

@@ -265,7 +265,7 @@ export default function MyDocuments() {
       <AppLayout>
         <main className="document-page-container">
           {/* Header Panel with search */}
-          <div className="premium-panel" style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px', padding: '16px 20px' }}>
+          <div className="premium-panel sc-card-animated sc-card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px', padding: '16px 20px', animationDelay: '0s' }}>
             <div>
               <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tài liệu của tôi</h1>
               <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>Danh sách tài liệu bạn đã chia sẻ trong các nhóm học.</p>
@@ -291,7 +291,7 @@ export default function MyDocuments() {
               Đang tải tài liệu...
             </div>
           ) : files.length === 0 ? (
-            <div className="premium-panel" style={{ textAlign: 'center', padding: '64px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="premium-panel sc-card-animated sc-card-hover" style={{ textAlign: 'center', padding: '64px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', animationDelay: '0.05s' }}>
               <div style={{ color: 'var(--text-secondary)', display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
                 <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
@@ -343,7 +343,7 @@ export default function MyDocuments() {
               ))}
             </div>
           ) : (
-            <div className="premium-panel" style={{ padding: '16px 20px', overflowX: 'auto' }}>
+            <div className="premium-panel sc-card-animated sc-card-hover" style={{ padding: '16px 20px', overflowX: 'auto', animationDelay: '0.05s' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>

@@ -1172,7 +1172,7 @@ export default function Groups() {
         </div>
 
         {filteredGroups.length === 0 ? (
-          <div className="premium-panel" style={{ textAlign: 'center', padding: '40px 16px' }}>
+          <div className="premium-panel sc-card-animated sc-card-hover" style={{ textAlign: 'center', padding: '40px 16px' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', color: 'var(--text-muted)' }}>
               <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>

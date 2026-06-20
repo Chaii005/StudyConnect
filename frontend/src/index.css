@@ -1344,3 +1344,16 @@ select.form-input option {
   background: rgba(35, 97, 95, 0.08) !important;
   transform: translateX(2px) !important;
 }
+
+@keyframes sc-float-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sc-card-animated { animation: sc-float-in 0.4s ease both; }
+.sc-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sc-card-hover:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 20px rgba(35, 97, 95, 0.12) !important;
+}
