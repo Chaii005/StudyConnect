@@ -576,7 +576,6 @@ select.form-input option {
 .nav-brand-icon {
   width: 42px; height: 42px;
   background: transparent;
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;

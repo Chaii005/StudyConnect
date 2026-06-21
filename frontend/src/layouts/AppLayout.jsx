@@ -187,7 +187,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         }}>
           <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img src="/studyconect_logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '8px' }} />
+              <img src="/studyconect_logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
             </div>
             <span className="nav-brand-text" style={{
               fontFamily: "'Playfair Display', serif",
