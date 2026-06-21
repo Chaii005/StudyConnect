@@ -213,6 +213,7 @@ export default function App() {
 
 ===== D:\StudyConect\frontend\src\index.css =====
 
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@900&family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
 /* ═══════════════════════════════════════════
@@ -257,7 +258,7 @@ html {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Be Vietnam Pro', Inter, sans-serif;
   letter-spacing: -0.015em;
   text-shadow: 0 2px 10px rgba(255, 255, 255, 0.02);
 }
@@ -393,8 +394,9 @@ button:active:not(:disabled) {
 }
 
 .auth-logo-text h2 {
+  font-family: 'Fraunces', serif;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 900;
   background: linear-gradient(135deg, var(--primary-light), var(--secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -10294,7 +10296,7 @@ export default function GroupDetail() {
             {/* Group name + member count */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', flexWrap: 'wrap' }}>
               <div>
-                <h1 className="group-header-title" style={{ fontSize: '30px', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--text-primary)', lineHeight: 1.2 }}>{h.group.name}</h1>
+                <h1 className="group-header-title" style={{ fontFamily: "'Fraunces', serif", fontSize: '30px', fontWeight: 900, margin: '0 0 8px 0', color: 'var(--text-primary)', lineHeight: 1.2 }}>{h.group.name}</h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0, maxWidth: '640px', lineHeight: 1.6 }}>{h.group.description || 'Chưa có mô tả cho nhóm này.'}</p>
               </div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(62,207,207,0.06)', border: '1px solid rgba(62,207,207,0.2)', borderRadius: '999px', alignSelf: 'flex-start' }}>
@@ -10673,7 +10675,7 @@ export default function Schedule() {
       <div className="schedule-container">
         {/* Page Header */}
         <div>
-          <h1 className="page-title">Lịch học & Deadline</h1>
+          <h1 className="page-title">Lịch học và Deadline</h1>
           <p className="page-subtitle">Quản lý buổi học nhóm và thời hạn nộp bài tập của bạn</p>
         </div>
 
@@ -10908,8 +10910,9 @@ export default function Schedule() {
           z-index: 1;
         }
         .page-title {
+          font-family: 'Fraunces', serif;
           font-size: 24px;
-          font-weight: 800;
+          font-weight: 900;
           color: var(--primary);
           margin: 0 0 6px 0;
           line-height: 1.2;
@@ -11307,7 +11310,7 @@ export default function MyDocuments() {
           {/* Header Panel with search */}
           <div className="premium-panel sc-card-animated sc-card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px', padding: '16px 20px', animationDelay: '0s' }}>
             <div>
-              <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tài liệu của tôi</h1>
+              <h1 style={{ fontSize: '20px', fontWeight: 900, color: 'var(--text-primary)', margin: 0, fontFamily: "'Fraunces', serif" }}>Tài liệu của tôi</h1>
               <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>Danh sách tài liệu bạn đã chia sẻ trong các nhóm học.</p>
             </div>
             
@@ -18523,7 +18526,7 @@ export default function Friends() {
       <main className="friend-page-container">
           {/* Header */}
           <div className="premium-panel sc-card-animated sc-card-hover">
-            <h1 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '4px', color: 'var(--text-primary)' }}>Kết bạn</h1>
+            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '20px', fontWeight: 900, marginBottom: '4px', color: 'var(--text-primary)' }}>Kết bạn</h1>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
               Kết nối với sinh viên cùng trường, cùng ngành và mở rộng mạng lưới học tập.
             </p>
@@ -20496,7 +20499,7 @@ export default function Home() {
                     <line x1="3" x2="21" y1="10" y2="10"/>
                     <path d="m9 16 2 2 4-4"/>
                   </svg>
-                  Lịch & Deadline
+                  Lịch và Deadline
                 </span>
                 <Link to="/schedule" style={{ fontSize: '12px', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 700 }}>Tất cả</Link>
               </div>
@@ -21709,7 +21712,7 @@ export default function Groups() {
             <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, var(--text-primary), var(--text-primary))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px' }}>
               📚
             </div>
-            <span style={{ fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--text-primary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.3px' }}>Studyconect</span>
+            <span style={{ fontSize: 18, fontWeight: 900, fontFamily: "'Fraunces', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--text-primary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.3px' }}>Studyconect</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '2px 6px', borderRadius: 6, transition: 'var(--transition)' }}>✕</button>
         </div>
@@ -22180,8 +22183,9 @@ export default function Groups() {
           font-family: 'Inter', sans-serif;
         }
         .page-title {
+          font-family: 'Fraunces', serif;
           font-size: 24px;
-          font-weight: 800;
+          font-weight: 900;
           color: var(--text-primary);
           margin: 0 0 6px 0;
           line-height: 1.2;
@@ -27509,7 +27513,7 @@ export { HCM_UNIVERSITIES, MAJORS } from './educationData';
 export const NAV_ITEMS = [
   { icon: '🏠', label: 'Trang chủ',      to: '/',             key: 'home'     },
   { icon: '👥', label: 'Nhóm học',        to: '/groups',       key: 'groups'   },
-  { icon: '📅', label: 'Lịch & Deadline', to: '/schedule',     key: 'schedule' },
+  { icon: '📅', label: 'Lịch và Deadline', to: '/schedule',     key: 'schedule' },
   { icon: '🤝', label: 'Kết bạn',         to: '/friends',      key: 'friends'  },
   { icon: '📁', label: 'Tài liệu',        to: '/my-documents', key: 'docs'     },
   { icon: '💬', label: 'Nhắn tin',        to: '/chat',         key: 'chat'     },
@@ -28048,7 +28052,7 @@ const NAV_ICONS = {
 const NAV_ITEMS = [
   { icon: 'home', label: 'Trang chủ', to: '/', key: 'home' },
   { icon: 'groups', label: 'Nhóm học', to: '/groups', key: 'groups' },
-  { icon: 'schedule', label: 'Lịch & Deadline', to: '/schedule', key: 'schedule' },
+  { icon: 'schedule', label: 'Lịch và Deadline', to: '/schedule', key: 'schedule' },
   { icon: 'friends', label: 'Kết bạn', to: '/friends', key: 'friends' },
   { icon: 'docs', label: 'Tài liệu', to: '/my-documents', key: 'docs' },
   { icon: 'chat', label: 'Nhắn tin', to: '/chat', key: 'chat' },
@@ -28164,7 +28168,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
               <img src="/studyconect_logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
             </div>
             <span className="nav-brand-text" style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Fraunces', serif",
               fontStyle: 'italic',
               fontSize: '21px',
               fontWeight: 900,
@@ -28260,7 +28264,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                     e.currentTarget.style.background = isActive ? 'var(--bg-input)' : 'rgba(255, 255, 255, 0.02)';
                   }}
                 >
-                  Lịch &amp; Deadline
+                  Lịch và Deadline
                 </Link>
               </div>
             )}
@@ -28308,7 +28312,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <img src="/studyconect_logo.png" alt="Logo" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
-              <span style={{ fontSize: '18px', fontWeight: 900, fontFamily: "'Playfair Display', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Studyconect</span>
+              <span style={{ fontSize: '18px', fontWeight: 900, fontFamily: "'Fraunces', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Studyconect</span>
             </div>
             <button onClick={() => setMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
           </div>
@@ -28335,7 +28339,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
 
             <Link to="/flashcards" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--text-primary)', background: location.pathname === '/flashcards' ? 'var(--bg-input)' : 'none', border: location.pathname === '/flashcards' ? '1px solid var(--border)' : '1px solid transparent', fontWeight: 600, fontSize: '14px' }}>
               {NAV_ICONS.flashcards(location.pathname === '/flashcards', 'var(--text-primary)')}
-              Thẻ học &amp; Trắc nghiệm
+              Thẻ học và Trắc nghiệm
             </Link>
             <Link to="/groups" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--text-primary)', background: location.pathname.startsWith('/groups') ? 'var(--bg-input)' : 'none', border: location.pathname.startsWith('/groups') ? '1px solid var(--border)' : '1px solid transparent', fontWeight: 600, fontSize: '14px' }}>
               {NAV_ICONS.groups(location.pathname.startsWith('/groups'), 'var(--text-primary)')}
@@ -28343,7 +28347,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
             </Link>
             <Link to="/schedule" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--text-primary)', background: location.pathname === '/schedule' ? 'var(--bg-input)' : 'none', border: location.pathname === '/schedule' ? '1px solid var(--border)' : '1px solid transparent', fontWeight: 600, fontSize: '14px' }}>
               {NAV_ICONS.schedule(location.pathname === '/schedule', 'var(--text-primary)')}
-              Lịch học &amp; Deadline
+              Lịch học và Deadline
             </Link>
             <Link to="/friends" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--text-primary)', background: location.pathname === '/friends' ? 'var(--bg-input)' : 'none', border: location.pathname === '/friends' ? '1px solid var(--border)' : '1px solid transparent', fontWeight: 600, fontSize: '14px' }}>
               {NAV_ICONS.friends(location.pathname === '/friends', 'var(--text-primary)')}
