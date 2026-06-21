@@ -384,13 +384,10 @@ button:active:not(:disabled) {
 
 .auth-logo-icon {
   width: 48px; height: 48px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border-radius: 14px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.4);
 }
 
 .auth-logo-text h2 {
@@ -22551,7 +22548,7 @@ export default function ForgotPassword() {
         {/* Brand Header */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>Studyconect</h2>
@@ -22751,7 +22748,7 @@ export default function Login() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>Studyconect</h2>
@@ -23105,7 +23102,7 @@ export default function Register() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>Studyconect</h2>
@@ -23587,7 +23584,7 @@ export default function ResetPassword() {
         {/* Brand Header */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>Studyconect</h2>

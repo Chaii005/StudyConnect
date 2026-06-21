@@ -47,7 +47,7 @@ export default function Login() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>Studyconect</h2>

@@ -169,13 +169,10 @@ button:active:not(:disabled) {
 
 .auth-logo-icon {
   width: 48px; height: 48px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border-radius: 14px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.4);
 }
 
 .auth-logo-text h2 {
