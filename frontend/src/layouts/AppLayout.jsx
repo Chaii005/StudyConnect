@@ -163,6 +163,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     <div className="app-layout-wrapper" style={{ height: '100%', overflow: 'hidden', overscrollBehavior: 'none', background: 'var(--bg)', position: 'relative' }}>
       {/* Decorative background glows */}
       <div
+        className="sc-animated-bg"
         style={{
           position: 'absolute',
           inset: 0,

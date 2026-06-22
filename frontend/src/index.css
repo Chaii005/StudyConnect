@@ -1365,3 +1365,12 @@ select.form-input option {
   transform: translateY(-3px) !important;
   box-shadow: 0 8px 20px rgba(35, 97, 95, 0.12) !important;
 }
+
+@keyframes sc-bg-flow {
+  0%, 100% { background-position: 0% 50%, 100% 50%, 50% 0%; }
+  50% { background-position: 100% 50%, 0% 50%, 50% 100%; }
+}
+.sc-animated-bg {
+  background-size: 200% 200%, 200% 200%, 200% 200%;
+  animation: sc-bg-flow 10s ease-in-out infinite;
+}

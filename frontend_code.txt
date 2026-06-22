@@ -12222,6 +12222,15 @@ select.form-input option {
   box-shadow: 0 8px 20px rgba(35, 97, 95, 0.12) !important;
 }
 
+@keyframes sc-bg-flow {
+  0%, 100% { background-position: 0% 50%, 100% 50%, 50% 0%; }
+  50% { background-position: 100% 50%, 0% 50%, 50% 100%; }
+}
+.sc-animated-bg {
+  background-size: 200% 200%, 200% 200%, 200% 200%;
+  animation: sc-bg-flow 10s ease-in-out infinite;
+}
+
 ===== D:\StudyConect\frontend\src\layouts\AppLayout.jsx =====
 
 import { useState, useEffect } from 'react';
@@ -12389,6 +12398,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     <div className="app-layout-wrapper" style={{ height: '100%', overflow: 'hidden', overscrollBehavior: 'none', background: 'var(--bg)', position: 'relative' }}>
       {/* Decorative background glows */}
       <div
+        className="sc-animated-bg"
         style={{
           position: 'absolute',
           inset: 0,
