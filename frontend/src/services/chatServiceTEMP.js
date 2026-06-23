@@ -66,7 +66,7 @@ export const refreshCache = async (userId) => {
       const lastMsg = cachedMessages[cachedMessages.length - 1];
       query = query.gt('created_at', lastMsg.createdAt).order('created_at', { ascending: true });
     } else {
-      query = query.order('created_at', { ascending: false }).limit(2000);
+      query = query.order('created_at', { ascending: false }).limit(200); // giới hạn 200 tin đầu — đủ cho badge và preview
     }
 
     const { data, error } = await query;

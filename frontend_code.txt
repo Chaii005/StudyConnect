@@ -10771,14 +10771,17 @@ export default function useNotifications(userId) {
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'group_members' },
+        // Filter server-side theo user_id để tránh nhận event của toàn hệ thống
+        { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${userId}` },
+        () => refresh()
+      )
+      // Lắng nghe thêm group_members theo group để phát hiện thành viên mới vào nhóm mình
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'group_members' },
         (payload) => {
-          const memUserId = payload.new?.user_id || payload.old?.user_id;
-          const memGroupId = payload.new?.group_id || payload.old?.group_id;
-          if (
-            (memUserId && Number(memUserId) === Number(userId)) ||
-            (memGroupId && myGroupIdsRef.current.includes(Number(memGroupId)))
-          ) {
+          const memGroupId = payload.new?.group_id;
+          if (memGroupId && myGroupIdsRef.current.includes(Number(memGroupId))) {
             refresh();
           }
         }
@@ -12464,7 +12467,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       }
     };
     updateUnread();
-    const interval = setInterval(updateUnread, 20000);
+    const interval = setInterval(updateUnread, 300000); // fallback 5 phút — badge updates via Realtime GlobalMessageListener
     return () => clearInterval(interval);
   }, [user]);
 
@@ -12486,7 +12489,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       }
     };
     fetchPendingCount();
-    const interval = setInterval(fetchPendingCount, 30000);
+    const interval = setInterval(fetchPendingCount, 300000); // fallback 5 phút — useNotifications Realtime subscribe friendships
     return () => clearInterval(interval);
   }, [user]);
 
@@ -14908,8 +14911,8 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-    const timer = setInterval(load, 5000);
-    return () => clearInterval(timer);
+    // Không cần interval — GlobalMessageListener đã subscribe Realtime messages INSERT
+    // Tin nhắn mới sẽ trigger qua chatServiceTEMP cache khi Realtime fired
   }, [load]);
 
   // Only auto-scroll when NEW messages arrive (not on initial load or poll refresh without new msgs)
@@ -16705,7 +16708,7 @@ export default function Chat() {
       }
     };
     refresh();
-    const timer = setInterval(refresh, 15000);
+    const timer = setInterval(refresh, 300000); // fallback 5 phút — Realtime handles real-time updates
     return () => clearInterval(timer);
   }, [user]);
 
@@ -17095,12 +17098,11 @@ export default function ForgotPassword() {
 ===== D:\StudyConect\frontend\src\pages\Friend.jsx =====
 
 // src/pages/Friends.jsx
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   getFriends,
-  getPendingRequests,
   getSentRequests,
   getSuggestions,
   sendFriendRequest,
@@ -17458,33 +17460,8 @@ export default function Friends() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadAll(); }, [loadAll]);
 
-  // Auto-refresh mỗi 5 giây để cập nhật lời mời kết bạn mới
-  // Dùng ref để track id của từng lời mời (tránh false-positive khi count bằng nhau)
-  const knownReqIds = useRef(null);
-  useEffect(() => {
-    const t = setInterval(async () => {
-      if (!user?.id) return;
-      try {
-        const p = await getPendingRequests(String(user.id));
-        const newIds = p.map(r => r.requestId).sort().join(',');
-        if (knownReqIds.current === null) {
-          // Lần đầu chạy  chỉ ghi nhận, không trigger
-          knownReqIds.current = newIds;
-          return;
-        }
-        if (newIds !== knownReqIds.current) {
-          knownReqIds.current = newIds;
-          setPending(p);
-          // Nếu có lời mời mới hơn trước  alert + chuyển tab
-          if (p.length > pending.length) {
-            setNewPendingAlert(true);
-            setTab('pending');
-          }
-        }
-      } catch { /* ignore */ }
-    }, 30000);
-    return () => clearInterval(t);
-  }, [user, pending.length]);
+  // [setInterval 30s poll getPendingRequests đã xóa — useNotifications Realtime subscribe friendships thay thế]
+
 
 
 
@@ -28135,7 +28112,7 @@ export const refreshCache = async (userId) => {
       const lastMsg = cachedMessages[cachedMessages.length - 1];
       query = query.gt('created_at', lastMsg.createdAt).order('created_at', { ascending: true });
     } else {
-      query = query.order('created_at', { ascending: false }).limit(2000);
+      query = query.order('created_at', { ascending: false }).limit(200); // giới hạn 200 tin đầu — đủ cho badge và preview
     }
 
     const { data, error } = await query;

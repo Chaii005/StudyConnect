@@ -108,7 +108,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       }
     };
     updateUnread();
-    const interval = setInterval(updateUnread, 20000);
+    const interval = setInterval(updateUnread, 300000); // fallback 5 phút — badge updates via Realtime GlobalMessageListener
     return () => clearInterval(interval);
   }, [user]);
 
@@ -130,7 +130,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       }
     };
     fetchPendingCount();
-    const interval = setInterval(fetchPendingCount, 30000);
+    const interval = setInterval(fetchPendingCount, 300000); // fallback 5 phút — useNotifications Realtime subscribe friendships
     return () => clearInterval(interval);
   }, [user]);
 

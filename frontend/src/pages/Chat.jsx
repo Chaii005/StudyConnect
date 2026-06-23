@@ -733,8 +733,8 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-    const timer = setInterval(load, 5000);
-    return () => clearInterval(timer);
+    // Không cần interval — GlobalMessageListener đã subscribe Realtime messages INSERT
+    // Tin nhắn mới sẽ trigger qua chatServiceTEMP cache khi Realtime fired
   }, [load]);
 
   // Only auto-scroll when NEW messages arrive (not on initial load or poll refresh without new msgs)
@@ -2530,7 +2530,7 @@ export default function Chat() {
       }
     };
     refresh();
-    const timer = setInterval(refresh, 15000);
+    const timer = setInterval(refresh, 300000); // fallback 5 phút — Realtime handles real-time updates
     return () => clearInterval(timer);
   }, [user]);
 

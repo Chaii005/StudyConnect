@@ -1,10 +1,9 @@
 // src/pages/Friends.jsx
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   getFriends,
-  getPendingRequests,
   getSentRequests,
   getSuggestions,
   sendFriendRequest,
@@ -362,33 +361,8 @@ export default function Friends() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadAll(); }, [loadAll]);
 
-  // Auto-refresh mỗi 5 giây để cập nhật lời mời kết bạn mới
-  // Dùng ref để track id của từng lời mời (tránh false-positive khi count bằng nhau)
-  const knownReqIds = useRef(null);
-  useEffect(() => {
-    const t = setInterval(async () => {
-      if (!user?.id) return;
-      try {
-        const p = await getPendingRequests(String(user.id));
-        const newIds = p.map(r => r.requestId).sort().join(',');
-        if (knownReqIds.current === null) {
-          // Lần đầu chạy  chỉ ghi nhận, không trigger
-          knownReqIds.current = newIds;
-          return;
-        }
-        if (newIds !== knownReqIds.current) {
-          knownReqIds.current = newIds;
-          setPending(p);
-          // Nếu có lời mời mới hơn trước  alert + chuyển tab
-          if (p.length > pending.length) {
-            setNewPendingAlert(true);
-            setTab('pending');
-          }
-        }
-      } catch { /* ignore */ }
-    }, 30000);
-    return () => clearInterval(t);
-  }, [user, pending.length]);
+  // [setInterval 30s poll getPendingRequests đã xóa — useNotifications Realtime subscribe friendships thay thế]
+
 
 
 

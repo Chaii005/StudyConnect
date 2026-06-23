@@ -813,14 +813,17 @@ export default function useNotifications(userId) {
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'group_members' },
+        // Filter server-side theo user_id để tránh nhận event của toàn hệ thống
+        { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${userId}` },
+        () => refresh()
+      )
+      // Lắng nghe thêm group_members theo group để phát hiện thành viên mới vào nhóm mình
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'group_members' },
         (payload) => {
-          const memUserId = payload.new?.user_id || payload.old?.user_id;
-          const memGroupId = payload.new?.group_id || payload.old?.group_id;
-          if (
-            (memUserId && Number(memUserId) === Number(userId)) ||
-            (memGroupId && myGroupIdsRef.current.includes(Number(memGroupId)))
-          ) {
+          const memGroupId = payload.new?.group_id;
+          if (memGroupId && myGroupIdsRef.current.includes(Number(memGroupId))) {
             refresh();
           }
         }
