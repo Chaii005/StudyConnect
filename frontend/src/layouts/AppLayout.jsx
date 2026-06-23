@@ -569,16 +569,8 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                             borderRadius: '10px', 
                             background: sidebarBg, 
                             border: sidebarBorder,
-                            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', 
-                            transform: 'translateY(0)',
                             position: 'relative' 
                           }}
-                          onMouseEnter={isActive ? (e) => { 
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                          } : undefined}
-                          onMouseLeave={isActive ? (e) => { 
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          } : undefined}
                         >
                           <span style={{ 
                             width: '28px', 
