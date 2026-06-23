@@ -13146,34 +13146,6 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
               {showRightSidebar && !rightSidebarCollapsed && (
                 <aside className="flex-desktop-only no-scrollbar" style={{ width: '300px', position: 'sticky', top: 0, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto', paddingBottom: '24px', flexShrink: 0 }}>
                   
-                  {/* Toggle Collapse Button */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2px' }}>
-                    <button 
-                      onClick={() => setRightSidebarCollapsed(true)} 
-                      style={{
-                        background: 'var(--bg-card)',
-                        border: '1.5px solid var(--border)',
-                        borderRadius: '10px',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        color: 'var(--text-primary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        cursor: 'pointer',
-                        transition: 'var(--transition)'
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-input)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)'; }}
-                    >
-                      <span>Thu gọn</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="9 18 15 12 9 6" />
-                      </svg>
-                    </button>
-                  </div>
-
                   {/* Schedule and Deadline card */}
                   <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', maxHeight: '420px', animationDelay: '0.1s', color: 'var(--text-primary)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 12px', borderBottom: '1px solid var(--border)' }}>
@@ -13187,7 +13159,31 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                         </svg>
                         Lịch và Deadline
                       </span>
-                      <Link to="/schedule" style={{ fontSize: '12px', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 700 }}>Tất cả</Link>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Link to="/schedule" style={{ fontSize: '12px', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 700 }}>Tất cả</Link>
+                        <button 
+                          onClick={() => setRightSidebarCollapsed(true)} 
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: 'var(--text-primary)',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '6px',
+                            transition: 'var(--transition)'
+                          }}
+                          title="Thu gọn"
+                          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-input)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="no-scrollbar" style={{ overflowY: 'auto', flex: 1 }}>
