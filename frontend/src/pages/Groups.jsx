@@ -1169,14 +1169,30 @@ export default function Groups() {
         </div>
 
         {filteredGroups.length === 0 ? (
-          <div className="premium-panel sc-card-animated" style={{ textAlign: 'center', padding: '40px 16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', color: 'var(--text-muted)' }}>
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
+          <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+              <svg width="72" height="56" viewBox="0 0 72 56">
+                {/* Left Person (Background) */}
+                <circle cx="23" cy="25" r="5.5" fill="var(--bg-input)" stroke="var(--border)" strokeWidth="1.5" />
+                <path d="M14 42c0-5 4-8 9-8" fill="none" stroke="var(--border)" strokeWidth="1.5" strokeLinecap="round" />
+                
+                {/* Right Person (Background) */}
+                <circle cx="49" cy="25" r="5.5" fill="var(--bg-input)" stroke="var(--border)" strokeWidth="1.5" />
+                <path d="M49 34c5 0 9 3 9 8" fill="none" stroke="var(--border)" strokeWidth="1.5" strokeLinecap="round" />
+                
+                {/* Center Person (Foreground) */}
+                <circle cx="36" cy="20" r="7" fill="var(--bg-input)" stroke="var(--primary)" strokeWidth="1.5" />
+                <path d="M24 40c0-6 5-10 12-10s12 4 12 10" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
+                
+                {/* Shared Learning connection/light above them */}
+                <path d="M23 18c6-5 20-5 26 0" stroke="var(--primary)" strokeWidth="1.5" strokeDasharray="3 3" fill="none" />
+                
+                {/* Floating little book overlay */}
+                <rect x="28" y="38" width="16" height="12" rx="2" fill="var(--bg-card)" stroke="var(--primary)" strokeWidth="1.5" />
+                <line x1="32" y1="44" x2="40" y2="44" stroke="var(--primary)" strokeWidth="1.5" />
               </svg>
             </div>
-            <p style={{ color: 'var(--text-primary)', fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>
+            <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, marginBottom: '6px', marginTop: '4px' }}>
               {searchQuery.trim().length > 0 && searchQuery.trim().length < 6
                 ? 'Vui lòng nhập chính xác 6 chữ số ID phòng học...'
                 : searchQuery.trim().length >= 6
