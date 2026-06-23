@@ -397,14 +397,14 @@ export default function Home() {
           <main style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', paddingRight: '4px', overflow: 'hidden' }}>
             {/* Create Question Box - Fixed Top */}
             <div style={{ flexShrink: 0, paddingBottom: '14px', zIndex: 20 }}>
-              <div className="sc-card-animated sc-card-hover" style={{ background: 'var(--bg-card)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid var(--border)', borderRadius: '18px', padding: '16px 18px', display: 'flex', gap: '12px', alignItems: 'center', animationDelay: '0s' }}>
+              <div className="sc-card-animated sc-card-hover" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', padding: '16px 18px', display: 'flex', gap: '12px', alignItems: 'center', animationDelay: '0s' }}>
                 <div className="sc-avatar-hover" style={{ display: 'inline-flex', borderRadius: '50%', flexShrink: 0 }}>
                   <Avatar src={user?.avatar} initial={user?.fullName || 'U'} size={42} />
                 </div>
                 <button
                   onClick={() => setShowCreateModal(true)}
                   style={{ flex: 1, background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '24px', padding: '12px 18px', color: 'var(--text-muted)', fontSize: '14px', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)'; e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.background = 'rgba(181, 73, 91, 0.05)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg-input)'; }}
                 >
                   <Typewriter
@@ -433,12 +433,12 @@ export default function Home() {
  
           {/* RIGHT COLUMN: fixed, does not scroll with posts */}
           <aside className="no-scrollbar" style={{ position: 'sticky', top: 0, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto', paddingBottom: '24px' }}>
-            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', maxHeight: '420px', animationDelay: '0.1s' }}>
+            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', maxHeight: '420px', animationDelay: '0.1s' }}>
 
               {/* ─ Header chung ─ */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 12px', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
                     <line x1="16" x2="16" y1="2" y2="6"/>
                     <line x1="8" x2="8" y1="2" y2="6"/>
@@ -447,7 +447,7 @@ export default function Home() {
                   </svg>
                   Lịch và Deadline
                 </span>
-                <Link to="/schedule" style={{ fontSize: '12px', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 700 }}>Tất cả</Link>
+                <Link to="/schedule" style={{ fontSize: '12px', color: 'var(--primary)', textDecoration: 'none', fontWeight: 700 }}>Tất cả</Link>
               </div>
 
               {/* ─ Scrollable body ─ */}
@@ -470,10 +470,10 @@ export default function Home() {
                     <Link key={s.id} to={`/groups/${s.groupId}?tab=schedule`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
                       <div
                         style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '8px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s ease' }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(17,24,39,0.06)'}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(181, 73, 91, 0.05)'}
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
-                        <div style={{ width: '30px', height: '30px', borderRadius: '7px', flexShrink: 0, background: 'rgba(17,24,39,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
+                        <div style={{ width: '30px', height: '30px', borderRadius: '7px', flexShrink: 0, background: 'rgba(107, 158, 145, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
                             <path d="M6 6h10"/><path d="M6 10h10"/>
@@ -503,7 +503,7 @@ export default function Home() {
                 <div style={{
                   fontSize: '10px',
                   fontWeight: 800,
-                  color: 'var(--text-primary)',
+                  color: 'var(--secondary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
                   marginBottom: '8px',
@@ -536,12 +536,12 @@ export default function Home() {
                           margin: '2px 0',
                           borderRadius: '8px',
                           borderBottom: '1px solid var(--border)',
-                          background: d.dueSoon ? 'linear-gradient(135deg, rgba(217, 158, 46, 0.08), rgba(217, 158, 46, 0.03))' : 'none',
+                          background: d.dueSoon ? 'linear-gradient(135deg, rgba(232, 168, 124, 0.08), rgba(232, 168, 124, 0.03))' : 'none',
                           transition: 'all 0.2s ease',
                           cursor: 'pointer'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = d.dueSoon ? 'linear-gradient(135deg, rgba(217, 158, 46, 0.15), rgba(217, 158, 46, 0.05))' : 'rgba(17,24,39,0.06)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = d.dueSoon ? 'linear-gradient(135deg, rgba(217, 158, 46, 0.08), rgba(217, 158, 46, 0.03))' : 'transparent'}
+                        onMouseEnter={(e) => e.currentTarget.style.background = d.dueSoon ? 'linear-gradient(135deg, rgba(232, 168, 124, 0.15), rgba(232, 168, 124, 0.05))' : 'rgba(181, 73, 91, 0.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = d.dueSoon ? 'linear-gradient(135deg, rgba(232, 168, 124, 0.08), rgba(232, 168, 124, 0.03))' : 'transparent'}
                       >
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0, background: d.overdue ? '#64748b' : d.dueSoon ? 'var(--error)' : 'var(--success)', boxShadow: d.overdue ? 'none' : d.dueSoon ? '0 0 8px var(--error)' : '0 0 8px var(--success)' }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -577,13 +577,13 @@ export default function Home() {
             </div>
 
             {/* ── Bạn bè trực tuyến ── */}
-            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', animationDelay: '0.15s' }}>
+            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden', boxShadow: 'var(--shadow)', animationDelay: '0.15s' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 12px', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
-                  <span className="sc-online-dot" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#2A7576', boxShadow: '0 0 6px rgba(168, 124, 135, 0.7)' }} />
+                  <span className="sc-online-dot" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 6px rgba(107, 158, 145, 0.4)' }} />
                   Bạn bè trực tuyến ({friends.filter(f => onlineUserIds.includes(f.userId.toString())).length})
                 </span>
-                <Link to="/friends" style={{ fontSize: '12px', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 700 }}>Tất cả</Link>
+                <Link to="/friends" style={{ fontSize: '12px', color: 'var(--primary)', textDecoration: 'none', fontWeight: 700 }}>Tất cả</Link>
               </div>
 
               <div style={{
@@ -603,7 +603,7 @@ export default function Home() {
                       <line x1="17" y1="8" x2="21" y2="12" />
                       <line x1="21" y1="8" x2="17" y2="12" />
                     </svg>
-                    <span>Chưa có bạn bè nào. <Link to="/friends" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Kết bạn ngay</Link></span>
+                    <span style={{ color: 'var(--accent)' }}>Chưa có bạn bè nào. <Link to="/friends" style={{ color: 'var(--primary)', fontWeight: 600 }}>Kết bạn ngay</Link></span>
                   </div>
                 ) : (() => {
                   const onlineFriends = friends.filter(f => onlineUserIds.includes(f.userId.toString()));
@@ -616,7 +616,7 @@ export default function Home() {
                           <line x1="17" y1="8" x2="21" y2="12" />
                           <line x1="21" y1="8" x2="17" y2="12" />
                         </svg>
-                        <span>Chưa có bạn bè nào trực tuyến.</span>
+                        <span style={{ color: 'var(--accent)' }}>Chưa có bạn bè nào trực tuyến.</span>
                       </div>
                     );
                   }
@@ -632,9 +632,9 @@ export default function Home() {
                           <span style={{
                             position: 'absolute', bottom: -1, right: -1,
                             width: '10px', height: '10px', borderRadius: '50%',
-                            background: '#2A7576',
+                            background: 'var(--accent)',
                             border: '2px solid var(--bg-card)',
-                            boxShadow: '0 0 6px rgba(168, 124, 135, 0.7)'
+                            boxShadow: '0 0 6px rgba(107, 158, 145, 0.4)'
                           }} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
