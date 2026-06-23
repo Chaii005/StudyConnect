@@ -10993,25 +10993,25 @@ export default function useNotifications(userId) {
    DESIGN TOKENS - ENERGETIC FOCUS REDESIGN
    ═══════════════════════════════════════════ */
 :root {
-  --bg: #D9C9B8;
-  --bg-card: #EFE6DC;
-  --bg-input: #FAF7F4;
-  --border: #C9B49E;
-  --border-hover: #E8A87C;
-  --text-primary: #3D2C2E;
-  --text-secondary: #5A4548;
-  --text-muted: #8A7578;
-  --primary: #B5495B;
-  --primary-dark: #8F3949;
-  --primary-light: #D17A89;
-  --secondary: #E8A87C;
-  --accent: #6B9E91;
-  --success: #6B9E91;
-  --error: #E53E3E;
-  --warning: #E8A87C;
-  --shadow: 0 4px 12px rgba(61, 44, 46, 0.08);
-  --shadow-lg: 0 8px 24px rgba(61, 44, 46, 0.12);
-  --shadow-glow: 0 0 0 rgba(0,0,0,0);
+  --bg: #121010;                  /* Espresso Dark Warm background */
+  --bg-card: #1c1818;             /* Rich Cocoa Dark Card background */
+  --bg-input: #241f1f;            /* Slightly lighter warm grey-brown for inputs */
+  --border: #322929;              /* Subtle warm divider lines */
+  --border-hover: #ff6b4a;        /* Vibrant coral border on hover */
+  --text-primary: #f5ebe6;        /* Smooth creamy white text */
+  --text-secondary: #c7b8b0;      /* Soft sand secondary text */
+  --text-muted: #8f7e76;          /* Muted warm grey for captions */
+  --primary: #ff6b4a;             /* Vibrant terracotta orange/coral button */
+  --primary-dark: #e05334;        /* Deep terracotta orange for hover */
+  --primary-light: #ffa58f;       /* Soft glowing coral */
+  --secondary: #ffa07a;           /* Light salmon / warm peach */
+  --accent: #e9c46a;              /* Sunset gold accent */
+  --success: #81b29a;             /* Sage green success */
+  --error: #e07a5f;               /* Burnt terracotta error */
+  --warning: #f4a261;             /* Warm orange warning */
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.65);
+  --shadow-glow: 0 0 20px rgba(255, 107, 74, 0.15);
   --radius: 16px;
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -12527,7 +12527,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           position: 'sticky', 
           top: 0, 
           zIndex: 100,
-          background: 'rgba(255, 255, 255, 0.85)',
+          background: 'rgba(28, 24, 24, 0.85)',
           backdropFilter: 'blur(20px)',
           borderBottom: '1px solid var(--border)',
           boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)'
