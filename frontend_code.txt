@@ -13002,7 +13002,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   const isActive = item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to);
 
                   const sidebarBg = isActive ? '#1A1A1A' : 'none';
-                  const sidebarBorder = isActive ? '1px solid #1A1A1A' : '1px solid transparent';
+                  const sidebarBorder = isActive ? '1px solid #1A1A1A' : '1px solid var(--border)';
                   const sidebarTextColor = isActive ? '#ffffff' : 'var(--text-secondary)';
                   const sidebarIconColor = isActive ? '#ffffff' : 'var(--text-primary)';
 
@@ -13016,10 +13016,11 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                           display: 'flex', 
                           alignItems: 'center', 
                           gap: '12px', 
-                          padding: '11px 14px', 
-                          borderRadius: '12px', 
+                          padding: '10px 14px', 
+                          borderRadius: 'var(--radius-md)', 
                           background: sidebarBg, 
                           border: sidebarBorder,
+                          marginBottom: '6px',
                           transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', 
                           transform: 'translateY(0)',
                           position: 'relative' 
