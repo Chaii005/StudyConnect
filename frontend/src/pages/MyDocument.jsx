@@ -291,26 +291,30 @@ export default function MyDocuments() {
               Đang tải tài liệu...
             </div>
           ) : files.length === 0 ? (
-            <div className="premium-panel sc-card-animated" style={{ textAlign: 'center', padding: '64px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', animationDelay: '0.05s' }}>
-              <div style={{ color: 'var(--text-secondary)', display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
-                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
-                  <path d="M12 12v9" />
-                  <path d="m9 15 3-3 3 3" />
+            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '32px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', animationDelay: '0.05s' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+                <svg width="72" height="56" viewBox="0 0 72 56">
+                  <rect x="22" y="10" width="28" height="36" rx="4" fill="var(--bg-input)" stroke="var(--primary)" strokeWidth="1.5" />
+                  <line x1="28" y1="18" x2="44" y2="18" stroke="var(--border)" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="28" y1="26" x2="44" y2="26" stroke="var(--border)" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="28" y1="34" x2="38" y2="34" stroke="var(--border)" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="48" cy="38" r="9" fill="var(--bg-card)" stroke="var(--primary)" strokeWidth="1.5" />
+                  <path d="M48 34v8M44 38h8" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 6px 0' }}>
+              <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '4px 0 6px 0' }}>
                 Chưa có tài liệu nào
               </h2>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 20px 0', maxWidth: '400px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px 0', maxWidth: '400px' }}>
                 Vào các nhóm học để tải lên tài liệu đầu tiên của bạn.
               </p>
               <Link to="/groups" style={{
                 display: 'inline-block',
-                padding: '12px 28px', borderRadius: 'var(--radius-md)',
+                padding: '10px 24px', borderRadius: 'var(--radius-md)',
                 background: 'var(--primary)', color: 'white',
-                textDecoration: 'none', fontSize: '14px', fontWeight: 700,
-                boxShadow: '0 4px 15px rgba(42, 117, 118, 0.25)', transition: 'all 0.2s'
+                textDecoration: 'none', fontSize: '13.5px', fontWeight: 700,
+                border: '1.5px solid var(--border)',
+                transition: 'all 0.2s'
               }}>Đến nhóm học</Link>
             </div>
           ) : filtered.length === 0 ? (
