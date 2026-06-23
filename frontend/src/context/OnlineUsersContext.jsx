@@ -1,5 +1,5 @@
 // src/context/OnlineUsersContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../config/supabaseClient';
 import { useAuth } from './AuthContext';
 

@@ -8457,7 +8457,7 @@ export const NotificationProvider = ({ children }) => {
 ===== D:\StudyConect\frontend\src\context\OnlineUsersContext.jsx =====
 
 // src/context/OnlineUsersContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../config/supabaseClient';
 import { useAuth } from './AuthContext';
 
@@ -8675,7 +8675,7 @@ export const ToastProvider = ({ children }) => {
 ===== D:\StudyConect\frontend\src\hooks\useGroupDetail.js =====
 
 /* eslint-disable react-hooks/set-state-in-effect */
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { formatBytes } from '@/utils';
