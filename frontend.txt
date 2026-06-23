@@ -8277,7 +8277,7 @@ export const CallProvider = ({ children }) => {
 
     return () => {
       // KHÔNG clearTimeout timer ở đây — timer phải sống qua các lần navigate
-      ch.unsubscribe();
+      supabase.removeChannel(ch);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
@@ -8503,7 +8503,7 @@ export function OnlineUsersProvider({ children }) {
       });
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user?.id]);
 
@@ -12645,7 +12645,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       if (document.visibilityState === 'visible') {
         fetchSideData();
       }
-    }, 300000);
+    }, 900000);
 
     return () => {
       isMounted = false;
@@ -12673,7 +12673,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       if (document.visibilityState === 'visible') {
         updateUnread();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [user]);
 
@@ -12730,7 +12730,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       if (document.visibilityState === 'visible') {
         fetchPendingCount();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [user]);
 
@@ -13865,7 +13865,7 @@ export default function Admin() {
       adminChannelRef.current = ch;
       
       return () => {
-        ch.unsubscribe();
+        supabase.removeChannel(ch);
       };
     }
   }, [admin]);
@@ -15447,7 +15447,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
       if (document.visibilityState === 'visible') {
         load();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [load]);
 
@@ -17247,7 +17247,7 @@ export default function Chat() {
       if (document.visibilityState === 'visible') {
         refresh();
       }
-    }, 300000); // fallback 5 phút — Realtime handles real-time updates
+    }, 900000); // fallback 15 phút — Realtime handles real-time updates
     return () => clearInterval(timer);
   }, [user]);
 
@@ -17977,7 +17977,7 @@ export default function Friends() {
       if (document.visibilityState === 'visible') {
         loadAll();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [loadAll]);
 
@@ -22395,7 +22395,7 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
           type: 'broadcast', event: 'signal',
           payload: { type: 'leave', from: myId.current, room: roomId }
         });
-        ch.unsubscribe();
+        supabase.removeChannel(ch);
       }
       Object.values(peersRef.current).forEach(pc => pc.close());
       peersRef.current = {};
@@ -24834,7 +24834,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           type: 'broadcast', event: 'pc_signal',
           payload: { type: 'hangup', from: myId }
         });
-        ch.unsubscribe();
+        supabase.removeChannel(ch);
       }
       pcRef.current?.close();
       pcRef.current = null;
@@ -25004,7 +25004,7 @@ export default function PrivateCall() {
       }
     });
     ch.subscribe();
-    return () => { ch.unsubscribe(); };
+    return () => { supabase.removeChannel(ch); };
   }, [user?.id, callId, navigate]);
 
   // Khi callStatus thay đổi trong context (bên caller)

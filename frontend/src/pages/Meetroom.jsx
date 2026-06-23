@@ -634,7 +634,7 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
           type: 'broadcast', event: 'signal',
           payload: { type: 'leave', from: myId.current, room: roomId }
         });
-        ch.unsubscribe();
+        supabase.removeChannel(ch);
       }
       Object.values(peersRef.current).forEach(pc => pc.close());
       peersRef.current = {};

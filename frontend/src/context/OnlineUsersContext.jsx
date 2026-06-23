@@ -45,7 +45,7 @@ export function OnlineUsersProvider({ children }) {
       });
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user?.id]);
 

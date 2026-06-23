@@ -738,7 +738,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
       if (document.visibilityState === 'visible') {
         load();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [load]);
 
@@ -2538,7 +2538,7 @@ export default function Chat() {
       if (document.visibilityState === 'visible') {
         refresh();
       }
-    }, 300000); // fallback 5 phút — Realtime handles real-time updates
+    }, 900000); // fallback 15 phút — Realtime handles real-time updates
     return () => clearInterval(timer);
   }, [user]);
 

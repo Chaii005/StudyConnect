@@ -387,7 +387,7 @@ export default function Admin() {
       adminChannelRef.current = ch;
       
       return () => {
-        ch.unsubscribe();
+        supabase.removeChannel(ch);
       };
     }
   }, [admin]);

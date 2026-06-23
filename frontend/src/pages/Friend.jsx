@@ -339,7 +339,7 @@ export default function Friends() {
       if (document.visibilityState === 'visible') {
         loadAll();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [loadAll]);
 

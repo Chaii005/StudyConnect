@@ -158,7 +158,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       if (document.visibilityState === 'visible') {
         fetchSideData();
       }
-    }, 300000);
+    }, 900000);
 
     return () => {
       isMounted = false;
@@ -186,7 +186,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       if (document.visibilityState === 'visible') {
         updateUnread();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [user]);
 
@@ -243,7 +243,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       if (document.visibilityState === 'visible') {
         fetchPendingCount();
       }
-    }, 300000); // fallback 5 minutes
+    }, 900000); // fallback 15 minutes
     return () => clearInterval(interval);
   }, [user]);
 

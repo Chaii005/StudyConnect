@@ -298,7 +298,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           type: 'broadcast', event: 'pc_signal',
           payload: { type: 'hangup', from: myId }
         });
-        ch.unsubscribe();
+        supabase.removeChannel(ch);
       }
       pcRef.current?.close();
       pcRef.current = null;
@@ -468,7 +468,7 @@ export default function PrivateCall() {
       }
     });
     ch.subscribe();
-    return () => { ch.unsubscribe(); };
+    return () => { supabase.removeChannel(ch); };
   }, [user?.id, callId, navigate]);
 
   // Khi callStatus thay đổi trong context (bên caller)

@@ -131,7 +131,7 @@ export const CallProvider = ({ children }) => {
 
     return () => {
       // KHÔNG clearTimeout timer ở đây — timer phải sống qua các lần navigate
-      ch.unsubscribe();
+      supabase.removeChannel(ch);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
