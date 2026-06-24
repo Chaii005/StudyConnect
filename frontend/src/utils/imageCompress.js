@@ -85,4 +85,4 @@ export const compressImage = (file, {
  * @returns {Promise<File>}
  */
 export const compressAvatar = (file) =>
-  compressImage(file, { maxWidth: 400, maxHeight: 400, quality: 0.80 });
+  compressImage(file, { maxWidth: 256, maxHeight: 256, quality: 0.80 });

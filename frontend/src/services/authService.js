@@ -298,7 +298,7 @@ export const updateProfile = async ({ id, fullName, university, major, bio, avat
       const fileName = `${id}_${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, uploadFile, { cacheControl: '604800', upsert: true });
+        .upload(fileName, uploadFile, { cacheControl: '2592000', upsert: true });
 
       if (uploadError) {
         if (import.meta.env.DEV) {
