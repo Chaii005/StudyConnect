@@ -910,9 +910,10 @@ export default function MeetRoom() {
     fetchMeetMessages();
 
     // 2. Lắng nghe INSERT real-time — không cần polling
+    // Tên channel tĩnh (không dùng Date.now() để tránh rò rỉ channel)
     const channelUid = user?.id || 'guest';
     const channel = supabase
-      .channel(`meetroom-chat-${roomId}-${channelUid}-${Date.now()}`)
+      .channel(`meetroom-chat-${roomId}-${channelUid}`)
       .on(
         'postgres_changes',
         {
@@ -921,19 +922,29 @@ export default function MeetRoom() {
           table: 'messages',
           filter: `meetroom_id=eq.${roomId}`
         },
-        async (payload) => {
+        (payload) => {
           const m = payload.new;
-          // Fetch full row kèm user info
-          try {
-            const { data } = await supabase
-              .from('messages')
-              .select(`id, sender_id, content, meetroom_id, created_at, users:users!sender_id (full_name, avatar)`)
-              .eq('id', m.id)
-              .single();
-            if (data) {
-              setMessages(prev => [...prev, formatMsg(data)]);
-            }
-          } catch { /* ignore */ }
+          if (!m) return;
+          // Dùng trực tiếp payload.new — không refetch để tránh N+1 query
+          // Tên người gửi: nếu là mình thì dùng user object, nếu là người khác thì dùng cache
+          const senderName = String(m.sender_id) === String(user?.id)
+            ? (user?.fullName || 'Bạn')
+            : 'Người dùng'; // Sẽ được cập nhật khi fetchMeetMessages() chạy lần đầu
+          const rawContent = m.content || '';
+          const prefix = `[meetroom:${roomId}] `;
+          const text = rawContent.startsWith(prefix) ? rawContent.slice(prefix.length) : rawContent;
+          const newMsg = {
+            id: m.id.toString(),
+            text,
+            sender: senderName,
+            senderId: m.sender_id,
+            avatar: String(m.sender_id) === String(user?.id) ? (user?.avatar || '') : '',
+            time: new Date(m.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+          };
+          setMessages(prev => {
+            if (prev.some(x => x.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
         }
       )
       .subscribe();
@@ -942,6 +953,7 @@ export default function MeetRoom() {
       supabase.removeChannel(channel);
     };
   }, [roomId, user?.id]);
+
 
   // Screen share — thay track video trong tất cả peer connections để remote peers thấy màn hình
   const toggleScreen = async () => {

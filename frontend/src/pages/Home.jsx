@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getPosts, deletePost, createComment, toggleLikePost, togglePinPost } from '@/services/interactionService';
 import { getFriends } from '@/services/friendService';
 import { getAllGroups } from '@/services/groupService';
-import { supabase } from '@/config/supabaseClient';
+
 import AppLayout from '@/layouts/AppLayout';
 import Avatar from '@/components/common/Avatar';
 import PostList from '@/components/posts/PostList';
@@ -79,29 +79,16 @@ export default function Home() {
     if (!user?.id) return;
     fetchPosts();
 
-    // Chỉ refetch khi có post mới INSERT hoặc xóa/sửa post của mình
-    const postsChannel = supabase
-      .channel(`posts-${user.id}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'posts' },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            // Post mới → luôn refetch (có thể là bạn bè đăng)
-            fetchPosts();
-          } else if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
-            // Chỉ refetch nếu post đó thuộc về user hiện tại hoặc đang hiển thị trong feed
-            const postUserId = payload.old?.user_id || payload.new?.user_id;
-            if (postUserId && String(postUserId) === String(user.id)) {
-              fetchPosts();
-            }
-          }
-        }
-      )
-      .subscribe();
+    // Polling fallback 15 phút — Không dùng Realtime subscription vì bảng posts
+    // không thể filter theo friend IDs ở server-side, gây egress O(N²)
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchPosts();
+      }
+    }, 900000); // 15 phút
 
     return () => {
-      supabase.removeChannel(postsChannel);
+      clearInterval(interval);
     };
   }, [fetchPosts, user?.id]);
 
