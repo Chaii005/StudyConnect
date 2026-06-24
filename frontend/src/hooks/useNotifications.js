@@ -21,6 +21,8 @@ export default function useNotifications(userId) {
       const uid = parseInt(userId, 10);
       const now = new Date();
       const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+      // cutoff: chỉ lấy dữ liệu trong 24h qua để giảm egress
+      const cutoff = new Date(now.getTime() - ONE_DAY_MS).toISOString();
       const notifsList = [];
       const userGroupIds = new Set();
 
@@ -168,7 +170,7 @@ export default function useNotifications(userId) {
           }
         });
 
-        // Fetch other members who joined recently
+        // Fetch other members who joined recently (chỉ 24h qua)
         const { data: otherJoinedMembers } = await supabase
           .from('group_members')
           .select(`
@@ -184,7 +186,8 @@ export default function useNotifications(userId) {
           `)
           .in('group_id', joinedIds)
           .neq('user_id', uid)
-          .limit(50);
+          .gte('joined_at', cutoff)
+          .limit(20);
 
         if (otherJoinedMembers) {
           otherJoinedMembers
@@ -296,7 +299,7 @@ export default function useNotifications(userId) {
             });
         }
 
-        // Fetch group messages (excluding current user's messages)
+        // Fetch group messages (24h qua, giới hạn nhỏ để tiết kiệm egress)
         const { data: groupMsgs } = await supabase
           .from('messages')
           .select(`
@@ -315,8 +318,9 @@ export default function useNotifications(userId) {
           `)
           .in('group_id', joinedIds)
           .neq('sender_id', uid)
+          .gte('created_at', cutoff)
           .order('created_at', { ascending: false })
-          .limit(20);
+          .limit(10);
 
         if (groupMsgs) {
           groupMsgs
@@ -350,7 +354,7 @@ export default function useNotifications(userId) {
             });
         }
 
-        // Fetch shared documents/files in groups
+        // Fetch shared documents/files in groups (24h qua)
         const { data: recentFiles } = await supabase
           .from('files')
           .select(`
@@ -367,7 +371,8 @@ export default function useNotifications(userId) {
           `)
           .in('group_id', joinedIds)
           .neq('user_id', uid)
-          .limit(50);
+          .gte('created_at', cutoff)
+          .limit(20);
 
         if (recentFiles) {
           recentFiles
@@ -389,17 +394,19 @@ export default function useNotifications(userId) {
 
       // Custom deadline reminders from LocalStorage removed to comply with quota limits
 
-      // 5. Fetch user's posts to get comments & reactions on them
+      // 5. Fetch user's posts to get comments & reactions on them (giới hạn 20 post gần nhất)
       const { data: myPosts } = await supabase
         .from('posts')
         .select('id, content, likes, created_at')
-        .eq('user_id', uid);
+        .eq('user_id', uid)
+        .order('created_at', { ascending: false })
+        .limit(20);
 
       if (myPosts && myPosts.length > 0) {
         const myPostIds = myPosts.map(p => p.id);
         myPostIdsRef.current = myPostIds.map(Number);
 
-        // Fetch comments on user's posts
+        // Fetch comments on user's posts (24h qua)
         const { data: postComments } = await supabase
           .from('comments')
           .select(`
@@ -414,8 +421,9 @@ export default function useNotifications(userId) {
           `)
           .in('post_id', myPostIds)
           .neq('user_id', uid)
+          .gte('created_at', cutoff)
           .order('created_at', { ascending: false })
-          .limit(20);
+          .limit(10);
 
         if (postComments) {
           postComments
@@ -456,8 +464,9 @@ export default function useNotifications(userId) {
             `)
             .in('parent_id', myCommentIds)
             .neq('user_id', uid)
+            .gte('created_at', cutoff)
             .order('created_at', { ascending: false })
-            .limit(20);
+            .limit(10);
 
           if (replies) {
             replies
@@ -528,7 +537,7 @@ export default function useNotifications(userId) {
         }
       }
 
-      // 1c. Fetch recent private messages
+      // 1c. Fetch recent private messages (24h qua, giới hạn 10)
       const { data: privateMsgs } = await supabase
         .from('messages')
         .select(`
@@ -543,8 +552,9 @@ export default function useNotifications(userId) {
         .eq('receiver_id', uid)
         .neq('sender_id', uid)
         .is('group_id', null)
+        .gte('created_at', cutoff)
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(10);
 
       if (privateMsgs) {
         privateMsgs
@@ -736,7 +746,7 @@ export default function useNotifications(userId) {
         console.warn('Error fetching post tag notifications:', err);
       }
 
-      // Fetch outgoing missed call messages (📵) để caller cũng thấy trong bell
+      // Fetch outgoing missed call messages (24h qua)
       try {
         const { data: outgoingMissed, error: omError } = await supabase
           .from('messages')
@@ -752,8 +762,9 @@ export default function useNotifications(userId) {
           .eq('sender_id', uid)
           .is('group_id', null)
           .like('content', '📵%')
+          .gte('created_at', cutoff)
           .order('created_at', { ascending: false })
-          .limit(10);
+          .limit(5);
 
         if (!omError && outgoingMissed) {
           outgoingMissed
@@ -806,8 +817,9 @@ export default function useNotifications(userId) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
 
+    // Channel name unique mỗi mount để tránh duplicate subscription
     const notifChannel = supabase
-      .channel(`notif-${userId}`)
+      .channel(`notif-${userId}-${Date.now()}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'friendships', filter: `to_user_id=eq.${userId}` },
@@ -825,7 +837,6 @@ export default function useNotifications(userId) {
       )
       .on(
         'postgres_changes',
-        // Filter server-side theo user_id để tránh nhận event của toàn hệ thống
         { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${userId}` },
         () => refreshDebounced()
       )

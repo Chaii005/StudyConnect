@@ -160,12 +160,12 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     loadFriends();
     fetchSideData();
 
-    // Poll schedules/deadlines every 5 minutes
+    // Poll schedules/deadlines mỗi 30 phút (tăng từ 15) — dữ liệu này không cần thời gian thực
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchSideData();
       }
-    }, 900000);
+    }, 1800000); // 30 phút
 
     return () => {
       isMounted = false;
@@ -189,18 +189,16 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       }
     };
     updateUnread();
-    const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        updateUnread();
-      }
-    }, 900000); // fallback 15 minutes
-    return () => clearInterval(interval);
+    // Không dùng setInterval để poll unread — Realtime subscription (ở dưới) đã xử lý update
+    // nên xóa interval này để giảm egress từ refreshCache liên tục
+    return;
   }, [user]);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    const channelName = `layout-unread-${user.id}`;
+    // Channel unique mỗi mount tránh duplicate
+    const channelName = `layout-unread-${user.id}-${Date.now()}`;
     const channel = supabase
       .channel(channelName)
       .on(
@@ -246,18 +244,20 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       }
     };
     fetchPendingCount();
+    // Fallback poll 30 phút (tăng từ 15 phút) — Realtime xử lý cập nhật thời gian thực
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchPendingCount();
       }
-    }, 900000); // fallback 15 minutes
+    }, 1800000); // fallback 30 phút
     return () => clearInterval(interval);
   }, [user]);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    const channelName = `layout-pending-friends-${user.id}`;
+    // Channel unique mỗi mount
+    const channelName = `layout-pending-friends-${user.id}-${Date.now()}`;
     const channel = supabase
       .channel(channelName)
       .on(

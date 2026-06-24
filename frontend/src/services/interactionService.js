@@ -465,6 +465,8 @@ export const createComment = async (postId, { content, userId, parentId }) => {
 };
 
 let cachedSuggestions = null;
+let cachedSuggestionsTime = 0;
+const SUGGESTIONS_TTL_MS = 10 * 60 * 1000; // 10 phút
 
 const getSearchSuggestionsBackground = async () => {
   try {
@@ -495,6 +497,7 @@ const getSearchSuggestionsBackground = async () => {
       }))
     };
     cachedSuggestions = result;
+    cachedSuggestionsTime = Date.now();
     return result;
   } catch (err) {
     if (import.meta.env.DEV) {
@@ -505,9 +508,14 @@ const getSearchSuggestionsBackground = async () => {
 };
 
 export const getSearchSuggestions = async () => {
+  const now = Date.now();
+  // Trả cache ngay nếu còn mới (chưa quá 10 phút)
+  if (cachedSuggestions && (now - cachedSuggestionsTime) < SUGGESTIONS_TTL_MS) {
+    return cachedSuggestions;
+  }
+  // Cache đã cũ hoặc chưa có: fetch mới, nhưng nếu có cache cũ thì trả luôn và refetch background
   if (cachedSuggestions) {
-    // Trả về cache ngay lập tức để render tức thì, đồng thời update ngầm
-    getSearchSuggestionsBackground();
+    getSearchSuggestionsBackground(); // refetch ngầm, không await
     return cachedSuggestions;
   }
   return await getSearchSuggestionsBackground();

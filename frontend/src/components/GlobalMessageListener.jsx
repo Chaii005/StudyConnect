@@ -132,7 +132,7 @@ export default function GlobalMessageListener() {
 
     // Listen to changes in group memberships for current user to keep group IDs updated in real-time
     const memberChannel = supabase
-      .channel(`user-memberships-${uid}`)
+      .channel(`user-memberships-${uid}-${Date.now()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${uid}` }, () => {
         fetchUserGroups();
       })
@@ -154,7 +154,7 @@ export default function GlobalMessageListener() {
 
     // 1. Private Channel
     const privateChannel = supabase
-      .channel(`notif-private-${uid}`)
+      .channel(`notif-private-${uid}-${Date.now()}`)
       // ① Tin nhắn cá nhân
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${uid}` }, async (payload) => {
         const msg = payload.new;
@@ -311,7 +311,7 @@ export default function GlobalMessageListener() {
     const activeGroupChannels = [];
     userGroupIds.forEach((gId) => {
       const groupChannel = supabase
-        .channel(`group-realtime-${gId}`)
+        .channel(`group-realtime-${gId}-${Date.now()}`)
         // ① Tin nhắn nhóm
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `group_id=eq.${gId}` }, async (payload) => {
           const msg = payload.new;
@@ -456,7 +456,7 @@ export default function GlobalMessageListener() {
     });
 
     // 3. Admin Broadcast Channel
-    const adminChannel = supabase.channel('admin-broadcasts');
+    const adminChannel = supabase.channel(`admin-broadcasts-${uid}-${Date.now()}`);
     adminChannel.on('broadcast', { event: 'file_approved' }, async ({ payload }) => {
       if (!payload) return;
       const { userId, fileName, groupId, groupName, userFullName } = payload;
