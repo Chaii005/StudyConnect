@@ -1,0 +1,14 @@
+{
+  "userA": {
+    "email": "thuyb@gmail.com",
+    "password": "User123!",
+    "fullName": "Thúy B",
+    "id": 4
+  },
+  "userB": {
+    "email": "teststudent_1782387605113@studyconnect.com",
+    "password": "User123!",
+    "fullName": "Test Student Helper",
+    "id": 6
+  }
+}
