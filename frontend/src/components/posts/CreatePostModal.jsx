@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Avatar from '@/components/common/Avatar';
 import { createPost } from '@/services/interactionService';
+import { useToast } from '@/context/ToastContext';
 
 // ── tiny avatar for suggestion rows ───────────────────────────────
 function SuggestAvatar({ src, initial }) {
@@ -16,6 +17,7 @@ function SuggestAvatar({ src, initial }) {
 }
 
 export default function CreatePostModal({ user, friends = [], myLeaderGroups = [], onClose, onSubmit }) {
+  const { addToast } = useToast();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -128,12 +130,12 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
         taggedGroupNames: tags.filter(t => t.type === 'group').map(t => t.name),
         taggerName: user.fullName,
       });
-      alert('Bài viết đã được gửi và đang chờ admin phê duyệt.');
+      addToast('Bài viết đã được gửi và đang chờ admin phê duyệt.', 'success');
       setLoading(false);
       onSubmit(newPost);
       onClose();
     } catch (err) {
-      alert(`Đăng bài thất bại: ${err.message}`);
+      addToast(`Đăng bài thất bại: ${err.message}`, 'error');
       setLoading(false);
     }
   };
