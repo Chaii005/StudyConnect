@@ -49,26 +49,6 @@ export default function NotificationItem({
           boxShadow: isUrgentDeadline ? '0 0 6px #ef4444' : 'none',
         }}
       />
-      {/* Icon missedcall — circular premium style */}
-      {n.type === 'missedcall' && (
-        <div style={{
-          width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
-          background: 'radial-gradient(circle at 35% 35%, rgba(239,68,68,0.45), rgba(239,68,68,0.10))',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          border: '1.5px solid rgba(252,165,165,0.4)',
-          boxShadow: '0 0 10px rgba(239,68,68,0.28), 0 0 20px rgba(239,68,68,0.12), inset 0 1px 0 rgba(255,255,255,0.1)',
-          alignSelf: 'flex-start',
-          marginTop: 1,
-        }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 2px rgba(252,165,165,0.6))' }}>
-            <path
-              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
-              fill="rgba(252,165,165,0.18)" stroke="#fca5a5" strokeWidth="1.8"
-            />
-            <line x1="16" y1="6" x2="6" y2="16" stroke="#fca5a5" strokeWidth="2.2" />
-          </svg>
-        </div>
-      )}
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <div

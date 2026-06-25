@@ -28,9 +28,7 @@ const ToastItem = ({ toast, removeToast }) => {
 
   return (
     <div className={`toast ${toast.type}`}>
-      <span className="toast-icon">
-        {toast.type === 'success' ? '✅' : '❌'}
-      </span>
+
       <span className="toast-msg">{toast.message}</span>
       <button
         onClick={() => removeToast(toast.id)}

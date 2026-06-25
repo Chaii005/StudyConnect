@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useOnlineUsers } from '@/context/OnlineUsersContext';
 import { getTotalUnread, refreshCache } from '@/services/chatServiceTEMP';
-import NotificationBell from '@/components/notifications/NotificationBell';
 import { supabase } from '@/config/supabaseClient';
 import Avatar from '@/components/common/Avatar';
 import { getUserSchedulesAndDeadlines } from '@/services/interactionService';
@@ -465,21 +464,6 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
               </div>
             )}
 
-            {displayUser?.id && !isAdminPath && (
-              <div className="mobile-only">
-                <NotificationBell 
-                  style={{ 
-                    height: '34px', 
-                    width: '34px', 
-                    padding: 0, 
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }} 
-                />
-              </div>
-            )}
 
             {displayUser && (
               <button className="btn-logout desktop-only" onClick={handleLogout} style={{
@@ -597,20 +581,6 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                         </div>
                       </div>
                     </Link>
-                    <div style={{ flexShrink: 0, paddingRight: '4px' }}>
-                      <NotificationBell 
-                        userId={user.id} 
-                        style={{ 
-                          height: '38px', 
-                          width: '38px', 
-                          padding: 0, 
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }} 
-                      />
-                    </div>
                   </div>
                 )}
 

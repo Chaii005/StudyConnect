@@ -50,7 +50,7 @@ export const ToastProvider = ({ children }) => {
       <div 
         style={{
           position: 'fixed',
-          top: '20px',
+          top: '92px',
           right: '20px',
           zIndex: 9999,
           display: 'flex',
@@ -103,16 +103,7 @@ export const ToastProvider = ({ children }) => {
                 to { transform: translateX(120%); opacity: 0; }
               }
             `}</style>
-            
-            <span>
-              {toast.icon 
-                ? toast.icon 
-                : toast.type === 'error' 
-                ? '⚠️' 
-                : toast.type === 'message' 
-                ? '💬' 
-                : '✅'}
-            </span>
+
             <span style={{ flex: 1 }}>{toast.message}</span>
             <button
               onClick={(e) => {

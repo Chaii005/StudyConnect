@@ -49,7 +49,7 @@ export default function useNotifications(userId) {
             notifsList.push({
               key: `friendreq:${f.id}`,
               type: 'friendreq',
-              title: '🤝 Lời mời kết bạn',
+              title: 'Lời mời kết bạn',
               body: `${senderName} muốn kết bạn với bạn`,
               createdAt: f.created_at,
               requestId: f.id.toString(),
@@ -81,7 +81,7 @@ export default function useNotifications(userId) {
             notifsList.push({
               key: `friendaccept:${ar.id}`,
               type: 'friendaccept',
-              title: '🎉 Kết bạn thành công',
+              title: 'Kết bạn thành công',
               body: `${userName} đã đồng ý lời mời kết bạn của bạn`,
               createdAt: ar.accepted_at,
             });
@@ -116,7 +116,7 @@ export default function useNotifications(userId) {
             notifsList.push({
               key: `groupinvite:${inv.id}`,
               type: 'groupinvite',
-              title: '👥 Lời mời vào nhóm',
+              title: 'Lời mời vào nhóm',
               body: `${inviterName} mời bạn tham gia nhóm "${groupName}"`,
               createdAt: inv.created_at,
               inviteId: inv.id.toString(),
@@ -152,7 +152,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `groupjoin:${m.group_id}`,
                 type: 'groupjoin',
-                title: '🔔 Gia nhập nhóm thành công',
+                title: 'Gia nhập nhóm thành công',
                 body: `Bạn đã tham gia nhóm học tập "${groupName}"`,
                 createdAt: m.joined_at,
                 groupId: m.group_id.toString(),
@@ -161,7 +161,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `groupdeputy:${m.group_id}`,
                 type: 'groupdeputy',
-                title: '👑 Bổ nhiệm phó nhóm',
+                title: 'Bổ nhiệm phó nhóm',
                 body: `Bạn đã được bổ nhiệm làm Phó nhóm của "${groupName}"`,
                 createdAt: m.joined_at,
                 groupId: m.group_id.toString(),
@@ -198,7 +198,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `othergroupjoin:${om.group_id}:${om.user_id}`,
                 type: 'othergroupjoin',
-                title: '👥 Thành viên mới gia nhập',
+                title: 'Thành viên mới gia nhập',
                 body: `${userName} đã tham gia nhóm "${groupName}"`,
                 createdAt: om.joined_at,
                 groupId: om.group_id.toString(),
@@ -226,7 +226,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `schedule:${s.id}`,
                 type: 'schedule',
-                title: `📅 Lịch học mới: "${s.topic}"`,
+                title: `Lịch học mới: "${s.topic}"`,
                 body: `Nhóm ${s.study_groups?.name || 'học'} • ${new Date(s.date_time).toLocaleString('vi-VN')}`,
                 createdAt: s.created_at,
                 groupId: s.group_id.toString(),
@@ -261,7 +261,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `deadline:${d.id}`,
                 type: 'deadline',
-                title: `⏰ Deadline mới: "${d.title}"`,
+                title: `Deadline mới: "${d.title}"`,
                 body: `${isPersonal ? '👤 Giao cho bạn' : '👥 Cả nhóm'} • Nhóm ${d.study_groups?.name || 'học'} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
                 createdAt: d.created_at,
                 groupId: d.group_id.toString(),
@@ -289,7 +289,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `deadline-urgent:${d.id}`,
                 type: 'deadline-urgent',
-                title: `🚨 ${isPersonal ? 'Deadline của bạn' : 'Deadline nhóm'} sắp đến: "${d.title}"`,
+                title: `${isPersonal ? 'Deadline của bạn' : 'Deadline nhóm'} sắp đến: "${d.title}"`,
                 body: `${isPersonal ? '👤 Giao cho bạn' : '👥 Cả nhóm'} • Nhóm ${d.study_groups?.name || 'học'} • Còn ${timeStr} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
                 createdAt: new Date(new Date(d.due_date).getTime() - ONE_DAY_MS).toISOString(),
                 groupId: d.group_id.toString(),
@@ -334,7 +334,7 @@ export default function useNotifications(userId) {
                 notifsList.push({
                   key: `groupcall:${m.id}`,
                   type: 'groupcall',
-                  title: `📞 Cuộc gọi trong "${groupName}"`,
+                  title: `Cuộc gọi trong "${groupName}"`,
                   body: cleanText,
                   createdAt: m.created_at,
                   groupId: m.group_id.toString(),
@@ -383,7 +383,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `file:upload:${rf.id}`,
                 type: 'fileupload',
-                title: '📎 Tài liệu nhóm mới',
+                title: 'Tài liệu nhóm mới',
                 body: `${userName} đã tải lên tài liệu "${rf.file_name}" trong nhóm "${groupName}"`,
                 createdAt: rf.created_at,
                 groupId: rf.group_id.toString(),
@@ -433,7 +433,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `comment:${c.id}`,
                 type: 'comment',
-                title: `💬 Bình luận bài viết`,
+                title: `Bình luận bài viết`,
                 body: `${commenterName} đã bình luận: "${c.content}"`,
                 createdAt: c.created_at,
                 postId: c.post_id.toString(),
@@ -481,7 +481,7 @@ export default function useNotifications(userId) {
                 notifsList.push({
                   key: `reply:${r.id}`,
                   type: 'comment',
-                  title: `💬 Trả lời bình luận`,
+                  title: `Trả lời bình luận`,
                   body: `${replierName} đã trả lời bình luận của bạn: "${r.content}"`,
                   createdAt: r.created_at,
                   postId: r.post_id.toString(),
@@ -527,7 +527,7 @@ export default function useNotifications(userId) {
                   notifsList.push({
                     key: `like:${p.id}:${lkId}`,
                     type: 'like',
-                    title: `${emoji} Tương tác bài viết`,
+                    title: `Tương tác bài viết`,
                     body: `${likerName} đã thả cảm xúc vào bài viết của bạn`,
                     createdAt: p.created_at, // Approximation of time
                     postId: p.id.toString(),
@@ -586,7 +586,7 @@ export default function useNotifications(userId) {
             notifsList.push({
               key: `privatemsg:${m.id}`,
               type: 'privatemsg',
-              title: `💬 Tin nhắn từ ${senderName}`,
+              title: `Tin nhắn từ ${senderName}`,
               body: displayContent,
               createdAt: m.created_at,
               senderId: m.sender_id.toString(),
@@ -630,7 +630,7 @@ export default function useNotifications(userId) {
               notifsList.push({
                 key: `joinrequest:${r.id}`,
                 type: 'joinrequest',
-                title: '👥 Yêu cầu tham gia nhóm',
+                title: 'Yêu cầu tham gia nhóm',
                 body: `${requesterName} xin tham gia nhóm học tập "${groupName}"`,
                 createdAt: r.created_at,
                 requestId: r.id.toString(),
@@ -651,7 +651,7 @@ export default function useNotifications(userId) {
             notifsList.push({
               key: `kick:${k.id}`,
               type: 'groupkick',
-              title: '⚠️ Bị xóa khỏi nhóm',
+              title: 'Bị xóa khỏi nhóm',
               body: `Bạn đã bị xóa khỏi nhóm học tập "${k.groupName}"`,
               createdAt: k.createdAt,
             });
@@ -669,7 +669,7 @@ export default function useNotifications(userId) {
             notifsList.push({
               key: `demote:${d.id}`,
               type: 'groupdemote',
-              title: '⚠️ Bị tước quyền phó nhóm',
+              title: 'Bị tước quyền phó nhóm',
               body: `Bạn đã bị tước quyền phó nhóm của "${d.groupName}"`,
               createdAt: d.createdAt,
             });
@@ -718,7 +718,7 @@ export default function useNotifications(userId) {
                   notifsList.push({
                     key,
                     type: 'posttag_user',
-                    title: '🏷️ Bạn được tag trong một bài viết',
+                    title: 'Bạn được tag trong một bài viết',
                     body: `${taggerName} đã tag bạn trong một bài viết`,
                     createdAt: t.created_at,
                     postId: String(t.post_id),
@@ -734,7 +734,7 @@ export default function useNotifications(userId) {
                   notifsList.push({
                     key,
                     type: 'posttag_group',
-                    title: `🏷️ Nhóm "${gName}" được tag`,
+                    title: `Nhóm "${gName}" được tag`,
                     body: `${taggerName} đã tag nhóm "${gName}" trong một bài viết`,
                     createdAt: t.created_at,
                     postId: String(t.post_id),
