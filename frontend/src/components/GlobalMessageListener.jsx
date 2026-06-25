@@ -169,7 +169,7 @@ export default function GlobalMessageListener() {
           const text = (msg.content?.startsWith('data:image') || msg.content?.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i))
             ? 'Đã gửi một ảnh'
             : (msg.content || '');
-          addToast(`${senderName}: ${text}`, 'message', 6000, '/chat', '💬');
+          addToast(`${senderName}: ${text}`, 'message', 6000, '/chat');
         } catch { /* ignore */ }
       })
       // ④ Lời mời kết bạn & Chấp nhận kết bạn
@@ -179,7 +179,7 @@ export default function GlobalMessageListener() {
           if (f.status !== 'pending') return;
           try {
             const senderName = await getUserName(f.from_user_id);
-            addToast(`${senderName} muốn kết bạn với bạn`, 'notification', 7000, '/friends', '🤝');
+            addToast(`${senderName} muốn kết bạn với bạn`, 'notification', 7000, '/friends');
           } catch { /* ignore */ }
         }
       })
@@ -189,7 +189,7 @@ export default function GlobalMessageListener() {
         if (newF.status === 'accepted' && oldF?.status !== 'accepted') {
           try {
             const accepterName = await getUserName(newF.to_user_id);
-            addToast(`${accepterName} đã đồng ý kết bạn`, 'notification', 7000, '/friends', '🎉');
+            addToast(`${accepterName} đã đồng ý kết bạn`, 'notification', 7000, '/friends');
           } catch { /* ignore */ }
         }
       })
@@ -204,7 +204,7 @@ export default function GlobalMessageListener() {
           ]);
           addToast(
             `${inviterName} mời bạn vào nhóm "${groupName}"`,
-            'notification', 7000, '/groups', '👥'
+            'notification', 7000, '/groups'
           );
         } catch { /* ignore */ }
       })
@@ -216,12 +216,12 @@ export default function GlobalMessageListener() {
           if (m.role === 'admin' && old?.role !== 'admin') {
             try {
               const groupName = await getGroupName(m.group_id);
-              addToast(`Bạn được bổ nhiệm làm Phó nhóm "${groupName}"`, 'success', 7000, `/groups/${m.group_id}`, '👑');
+              addToast(`Bạn được bổ nhiệm làm Phó nhóm "${groupName}"`, 'success', 7000, `/groups/${m.group_id}`);
             } catch { /* ignore */ }
           } else if (m.role === 'member' && (old?.role === 'admin' || !old || old.role === undefined)) {
             try {
               const groupName = await getGroupName(m.group_id);
-              addToast(`Bạn đã bị tước quyền phó nhóm của "${groupName}"`, 'error', 7000, `/groups/${m.group_id}`, '⚠️');
+              addToast(`Bạn đã bị tước quyền phó nhóm của "${groupName}"`, 'error', 7000, `/groups/${m.group_id}`);
               try {
                 const demotions = JSON.parse(localStorage.getItem('studyconect_demoted_notifications') || '[]');
                 demotions.push({ id: Date.now().toString(), groupName, createdAt: new Date().toISOString() });
@@ -237,7 +237,7 @@ export default function GlobalMessageListener() {
           }
           try {
             const groupName = await getGroupName(m.group_id);
-            addToast(`Bạn đã bị rời khỏi nhóm "${groupName}"`, 'error', 8000, '/groups', '⚠️');
+            addToast(`Bạn đã bị rời khỏi nhóm "${groupName}"`, 'error', 8000, '/groups');
             try {
               const kicks = JSON.parse(localStorage.getItem('studyconect_kicked_notifications') || '[]');
               kicks.push({ id: Date.now().toString(), groupName, createdAt: new Date().toISOString() });
@@ -259,7 +259,7 @@ export default function GlobalMessageListener() {
 
           addToast(
             `${taggerName} đã tag bạn trong bài viết`,
-            'notification', 6000, '/', '🏷️'
+            'notification', 6000, '/'
           );
         } catch { /* ignore */ }
       })
@@ -277,7 +277,7 @@ export default function GlobalMessageListener() {
           if (String(c.user_id) === String(uid)) return;
           try {
             const commenterName = await getUserName(c.user_id);
-            addToast(`${commenterName} bình luận: "${c.content}"`, 'notification', 6000, '/', '💬');
+            addToast(`${commenterName} bình luận: "${c.content}"`, 'notification', 6000, '/');
           } catch { /* ignore */ }
         }
       )
@@ -296,8 +296,7 @@ export default function GlobalMessageListener() {
           if (String(r.user_id) === String(uid)) return;
           try {
             const reactorName = await getUserName(r.user_id);
-            const emoji = r.emoji || '❤️';
-            addToast(`${reactorName} đã bày tỏ cảm xúc với bài viết của bạn`, 'notification', 6000, '/', emoji);
+            addToast(`${reactorName} đã bày tỏ cảm xúc với bài viết của bạn`, 'notification', 6000, '/');
           } catch { /* ignore */ }
         }
       )
@@ -335,14 +334,13 @@ export default function GlobalMessageListener() {
               if (rId && location.pathname.startsWith(`/room/${rId}`)) return;
 
               const text = raw.startsWith('[meetroom:') ? raw.replace(/^\[meetroom:[^\]]+\]\s*/, '') : raw;
-              addToast(`[Phòng họp] ${senderName}: ${text}`, 'info', 6000, `/groups/${gId}?tab=chat`, '📞');
+              addToast(`[Phòng họp] ${senderName}: ${text}`, 'info', 6000, `/groups/${gId}?tab=chat`);
               return;
             }
             addToast(
               `[${groupName}] ${senderName}: ${raw}`,
               'message', 6000,
-              `/groups/${gId}?tab=chat`,
-              '👥'
+              `/groups/${gId}?tab=chat`
             );
           } catch { /* ignore */ }
         })
@@ -354,7 +352,7 @@ export default function GlobalMessageListener() {
             const groupName = await getGroupName(gId);
             addToast(
               `Lịch học mới: "${s.topic}" — Nhóm "${groupName}"`,
-              'notification', 7000, `/groups/${gId}?tab=schedule`, '📅'
+              'notification', 7000, `/groups/${gId}?tab=schedule`
             );
           } catch { /* ignore */ }
         })
@@ -367,7 +365,7 @@ export default function GlobalMessageListener() {
             const personal = d.assignee_id ? ' (Giao cho bạn)' : '';
             addToast(
               `Deadline mới: "${d.title}" — ${groupName}${personal}`,
-              'notification', 7000, `/groups/${gId}?tab=deadlines`, '⏰'
+              'notification', 7000, `/groups/${gId}?tab=deadlines`
             );
           } catch { /* ignore */ }
         })
@@ -380,7 +378,7 @@ export default function GlobalMessageListener() {
               getUserName(m.user_id),
               getGroupName(gId)
             ]);
-            addToast(`${newUserName} đã tham gia nhóm "${groupName}"`, 'info', 5000, `/groups/${gId}`, '👥');
+            addToast(`${newUserName} đã tham gia nhóm "${groupName}"`, 'info', 5000, `/groups/${gId}`);
           } catch { /* ignore */ }
         })
         // ⑨ Tài liệu học tập mới (được duyệt)
@@ -395,7 +393,7 @@ export default function GlobalMessageListener() {
           if (String(f.user_id) === String(uid)) {
             addToast(
               `Tài liệu "${f.file_name}" của bạn đã được Admin phê duyệt! 🎉`,
-              'success', 7000, `/groups/${gId}?tab=documents`, '📁'
+              'success', 7000, `/groups/${gId}?tab=documents`
             );
             return;
           }
@@ -407,7 +405,7 @@ export default function GlobalMessageListener() {
             ]);
             addToast(
               `Tài liệu mới được duyệt: "${f.file_name}" — Đăng bởi ${uploaderName} trong nhóm ${groupName}`,
-              'notification', 7000, `/groups/${gId}?tab=documents`, '📎'
+              'notification', 7000, `/groups/${gId}?tab=documents`
             );
           } catch { /* ignore */ }
         })
@@ -424,7 +422,7 @@ export default function GlobalMessageListener() {
             const groupName = await getGroupName(gId);
             addToast(
               `${taggerName} đã tag nhóm "${groupName}" trong bài viết`,
-              'notification', 6000, '/', '🏷️'
+              'notification', 6000, '/'
             );
           } catch { /* ignore */ }
         });
@@ -441,7 +439,7 @@ export default function GlobalMessageListener() {
             ]);
             addToast(
               `${requesterName} xin tham gia nhóm "${groupName}"`,
-              'notification', 8000, `/groups/${gId}`, '🔔'
+              'notification', 8000, `/groups/${gId}`
             );
           } catch { /* ignore */ }
         });
@@ -465,7 +463,7 @@ export default function GlobalMessageListener() {
       if (String(userId) === String(uid)) {
         addToast(
           `Tài liệu "${fileName}" của bạn đã được Admin phê duyệt! 🎉`,
-          'success', 7000, `/groups/${groupId}?tab=documents`, '📁'
+          'success', 7000, `/groups/${groupId}?tab=documents`
         );
         return;
       }
@@ -475,7 +473,7 @@ export default function GlobalMessageListener() {
       
       addToast(
         `Tài liệu mới được duyệt: "${fileName}" — Đăng bởi ${userFullName || 'Thành viên'} trong nhóm ${groupName || 'Nhóm học'}`,
-        'notification', 7000, `/groups/${groupId}?tab=documents`, '📎'
+        'notification', 7000, `/groups/${groupId}?tab=documents`
       );
     });
 
@@ -487,7 +485,7 @@ export default function GlobalMessageListener() {
       if (String(userId) === String(uid)) {
         addToast(
           `Tài liệu "${fileName}" của bạn trong nhóm "${groupName || 'Nhóm học'}" đã bị Admin từ chối phê duyệt và xóa bỏ. ❌`,
-          'error', 8000, null, '📁'
+          'error', 8000, null
         );
       }
     });
@@ -498,7 +496,7 @@ export default function GlobalMessageListener() {
       if (String(userId) === String(uid)) {
         addToast(
           'Bài viết của bạn đã được Admin phê duyệt! 🎉',
-          'success', 7000, '/', '📝'
+          'success', 7000, '/'
         );
       }
     });
@@ -509,7 +507,7 @@ export default function GlobalMessageListener() {
       if (String(userId) === String(uid)) {
         addToast(
           'Bài viết của bạn đã bị Admin từ chối phê duyệt và xóa bỏ. ❌',
-          'error', 8000, null, '📝'
+          'error', 8000, null
         );
       }
     });

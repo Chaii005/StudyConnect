@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import useGroupDetail from '@/hooks/useGroupDetail';
@@ -13,10 +13,9 @@ import { getJoinRequests, approveJoinRequest, rejectJoinRequest } from '@/servic
 
 export default function GroupDetail() {
   const { id: groupId } = useParams();
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const location = useLocation();
-  const { toasts, addToast, removeToast } = useToast();
+  const { addToast } = useToast();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   useEffect(() => {
@@ -112,10 +111,6 @@ export default function GroupDetail() {
     }
   }, [h.activeTab, h.loading, h.group, location.search]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   if (h.loading) {
     return (

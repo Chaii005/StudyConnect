@@ -521,7 +521,6 @@ export default function useNotifications(userId) {
             if (Array.isArray(p.likes)) {
               p.likes.forEach(lk => {
                 const lkId = typeof lk === 'object' ? String(lk.userId) : String(lk);
-                const emoji = typeof lk === 'object' ? (lk.emoji || '❤️') : '❤️';
                 if (lkId && lkId !== String(uid)) {
                   const likerName = likersMap[lkId] || 'Người dùng';
                   notifsList.push({
