@@ -155,15 +155,11 @@ export default function GroupDocuments({
           )}
           <button
             type="submit"
-            className="btn btn-primary responsive-btn-full"
+            className="btn btn-mono responsive-btn-full"
             style={{
               width: 'max-content',
               alignSelf: 'flex-end',
-              padding: '10px 24px',
-              background: '#1A1A1A',
-              color: '#FFFFFF',
-              border: '1.5px solid #1A1A1A',
-              borderRadius: '24px'
+              padding: '10px 24px'
             }}
             disabled={isUploadingFile || !selectedFile}
           >
@@ -300,14 +296,10 @@ export default function GroupDocuments({
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     <button
                       onClick={() => handleFileDownload(file)}
-                      className="btn"
+                      className="btn btn-mono"
                       style={{
                         padding: '8px 16px',
-                        fontSize: '13px',
-                        background: '#1A1A1A',
-                        color: '#FFFFFF',
-                        border: '1.5px solid #1A1A1A',
-                        borderRadius: '24px'
+                        fontSize: '13px'
                       }}
                     >
                       Tải xuống
@@ -315,12 +307,8 @@ export default function GroupDocuments({
                     {canDelete && (
                       <button
                         onClick={() => handleFileDelete(file.id)}
+                        className="btn-mono"
                         style={{
-                          background: '#1A1A1A',
-                          border: '1.5px solid #1A1A1A',
-                          color: '#FFFFFF',
-                          cursor: 'pointer',
-                          borderRadius: '24px',
                           padding: '8px 16px',
                           fontSize: '13px',
                           fontWeight: 600,

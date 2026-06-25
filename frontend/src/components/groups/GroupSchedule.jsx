@@ -267,7 +267,8 @@ export default function GroupSchedule({
                           href={activeGeoPreview.mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: '#fff', background: '#1A1A1A', border: '1.5px solid #1A1A1A', padding: '6px 12px', borderRadius: '24px', textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: 'none' }}
+                          className="btn-mono"
+                          style={{ flexShrink: 0, padding: '6px 12px', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}
                         >
                           Mở Maps
                         </a>
@@ -291,19 +292,15 @@ export default function GroupSchedule({
                     type="button"
                     onClick={generateRoomLink}
                     title="Tạo link phòng học trực tuyến"
+                    className="btn-mono"
                     style={{
                       flexShrink: 0,
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
                       padding: '0 18px',
-                      background: '#1A1A1A',
-                      border: '1.5px solid #1A1A1A',
-                      borderRadius: '24px',
-                      color: '#FFFFFF',
                       fontSize: '13px',
                       fontWeight: 700,
-                      cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       fontFamily: 'inherit',
                     }}
@@ -403,7 +400,7 @@ export default function GroupSchedule({
             </div>
             <button
               type="submit"
-              className="btn"
+              className="btn btn-mono"
               disabled={isSubmittingSchedule}
               style={{
                 width: 'max-content',
@@ -411,13 +408,6 @@ export default function GroupSchedule({
                 padding: '8px 20px',
                 fontSize: '13px',
                 fontWeight: 700,
-                borderRadius: '24px',
-                background: '#1A1A1A',
-                color: '#fff',
-                border: '1.5px solid #1A1A1A',
-                boxShadow: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
@@ -522,12 +512,8 @@ export default function GroupSchedule({
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button
                           onClick={() => openEditSchedule(sched)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '4px 12px',
                             fontSize: '11px',
                             fontWeight: 600,
@@ -537,12 +523,8 @@ export default function GroupSchedule({
                         </button>
                         <button
                           onClick={() => handleScheduleDelete(sched.id)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '4px 12px',
                             fontSize: '11px',
                             fontWeight: 600,
@@ -588,19 +570,11 @@ export default function GroupSchedule({
                           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                             <Link
                               to={`${sched.location}?group=${encodeURIComponent(group?.name || '')}&groupId=${group?.id || ''}`}
+                              className="btn-mono"
                               style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                background: '#1A1A1A',
-                                border: '1.5px solid #1A1A1A',
-                                color: '#fff',
-                                textDecoration: 'none',
                                 padding: '4px 10px',
-                                borderRadius: '24px',
                                 fontSize: '11px',
                                 fontWeight: 700,
-                                boxShadow: 'none',
                               }}
                             >
                               Vào phòng học
@@ -611,15 +585,11 @@ export default function GroupSchedule({
                                 navigator.clipboard?.writeText(window.location.origin + sched.location);
                                 if (addToast) addToast('Đã sao chép link phòng học!', 'success');
                               }}
+                              className="btn-mono"
                               style={{
-                                background: '#1A1A1A',
-                                border: '1.5px solid #1A1A1A',
-                                color: '#FFFFFF',
                                 fontSize: '11px',
                                 fontWeight: 600,
                                 padding: '3px 8px',
-                                borderRadius: '24px',
-                                cursor: 'pointer',
                                 fontFamily: 'inherit',
                               }}
                             >
@@ -650,7 +620,8 @@ export default function GroupSchedule({
                             href={googleMapsSearchUrl(sched.location)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 11, fontWeight: 700, color: '#fff', background: '#1A1A1A', border: '1.5px solid #1A1A1A', padding: '4px 12px', borderRadius: '24px', textDecoration: 'none', boxShadow: 'none' }}
+                            className="btn-mono"
+                            style={{ marginTop: 6, fontSize: 11, fontWeight: 700, padding: '4px 12px' }}
                           >
                             Xem trên Google Maps
                           </a>
@@ -822,14 +793,10 @@ export default function GroupSchedule({
                 <button
                   type="button"
                   onClick={() => setEditingSchedule(null)}
+                  className="btn-mono"
                   style={{
                     padding: '10px 20px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: '#FFFFFF',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 600,
                   }}
@@ -839,14 +806,10 @@ export default function GroupSchedule({
                 <button
                   type="submit"
                   disabled={isSubmittingSchedule}
+                  className="btn-mono"
                   style={{
                     padding: '10px 24px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: 'white',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 700,
                   }}

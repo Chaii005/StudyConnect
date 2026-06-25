@@ -1614,3 +1614,26 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 .sc-card-hover:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
 }
+
+/* Monochrome theme button class with active/hover styles */
+.btn-mono {
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid var(--primary) !important;
+  border-radius: 24px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.btn-mono:hover:not(:disabled) {
+  background: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+  transform: translateY(-1px) !important;
+}
+.btn-mono:active:not(:disabled) {
+  transform: translateY(0) scale(0.97) !important;
+}

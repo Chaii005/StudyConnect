@@ -156,7 +156,7 @@ export default function GroupDeadlines({
             </div>
             <button
               type="submit"
-              className="btn"
+              className="btn btn-mono"
               disabled={isSubmittingDeadline}
               style={{
                 width: 'max-content',
@@ -164,13 +164,6 @@ export default function GroupDeadlines({
                 padding: '8px 20px',
                 fontSize: '13px',
                 fontWeight: 700,
-                borderRadius: '24px',
-                background: '#1A1A1A',
-                color: '#fff',
-                border: '1.5px solid #1A1A1A',
-                boxShadow: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
@@ -351,17 +344,17 @@ export default function GroupDeadlines({
                       <button
                         onClick={() => handleRemindDeadline(d)}
                         disabled={remindingIds[d.id]}
+                        className={remindingIds[d.id] ? "" : "btn-mono"}
                         style={{
-                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : '#1A1A1A',
-                          border: remindingIds[d.id] ? '1px solid rgba(255,255,255,0.1)' : '1.5px solid #1A1A1A',
-                          color: remindingIds[d.id] ? 'var(--text-muted)' : '#FFFFFF',
-                          cursor: remindingIds[d.id] ? 'default' : 'pointer',
-                          borderRadius: '24px',
+                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : undefined,
+                          border: remindingIds[d.id] ? '1px solid rgba(255,255,255,0.1)' : undefined,
+                          color: remindingIds[d.id] ? 'var(--text-muted)' : undefined,
+                          cursor: remindingIds[d.id] ? 'default' : undefined,
+                          borderRadius: remindingIds[d.id] ? '24px' : undefined,
                           padding: '5px 12px',
                           fontSize: '12px',
                           fontWeight: 600,
                           whiteSpace: 'nowrap',
-                          transition: 'all 0.2s ease',
                         }}
                       >
                         {remindingIds[d.id] ? (
@@ -382,32 +375,22 @@ export default function GroupDeadlines({
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button
                           onClick={() => openEditDeadline(d)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '5px 12px',
                             fontSize: '12px',
                             fontWeight: 600,
-                            transition: 'all 0.2s ease',
                           }}
                         >
                           Sửa
                         </button>
                         <button
                           onClick={() => handleDeadlineDelete(d.id)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '5px 12px',
                             fontSize: '12px',
                             fontWeight: 600,
-                            transition: 'all 0.2s ease',
                           }}
                         >
                           Xóa
@@ -420,17 +403,12 @@ export default function GroupDeadlines({
                         return (
                           <button
                             onClick={() => setShowSubmissionsFor(d.id)}
+                            className="btn-mono"
                             style={{
-                              background: '#1A1A1A',
-                              border: '1.5px solid #1A1A1A',
-                              color: '#FFFFFF',
-                              cursor: 'pointer',
-                              borderRadius: '24px',
                               padding: '5px 12px',
                               fontSize: '12px',
                               fontWeight: 600,
                               whiteSpace: 'nowrap',
-                              transition: 'all 0.2s ease',
                             }}
                           >
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -456,27 +434,27 @@ export default function GroupDeadlines({
                           }}
                           disabled={overdue && !mySubmission}
                           title={overdue && !mySubmission ? 'Đã quá hạn, không thể nộp bài' : ''}
+                          className={mySubmission || overdue ? "" : "btn-mono"}
                           style={{
                             background: mySubmission
                               ? 'rgba(34,197,94,0.08)'
                               : overdue
                               ? 'rgba(255,255,255,0.03)'
-                              : '#1A1A1A',
+                              : undefined,
                             border: mySubmission
                               ? '1px solid rgba(34,197,94,0.2)'
                               : overdue
                               ? '1px solid rgba(255,255,255,0.1)'
-                              : '1.5px solid #1A1A1A',
-                            color: mySubmission ? '#22c55e' : overdue ? 'var(--text-muted)' : '#ffffff',
+                              : undefined,
+                            color: mySubmission ? '#22c55e' : overdue ? 'var(--text-muted)' : undefined,
                             cursor: overdue && !mySubmission ? 'not-allowed' : 'pointer',
-                            borderRadius: '24px',
+                            borderRadius: mySubmission || overdue ? '24px' : undefined,
                             padding: mySubmission ? '5px 12px' : '6px 14px',
                             fontSize: '12px',
                             fontWeight: 700,
                             whiteSpace: 'nowrap',
                             opacity: overdue && !mySubmission ? 0.5 : 1,
                             boxShadow: 'none',
-                            transition: 'all 0.2s ease',
                           }}
                         >
                           {mySubmission ? (
@@ -654,14 +632,10 @@ export default function GroupDeadlines({
                 <button
                   type="button"
                   onClick={() => setEditingDeadline(null)}
+                  className="btn-mono"
                   style={{
                     padding: '10px 20px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: '#FFFFFF',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 600,
                   }}
@@ -671,14 +645,10 @@ export default function GroupDeadlines({
                 <button
                   type="submit"
                   disabled={isSubmittingDeadline}
+                  className="btn-mono"
                   style={{
                     padding: '10px 24px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: 'white',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 700,
                   }}
@@ -833,15 +803,11 @@ export default function GroupDeadlines({
                   setSubmitFile(null);
                   setSubmitNote('');
                 }}
+                className="btn-mono"
                 style={{
                   flex: 1,
                   padding: '11px',
-                  background: '#1A1A1A',
-                  border: '1.5px solid #1A1A1A',
-                  borderRadius: '24px',
-                  color: '#FFFFFF',
                   fontWeight: 600,
-                  cursor: 'pointer',
                   fontFamily: 'inherit',
                   fontSize: '14px',
                 }}
@@ -851,15 +817,16 @@ export default function GroupDeadlines({
               <button
                 onClick={handleSubmitAssignment}
                 disabled={isSubmitting || (!submitFile && !submitNote.trim())}
+                className={!submitFile && !submitNote.trim() ? "" : "btn-mono"}
                 style={{
                   flex: 2,
                   padding: '11px',
-                  background: !submitFile && !submitNote.trim() ? 'var(--bg-input)' : '#1A1A1A',
-                  border: !submitFile && !submitNote.trim() ? '1px solid var(--border)' : '1.5px solid #1A1A1A',
-                  borderRadius: '24px',
-                  color: !submitFile && !submitNote.trim() ? 'var(--text-muted)' : 'white',
+                  background: !submitFile && !submitNote.trim() ? 'var(--bg-input)' : undefined,
+                  border: !submitFile && !submitNote.trim() ? '1px solid var(--border)' : undefined,
+                  color: !submitFile && !submitNote.trim() ? 'var(--text-muted)' : undefined,
                   fontWeight: 700,
                   cursor: !submitFile && !submitNote.trim() ? 'not-allowed' : 'pointer',
+                  borderRadius: !submitFile && !submitNote.trim() ? '24px' : undefined,
                   fontFamily: 'inherit',
                   fontSize: '14px',
                   transition: 'all 0.2s',

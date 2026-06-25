@@ -3385,7 +3385,7 @@ export default function GroupDeadlines({
             </div>
             <button
               type="submit"
-              className="btn"
+              className="btn btn-mono"
               disabled={isSubmittingDeadline}
               style={{
                 width: 'max-content',
@@ -3393,13 +3393,6 @@ export default function GroupDeadlines({
                 padding: '8px 20px',
                 fontSize: '13px',
                 fontWeight: 700,
-                borderRadius: '24px',
-                background: '#1A1A1A',
-                color: '#fff',
-                border: '1.5px solid #1A1A1A',
-                boxShadow: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
@@ -3580,17 +3573,17 @@ export default function GroupDeadlines({
                       <button
                         onClick={() => handleRemindDeadline(d)}
                         disabled={remindingIds[d.id]}
+                        className={remindingIds[d.id] ? "" : "btn-mono"}
                         style={{
-                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : '#1A1A1A',
-                          border: remindingIds[d.id] ? '1px solid rgba(255,255,255,0.1)' : '1.5px solid #1A1A1A',
-                          color: remindingIds[d.id] ? 'var(--text-muted)' : '#FFFFFF',
-                          cursor: remindingIds[d.id] ? 'default' : 'pointer',
-                          borderRadius: '24px',
+                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : undefined,
+                          border: remindingIds[d.id] ? '1px solid rgba(255,255,255,0.1)' : undefined,
+                          color: remindingIds[d.id] ? 'var(--text-muted)' : undefined,
+                          cursor: remindingIds[d.id] ? 'default' : undefined,
+                          borderRadius: remindingIds[d.id] ? '24px' : undefined,
                           padding: '5px 12px',
                           fontSize: '12px',
                           fontWeight: 600,
                           whiteSpace: 'nowrap',
-                          transition: 'all 0.2s ease',
                         }}
                       >
                         {remindingIds[d.id] ? (
@@ -3611,32 +3604,22 @@ export default function GroupDeadlines({
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button
                           onClick={() => openEditDeadline(d)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '5px 12px',
                             fontSize: '12px',
                             fontWeight: 600,
-                            transition: 'all 0.2s ease',
                           }}
                         >
                           Sửa
                         </button>
                         <button
                           onClick={() => handleDeadlineDelete(d.id)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '5px 12px',
                             fontSize: '12px',
                             fontWeight: 600,
-                            transition: 'all 0.2s ease',
                           }}
                         >
                           Xóa
@@ -3649,17 +3632,12 @@ export default function GroupDeadlines({
                         return (
                           <button
                             onClick={() => setShowSubmissionsFor(d.id)}
+                            className="btn-mono"
                             style={{
-                              background: '#1A1A1A',
-                              border: '1.5px solid #1A1A1A',
-                              color: '#FFFFFF',
-                              cursor: 'pointer',
-                              borderRadius: '24px',
                               padding: '5px 12px',
                               fontSize: '12px',
                               fontWeight: 600,
                               whiteSpace: 'nowrap',
-                              transition: 'all 0.2s ease',
                             }}
                           >
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -3685,27 +3663,27 @@ export default function GroupDeadlines({
                           }}
                           disabled={overdue && !mySubmission}
                           title={overdue && !mySubmission ? 'Đã quá hạn, không thể nộp bài' : ''}
+                          className={mySubmission || overdue ? "" : "btn-mono"}
                           style={{
                             background: mySubmission
                               ? 'rgba(34,197,94,0.08)'
                               : overdue
                               ? 'rgba(255,255,255,0.03)'
-                              : '#1A1A1A',
+                              : undefined,
                             border: mySubmission
                               ? '1px solid rgba(34,197,94,0.2)'
                               : overdue
                               ? '1px solid rgba(255,255,255,0.1)'
-                              : '1.5px solid #1A1A1A',
-                            color: mySubmission ? '#22c55e' : overdue ? 'var(--text-muted)' : '#ffffff',
+                              : undefined,
+                            color: mySubmission ? '#22c55e' : overdue ? 'var(--text-muted)' : undefined,
                             cursor: overdue && !mySubmission ? 'not-allowed' : 'pointer',
-                            borderRadius: '24px',
+                            borderRadius: mySubmission || overdue ? '24px' : undefined,
                             padding: mySubmission ? '5px 12px' : '6px 14px',
                             fontSize: '12px',
                             fontWeight: 700,
                             whiteSpace: 'nowrap',
                             opacity: overdue && !mySubmission ? 0.5 : 1,
                             boxShadow: 'none',
-                            transition: 'all 0.2s ease',
                           }}
                         >
                           {mySubmission ? (
@@ -3883,14 +3861,10 @@ export default function GroupDeadlines({
                 <button
                   type="button"
                   onClick={() => setEditingDeadline(null)}
+                  className="btn-mono"
                   style={{
                     padding: '10px 20px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: '#FFFFFF',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 600,
                   }}
@@ -3900,14 +3874,10 @@ export default function GroupDeadlines({
                 <button
                   type="submit"
                   disabled={isSubmittingDeadline}
+                  className="btn-mono"
                   style={{
                     padding: '10px 24px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: 'white',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 700,
                   }}
@@ -4062,15 +4032,11 @@ export default function GroupDeadlines({
                   setSubmitFile(null);
                   setSubmitNote('');
                 }}
+                className="btn-mono"
                 style={{
                   flex: 1,
                   padding: '11px',
-                  background: '#1A1A1A',
-                  border: '1.5px solid #1A1A1A',
-                  borderRadius: '24px',
-                  color: '#FFFFFF',
                   fontWeight: 600,
-                  cursor: 'pointer',
                   fontFamily: 'inherit',
                   fontSize: '14px',
                 }}
@@ -4080,15 +4046,16 @@ export default function GroupDeadlines({
               <button
                 onClick={handleSubmitAssignment}
                 disabled={isSubmitting || (!submitFile && !submitNote.trim())}
+                className={!submitFile && !submitNote.trim() ? "" : "btn-mono"}
                 style={{
                   flex: 2,
                   padding: '11px',
-                  background: !submitFile && !submitNote.trim() ? 'var(--bg-input)' : '#1A1A1A',
-                  border: !submitFile && !submitNote.trim() ? '1px solid var(--border)' : '1.5px solid #1A1A1A',
-                  borderRadius: '24px',
-                  color: !submitFile && !submitNote.trim() ? 'var(--text-muted)' : 'white',
+                  background: !submitFile && !submitNote.trim() ? 'var(--bg-input)' : undefined,
+                  border: !submitFile && !submitNote.trim() ? '1px solid var(--border)' : undefined,
+                  color: !submitFile && !submitNote.trim() ? 'var(--text-muted)' : undefined,
                   fontWeight: 700,
                   cursor: !submitFile && !submitNote.trim() ? 'not-allowed' : 'pointer',
+                  borderRadius: !submitFile && !submitNote.trim() ? '24px' : undefined,
                   fontFamily: 'inherit',
                   fontSize: '14px',
                   transition: 'all 0.2s',
@@ -4402,15 +4369,11 @@ export default function GroupDocuments({
           )}
           <button
             type="submit"
-            className="btn btn-primary responsive-btn-full"
+            className="btn btn-mono responsive-btn-full"
             style={{
               width: 'max-content',
               alignSelf: 'flex-end',
-              padding: '10px 24px',
-              background: '#1A1A1A',
-              color: '#FFFFFF',
-              border: '1.5px solid #1A1A1A',
-              borderRadius: '24px'
+              padding: '10px 24px'
             }}
             disabled={isUploadingFile || !selectedFile}
           >
@@ -4547,14 +4510,10 @@ export default function GroupDocuments({
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     <button
                       onClick={() => handleFileDownload(file)}
-                      className="btn"
+                      className="btn btn-mono"
                       style={{
                         padding: '8px 16px',
-                        fontSize: '13px',
-                        background: '#1A1A1A',
-                        color: '#FFFFFF',
-                        border: '1.5px solid #1A1A1A',
-                        borderRadius: '24px'
+                        fontSize: '13px'
                       }}
                     >
                       Tải xuống
@@ -4562,12 +4521,8 @@ export default function GroupDocuments({
                     {canDelete && (
                       <button
                         onClick={() => handleFileDelete(file.id)}
+                        className="btn-mono"
                         style={{
-                          background: '#1A1A1A',
-                          border: '1.5px solid #1A1A1A',
-                          color: '#FFFFFF',
-                          cursor: 'pointer',
-                          borderRadius: '24px',
                           padding: '8px 16px',
                           fontSize: '13px',
                           fontWeight: 600,
@@ -5199,7 +5154,8 @@ export default function GroupSchedule({
                           href={activeGeoPreview.mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: '#fff', background: '#1A1A1A', border: '1.5px solid #1A1A1A', padding: '6px 12px', borderRadius: '24px', textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: 'none' }}
+                          className="btn-mono"
+                          style={{ flexShrink: 0, padding: '6px 12px', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}
                         >
                           Mở Maps
                         </a>
@@ -5223,19 +5179,15 @@ export default function GroupSchedule({
                     type="button"
                     onClick={generateRoomLink}
                     title="Tạo link phòng học trực tuyến"
+                    className="btn-mono"
                     style={{
                       flexShrink: 0,
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
                       padding: '0 18px',
-                      background: '#1A1A1A',
-                      border: '1.5px solid #1A1A1A',
-                      borderRadius: '24px',
-                      color: '#FFFFFF',
                       fontSize: '13px',
                       fontWeight: 700,
-                      cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       fontFamily: 'inherit',
                     }}
@@ -5335,7 +5287,7 @@ export default function GroupSchedule({
             </div>
             <button
               type="submit"
-              className="btn"
+              className="btn btn-mono"
               disabled={isSubmittingSchedule}
               style={{
                 width: 'max-content',
@@ -5343,13 +5295,6 @@ export default function GroupSchedule({
                 padding: '8px 20px',
                 fontSize: '13px',
                 fontWeight: 700,
-                borderRadius: '24px',
-                background: '#1A1A1A',
-                color: '#fff',
-                border: '1.5px solid #1A1A1A',
-                boxShadow: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
@@ -5454,12 +5399,8 @@ export default function GroupSchedule({
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button
                           onClick={() => openEditSchedule(sched)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '4px 12px',
                             fontSize: '11px',
                             fontWeight: 600,
@@ -5469,12 +5410,8 @@ export default function GroupSchedule({
                         </button>
                         <button
                           onClick={() => handleScheduleDelete(sched.id)}
+                          className="btn-mono"
                           style={{
-                            background: '#1A1A1A',
-                            border: '1.5px solid #1A1A1A',
-                            color: '#FFFFFF',
-                            cursor: 'pointer',
-                            borderRadius: '24px',
                             padding: '4px 12px',
                             fontSize: '11px',
                             fontWeight: 600,
@@ -5520,19 +5457,11 @@ export default function GroupSchedule({
                           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                             <Link
                               to={`${sched.location}?group=${encodeURIComponent(group?.name || '')}&groupId=${group?.id || ''}`}
+                              className="btn-mono"
                               style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                background: '#1A1A1A',
-                                border: '1.5px solid #1A1A1A',
-                                color: '#fff',
-                                textDecoration: 'none',
                                 padding: '4px 10px',
-                                borderRadius: '24px',
                                 fontSize: '11px',
                                 fontWeight: 700,
-                                boxShadow: 'none',
                               }}
                             >
                               Vào phòng học
@@ -5543,15 +5472,11 @@ export default function GroupSchedule({
                                 navigator.clipboard?.writeText(window.location.origin + sched.location);
                                 if (addToast) addToast('Đã sao chép link phòng học!', 'success');
                               }}
+                              className="btn-mono"
                               style={{
-                                background: '#1A1A1A',
-                                border: '1.5px solid #1A1A1A',
-                                color: '#FFFFFF',
                                 fontSize: '11px',
                                 fontWeight: 600,
                                 padding: '3px 8px',
-                                borderRadius: '24px',
-                                cursor: 'pointer',
                                 fontFamily: 'inherit',
                               }}
                             >
@@ -5582,7 +5507,8 @@ export default function GroupSchedule({
                             href={googleMapsSearchUrl(sched.location)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 11, fontWeight: 700, color: '#fff', background: '#1A1A1A', border: '1.5px solid #1A1A1A', padding: '4px 12px', borderRadius: '24px', textDecoration: 'none', boxShadow: 'none' }}
+                            className="btn-mono"
+                            style={{ marginTop: 6, fontSize: 11, fontWeight: 700, padding: '4px 12px' }}
                           >
                             Xem trên Google Maps
                           </a>
@@ -5754,14 +5680,10 @@ export default function GroupSchedule({
                 <button
                   type="button"
                   onClick={() => setEditingSchedule(null)}
+                  className="btn-mono"
                   style={{
                     padding: '10px 20px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: '#FFFFFF',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 600,
                   }}
@@ -5771,14 +5693,10 @@ export default function GroupSchedule({
                 <button
                   type="submit"
                   disabled={isSubmittingSchedule}
+                  className="btn-mono"
                   style={{
                     padding: '10px 24px',
-                    background: '#1A1A1A',
-                    border: '1.5px solid #1A1A1A',
-                    borderRadius: '24px',
-                    color: 'white',
                     fontFamily: 'inherit',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 700,
                   }}
@@ -12571,6 +12489,29 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 }
 .sc-card-hover:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Monochrome theme button class with active/hover styles */
+.btn-mono {
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid var(--primary) !important;
+  border-radius: 24px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.btn-mono:hover:not(:disabled) {
+  background: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+  transform: translateY(-1px) !important;
+}
+.btn-mono:active:not(:disabled) {
+  transform: translateY(0) scale(0.97) !important;
 }
 
 ===== D:\StudyConect\frontend\src\layouts\AppLayout.jsx =====
