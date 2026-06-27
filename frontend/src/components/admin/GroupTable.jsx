@@ -61,7 +61,7 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
                   <td style={{ padding: '16px 10px', whiteSpace: 'nowrap' }}>
                     {isOnline
                       ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(52,211,153,0.12)', color: '#34d399', padding: '3px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 600 }}>Online</span>
-                      : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(251,191,36,0.12)', color: '#fbbf24', padding: '3px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 600 }}>Offline</span>
+                      : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '3px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 600 }}>Offline</span>
                     }
                   </td>
                   <td style={{ padding: '16px 10px' }}>

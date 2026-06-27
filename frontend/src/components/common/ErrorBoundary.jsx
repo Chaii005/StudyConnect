@@ -54,7 +54,7 @@ export default class ErrorBoundary extends Component {
             onClick={this.handleReset}
             style={{
               padding: '10px 24px',
-              background: 'linear-gradient(135deg, var(--primary), #5b53e0)',
+              background: 'linear-gradient(135deg, var(--primary), #3A3A3A)',
               border: 'none',
               borderRadius: '12px',
               color: '#fff',

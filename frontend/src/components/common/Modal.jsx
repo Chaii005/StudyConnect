@@ -85,7 +85,7 @@ Modal.Header = function ModalHeader({ title, subtitle, icon, onClose }) {
               height: 36,
               borderRadius: '10px',
               flexShrink: 0,
-              background: 'linear-gradient(135deg, var(--primary), #5b53e0)',
+              background: 'linear-gradient(135deg, var(--primary), #3A3A3A)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

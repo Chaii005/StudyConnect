@@ -406,7 +406,7 @@ function ShareModal({ message, friends, onSend, onClose }) {
         </div>
 
         <button onClick={handleSend} disabled={selected.length === 0 || sent} style={{
-          padding: '11px', background: sent ? 'var(--success)' : selected.length > 0 ? 'linear-gradient(135deg, var(--primary), #5b53e0)' : 'var(--bg-input)',
+          padding: '11px', background: sent ? 'var(--success)' : selected.length > 0 ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
           border: 'none', borderRadius: '10px', color: selected.length > 0 || sent ? 'white' : 'var(--text-muted)',
           fontWeight: 700, fontFamily: 'inherit', cursor: selected.length > 0 ? 'pointer' : 'default', fontSize: '14px', transition: 'all 0.2s',
         }}>
@@ -1490,7 +1490,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                   <div
 
                     style={{
-                      background: isMine ? 'linear-gradient(135deg, var(--primary), #5b53e0)' : 'var(--bg-input)',
+                      background: isMine ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
                       color: isMine ? 'white' : 'var(--text-primary)',
                       padding: isImage ? '4px' : '9px 14px',
                       borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
@@ -1539,7 +1539,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
           right: '24px',
           width: '40px', height: '40px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--primary), #5b53e0)',
+          background: 'linear-gradient(135deg, var(--primary), #3A3A3A)',
           border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
@@ -1606,7 +1606,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
               onClick={() => handleSendAttachment(imgPreview, input)}
               disabled={sending}
               title="Gửi file + tin nhắn"
-              style={{ background: 'linear-gradient(135deg, var(--primary), #5b53e0)', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '12px', flexShrink: 0 }}>
+              style={{ background: 'linear-gradient(135deg, var(--primary), #3A3A3A)', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '12px', flexShrink: 0 }}>
               Gửi {input.trim() ? '+ tin nhắn' : 'file'}
             </button>
           </div>
@@ -1788,7 +1788,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
             />
 
             <button onClick={() => handleSendText(input)} disabled={!input.trim() || sending} title="Gửi (Enter)" style={{
-              background: input.trim() ? 'linear-gradient(135deg, var(--primary), #5b53e0)' : 'var(--bg-input)',
+              background: input.trim() ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
               border: 'none', borderRadius: '50%', width: '40px', height: '40px',
               cursor: input.trim() ? 'pointer' : 'default',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -2587,7 +2587,7 @@ export default function Chat() {
               <span style={{ flex: 1, fontWeight: 700, fontSize: '16px' }}>Tin nhắn</span>
               {totalUnread > 0 && (
                 <span style={{
-                  background: 'linear-gradient(135deg, var(--primary), #5b53e0)',
+                  background: 'linear-gradient(135deg, var(--primary), #3A3A3A)',
                   color: 'white',
                   fontSize: '13px',
                   fontWeight: 800,

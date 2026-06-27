@@ -980,7 +980,7 @@ export default function GroupChatPanel({
               border: 'none',
               background:
                 chatInput.trim() || chatAttachedFile
-                  ? 'linear-gradient(135deg, var(--primary), #5b53e0)'
+                  ? 'linear-gradient(135deg, var(--primary), #3A3A3A)'
                   : 'var(--bg-input)',
               color: chatInput.trim() || chatAttachedFile ? 'white' : 'var(--text-muted)',
               cursor: chatInput.trim() || chatAttachedFile ? 'pointer' : 'default',

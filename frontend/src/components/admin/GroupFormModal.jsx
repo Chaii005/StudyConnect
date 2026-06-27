@@ -50,7 +50,7 @@ export default function GroupFormModal({ show, onClose, currentEditGroup, groupF
                 Online
               </button>
               <button type="button" onClick={() => setGroupForm({ ...groupForm, meetingMode: 'offline' })}
-                style={{ flex: 1, padding: '11px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600, fontSize: '14px', fontFamily: 'inherit', border: groupForm.meetingMode === 'offline' ? '2px solid #fbbf24' : '1.5px solid var(--border)', background: groupForm.meetingMode === 'offline' ? 'rgba(251,191,36,0.12)' : 'var(--bg-input)', color: groupForm.meetingMode === 'offline' ? '#fbbf24' : 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                style={{ flex: 1, padding: '11px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600, fontSize: '14px', fontFamily: 'inherit', border: groupForm.meetingMode === 'offline' ? '2px solid var(--primary)' : '1.5px solid var(--border)', background: groupForm.meetingMode === 'offline' ? 'var(--bg-card)' : 'var(--bg-input)', color: groupForm.meetingMode === 'offline' ? 'var(--text-primary)' : 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />

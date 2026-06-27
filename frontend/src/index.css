@@ -339,8 +339,8 @@ select.form-input {
   padding-right: 36px;
 }
 select.form-input option {
-  background: #1e2235;
-  color: #f0f2ff;
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 /* Hide Edge native password reveal and clear buttons */

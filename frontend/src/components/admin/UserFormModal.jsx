@@ -19,7 +19,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
         {/* Header */}
         <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--border)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'linear-gradient(135deg, var(--primary), #5b53e0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'linear-gradient(135deg, var(--primary), #3A3A3A)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {currentEditUser ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 20h9" />
@@ -110,7 +110,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
         {/* Footer */}
         <div style={{ padding: '14px 22px 18px', borderTop: '1px solid var(--border)', flexShrink: 0, display: 'flex', gap: '10px' }}>
           <button type="button" onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '12px', background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>Hủy</button>
-          <button type="button" onClick={onSubmit} disabled={submitting} style={{ flex: 1, padding: '11px', borderRadius: '12px', background: submitting ? 'var(--bg-input)' : 'linear-gradient(135deg, var(--primary), #5b53e0)', border: 'none', color: submitting ? 'var(--text-muted)' : 'white', fontWeight: 700, fontSize: '14px', cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <button type="button" onClick={onSubmit} disabled={submitting} style={{ flex: 1, padding: '11px', borderRadius: '12px', background: submitting ? 'var(--bg-input)' : 'linear-gradient(135deg, var(--primary), #3A3A3A)', border: 'none', color: submitting ? 'var(--text-muted)' : 'white', fontWeight: 700, fontSize: '14px', cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             {submitting ? 'Đang xử lý...' : currentEditUser ? 'Lưu thay đổi' : 'Tạo tài khoản'}
           </button>
         </div>

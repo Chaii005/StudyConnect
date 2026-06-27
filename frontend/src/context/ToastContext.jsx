@@ -59,74 +59,110 @@ export const ToastProvider = ({ children }) => {
           pointerEvents: 'none'
         }}
       >
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            style={{
-              pointerEvents: 'auto',
-              background: toast.type === 'error' ? 'var(--error)' : 'var(--bg-card)',
-              color: toast.type === 'error' ? '#FFFFFF' : 'var(--text-primary)',
-              border: toast.type === 'error' ? 'none' : '1px solid var(--border)',
-              padding: '12px 20px',
-              borderRadius: '12px',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              fontSize: '14px',
-              fontWeight: 600,
-              minWidth: '280px',
-              maxWidth: '400px',
-              cursor: toast.link ? 'pointer' : 'default',
-              animation: toast.isDismissing 
-                ? 'slideOut 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards'
-                : 'slideIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards',
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'transform 0.2s ease'
-            }}
-            onClick={() => {
-              if (toast.link) {
-                navigate(toast.link);
-                dismissToast(toast.id);
-              }
-            }}
-          >
-            {/* Custom keyframes injection for slideIn/slideOut */}
-            <style>{`
-              @keyframes slideIn {
-                from { transform: translateX(120%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-              }
-              @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(120%); opacity: 0; }
-              }
-            `}</style>
+        {toasts.map((toast) => {
+          const isError = toast.type === 'error';
+          const isWarning = toast.type === 'warning';
+          
+          let icon = (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          );
+          if (isError) {
+            icon = (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            );
+          } else if (isWarning) {
+            icon = (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            );
+          }
 
-            <span style={{ flex: 1 }}>{toast.message}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent trigger link navigation on click close
-                removeToast(toast.id);
-              }}
+          return (
+            <div
+              key={toast.id}
               style={{
-                background: 'none',
-                border: 'none',
-                color: toast.type === 'error' ? 'rgba(255, 255, 255, 0.8)' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: '16px',
-                padding: '0 4px',
-                fontWeight: 'bold',
+                pointerEvents: 'auto',
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                border: isError 
+                  ? '1px solid rgba(239, 68, 68, 0.3)' 
+                  : isWarning 
+                  ? '1px solid rgba(245, 158, 11, 0.3)' 
+                  : '1px solid var(--border)',
+                padding: '12px 18px',
+                borderRadius: '12px',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                gap: '12px',
+                fontSize: '13.5px',
+                fontWeight: 600,
+                minWidth: '300px',
+                maxWidth: '420px',
+                cursor: toast.link ? 'pointer' : 'default',
+                animation: toast.isDismissing 
+                  ? 'slideOut 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards'
+                  : 'slideIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'transform 0.2s ease'
+              }}
+              onClick={() => {
+                if (toast.link) {
+                  navigate(toast.link);
+                  dismissToast(toast.id);
+                }
               }}
             >
-              ✕
-            </button>
-          </div>
-        ))}
+              {/* Custom keyframes injection for slideIn/slideOut */}
+              <style>{`
+                @keyframes slideIn {
+                  from { transform: translateX(120%); opacity: 0; }
+                  to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                  from { transform: translateX(0); opacity: 1; }
+                  to { transform: translateX(120%); opacity: 0; }
+                }
+              `}</style>
+
+              {icon}
+              <span style={{ flex: 1, lineHeight: 1.4 }}>{toast.message}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent trigger link navigation on click close
+                  removeToast(toast.id);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  padding: '0 4px',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = 0.7; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = 1; }}
+              >
+                ✕
+              </button>
+            </div>
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );

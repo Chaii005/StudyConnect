@@ -94,9 +94,9 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
         <div style={{ padding: '14px 18px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {step === 2 && (
-              <button onClick={handleBack} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text-secondary)', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, flexShrink: 0, transition: 'all 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+              <button onClick={handleBack} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text-secondary)', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, flexShrink: 0, transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
               >←</button>
             )}
             <div>
@@ -128,7 +128,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
             </div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 18, cursor: 'pointer', padding: '3px 5px', borderRadius: 6, lineHeight: 1, transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; }}
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'none'; }}
           >✕</button>
         </div>
@@ -140,7 +140,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
           <div style={{ padding: '14px 18px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {/* Online Card */}
             <button onClick={() => handleModeSelect('online')} style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: 12, padding: '14px 16px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 14 }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(26, 26, 26, 0.05)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -158,7 +158,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
             {/* Offline Card */}
             <button onClick={() => handleModeSelect('offline')} style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: 12, padding: '14px 16px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 14 }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(26, 26, 26, 0.05)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -217,7 +217,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <select
                     className="form-input"
-                    style={{ padding: '9px 13px', fontSize: 13, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer', appearance: 'auto' }}
+                    style={{ padding: '9px 13.5px', fontSize: 13, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer' }}
                     value={subjectMode === 'custom' ? 'custom' : (formData.subject || '')}
                     onChange={e => {
                       const val = e.target.value;
@@ -266,7 +266,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
               {/* Location Picker for Offline mode */}
               {meetingMode === 'offline' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Tên địa điểm học tập *</label>
                     <div className="form-input-wrap">
@@ -343,13 +343,13 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
               </div>
 
               {/* Toggle Riêng tư / Công khai */}
-              <div style={{ borderRadius: 10, border: `1.5px solid ${isPrivate ? 'rgba(239,68,68,0.35)' : 'rgba(16,185,129,0.35)'}`, background: isPrivate ? 'rgba(239,68,68,0.04)' : 'rgba(16,185,129,0.04)', padding: '12px 16px', transition: 'all 0.25s' }}>
+              <div style={{ borderRadius: 10, border: `1.5px solid ${isPrivate ? 'var(--border)' : 'rgba(16,185,129,0.35)'}`, background: isPrivate ? 'var(--bg-input)' : 'rgba(16,185,129,0.04)', padding: '12px 16px', transition: 'all 0.25s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
                       <span style={{ fontSize: 14 }}>{isPrivate ? '🔒' : '🌐'}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: isPrivate ? '#ef4444' : '#10b981' }}>
-                        {isPrivate ? 'Nhóm Riêng tư' : 'Nhóm Công khai'}
+                      <span style={{ fontSize: 13, fontWeight: 700, color: isPrivate ? 'var(--text-secondary)' : '#10b981' }}>
+                        {isPrivate ? 'Nhóm riêng tư' : 'Nhóm công khai'}
                       </span>
                     </div>
                     <p style={{ margin: 0, fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>
@@ -369,13 +369,13 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                     })}
                     style={{
                       width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', flexShrink: 0,
-                      background: isPrivate ? '#ef4444' : '#10b981',
+                      background: isPrivate ? 'var(--border)' : '#10b981',
                       position: 'relative', transition: 'background 0.25s', padding: 0,
                     }}
-                    title={isPrivate ? 'Đang bật: Riêng tư — nhấn để chuyển sang Công khai' : 'Đang tắt: Công khai — nhấn để chuyển sang Riêng tư'}
+                    title={isPrivate ? 'Đang tắt: Công khai — nhấn để chuyển sang Công khai' : 'Đang bật: Công khai — nhấn để chuyển sang Riêng tư'}
                   >
                     <span style={{
-                      position: 'absolute', top: 3, left: isPrivate ? 23 : 3,
+                      position: 'absolute', top: 3, left: isPrivate ? 3 : 23,
                       width: 18, height: 18, borderRadius: '50%', background: 'white',
                       transition: 'left 0.25s', boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
                     }} />
@@ -907,16 +907,17 @@ export default function Groups() {
         // Còn nhiều thành viên → hỏi xóa hay nhường quyền
         setConfirmConfig({
           title: 'Bạn là Trưởng nhóm',
-          message: 'Bạn muốn làm gì với nhóm này? Chọn "Xóa nhóm" để xóa hoàn toàn, hoặc "Để lại nhóm" để nhường quyền trưởng nhóm cho người khác rồi rời.',
+          message: 'Bạn muốn làm gì với nhóm này? Chọn "Xóa nhóm" để xóa hoàn toàn nhóm, hoặc "Để lại nhóm" để nhường quyền trưởng nhóm cho người khác rồi rời.',
           confirmText: 'Xóa nhóm',
-          cancelText: 'Để lại nhóm',
+          thirdText: 'Để lại nhóm',
+          cancelText: 'Quay lại',
           variant: 'danger',
           onConfirm: async () => {
             setConfirmConfig(null);
             try { await deleteGroup(group.id); addToast('Đã xóa nhóm học!', 'success'); fetchGroups(); }
             catch (err) { addToast(err.message, 'error'); }
           },
-          onCancel: async () => {
+          onThird: async () => {
             setConfirmConfig(null);
             try {
               sessionStorage.setItem('leaving_group', 'true');
@@ -929,6 +930,7 @@ export default function Groups() {
               addToast(err.message, 'error');
             }
           },
+          onCancel: () => setConfirmConfig(null),
         });
       }
     } else {
@@ -1744,8 +1746,10 @@ export default function Groups() {
       message={confirmConfig?.message}
       confirmText={confirmConfig?.confirmText}
       cancelText={confirmConfig?.cancelText}
+      thirdText={confirmConfig?.thirdText}
       variant={confirmConfig?.variant}
       onConfirm={confirmConfig?.onConfirm}
+      onThird={confirmConfig?.onThird}
       onCancel={confirmConfig?.onCancel || (() => setConfirmConfig(null))}
     />
   </>

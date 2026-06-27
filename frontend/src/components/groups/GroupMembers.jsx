@@ -47,12 +47,46 @@ export default function GroupMembers({
                     {req.email && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{req.email}</div>}
                   </div>
                   <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                    <button onClick={() => handleApproveJoin(req)} disabled={approvingIds[req.id]}
-                      style={{ padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#10b981', color: '#fff', fontWeight: 700, fontSize: 12, opacity: approvingIds[req.id] ? 0.6 : 1, fontFamily: 'inherit' }}>
+                    <button
+                      onClick={() => handleApproveJoin(req)}
+                      disabled={approvingIds[req.id]}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: 8,
+                        border: '1px solid var(--border)',
+                        cursor: 'pointer',
+                        background: 'var(--bg-card)',
+                        color: 'var(--text-primary)',
+                        fontWeight: 700,
+                        fontSize: 12,
+                        opacity: approvingIds[req.id] ? 0.6 : 1,
+                        fontFamily: 'inherit',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => { if(!approvingIds[req.id]) { e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.color = '#10b981'; e.currentTarget.style.background = 'rgba(16, 185, 129, 0.04)'; } }}
+                      onMouseLeave={e => { if(!approvingIds[req.id]) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-card)'; } }}
+                    >
                       {approvingIds[req.id] ? '...' : 'Duyệt'}
                     </button>
-                    <button onClick={() => handleRejectJoin(req)} disabled={rejectingIds[req.id]}
-                      style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.4)', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', color: '#ef4444', fontWeight: 700, fontSize: 12, opacity: rejectingIds[req.id] ? 0.6 : 1, fontFamily: 'inherit' }}>
+                    <button
+                      onClick={() => handleRejectJoin(req)}
+                      disabled={rejectingIds[req.id]}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: 8,
+                        border: '1px solid var(--border)',
+                        cursor: 'pointer',
+                        background: 'var(--bg-card)',
+                        color: 'var(--text-secondary)',
+                        fontWeight: 700,
+                        fontSize: 12,
+                        opacity: rejectingIds[req.id] ? 0.6 : 1,
+                        fontFamily: 'inherit',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => { if(!rejectingIds[req.id]) { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.04)'; } }}
+                      onMouseLeave={e => { if(!rejectingIds[req.id]) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'var(--bg-card)'; } }}
+                    >
                       {rejectingIds[req.id] ? '...' : 'Từ chối'}
                     </button>
                   </div>
@@ -215,7 +249,7 @@ export default function GroupMembers({
                     style={{
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
-                      background: 'var(--bg-card)',
+                      background: 'rgba(0, 0, 0, 0.02)',
                       color: 'var(--text-muted)',
                       fontWeight: 600,
                       fontSize: '13px',
@@ -229,8 +263,8 @@ export default function GroupMembers({
                     style={{
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(17, 24, 39, 0.04)',
-                      color: 'var(--text-primary)',
+                      background: 'rgba(0, 0, 0, 0.02)',
+                      color: 'var(--text-muted)',
                       fontWeight: 600,
                       fontSize: '13px',
                       border: '1px solid var(--border)',
@@ -243,14 +277,14 @@ export default function GroupMembers({
                     style={{
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(0, 0, 0, 0.04)',
-                      color: 'var(--text-primary)',
+                      background: 'rgba(0, 0, 0, 0.02)',
+                      color: 'var(--text-muted)',
                       fontWeight: 600,
                       fontSize: '13px',
                       border: '1px solid var(--border)',
                     }}
                   >
-                    Đã gửi lời mời cho bạn
+                    Đã gửi lời mời
                   </span>
                 ) : (
                   <button
@@ -261,11 +295,15 @@ export default function GroupMembers({
                       borderRadius: 'var(--radius-sm)',
                       border: '1px solid var(--border)',
                       cursor: 'pointer',
-                      background: 'rgba(0, 0, 0, 0.04)',
+                      background: 'var(--bg-card)',
                       color: 'var(--text-primary)',
                       fontWeight: 600,
                       fontSize: '13px',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s',
                     }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(0, 0, 0, 0.02)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                   >
                     {isRequesting ? '...' : 'Kết bạn'}
                   </button>
@@ -278,13 +316,17 @@ export default function GroupMembers({
                     style={{
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
-                      border: 'none',
+                      border: '1px solid var(--border)',
                       cursor: 'pointer',
-                      background: 'rgba(239, 68, 68, 0.1)',
-                      color: '#ef4444',
+                      background: 'var(--bg-card)',
+                      color: 'var(--text-secondary)',
                       fontWeight: 600,
                       fontSize: '13px',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s',
                     }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.04)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                   >
                     {isAssigningDeputy ? '...' : 'Thu hồi phó nhóm'}
                   </button>
@@ -297,11 +339,15 @@ export default function GroupMembers({
                       borderRadius: 'var(--radius-sm)',
                       border: '1px solid var(--border)',
                       cursor: 'pointer',
-                      background: 'rgba(0, 0, 0, 0.04)',
+                      background: 'var(--bg-card)',
                       color: 'var(--text-primary)',
                       fontWeight: 600,
                       fontSize: '13px',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s',
                     }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(0, 0, 0, 0.02)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                   >
                     {isAssigningDeputy ? '...' : (group.deputyIds?.length >= 2 ? 'Đổi phó nhóm' : 'Đặt làm phó nhóm')}
                   </button>
@@ -317,10 +363,14 @@ export default function GroupMembers({
                     border: '1px solid var(--border)',
                     cursor: 'pointer',
                     background: 'var(--bg-card)',
-                    color: 'var(--text-primary)',
+                    color: 'var(--text-secondary)',
                     fontWeight: 600,
                     fontSize: '13px',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s',
                   }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.04)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                 >
                   {kickingIds[String(memberId)] ? '...' : 'Kick'}
                 </button>

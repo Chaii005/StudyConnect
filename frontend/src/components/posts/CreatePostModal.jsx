@@ -320,7 +320,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
             disabled={!text.trim() || loading}
             style={{
               padding: '10px 24px',
-              background: text.trim() && !loading ? 'linear-gradient(135deg, var(--primary), #5b53e0)' : 'var(--bg-input)',
+              background: text.trim() && !loading ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
               border: 'none', borderRadius: '12px',
               cursor: text.trim() && !loading ? 'pointer' : 'default',
               fontFamily: 'inherit', fontSize: '14px', fontWeight: 700,

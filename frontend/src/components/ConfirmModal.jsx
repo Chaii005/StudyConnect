@@ -19,9 +19,11 @@ export default function ConfirmModal({
   message,
   confirmText = 'Xác nhận',
   cancelText = 'Huỷ',
+  thirdText,
   variant = 'danger',
   onConfirm,
   onCancel,
+  onThird,
 }) {
   // Đóng bằng phím Escape
   useEffect(() => {
@@ -42,10 +44,10 @@ export default function ConfirmModal({
         </svg>
       ), 
       color: '#ef4444', 
-      bg: 'rgba(239,68,68,0.12)',  
-      border: 'rgba(239,68,68,0.3)',  
-      btnBg: 'linear-gradient(135deg,#ef4444,#dc2626)', 
-      btnShadow: '0 4px 14px rgba(239,68,68,0.4)' 
+      bg: 'rgba(239,68,68,0.08)',  
+      border: 'rgba(239,68,68,0.2)',  
+      btnBg: '#ef4444', 
+      btnShadow: 'none' 
     },
     warning: { 
       icon: (
@@ -56,10 +58,10 @@ export default function ConfirmModal({
         </svg>
       ), 
       color: '#f59e0b', 
-      bg: 'rgba(245,158,11,0.12)', 
-      border: 'rgba(245,158,11,0.3)', 
-      btnBg: 'linear-gradient(135deg,#f59e0b,#d97706)', 
-      btnShadow: '0 4px 14px rgba(245,158,11,0.4)' 
+      bg: 'rgba(245,158,11,0.08)', 
+      border: 'rgba(245,158,11,0.2)', 
+      btnBg: '#f59e0b', 
+      btnShadow: 'none' 
     },
     info:    { 
       icon: (
@@ -70,7 +72,7 @@ export default function ConfirmModal({
         </svg>
       ), 
       color: 'var(--text-primary)', 
-      bg: 'rgba(0,0,0,0.06)',  
+      bg: 'rgba(0,0,0,0.04)',  
       border: 'var(--border)', 
       btnBg: 'var(--primary)', 
       btnShadow: 'none' 
@@ -128,40 +130,100 @@ export default function ConfirmModal({
         )}
 
         {/* Buttons */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-          <button
-            onClick={onCancel}
-            style={{
-              flex: 1, padding: '10px', borderRadius: 10,
-              border: '1px solid var(--border)',
-              background: 'rgba(255,255,255,0.04)',
-              color: 'var(--text-secondary)',
-              fontSize: 14, fontWeight: 600,
-              cursor: 'pointer', fontFamily: 'inherit',
-              transition: 'all 0.18s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-          >
-            {cancelText}
-          </button>
-          <button
-            onClick={onConfirm}
-            style={{
-              flex: 1.4, padding: '10px', borderRadius: 10,
-              border: 'none',
-              background: v.btnBg,
-              boxShadow: v.btnShadow,
-              color: '#fff',
-              fontSize: 14, fontWeight: 700,
-              cursor: 'pointer', fontFamily: 'inherit',
-              transition: 'all 0.18s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
-          >
-            {confirmText}
-          </button>
+        <div style={{ display: 'flex', flexDirection: thirdText ? 'column' : 'row', gap: 10, marginTop: 4 }}>
+          {thirdText ? (
+            <>
+              <button
+                onClick={onConfirm}
+                style={{
+                  padding: '10px', borderRadius: 10,
+                  border: 'none',
+                  background: v.btnBg,
+                  boxShadow: v.btnShadow,
+                  color: '#fff',
+                  fontSize: 14, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                  width: '100%',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                {confirmText}
+              </button>
+              <button
+                onClick={onThird}
+                style={{
+                  padding: '10px', borderRadius: 10,
+                  border: '1px solid var(--border)',
+                  background: 'rgba(0,0,0,0.03)',
+                  color: 'var(--text-primary)',
+                  fontSize: 14, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                  width: '100%',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.08)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.03)'; }}
+              >
+                {thirdText}
+              </button>
+              <button
+                onClick={onCancel}
+                style={{
+                  padding: '8px', borderRadius: 10,
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--text-muted)',
+                  fontSize: 13, fontWeight: 550,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                  width: '100%',
+                  textAlign: 'center',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; }}
+              >
+                {cancelText}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={onCancel}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: 10,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-primary)',
+                  fontSize: 14, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}
+              >
+                {cancelText}
+              </button>
+              <button
+                onClick={onConfirm}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: 10,
+                  border: 'none',
+                  background: v.btnBg,
+                  boxShadow: v.btnShadow,
+                  color: '#fff',
+                  fontSize: 14, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                {confirmText}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
