@@ -141,9 +141,7 @@ export default function GroupMembers({
                     width: '46px',
                     height: '46px',
                     borderRadius: '50%',
-                    background: isLeader
-                      ? 'linear-gradient(135deg, #f59e0b, #d97706)'
-                      : 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                    background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -217,11 +215,11 @@ export default function GroupMembers({
                     style={{
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(16, 185, 129, 0.1)',
-                      color: '#10b981',
+                      background: 'var(--bg-card)',
+                      color: 'var(--text-muted)',
                       fontWeight: 600,
                       fontSize: '13px',
-                      border: '1px solid rgba(16,185,129,0.3)',
+                      border: '1px solid var(--border)',
                     }}
                   >
                     Bạn bè
@@ -316,10 +314,10 @@ export default function GroupMembers({
                   style={{
                     padding: '7px 14px',
                     borderRadius: 'var(--radius-sm)',
-                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                    border: '1px solid var(--border)',
                     cursor: 'pointer',
-                    background: 'rgba(239, 68, 68, 0.08)',
-                    color: '#ef4444',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text-primary)',
                     fontWeight: 600,
                     fontSize: '13px',
                   }}

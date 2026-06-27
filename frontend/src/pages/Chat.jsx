@@ -1291,7 +1291,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
       {(callStatus === 'rejected' || callStatus === 'missed' || callStatus === 'no_answer') && (
         <div style={{
           position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-          background: callStatus === 'rejected' || callStatus === 'no_answer' ? 'rgba(239,68,68,0.95)' : 'rgba(100,100,120,0.95)',
+          background: 'rgba(40,40,40,0.95)',
           backdropFilter: 'blur(12px)',
           border: '1px solid rgba(255,255,255,0.15)',
           borderRadius: '14px', padding: '12px 20px',
@@ -1408,7 +1408,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                   border: `1px solid ${isMissed ? 'rgba(239,68,68,0.22)' : 'rgba(255,255,255,0.15)'}`,
                   backdropFilter: 'blur(8px)',
                   fontSize: '12px', fontWeight: 600,
-                  color: isMissed ? '#fca5a5' : 'rgba(220,220,220,0.9)',
+                  color: 'rgba(220,220,220,0.9)',
                   boxShadow: isMissed ? '0 2px 12px rgba(239,68,68,0.10)' : 'none',
                 }}>
                   {/* Icon container — circular premium style */}
@@ -1430,11 +1430,11 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                         <path
                           d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
                           fill="rgba(252,165,165,0.18)"
-                          stroke="#fca5a5"
+                          stroke="rgba(220,220,220,0.9)"
                           strokeWidth="1.8"
                         />
                         {/* Gạch chéo đậm */}
-                        <line x1="16" y1="6" x2="6" y2="16" stroke="#fca5a5" strokeWidth="2.2" />
+                        <line x1="16" y1="6" x2="6" y2="16" stroke="rgba(220,220,220,0.9)" strokeWidth="2.2" />
                       </svg>
                     ) : (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.3))' }}>
