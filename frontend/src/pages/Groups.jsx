@@ -1233,7 +1233,7 @@ export default function Groups() {
                         </svg>
                         {group?.members?.length || 0}/{group.maxMembers || 10}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 10, whiteSpace: 'nowrap', background: group.meetingMode === 'offline' ? 'rgba(16,185,129,0.08)' : 'rgba(99,179,237,0.08)', color: 'var(--text-primary)', border: group.meetingMode === 'offline' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(99,179,237,0.25)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 10, whiteSpace: 'nowrap', background: 'rgba(0,0,0,0.04)', color: 'var(--text-secondary)', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                         {group.meetingMode === 'offline' ? (
                           <>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1252,7 +1252,7 @@ export default function Groups() {
                           </>
                         )}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 10, whiteSpace: 'nowrap', background: group.isPrivate ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', color: group.isPrivate ? '#ef4444' : '#10b981', border: group.isPrivate ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(16,185,129,0.25)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 10, whiteSpace: 'nowrap', background: 'rgba(0,0,0,0.04)', color: 'var(--text-secondary)', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                         {group.isPrivate ? (
                           <>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1356,19 +1356,19 @@ export default function Groups() {
                               fontSize: '13px', 
                               fontWeight: 600, 
                               borderRadius: '8px', 
-                              background: 'rgba(255,59,48,0.08)', 
+                              background: 'var(--bg-card)', 
                               color: 'var(--text-primary)', 
-                              border: '1px solid rgba(255,59,48,0.2)', 
+                              border: '1px solid var(--border)', 
                               cursor: 'pointer', 
                               transition: 'all 0.2s ease' 
                             }} 
                             onClick={() => handleLeave(group)}
                             onMouseEnter={e => {
-                              e.currentTarget.style.background = 'rgba(255,59,48,0.15)';
+                              e.currentTarget.style.background = 'var(--bg-input)';
                               e.currentTarget.style.transform = 'translateY(-1px)';
                             }}
                             onMouseLeave={e => {
-                              e.currentTarget.style.background = 'rgba(255,59,48,0.08)';
+                              e.currentTarget.style.background = 'var(--bg-card)';
                               e.currentTarget.style.transform = 'translateY(0)';
                             }}
                           >

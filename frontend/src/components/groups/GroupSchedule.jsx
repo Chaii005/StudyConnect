@@ -318,8 +318,8 @@ export default function GroupSchedule({
                     justifyContent: 'space-between',
                     gap: '10px',
                     padding: '12px 16px',
-                    background: 'linear-gradient(135deg, rgba(62,207,207,0.07), rgba(0,0,0,0.03))',
-                    border: '1px solid rgba(62,207,207,0.2)',
+                    background: 'rgba(0, 0, 0, 0.04)',
+                    border: '1px solid var(--border)',
                     borderRadius: '10px',
                   }}
                 >
@@ -345,7 +345,7 @@ export default function GroupSchedule({
                         alignItems: 'center',
                         gap: '5px',
                         background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(62,207,207,0.3)',
+                        border: '1px solid var(--border)',
                         color: 'var(--text-primary)',
                         fontSize: '12px',
                         fontWeight: 600,
@@ -558,11 +558,11 @@ export default function GroupSchedule({
                               gap: '4px',
                               fontSize: '11px',
                               fontWeight: 700,
-                              background: 'rgba(62,207,207,0.12)',
+                              background: 'rgba(0,0,0,0.04)',
                               color: 'var(--text-primary)',
                               padding: '3px 8px',
                               borderRadius: '20px',
-                              border: '1px solid rgba(62,207,207,0.3)',
+                              border: '1px solid var(--border)',
                             }}
                           >
                             Phòng học trực tuyến StudyConnect
