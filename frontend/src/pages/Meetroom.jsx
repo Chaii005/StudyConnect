@@ -1865,29 +1865,29 @@ export default function MeetRoom() {
                   <div style={{ flex: 1, overflowY: 'auto', overscrollBehavior: 'contain', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span>Danh sách trực tuyến</span>
-                      <span style={{ background: 'rgba(255,255,255,0.15)', color: '#E5E5E5', fontSize: '11px', padding: '2px 8px', borderRadius: '10px' }}>{allFeeds.length}</span>
+                      <span style={{ background: 'rgba(0,0,0,0.05)', color: 'var(--text-muted)', fontSize: '11px', padding: '2px 8px', borderRadius: '10px' }}>{allFeeds.length}</span>
                     </h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {allFeeds.map(f => {
                         const role = getParticipantRole(f);
                         return (
-                          <div key={f.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px' }}>
+                          <div key={f.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(0,0,0,0.02)', border: '1px solid var(--border)', borderRadius: '14px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                               <div style={{ position: 'relative' }}>
                                 <Avatar src={f.avatar} name={f.name} size={34} />
                                 <div style={{
                                   position: 'absolute', bottom: '-1px', right: '-1px',
                                   width: '8px', height: '8px', borderRadius: '50%',
-                                  background: '#22c55e', border: '1.5px solid #0f0f1a'
+                                  background: '#22c55e', border: '1.5px solid #ffffff'
                                 }} />
                               </div>
                               <div>
-                                <div style={{ fontSize: '13px', fontWeight: 600, color: 'white', maxWidth: '140px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', maxWidth: '140px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {f.name}{f.isLocal ? ' (Bạn)' : ''}
                                   </span>
                                   {f.screenSharing && (
-                                    <span title="Đang chia sẻ màn hình" style={{ display: 'flex', alignItems: 'center', color: '#D4D4D4', flexShrink: 0 }}>
+                                    <span title="Đang chia sẻ màn hình" style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', flexShrink: 0 }}>
                                       <MonitorSvg active={true} size={14} />
                                     </span>
                                   )}
@@ -1895,13 +1895,13 @@ export default function MeetRoom() {
                                 <div style={{ marginTop: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                   {role === 'Trưởng phòng' ? (
                                     <span style={{
-                                      background: 'rgba(255,255,255,0.08)',
-                                      color: 'rgba(255,255,255,0.85)',
+                                      background: 'rgba(0,0,0,0.04)',
+                                      color: 'var(--text-primary)',
                                       fontSize: '10px',
                                       fontWeight: 700,
                                       padding: '1px 7px',
                                       borderRadius: '5px',
-                                      border: '1px solid rgba(255,255,255,0.15)',
+                                      border: '1px solid var(--border)',
                                       lineHeight: '16px',
                                       whiteSpace: 'nowrap',
                                       display: 'inline-flex',
@@ -1914,7 +1914,7 @@ export default function MeetRoom() {
                                       Trưởng phòng
                                     </span>
                                   ) : (
-                                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>Thành viên</span>
+                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Thành viên</span>
                                   )}
                                 </div>
                               </div>
