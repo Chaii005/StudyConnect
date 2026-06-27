@@ -23549,9 +23549,9 @@ export default function MeetRoom() {
                   display: 'flex',
                   background: '#f4f4f5',
                   borderRadius: '12px',
-                  padding: '4px',
+                  padding: '6px',
                   gap: '4px',
-                  border: '1px solid rgba(0,0,0,0.05)',
+                  border: '1.5px solid #171717',
                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
                 }}>
                   {TABS.map(t => (
@@ -23560,7 +23560,7 @@ export default function MeetRoom() {
                       onClick={() => setTab(t.key)}
                       style={{
                         flex: 1,
-                        padding: '10px 12px',
+                        padding: '12px 12px',
                         border: 'none',
                         cursor: 'pointer',
                         background: tab === t.key ? '#ffffff' : 'transparent',
