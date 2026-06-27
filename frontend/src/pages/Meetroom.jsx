@@ -1928,9 +1928,9 @@ export default function MeetRoom() {
                                 const canForce = amLeader && !f.isLocal;
 
                                 const iconBtn = (active, type, Icon, titleOn, titleOff) => {
-                                  const color = active ? '#22c55e' : '#ef4444';
-                                  const bg = active ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
-                                  const border = active ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)';
+                                  const color = active ? 'var(--text-primary)' : 'var(--text-muted)';
+                                  const bg = 'rgba(0, 0, 0, 0.04)';
+                                  const border = 'var(--border)';
                                   const payload = type === 'cam'
                                     ? { type: 'force-mute', to: f.id, room: roomId, muteCam: true, muteMic: false }
                                     : { type: 'force-mute', to: f.id, room: roomId, muteMic: true, muteCam: false };
@@ -1952,21 +1952,18 @@ export default function MeetRoom() {
                                         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                                         flexShrink: 0,
                                         padding: 0,
-                                        boxShadow: active ? '0 2px 8px rgba(34,197,94,0.12)' : '0 2px 8px rgba(239,68,68,0.12)',
                                       }}
                                       onMouseEnter={canForce && active ? e => {
-                                        e.currentTarget.style.background = 'rgba(239,68,68,0.25)';
-                                        e.currentTarget.style.borderColor = '#ef4444';
+                                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
                                         e.currentTarget.style.color = '#ef4444';
-                                        e.currentTarget.style.transform = 'scale(1.15)';
-                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(239,68,68,0.35)';
+                                        e.currentTarget.style.transform = 'scale(1.1)';
                                       } : undefined}
                                       onMouseLeave={canForce && active ? e => {
                                         e.currentTarget.style.background = bg;
                                         e.currentTarget.style.borderColor = border;
                                         e.currentTarget.style.color = color;
                                         e.currentTarget.style.transform = 'scale(1)';
-                                        e.currentTarget.style.boxShadow = active ? '0 2px 8px rgba(34,197,94,0.12)' : '0 2px 8px rgba(239,68,68,0.12)';
                                       } : undefined}
                                     >
                                       <Icon active={active} size={14} />
@@ -2120,20 +2117,20 @@ function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null
   const [hover, setHover] = useState(false);
 
   const bg = danger
-    ? (hover ? 'rgba(239, 68, 68, 0.35)' : 'rgba(239, 68, 68, 0.2)')
+    ? (hover ? 'rgba(239, 68, 68, 0.18)' : 'rgba(239, 68, 68, 0.1)')
     : active || highlight
-      ? (hover ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.14)')
+      ? (hover ? 'rgba(0, 0, 0, 0.14)' : 'rgba(0, 0, 0, 0.08)')
       : hover
-        ? 'rgba(255, 255, 255, 0.12)'
-        : 'rgba(255, 255, 255, 0.06)';
+        ? 'rgba(0, 0, 0, 0.08)'
+        : 'rgba(0, 0, 0, 0.03)';
 
   const border = danger
-    ? '1px solid rgba(239, 68, 68, 0.45)'
+    ? '1px solid rgba(239, 68, 68, 0.3)'
     : active || highlight
-      ? '1px solid rgba(255, 255, 255, 0.35)'
-      : '1px solid rgba(255, 255, 255, 0.1)';
+      ? '1px solid rgba(0, 0, 0, 0.18)'
+      : '1px solid rgba(0, 0, 0, 0.08)';
 
-  const color = danger ? '#ff6b6b' : active || highlight ? '#ffffff' : 'rgba(255, 255, 255, 0.85)';
+  const color = danger ? '#ef4444' : active || highlight ? '#171717' : 'rgba(0, 0, 0, 0.65)';
 
   return (
     <button
