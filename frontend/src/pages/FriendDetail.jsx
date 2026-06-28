@@ -325,6 +325,14 @@ export default function FriendDetail() {
         .profile-card {
           padding: 20px 24px !important;
         }
+        .profile-card-header {
+          border-bottom: 1.5px solid var(--border) !important;
+          margin-bottom: 16px !important;
+          padding-bottom: 12px !important;
+        }
+        .profile-card-header::after {
+          display: none !important;
+        }
       `}</style>
 
       {particles.map(p => (
@@ -351,22 +359,34 @@ export default function FriendDetail() {
             onClick={() => navigate('/friends')}
             style={{
               alignSelf: 'flex-start',
-              background: 'none',
-              border: 'none',
+              background: 'var(--bg-input)',
+              border: '1.5px solid var(--border)',
+              borderRadius: '8px',
               color: 'var(--text-secondary)',
               cursor: 'pointer',
-              fontSize: '12px',
-              fontWeight: 600,
+              fontSize: '13px',
+              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '4px 0',
-              transition: 'var(--transition)'
+              gap: '8px',
+              padding: '6px 12px',
+              marginBottom: '6px',
+              transition: 'all 0.2s ease-in-out'
             }}
-            onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
-            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+            onMouseEnter={e => {
+              e.currentTarget.style.color = 'var(--primary)';
+              e.currentTarget.style.borderColor = 'var(--primary)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--border)';
+            }}
           >
-            ← Quay lại bạn bè
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Quay lại bạn bè
           </button>
 
           {/* Avatar Area */}
