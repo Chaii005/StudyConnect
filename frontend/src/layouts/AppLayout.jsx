@@ -7,6 +7,7 @@ import { supabase } from '@/config/supabaseClient';
 import Avatar from '@/components/common/Avatar';
 import { getUserSchedulesAndDeadlines } from '@/services/interactionService';
 import { getFriends } from '@/services/friendService';
+import NotificationBell from '../components/notifications/NotificationBell';
 const NAV_ICONS = {
   home: (isActive, activeColor) => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.3s', color: isActive ? (activeColor || 'var(--secondary)') : 'var(--text-secondary)' }}>
@@ -465,6 +466,13 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
             )}
 
 
+            {displayUser && (
+              <div className="flex-desktop-only" style={{ alignItems: 'center' }}>
+                <NotificationBell />
+              </div>
+            )}
+
+
             {displayUser && location.pathname !== '/groups' && (
               <button className="btn-logout desktop-only" onClick={handleLogout} style={{
                 background: 'transparent',
@@ -547,8 +555,9 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
             </Link>
           </div>
 
-          <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
-            <button onClick={handleLogout} className="btn-logout" style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+          <div style={{ padding: '16px', borderTop: '1px solid var(--border)', display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <NotificationBell />
+            <button onClick={handleLogout} className="btn-logout" style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
               Đăng xuất
             </button>
           </div>
