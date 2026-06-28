@@ -387,7 +387,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
               )}
 
               {/* Location Picker for Offline mode */}
-              {meetingMode === 'offline' && (
+              {meetingMode === 'offline' && !isPrivate && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Tên địa điểm học tập *</label>
@@ -858,7 +858,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                     </div>
                   </div>
 
-                  {!isOnline && group.location && (
+                  {!isOnline && !group.isPrivate && group.location && group.location.name && (
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 6 }}>
                       <span style={{ flexShrink: 0, color: 'var(--text-muted)', fontWeight: 600 }}>Địa điểm:</span>
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.name} — {group.location.address}</span>
@@ -1405,7 +1405,7 @@ export default function Groups() {
         ...formData,
         meetingMode,
         isPrivate,
-        location: selectedLocation,
+        location: (meetingMode === 'offline' && !isPrivate) ? selectedLocation : null,
         major: userMajor,
       });
       // Lưu môn học mới vào DB nếu user có ngành và môn chưa có sẵn
@@ -2031,7 +2031,7 @@ export default function Groups() {
                     </span>
                   </div>
 
-                  {group.meetingMode === 'offline' && group.location && (
+                  {group.meetingMode === 'offline' && !group.isPrivate && group.location && group.location.name && (
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', background: 'rgba(16, 185, 129, 0.04)', padding: '6px 12px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.15)', marginBottom: '8px' }}>
                       <span style={{ fontSize: 13, flexShrink: 0, display: 'inline-flex', alignItems: 'center', color: 'var(--text-primary)', marginTop: '1px' }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
