@@ -301,6 +301,30 @@ export default function FriendDetail() {
           animation: floatEmojiUpFixed 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
           user-select: none;
         }
+        .profile-container {
+          max-width: 880px !important;
+          margin: 16px auto 32px !important;
+          grid-template-columns: 240px 1fr !important;
+          gap: 20px !important;
+        }
+        .profile-sidebar {
+          padding: 20px 16px !important;
+          gap: 16px !important;
+        }
+        .avatar-wrap {
+          width: 80px !important;
+          height: 80px !important;
+          margin: 0 auto 12px !important;
+        }
+        .avatar-img, .avatar-placeholder {
+          width: 80px !important;
+          height: 80px !important;
+          border-width: 2.5px !important;
+          font-size: 28px !important;
+        }
+        .profile-card {
+          padding: 20px 24px !important;
+        }
       `}</style>
 
       {particles.map(p => (
@@ -317,10 +341,10 @@ export default function FriendDetail() {
           {p.char}
         </span>
       ))}
-      <div className="profile-container" style={{ marginTop: '24px' }}>
+      <div className="profile-container" style={{ marginTop: '16px' }}>
         
         {/* LEFT COLUMN: Sidebar info */}
-        <div className="profile-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="profile-sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
           
           {/* Back btn */}
           <button 
@@ -331,7 +355,7 @@ export default function FriendDetail() {
               border: 'none',
               color: 'var(--text-secondary)',
               cursor: 'pointer',
-              fontSize: '13px',
+              fontSize: '12px',
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
@@ -347,7 +371,7 @@ export default function FriendDetail() {
 
           {/* Avatar Area */}
           <div>
-            <div className="avatar-wrap" style={{ position: 'relative', margin: '0 auto 16px', display: 'block', width: 'fit-content' }}>
+            <div className="avatar-wrap" style={{ position: 'relative', display: 'block', width: 'fit-content' }}>
               {friendData.avatar ? (
                 <img src={friendData.avatar} alt="avatar" className="avatar-img" />
               ) : (
@@ -356,21 +380,21 @@ export default function FriendDetail() {
                 </div>
               )}
               <span style={{
-                position: 'absolute', bottom: '8px', right: '8px',
-                width: '16px', height: '16px', borderRadius: '50%',
+                position: 'absolute', bottom: '4px', right: '4px',
+                width: '12px', height: '12px', borderRadius: '50%',
                 background: isOnline ? '#2A7576' : '#ef4444',
-                border: '3px solid var(--bg-card)',
+                border: '2px solid var(--bg-card)',
                 boxShadow: isOnline ? '0 0 10px rgba(168, 124, 135, 0.7)' : 'none',
                 zIndex: 2
               }} />
             </div>
 
-            <h1 className="profile-name" style={{ fontSize: '22px', fontWeight: 800 }}>{friendData.full_name}</h1>
-            <p className="profile-email">{friendData.email}</p>
+            <h1 className="profile-name" style={{ fontSize: '18px', fontWeight: 800 }}>{friendData.full_name}</h1>
+            <p className="profile-email" style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 8px', wordBreak: 'break-all' }}>{friendData.email}</p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '10px' }}>
-              <span className="profile-badge" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '6px' }}>
+              <span className="profile-badge" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', fontSize: '10px' }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
                   <polyline points="16 11 18 13 22 9" />
@@ -380,16 +404,16 @@ export default function FriendDetail() {
               <span style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                fontSize: '11px',
+                gap: '4px',
+                fontSize: '10px',
                 fontWeight: 700,
-                padding: '4px 10px',
+                padding: '3px 8px',
                 borderRadius: '20px',
                 background: isOnline ? 'rgba(42,117,118,0.12)' : 'rgba(239,68,68,0.12)',
                 color: isOnline ? '#2A7576' : '#ef4444',
                 border: isOnline ? '1px solid rgba(42,117,118,0.3)' : '1px solid rgba(239,68,68,0.3)'
               }}>
-                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#2A7576' : '#ef4444' }} />
+                <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: isOnline ? '#2A7576' : '#ef4444' }} />
                 {isOnline ? 'Trực tuyến' : 'Ngoại tuyến'}
               </span>
             </div>
@@ -459,20 +483,20 @@ export default function FriendDetail() {
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
             
             {/* Lịch sử đăng bài (Tab Button) */}
             <button
               onClick={() => setActiveTab('posts')}
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '12px',
+                padding: '8px 12px',
+                borderRadius: '8px',
                 border: activeTab === 'posts' ? '1.5px solid var(--primary)' : '1px solid var(--border)',
                 background: activeTab === 'posts' ? 'var(--bg-input)' : 'transparent',
                 color: activeTab === 'posts' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: 700,
-                fontSize: '14px',
+                fontSize: '13px',
                 cursor: 'pointer',
                 transition: 'all 0.25s',
                 display: 'flex',
@@ -493,25 +517,25 @@ export default function FriendDetail() {
                 }
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
               Lịch sử đăng bài
             </button>
 
-            {/* Thông tin thêm (Tab Button) */}
+            {/* Thông quan thêm (Tab Button) */}
             <button
               onClick={() => setActiveTab('about')}
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '12px',
+                padding: '8px 12px',
+                borderRadius: '8px',
                 border: activeTab === 'about' ? '1.5px solid var(--primary)' : '1px solid var(--border)',
                 background: activeTab === 'about' ? 'var(--bg-input)' : 'transparent',
                 color: activeTab === 'about' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: 700,
-                fontSize: '14px',
+                fontSize: '13px',
                 cursor: 'pointer',
                 transition: 'all 0.25s',
                 display: 'flex',
@@ -532,7 +556,7 @@ export default function FriendDetail() {
                 }
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
@@ -544,10 +568,10 @@ export default function FriendDetail() {
               to="/chat" 
               className="btn btn-secondary" 
               style={{ 
-                borderRadius: '12px', 
-                fontSize: '14px', 
+                borderRadius: '8px', 
+                fontSize: '13px', 
                 fontWeight: 600,
-                padding: '11px',
+                padding: '8px 12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -555,7 +579,7 @@ export default function FriendDetail() {
                 textDecoration: 'none'
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
               Nhắn tin trò chuyện
@@ -566,17 +590,17 @@ export default function FriendDetail() {
               onClick={handleStartCall}
               className="btn btn-primary"
               style={{ 
-                borderRadius: '12px', 
-                fontSize: '14px', 
+                borderRadius: '8px', 
+                fontSize: '13px', 
                 fontWeight: 700,
-                padding: '12px',
+                padding: '9px 12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px'
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                 <path d="m22 8-6 4 6 4V8Z" />
                 <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
               </svg>
@@ -587,32 +611,32 @@ export default function FriendDetail() {
         </div>
 
         {/* RIGHT COLUMN: Tab content */}
-        <div className="profile-main">
+        <div className="profile-main" style={{ gap: '16px' }}>
           
           {activeTab === 'about' && (
             <div className="profile-card">
               <div className="profile-card-header">
                 <div className="card-header-icon-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
                   </svg>
                 </div>
                 <div className="card-header-text">
-                  <h2>Giới thiệu bản thân</h2>
-                  <p>Thông tin chi tiết về {friendData.full_name}</p>
+                  <h2 style={{ fontSize: '15px', margin: 0 }}>Giới thiệu bản thân</h2>
+                  <p style={{ fontSize: '11px', margin: '2px 0 0' }}>Thông tin chi tiết về {friendData.full_name}</p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
                 <div>
-                  <h3 style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tiểu sử</h3>
+                  <h3 style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tiểu sử</h3>
                   <div style={{
                     background: 'var(--bg-input)',
-                    padding: '16px',
-                    borderRadius: '12px',
+                    padding: '12px',
+                    borderRadius: '10px',
                     border: '1px solid var(--border)',
-                    fontSize: '15px',
-                    lineHeight: 1.6,
+                    fontSize: '13px',
+                    lineHeight: 1.5,
                     color: 'var(--text-primary)',
                     whiteSpace: 'pre-line'
                   }}>
@@ -620,14 +644,14 @@ export default function FriendDetail() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '10px' }}>
-                  <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Trường Đại học</div>
-                    <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>{friendData.university || 'Chưa cập nhật'}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '4px' }}>
+                  <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '2px' }}>Trường Đại học</div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)' }}>{friendData.university || 'Chưa cập nhật'}</div>
                   </div>
-                  <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Chuyên ngành</div>
-                    <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>{friendData.major || 'Chưa cập nhật'}</div>
+                  <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '2px' }}>Chuyên ngành</div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)' }}>{friendData.major || 'Chưa cập nhật'}</div>
                   </div>
                 </div>
               </div>
@@ -635,26 +659,26 @@ export default function FriendDetail() {
           )}
 
           {activeTab === 'posts' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               
-              <div className="profile-card" style={{ padding: '20px 24px' }}>
+              <div className="profile-card" style={{ padding: '12px 16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                   <div style={{ textAlign: 'left' }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
+                    <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
                         <path d="M12 20h9" />
                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
                       </svg>
                       Lịch sử bài đăng
                     </h2>
-                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Toàn bộ các bài viết chia sẻ của {friendData.full_name}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '2px 0 0' }}>Toàn bộ các bài viết chia sẻ của {friendData.full_name}</p>
                   </div>
                   <div style={{
                     background: 'var(--bg-input)',
                     color: 'var(--text-primary)',
-                    fontSize: '13px',
+                    fontSize: '11px',
                     fontWeight: 700,
-                    padding: '6px 14px',
+                    padding: '4px 10px',
                     borderRadius: '20px',
                     border: '1px solid var(--border)'
                   }}>
@@ -664,7 +688,7 @@ export default function FriendDetail() {
               </div>
 
               {loadingPosts ? (
-                <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '18px' }}>
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '14px' }}>
                   Đang tải danh sách bài viết...
                 </div>
               ) : (
