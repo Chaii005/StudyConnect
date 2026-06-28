@@ -21,7 +21,7 @@ import { compressImage as compressImageFile } from '../utils/imageCompress';
 // ── Avatar ──────────────────────────────────────────────────────────
 function Avatar({ src, initial, color = '#3A3A3A', size = 40 }) {
   if (src) return (
-    <img src={src} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+    <img src={src} alt="" draggable="false" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
   );
   return (
     <div style={{
@@ -986,7 +986,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
   });
 
   return (
-    <div ref={chatOuterRef} style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+    <div ref={chatOuterRef} style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', overflowX: 'hidden' }}>
       <style>{`
         @keyframes floatEmojiUp {
           0% {
@@ -1350,7 +1350,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
         onScroll={handleScroll}
         className="msgs-no-scrollbar"
         style={{
-          flex: 1, overflowY: 'auto', padding: '16px 20px',
+          flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '16px 20px',
           display: 'flex', flexDirection: 'column', gap: '4px',
           scrollbarWidth: 'none', // hide scrollbar Firefox
           msOverflowStyle: 'none', // hide scrollbar IE
@@ -1529,6 +1529,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
                       <img 
                         src={m.content} 
                         alt="Ảnh" 
+                        draggable="false"
                         onClick={() => setViewingImage(m.content)}
                         style={{ maxWidth: '300px', maxHeight: '350px', borderRadius: '12px', display: 'block', objectFit: 'cover', cursor: 'zoom-in' }} 
                       />
@@ -1590,7 +1591,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               {attachedFile?.type?.startsWith('image/') || imgPreview.startsWith('data:image') ? (
-                <img src={imgPreview} alt="preview" style={{ height: '60px', width: '60px', borderRadius: '8px', objectFit: 'cover', display: 'block' }} />
+                <img src={imgPreview} alt="preview" draggable="false" style={{ height: '60px', width: '60px', borderRadius: '8px', objectFit: 'cover', display: 'block' }} />
               ) : (
                 <div style={{ height: '60px', width: '60px', borderRadius: '8px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
                   📎
@@ -1939,7 +1940,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
             ✕
           </button>
           
-          <img src={viewingImage} alt="View" style={{
+          <img src={viewingImage} alt="View" draggable="false" style={{
             maxWidth: '90%', maxHeight: '80%', objectFit: 'contain',
             borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
             userSelect: 'none'
@@ -2395,7 +2396,7 @@ function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
         </div>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent', paddingBottom: '12px' }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain', scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent', paddingBottom: '12px' }}>
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: '14px' }}>
             {friends.length === 0 ? (
@@ -2568,6 +2569,7 @@ export default function Chat() {
         padding: isMobile ? '0' : '0 16px', display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : (selectedFriend ? '340px 1fr' : '1fr'),
         gap: isMobile ? '0' : '16px', height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 120px)',
+        overflowX: 'hidden',
       }}>
         {(!isMobile || !selectedFriend) && (
           <div className={isMobile ? "" : "premium-panel"} style={{
