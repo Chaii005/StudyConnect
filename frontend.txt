@@ -18178,7 +18178,7 @@ import { supabase } from '../config/supabaseClient';
 //  Avatar 
 function Avatar({ src, initial, color = '#3A3A3A', size = 40 }) {
   if (src) return (
-    <img src={src} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+    <img src={src} alt="" draggable="false" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
   );
   return (
     <div style={{
@@ -18821,9 +18821,10 @@ export default function Friends() {
           max-width: 100%;
           width: 100%;
           box-sizing: border-box;
+          overflow-x: hidden;
         }
         .premium-panel {
-          background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+          background: #ffffff;
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid #e5e7eb;
@@ -18836,7 +18837,7 @@ export default function Friends() {
           display: flex;
           align-items: center;
           gap: 8px;
-          background: #ffffff;
+          background: #f9fafb;
           border: 1px solid #d1d5db;
           border-radius: 24px;
           padding: 8px 16px;
