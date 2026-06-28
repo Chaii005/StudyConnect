@@ -52,23 +52,32 @@ export default function NotificationBell({ style }) {
   const calcPos = () => {
     if (!btnRef.current) return;
     const rect = btnRef.current.getBoundingClientRect();
-    // Tìm khung profile cha (card chứa chuông + avatar)
-    const card = btnRef.current.closest('[data-profilecard]');
-    if (card) {
-      const cardRect = card.getBoundingClientRect();
-      setPos({
-        top: cardRect.bottom + 6,
-        left: cardRect.left,
-        width: cardRect.width,
-      });
-    } else {
-      // fallback
-      setPos({
-        top: rect.bottom + 6,
-        left: 8,
-        width: rect.right - 8,
-      });
+    const screenWidth = window.innerWidth;
+    
+    // Width cố định 320px, hoặc 300px nếu màn hình siêu nhỏ (< 360px)
+    const width = screenWidth < 360 ? 300 : 320;
+    
+    // Ưu tiên right-align với nút chuông: left = rect.right - width
+    let left = rect.right - width;
+    
+    // Giới hạn left không âm (clamp về 8px)
+    if (left < 8) {
+      left = 8;
     }
+    
+    // Đảm bảo không tràn lề phải
+    if (left + width > screenWidth - 8) {
+      left = screenWidth - width - 8;
+      if (left < 8) {
+        left = 8;
+      }
+    }
+
+    setPos({
+      top: rect.bottom + 6,
+      left,
+      width,
+    });
   };
 
   const handleOpen = () => {
