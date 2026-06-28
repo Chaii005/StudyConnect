@@ -373,7 +373,7 @@ function FilePreviewModal({ file, onClose }) {
 
 // ── Default user/group form shapes ─────────────────────────────────
 const EMPTY_USER_FORM  = { fullName: '', email: '', password: '', role: 'user', university: '', major: '', bio: '' };
-const EMPTY_GROUP_FORM = { name: '', subject: '', description: '', creatorId: '', deputyId: '', meetingMode: 'online' };
+const EMPTY_GROUP_FORM = { name: '', subject: '', major: '', description: '', creatorId: '', deputyId: '', meetingMode: 'online' };
 
 export default function Admin() {
   const { admin, adminLogout, setAdmin } = useAuth();
@@ -524,7 +524,7 @@ export default function Admin() {
 
   // ── Group handlers ───────────────────────────────────────────────
   const openCreateGroup = () => { setCurrentEditGroup(null); setGroupForm({ ...EMPTY_GROUP_FORM, creatorId: users[0]?.id || '' }); setLocationSearchVal(''); setShowGroupModal(true); };
-  const openEditGroup   = (g) => { setCurrentEditGroup(g); setGroupForm({ name: g.name || '', subject: g.subject || '', description: g.description || '', creatorId: g.creatorId || '', deputyId: g.deputyId || '', meetingMode: g.meetingMode || 'online' }); setLocationSearchVal(g.location ? (g.location.name + (g.location.address ? ` — ${g.location.address}` : '')) : ''); setShowGroupModal(true); };
+  const openEditGroup   = (g) => { setCurrentEditGroup(g); setGroupForm({ name: g.name || '', subject: g.subject || '', major: g.major || '', description: g.description || '', creatorId: g.creatorId || '', deputyId: g.deputyId || '', meetingMode: g.meetingMode || 'online' }); setLocationSearchVal(g.location ? (g.location.name + (g.location.address ? ` — ${g.location.address}` : '')) : ''); setShowGroupModal(true); };
 
   const handleGroupSubmit = async (e) => {
     e.preventDefault();

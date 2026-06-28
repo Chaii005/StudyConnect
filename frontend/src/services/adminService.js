@@ -24,13 +24,27 @@ const mapGroup = (g) => {
   const deputyIds = deputies.map(m => m.user_id);
   const deputy = deputies[0];
 
+  let parsedLocation = null;
+  if (g.location) {
+    if (typeof g.location === 'object') {
+      parsedLocation = g.location;
+    } else {
+      try {
+        parsedLocation = JSON.parse(g.location);
+      } catch (e) {
+        parsedLocation = { name: g.location, address: g.location };
+      }
+    }
+  }
+
   return {
     id: g.id.toString(),
     name: g.name,
     subject: g.subject,
+    major: g.major || null,
     description: g.description,
-    meetingMode: 'online',
-    location: null,
+    meetingMode: g.meeting_mode || 'online',
+    location: parsedLocation,
     creatorId: g.creator_id,
     deputyId: deputy ? deputy.user_id : null,
     deputyIds: deputyIds,
@@ -38,6 +52,7 @@ const mapGroup = (g) => {
     createdAt: g.created_at
   };
 };
+
 
 // ─── QUẢN LÝ NGƯỜI DÙNG (USERS) ────────────────────────
 export const adminGetUsers = async () => {
@@ -172,7 +187,7 @@ export const adminDeleteUser = async (userId) => {
 export const adminGetGroups = async () => {
   const { data, error } = await supabase
     .from('study_groups')
-    .select('id, name, subject, description, is_private, max_members, creator_id, created_at, group_members(user_id, role)')
+    .select('id, name, subject, major, description, meeting_mode, location, is_private, max_members, creator_id, created_at, group_members(user_id, role)')
     .limit(100);
 
   if (error) throw new Error(`Lỗi tải danh sách nhóm: ${error.message}`);
@@ -187,7 +202,7 @@ export const adminGetGroups = async () => {
   return activeGroups.map(mapGroup);
 };
 
-export const adminCreateGroup = async ({ name, subject, description, creatorId }) => {
+export const adminCreateGroup = async ({ name, subject, major, description, creatorId, meetingMode, location }) => {
   const cId = parseInt(creatorId, 10);
 
   // Check 3 active groups limit
@@ -216,9 +231,12 @@ export const adminCreateGroup = async ({ name, subject, description, creatorId }
       {
         name,
         subject,
+        major: major || null,
         description: description || '',
         creator_id: cId,
-        max_members: 10
+        max_members: 10,
+        meeting_mode: meetingMode || 'online',
+        location: location || null
       }
     ])
     .select('id')
@@ -247,7 +265,7 @@ export const adminCreateGroup = async ({ name, subject, description, creatorId }
   const { data: finalGroup } = await supabase
     .from('study_groups')
     .select(`
-      id, name, subject, description, creator_id, created_at,
+      id, name, subject, major, description, meeting_mode, location, creator_id, created_at,
       group_members (
         user_id,
         role
@@ -259,15 +277,18 @@ export const adminCreateGroup = async ({ name, subject, description, creatorId }
   return mapGroup(finalGroup);
 };
 
-export const adminUpdateGroup = async (groupId, { name, subject, description, creatorId, deputyId }) => {
+export const adminUpdateGroup = async (groupId, { name, subject, major, description, creatorId, deputyId, meetingMode, location }) => {
   const gId = parseInt(groupId, 10);
   
   // 1. Update general group info
   const updateData = {};
   if (name !== undefined) updateData.name = name;
   if (subject !== undefined) updateData.subject = subject;
+  if (major !== undefined) updateData.major = major;
   if (description !== undefined) updateData.description = description || '';
   if (creatorId !== undefined) updateData.creator_id = parseInt(creatorId, 10);
+  if (meetingMode !== undefined) updateData.meeting_mode = meetingMode;
+  if (location !== undefined) updateData.location = location;
 
   const { error: groupError } = await supabase
     .from('study_groups')
@@ -350,7 +371,7 @@ export const adminUpdateGroup = async (groupId, { name, subject, description, cr
   const { data: finalGroup } = await supabase
     .from('study_groups')
     .select(`
-      id, name, subject, description, creator_id, created_at,
+      id, name, subject, major, description, meeting_mode, location, creator_id, created_at,
       group_members (
         user_id,
         role
