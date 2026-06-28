@@ -19700,6 +19700,8 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
   const [dbSubjects, setDbSubjects] = useState([]);
   const [subjectMode, setSubjectMode] = useState('select'); // 'select' | 'custom'
   const [customSubject, setCustomSubject] = useState('');
+  const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
+  const [maxMembersDropdownOpen, setMaxMembersDropdownOpen] = useState(false);
 
   // Load môn học theo ngành khi step 2 mở ra
   useEffect(() => {
@@ -19890,31 +19892,151 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Môn học *</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <select
-                    className="form-input"
-                    style={{ padding: '9px 13.5px', fontSize: 13, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer' }}
-                    value={subjectMode === 'custom' ? 'custom' : (formData.subject || '')}
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (val === 'custom') {
-                        setSubjectMode('custom');
-                        setFormData({ ...formData, subject: customSubject });
-                      } else {
-                        setSubjectMode('select');
-                        setFormData({ ...formData, subject: val });
-                      }
-                    }}
-                    required={subjectMode !== 'custom'}
-                  >
-                    <option value="">-- Chọn môn học --</option>
-                    {dbSubjects.map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                    {!userMajor && (
-                      <option value="Chung">Chung</option>
+                  <div style={{ position: 'relative' }}>
+                    <div 
+                      onClick={() => setSubjectDropdownOpen(!subjectDropdownOpen)}
+                      style={{
+                        width: '100%',
+                        background: 'var(--bg-input)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 10,
+                        padding: '10px 14px',
+                        color: 'var(--text-primary)',
+                        fontSize: '13.5px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        userSelect: 'none',
+                        transition: 'border-color 0.2s',
+                      }}
+                    >
+                      <span>
+                        {subjectMode === 'custom'
+                          ? 'Môn học khác...'
+                          : (formData.subject || '-- Chọn môn học --')}
+                      </span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: subjectDropdownOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </div>
+
+                    {subjectDropdownOpen && (
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          right: 0,
+                          marginTop: 6,
+                          background: 'var(--bg-card)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 12,
+                          boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+                          zIndex: 10000,
+                          maxHeight: 180,
+                          overflowY: 'auto',
+                          padding: '6px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 2,
+                        }}
+                      >
+                        <div
+                          onClick={() => {
+                            setSubjectMode('select');
+                            setFormData({ ...formData, subject: '' });
+                            setSubjectDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            fontSize: 13,
+                            color: 'var(--text-secondary)',
+                            transition: 'all 0.15s',
+                            background: !formData.subject && subjectMode === 'select' ? 'var(--bg-input)' : 'transparent',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = !formData.subject && subjectMode === 'select' ? 'var(--bg-input)' : 'transparent'; e.currentTarget.style.color = !formData.subject && subjectMode === 'select' ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
+                        >
+                          -- Chọn môn học --
+                        </div>
+
+                        {dbSubjects.map(s => {
+                          const isSelected = subjectMode === 'select' && formData.subject === s;
+                          return (
+                            <div
+                              key={s}
+                              onClick={() => {
+                                setSubjectMode('select');
+                                setFormData({ ...formData, subject: s });
+                                setSubjectDropdownOpen(false);
+                              }}
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: 6,
+                                cursor: 'pointer',
+                                fontSize: 13,
+                                color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                                fontWeight: isSelected ? 600 : 400,
+                                transition: 'all 0.15s',
+                                background: isSelected ? 'var(--bg-input)' : 'transparent',
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = isSelected ? 'var(--bg-input)' : 'transparent'; e.currentTarget.style.color = isSelected ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
+                            >
+                              {s}
+                            </div>
+                          );
+                        })}
+
+                        {!userMajor && (
+                          <div
+                            onClick={() => {
+                              setSubjectMode('select');
+                              setFormData({ ...formData, subject: 'Chung' });
+                              setSubjectDropdownOpen(false);
+                            }}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: 6,
+                              cursor: 'pointer',
+                              fontSize: 13,
+                              color: formData.subject === 'Chung' && subjectMode === 'select' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                              transition: 'all 0.15s',
+                              background: formData.subject === 'Chung' && subjectMode === 'select' ? 'var(--bg-input)' : 'transparent',
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = formData.subject === 'Chung' && subjectMode === 'select' ? 'var(--bg-input)' : 'transparent'; e.currentTarget.style.color = formData.subject === 'Chung' && subjectMode === 'select' ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
+                          >
+                            Chung
+                          </div>
+                        )}
+
+                        <div
+                          onClick={() => {
+                            setSubjectMode('custom');
+                            setFormData({ ...formData, subject: customSubject });
+                            setSubjectDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            fontSize: 13,
+                            color: subjectMode === 'custom' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                            transition: 'all 0.15s',
+                            background: subjectMode === 'custom' ? 'var(--bg-input)' : 'transparent',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = subjectMode === 'custom' ? 'var(--bg-input)' : 'transparent'; e.currentTarget.style.color = subjectMode === 'custom' ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
+                        >
+                          Môn học khác...
+                        </div>
+                      </div>
                     )}
-                    <option value="custom">Môn học khác...</option>
-                  </select>
+                  </div>
                   {subjectMode === 'custom' && (
                     <input
                       className="form-input"
@@ -20000,20 +20122,81 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Số lượng thành viên tối đa</label>
                 <div className="form-input-wrap">
-                  <select
-                    className="form-input"
-                    style={{ padding: '9px 13px', fontSize: 13, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: '8px', width: '100%', cursor: 'pointer' }}
-                    value={formData.maxMembers || 10}
-                    onChange={e => setFormData({ ...formData, maxMembers: parseInt(e.target.value, 10) })}
-                  >
-                    <option value={5}>5 thành viên</option>
-                    <option value={10}>10 thành viên</option>
-                    <option value={15}>15 thành viên</option>
-                    <option value={20}>20 thành viên</option>
-                    <option value={30}>30 thành viên</option>
-                    <option value={50}>50 thành viên</option>
-                    <option value={100}>100 thành viên</option>
-                  </select>
+                  <div style={{ position: 'relative' }}>
+                    <div 
+                      onClick={() => setMaxMembersDropdownOpen(!maxMembersDropdownOpen)}
+                      style={{
+                        width: '100%',
+                        background: 'var(--bg-input)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 10,
+                        padding: '10px 14px',
+                        color: 'var(--text-primary)',
+                        fontSize: '13.5px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        userSelect: 'none',
+                        transition: 'border-color 0.2s',
+                      }}
+                    >
+                      <span>{formData.maxMembers || 10} thành viên</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: maxMembersDropdownOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </div>
+
+                    {maxMembersDropdownOpen && (
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          right: 0,
+                          marginTop: 6,
+                          background: 'var(--bg-card)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 12,
+                          boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+                          zIndex: 10000,
+                          maxHeight: 180,
+                          overflowY: 'auto',
+                          padding: '6px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 2,
+                        }}
+                      >
+                        {[5, 10, 15, 20, 30, 50, 100].map(val => {
+                          const isSelected = (formData.maxMembers || 10) === val;
+                          return (
+                            <div
+                              key={val}
+                              onClick={() => {
+                                setFormData({ ...formData, maxMembers: val });
+                                setMaxMembersDropdownOpen(false);
+                              }}
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: 6,
+                                cursor: 'pointer',
+                                fontSize: 13,
+                                color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                                fontWeight: isSelected ? 600 : 400,
+                                transition: 'all 0.15s',
+                                background: isSelected ? 'var(--bg-input)' : 'transparent',
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = isSelected ? 'var(--bg-input)' : 'transparent'; e.currentTarget.style.color = isSelected ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
+                            >
+                              {val} thành viên
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
