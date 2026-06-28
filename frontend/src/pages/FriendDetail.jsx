@@ -451,9 +451,9 @@ export default function FriendDetail() {
                 width: '100%',
                 padding: '10px 12px',
                 borderRadius: '8px',
-                border: activeTab === 'posts' ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                border: activeTab === 'posts' ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
                 background: activeTab === 'posts' ? 'var(--bg-input)' : 'transparent',
-                color: activeTab === 'posts' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                color: 'var(--text-primary)',
                 fontWeight: 700,
                 fontSize: '13px',
                 cursor: 'pointer',
@@ -473,7 +473,7 @@ export default function FriendDetail() {
               onMouseLeave={e => {
                 if (activeTab !== 'posts') {
                   e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }
               }}
             >
@@ -491,9 +491,9 @@ export default function FriendDetail() {
                 width: '100%',
                 padding: '10px 12px',
                 borderRadius: '8px',
-                border: activeTab === 'about' ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                border: activeTab === 'about' ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
                 background: activeTab === 'about' ? 'var(--bg-input)' : 'transparent',
-                color: activeTab === 'about' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                color: 'var(--text-primary)',
                 fontWeight: 700,
                 fontSize: '13px',
                 cursor: 'pointer',
@@ -513,7 +513,7 @@ export default function FriendDetail() {
               onMouseLeave={e => {
                 if (activeTab !== 'about') {
                   e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }
               }}
             >
