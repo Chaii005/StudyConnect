@@ -86,6 +86,22 @@ export default function Schedule() {
       }
     };
     fetchUserGroups();
+
+    const channelName = `user-groups-roles-realtime-${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${user.id}` },
+        () => {
+          fetchUserGroups();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user?.id]);
 
   // Helper to check deadline visibility

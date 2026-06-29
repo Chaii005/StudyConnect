@@ -10,6 +10,7 @@ import GroupChatPanel from '@/components/groups/GroupChatPanel';
 import GroupMembers from '@/components/groups/GroupMembers';
 import ConfirmModal from '@/components/ConfirmModal';
 import { getJoinRequests, approveJoinRequest, rejectJoinRequest } from '@/services/groupService';
+import { supabase } from '@/config/supabaseClient';
 
 export default function GroupDetail() {
   const { id: groupId } = useParams();
@@ -68,11 +69,32 @@ export default function GroupDetail() {
     }
   }, [h.group, h.loading, location.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
-      // Load join requests khi vào tab members 
+  // Load and subscribe to join requests in realtime khi vào tab members
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (h.activeTab === 'members' && h.group) loadJoinRequests();
-  }, [h.activeTab, h.group]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (h.activeTab !== 'members' || !h.group?.isPrivate || String(user?.id) !== String(h.group?.creatorId)) return;
+    loadJoinRequests();
+
+    const channelName = `group-join-requests-realtime-${groupId}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'group_join_requests',
+          filter: `group_id=eq.${groupId}`
+        },
+        () => {
+          loadJoinRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [h.activeTab, h.group, groupId, user?.id]);
 
   // Scroll to target list when activeTab changes
   useEffect(() => {
