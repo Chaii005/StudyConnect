@@ -71,3 +71,10 @@ Báo cáo sau khi hoàn thành task phải ngắn gọn, trung thực và gồm 
 🔗 **Commit Hash:** [Mã hash của commit vừa push]  
 🚀 **Link Production:** [URL Deploy thật của web hoặc Vercel link]  
 📄 **File gộp:** Đã chạy `export_code.ps1` cập nhật thành công `frontend.txt`/`backend.txt`.
+
+---
+
+════════════════════════════════════════════════
+TASK CỤ THỂ
+════════════════════════════════════════════════
+- [Dán nội dung yêu cầu hoặc nhiệm vụ chi tiết của bạn vào đây]
