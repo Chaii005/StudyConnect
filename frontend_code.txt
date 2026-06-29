@@ -10518,7 +10518,14 @@ import { approveJoinRequest, rejectJoinRequest } from '@/services/groupService';
 
 export default function useNotifications(userId) {
   const [notifs, setNotifs] = useState([]);
-  const [seen, setSeen] = useState(new Set());
+  const [seen, setSeen] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.NOTIF_SEEN);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
   const [processing, setProcessing] = useState({});
 
   const myGroupIdsRef = useRef([]);
@@ -11526,73 +11533,95 @@ export default function useNotifications(userId) {
           });
         }
       )
-      // messages
+      // messages (private)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${userId}` },
         (payload) => {
           const m = payload.new;
           if (!m) return;
           const senderId = m.sender_id;
           if (String(senderId) === String(userId)) return;
 
-          if (m.group_id) {
-            if (!myGroupIdsRef.current.includes(Number(m.group_id))) return;
-            const rawContent = m.content || '';
-            const isMeetroom = m.meetroom_id || rawContent.startsWith('[meetroom:');
-            getGroupName(Number(m.group_id)).then(groupName => {
-              if (isMeetroom) {
-                const cleanText = rawContent.startsWith('[meetroom:') 
-                  ? rawContent.replace(/^\[meetroom:[^\]]+\]\s*/, '') 
-                  : rawContent;
+          if (m.content?.startsWith('[chat_background]:')) return;
+
+          if (import.meta.env.DEV) {
+            console.log(`[useNotifications] Nhận tin nhắn riêng realtime:`, m);
+          }
+
+          getUserName(senderId).then(senderName => {
+            if (m.content?.startsWith('📵')) {
+              if (import.meta.env.DEV) {
+                console.log(`[useNotifications] Tạo thông báo cuộc gọi nhỡ (realtime): missedcall:in:${m.id}`);
+              }
+              addIncrementalNotif({
+                key: `missedcall:in:${m.id}`,
+                type: 'missedcall',
+                title: 'Cuộc gọi nhỡ',
+                body: `Bạn đã bỏ lỡ cuộc gọi từ ${senderName}`,
+                createdAt: m.created_at,
+                senderId: m.sender_id.toString(),
+              });
+            } else {
+              const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
+                ? '📷 Đã gửi một ảnh'
+                : m.content || '';
+              addIncrementalNotif({
+                key: `privatemsg:${m.id}`,
+                type: 'privatemsg',
+                title: `Tin nhắn từ ${senderName}`,
+                body: displayContent,
+                createdAt: m.created_at,
+                senderId: m.sender_id.toString(),
+              });
+            }
+          }).catch(err => {
+            if (import.meta.env.DEV) {
+              console.error(`[useNotifications] Lỗi khi lấy tên người gửi:`, err);
+            }
+          });
+        }
+      )
+      // messages (group)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          const m = payload.new;
+          if (!m) return;
+          if (!m.group_id) return; // Chỉ xử lý tin nhắn nhóm ở đây
+          const senderId = m.sender_id;
+          if (String(senderId) === String(userId)) return;
+
+          if (!myGroupIdsRef.current.includes(Number(m.group_id))) return;
+          const rawContent = m.content || '';
+          const isMeetroom = m.meetroom_id || rawContent.startsWith('[meetroom:');
+          getGroupName(Number(m.group_id)).then(groupName => {
+            if (isMeetroom) {
+              const cleanText = rawContent.startsWith('[meetroom:') 
+                ? rawContent.replace(/^\[meetroom:[^\]]+\]\s*/, '') 
+                : rawContent;
+              addIncrementalNotif({
+                key: `groupcall:${m.id}`,
+                type: 'groupcall',
+                title: `Cuộc gọi trong "${groupName}"`,
+                body: cleanText || 'Cuộc gọi nhóm học tập đã bắt đầu.',
+                createdAt: m.created_at,
+                groupId: m.group_id.toString(),
+              });
+            } else {
+              getUserName(senderId).then(senderName => {
                 addIncrementalNotif({
-                  key: `groupcall:${m.id}`,
-                  type: 'groupcall',
-                  title: `Cuộc gọi trong "${groupName}"`,
-                  body: cleanText || 'Cuộc gọi nhóm học tập đã bắt đầu.',
+                  key: `groupmsg:${m.id}`,
+                  type: 'groupmsg',
+                  title: `👥 Tin nhắn mới trong "${groupName}"`,
+                  body: `${senderName}: ${rawContent}`,
                   createdAt: m.created_at,
                   groupId: m.group_id.toString(),
                 });
-              } else {
-                getUserName(senderId).then(senderName => {
-                  addIncrementalNotif({
-                    key: `groupmsg:${m.id}`,
-                    type: 'groupmsg',
-                    title: `👥 Tin nhắn mới trong "${groupName}"`,
-                    body: `${senderName}: ${rawContent}`,
-                    createdAt: m.created_at,
-                    groupId: m.group_id.toString(),
-                  });
-                });
-              }
-            });
-          } else if (String(m.receiver_id) === String(userId)) {
-            if (m.content?.startsWith('[chat_background]:')) return;
-            getUserName(senderId).then(senderName => {
-              if (m.content?.startsWith('📵')) {
-                addIncrementalNotif({
-                  key: `missedcall:in:${m.id}`,
-                  type: 'missedcall',
-                  title: 'Cuộc gọi nhỡ',
-                  body: `Bạn đã bỏ lỡ cuộc gọi từ ${senderName}`,
-                  createdAt: m.created_at,
-                  senderId: m.sender_id.toString(),
-                });
-              } else {
-                const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-                  ? '📷 Đã gửi một ảnh'
-                  : m.content || '';
-                addIncrementalNotif({
-                  key: `privatemsg:${m.id}`,
-                  type: 'privatemsg',
-                  title: `Tin nhắn từ ${senderName}`,
-                  body: displayContent,
-                  createdAt: m.created_at,
-                  senderId: m.sender_id.toString(),
-                });
-              }
-            });
-          }
+              });
+            }
+          });
         }
       )
       // files
@@ -23967,7 +23996,7 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
       ref.current.srcObject = stream;
       ref.current.play().catch(() => {});
     }
-  }, [stream, camOff, screenSharing]);
+  }, [stream, screenSharing]);
 
   // Khi đang share màn hình: không mirror, dùng contain để thấy full màn hình
   const effectiveMirrored = screenSharing ? false : mirrored;
@@ -24017,23 +24046,27 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
             Bạn đang chia sẻ màn hình
           </span>
         </div>
-      ) : stream && !camOff ? (
+      ) : (
         <>
-          <video
-            ref={ref}
-            autoPlay
-            playsInline
-            disablePictureInPicture
-            muted={mutedProp || isLocal}
-            style={{
-              width: '100%', height: '100%',
-              objectFit: fullScreen ? 'cover' : objectFit,
-              transform: effectiveMirrored ? 'scaleX(-1)' : 'none',
-              background: '#000',
-            }}
-          />
-          {/* Nút lật camera chỉ hiện khi là local và KHÔNG đang share màn hình */}
-          {isLocal && onToggleMirror && !screenSharing && (
+          {stream && (
+            <video
+              ref={ref}
+              autoPlay
+              playsInline
+              disablePictureInPicture
+              muted={mutedProp || isLocal}
+              style={{
+                width: '100%', height: '100%',
+                objectFit: fullScreen ? 'cover' : objectFit,
+                transform: effectiveMirrored ? 'scaleX(-1)' : 'none',
+                background: '#000',
+                display: camOff ? 'none' : 'block',
+              }}
+            />
+          )}
+
+          {/* Nút lật camera chỉ hiện khi là local và KHÔNG đang share màn hình và đang bật camera */}
+          {isLocal && onToggleMirror && !screenSharing && !camOff && (
             <button
               onClick={(e) => { e.stopPropagation(); onToggleMirror(); }}
               style={{
@@ -24052,6 +24085,7 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
               🔄 Lật camera
             </button>
           )}
+
           {/* Badge "Đang chia sẻ màn hình" */}
           {screenSharing && !isLocal && (
             <div style={{
@@ -24067,30 +24101,38 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
               Đang chia sẻ màn hình
             </div>
           )}
+
+          {/* Hiển thị avatar/đang kết nối/camera tắt khi camOff hoặc không có stream */}
+          {(camOff || !stream) && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+              width: '100%',
+              height: '100%',
+              justifyContent: 'center',
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0%, rgba(13, 13, 24, 1) 100%)',
+              zIndex: 2,
+            }}>
+              <div style={{
+                padding: '6px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1.5px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 12px 30px rgba(0,0,0,0.4)',
+                transition: 'transform 0.3s ease',
+              }}>
+                <Avatar src={avatar} name={name} size={fullScreen ? 110 : 76} />
+              </div>
+              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', fontWeight: 500, letterSpacing: '0.02em' }}>
+                {!stream ? 'Đang kết nối...' : 'Camera tắt'}
+              </span>
+            </div>
+          )}
         </>
-      ) : (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-          width: '100%',
-          height: '100%',
-          justifyContent: 'center',
-          background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0%, rgba(13, 13, 24, 1) 100%)',
-        }}>
-          <div style={{
-            padding: '6px',
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1.5px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 12px 30px rgba(0,0,0,0.4)',
-            transition: 'transform 0.3s ease',
-          }}>
-            <Avatar src={avatar} name={name} size={fullScreen ? 110 : 76} />
-          </div>
-          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', fontWeight: 500, letterSpacing: '0.02em' }}>Camera tắt</span>
-        </div>
       )}
 
       {/* Name tag */}
@@ -24331,9 +24373,18 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
     };
 
     pc.onconnectionstatechange = () => {
+      if (import.meta.env.DEV) {
+        console.log(`[Meetroom] Connection state changed for peer ${peerId}:`, pc.connectionState);
+      }
       if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
         setRemoteFeeds(prev => { const n = { ...prev }; delete n[peerId]; return n; });
         delete peersRef.current[peerId];
+      }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      if (import.meta.env.DEV) {
+        console.log(`[Meetroom] ICE Connection state changed for peer ${peerId}:`, pc.iceConnectionState);
       }
     };
 
@@ -26918,6 +26969,9 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         };
 
         pc.onconnectionstatechange = () => {
+          if (import.meta.env.DEV) {
+            console.log(`[PrivateCall] Connection state changed:`, pc.connectionState);
+          }
           if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
             setConnected(false);
             setRemoteStream(null);
@@ -26927,6 +26981,12 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
               clearInterval(readyIntervalRef.current);
               readyIntervalRef.current = null;
             }
+          }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+          if (import.meta.env.DEV) {
+            console.log(`[PrivateCall] ICE Connection state changed:`, pc.iceConnectionState);
           }
         };
 
@@ -27103,11 +27163,11 @@ function CtrlBtn({ onClick, title, active = true, danger = false, children }) {
 function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirrored = false, style = {} }) {
   const ref = useRef(null);
   useEffect(() => {
-    if (ref.current && stream && !camOff) {
+    if (ref.current && stream) {
       ref.current.srcObject = stream;
       ref.current.play().catch(() => {});
     }
-  }, [stream, camOff]);
+  }, [stream]);
 
   const isConnecting = !stream;
 
@@ -27120,7 +27180,7 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       ...style,
     }}>
-      {stream && !camOff ? (
+      {stream && (
         <video
           ref={ref}
           autoPlay playsInline muted={muted}
@@ -27129,15 +27189,21 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
             width: '100%', height: '100%',
             objectFit: 'cover',
             transform: mirrored ? 'scaleX(-1)' : 'none',
+            display: camOff ? 'none' : 'block',
           }}
         />
-      ) : (
+      )}
+
+      {(camOff || !stream) && (
         <div style={{
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', gap: '20px',
           background: `radial-gradient(circle at center, ${colorOf(name)}22 0%, #0a0a1a 70%)`,
           width: '100%', height: '100%',
           justifyContent: 'center',
+          position: 'absolute',
+          inset: 0,
+          zIndex: 2,
         }}>
           <div style={{ position: 'relative', marginBottom: isConnecting ? '10px' : '0px' }}>
             {isConnecting && [0, 1, 2].map(i => (
@@ -27171,6 +27237,7 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
         borderRadius: '10px', padding: '5px 12px',
         fontSize: '13px', fontWeight: 600, color: '#fff',
         border: '1px solid rgba(255,255,255,0.08)',
+        zIndex: 5,
       }}>
         {name}
       </div>

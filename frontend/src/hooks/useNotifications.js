@@ -7,7 +7,14 @@ import { approveJoinRequest, rejectJoinRequest } from '@/services/groupService';
 
 export default function useNotifications(userId) {
   const [notifs, setNotifs] = useState([]);
-  const [seen, setSeen] = useState(new Set());
+  const [seen, setSeen] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.NOTIF_SEEN);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
   const [processing, setProcessing] = useState({});
 
   const myGroupIdsRef = useRef([]);
@@ -1015,73 +1022,95 @@ export default function useNotifications(userId) {
           });
         }
       )
-      // messages
+      // messages (private)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${userId}` },
         (payload) => {
           const m = payload.new;
           if (!m) return;
           const senderId = m.sender_id;
           if (String(senderId) === String(userId)) return;
 
-          if (m.group_id) {
-            if (!myGroupIdsRef.current.includes(Number(m.group_id))) return;
-            const rawContent = m.content || '';
-            const isMeetroom = m.meetroom_id || rawContent.startsWith('[meetroom:');
-            getGroupName(Number(m.group_id)).then(groupName => {
-              if (isMeetroom) {
-                const cleanText = rawContent.startsWith('[meetroom:') 
-                  ? rawContent.replace(/^\[meetroom:[^\]]+\]\s*/, '') 
-                  : rawContent;
+          if (m.content?.startsWith('[chat_background]:')) return;
+
+          if (import.meta.env.DEV) {
+            console.log(`[useNotifications] Nhận tin nhắn riêng realtime:`, m);
+          }
+
+          getUserName(senderId).then(senderName => {
+            if (m.content?.startsWith('📵')) {
+              if (import.meta.env.DEV) {
+                console.log(`[useNotifications] Tạo thông báo cuộc gọi nhỡ (realtime): missedcall:in:${m.id}`);
+              }
+              addIncrementalNotif({
+                key: `missedcall:in:${m.id}`,
+                type: 'missedcall',
+                title: 'Cuộc gọi nhỡ',
+                body: `Bạn đã bỏ lỡ cuộc gọi từ ${senderName}`,
+                createdAt: m.created_at,
+                senderId: m.sender_id.toString(),
+              });
+            } else {
+              const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
+                ? '📷 Đã gửi một ảnh'
+                : m.content || '';
+              addIncrementalNotif({
+                key: `privatemsg:${m.id}`,
+                type: 'privatemsg',
+                title: `Tin nhắn từ ${senderName}`,
+                body: displayContent,
+                createdAt: m.created_at,
+                senderId: m.sender_id.toString(),
+              });
+            }
+          }).catch(err => {
+            if (import.meta.env.DEV) {
+              console.error(`[useNotifications] Lỗi khi lấy tên người gửi:`, err);
+            }
+          });
+        }
+      )
+      // messages (group)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          const m = payload.new;
+          if (!m) return;
+          if (!m.group_id) return; // Chỉ xử lý tin nhắn nhóm ở đây
+          const senderId = m.sender_id;
+          if (String(senderId) === String(userId)) return;
+
+          if (!myGroupIdsRef.current.includes(Number(m.group_id))) return;
+          const rawContent = m.content || '';
+          const isMeetroom = m.meetroom_id || rawContent.startsWith('[meetroom:');
+          getGroupName(Number(m.group_id)).then(groupName => {
+            if (isMeetroom) {
+              const cleanText = rawContent.startsWith('[meetroom:') 
+                ? rawContent.replace(/^\[meetroom:[^\]]+\]\s*/, '') 
+                : rawContent;
+              addIncrementalNotif({
+                key: `groupcall:${m.id}`,
+                type: 'groupcall',
+                title: `Cuộc gọi trong "${groupName}"`,
+                body: cleanText || 'Cuộc gọi nhóm học tập đã bắt đầu.',
+                createdAt: m.created_at,
+                groupId: m.group_id.toString(),
+              });
+            } else {
+              getUserName(senderId).then(senderName => {
                 addIncrementalNotif({
-                  key: `groupcall:${m.id}`,
-                  type: 'groupcall',
-                  title: `Cuộc gọi trong "${groupName}"`,
-                  body: cleanText || 'Cuộc gọi nhóm học tập đã bắt đầu.',
+                  key: `groupmsg:${m.id}`,
+                  type: 'groupmsg',
+                  title: `👥 Tin nhắn mới trong "${groupName}"`,
+                  body: `${senderName}: ${rawContent}`,
                   createdAt: m.created_at,
                   groupId: m.group_id.toString(),
                 });
-              } else {
-                getUserName(senderId).then(senderName => {
-                  addIncrementalNotif({
-                    key: `groupmsg:${m.id}`,
-                    type: 'groupmsg',
-                    title: `👥 Tin nhắn mới trong "${groupName}"`,
-                    body: `${senderName}: ${rawContent}`,
-                    createdAt: m.created_at,
-                    groupId: m.group_id.toString(),
-                  });
-                });
-              }
-            });
-          } else if (String(m.receiver_id) === String(userId)) {
-            if (m.content?.startsWith('[chat_background]:')) return;
-            getUserName(senderId).then(senderName => {
-              if (m.content?.startsWith('📵')) {
-                addIncrementalNotif({
-                  key: `missedcall:in:${m.id}`,
-                  type: 'missedcall',
-                  title: 'Cuộc gọi nhỡ',
-                  body: `Bạn đã bỏ lỡ cuộc gọi từ ${senderName}`,
-                  createdAt: m.created_at,
-                  senderId: m.sender_id.toString(),
-                });
-              } else {
-                const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-                  ? '📷 Đã gửi một ảnh'
-                  : m.content || '';
-                addIncrementalNotif({
-                  key: `privatemsg:${m.id}`,
-                  type: 'privatemsg',
-                  title: `Tin nhắn từ ${senderName}`,
-                  body: displayContent,
-                  createdAt: m.created_at,
-                  senderId: m.sender_id.toString(),
-                });
-              }
-            });
-          }
+              });
+            }
+          });
         }
       )
       // files
