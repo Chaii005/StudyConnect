@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../layouts/AppLayout';
 import { adminLogin } from '../services/authService';
@@ -376,6 +377,7 @@ const EMPTY_USER_FORM  = { fullName: '', email: '', password: '', role: 'user', 
 const EMPTY_GROUP_FORM = { name: '', subject: '', major: '', description: '', creatorId: '', deputyId: '', meetingMode: 'online' };
 
 export default function Admin() {
+  const navigate = useNavigate();
   const { admin, adminLogout, setAdmin } = useAuth();
 
   const notifyUser = useCallback(async (targetUserId, event, payload) => {
@@ -474,10 +476,17 @@ export default function Admin() {
       const { admin: a } = await adminLogin(loginForm);
       setAdmin(a);
       showToast('Đăng nhập Quản trị viên thành công!');
+      navigate('/admin');
     } catch (err) {
       setLoginError(err.message || 'Email hoặc mật khẩu không đúng.');
     } finally { setLoginLoading(false); }
   };
+
+  useEffect(() => {
+    if (admin && window.location.pathname === '/admin-login') {
+      navigate('/admin', { replace: true });
+    }
+  }, [admin, navigate]);
 
   useEffect(() => {
     if (admin) {
@@ -933,6 +942,44 @@ export default function Admin() {
               );
             })}
           </div>
+
+          <button
+            onClick={() => {
+              adminLogout();
+              navigate('/admin-login', { replace: true });
+            }}
+            style={{
+              padding: '10px 18px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontSize: '13.5px',
+              fontWeight: 700,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              border: '1px solid var(--border)',
+              background: 'transparent',
+              color: 'var(--text-secondary)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--error)';
+              e.currentTarget.style.color = '#f87171';
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span>Đăng xuất</span>
+          </button>
         </div>
 
         {/* Content */}
