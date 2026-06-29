@@ -9713,12 +9713,25 @@ export default function useGroupDetail(groupId, user, addToast) {
           setSchedules(prev => prev.filter(s => s.id !== payload.old.id.toString()));
         }
       )
+      // Files Realtime subscription
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'files',
+          filter: `group_id=eq.${groupId}`
+        },
+        () => {
+          fetchGroupFiles();
+        }
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(detailChannel);
     };
-  }, [groupId]);
+  }, [groupId, fetchGroupFiles]);
 
 
   // Sync last seen chat time when chat is active
