@@ -14785,6 +14785,7 @@ createRoot(document.getElementById('root')).render(
 ===== D:\StudyConect\frontend\src\pages\Admin.jsx =====
 
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../layouts/AppLayout';
 import { adminLogin } from '../services/authService';
@@ -15162,6 +15163,7 @@ const EMPTY_USER_FORM  = { fullName: '', email: '', password: '', role: 'user', 
 const EMPTY_GROUP_FORM = { name: '', subject: '', major: '', description: '', creatorId: '', deputyId: '', meetingMode: 'online' };
 
 export default function Admin() {
+  const navigate = useNavigate();
   const { admin, adminLogout, setAdmin } = useAuth();
 
   const notifyUser = useCallback(async (targetUserId, event, payload) => {
@@ -15260,10 +15262,17 @@ export default function Admin() {
       const { admin: a } = await adminLogin(loginForm);
       setAdmin(a);
       showToast('Đăng nhập Quản trị viên thành công!');
+      navigate('/admin');
     } catch (err) {
       setLoginError(err.message || 'Email hoặc mật khẩu không đúng.');
     } finally { setLoginLoading(false); }
   };
+
+  useEffect(() => {
+    if (admin && window.location.pathname === '/admin-login') {
+      navigate('/admin', { replace: true });
+    }
+  }, [admin, navigate]);
 
   useEffect(() => {
     if (admin) {
@@ -15274,12 +15283,12 @@ export default function Admin() {
     }
   }, [loadData, admin]);
 
-  // Sync admin dashboard states using Realtime incremental updates
+  // Sync admin dashboard states using Realtime updates
   useEffect(() => {
     if (!admin) return;
 
     const channel = supabase
-      .channel('groups-list-realtime')
+      .channel('admin-dashboard-realtime')
       // 1. Users table changes
       .on(
         'postgres_changes',
@@ -15288,40 +15297,12 @@ export default function Admin() {
           schema: 'public',
           table: 'users'
         },
-        async (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newUser = {
-              id: payload.new.id,
-              fullName: payload.new.full_name,
-              email: payload.new.email,
-              role: payload.new.role,
-              university: payload.new.university,
-              major: payload.new.major,
-              bio: payload.new.bio,
-              isBanned: payload.new.is_banned,
-              warnCount: payload.new.warn_count,
-              createdAt: payload.new.created_at
-            };
-            setUsers((prev) => {
-              if (prev.some(u => u.id === newUser.id)) return prev;
-              return [newUser, ...prev];
-            });
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedUser = {
-              id: payload.new.id,
-              fullName: payload.new.full_name,
-              email: payload.new.email,
-              role: payload.new.role,
-              university: payload.new.university,
-              major: payload.new.major,
-              bio: payload.new.bio,
-              isBanned: payload.new.is_banned,
-              warnCount: payload.new.warn_count,
-              createdAt: payload.new.created_at
-            };
-            setUsers((prev) => prev.map(u => u.id === updatedUser.id ? { ...u, ...updatedUser } : u));
-          } else if (payload.eventType === 'DELETE') {
-            setUsers((prev) => prev.filter(u => u.id !== payload.old.id));
+        async () => {
+          try {
+            const allUsers = await adminGetUsers();
+            setUsers(allUsers);
+          } catch (err) {
+            if (import.meta.env.DEV) console.warn('Error reloading users:', err);
           }
         }
       )
@@ -15333,42 +15314,29 @@ export default function Admin() {
           schema: 'public',
           table: 'study_groups'
         },
-        async (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newGroup = {
-              id: payload.new.id,
-              name: payload.new.name,
-              subject: payload.new.subject,
-              major: payload.new.major,
-              description: payload.new.description,
-              creatorId: payload.new.creator_id,
-              deputyId: payload.new.deputy_id,
-              meetingMode: payload.new.meeting_mode,
-              location: payload.new.location,
-              members: payload.new.members || [],
-              createdAt: payload.new.created_at
-            };
-            setGroups((prev) => {
-              if (prev.some(g => g.id === newGroup.id)) return prev;
-              return [newGroup, ...prev];
-            });
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedGroup = {
-              id: payload.new.id,
-              name: payload.new.name,
-              subject: payload.new.subject,
-              major: payload.new.major,
-              description: payload.new.description,
-              creatorId: payload.new.creator_id,
-              deputyId: payload.new.deputy_id,
-              meetingMode: payload.new.meeting_mode,
-              location: payload.new.location,
-              members: payload.new.members || [],
-              createdAt: payload.new.created_at
-            };
-            setGroups((prev) => prev.map(g => g.id === updatedGroup.id ? { ...g, ...updatedGroup } : g));
-          } else if (payload.eventType === 'DELETE') {
-            setGroups((prev) => prev.filter(g => g.id !== payload.old.id));
+        async () => {
+          try {
+            const allGroups = await adminGetGroups();
+            setGroups(allGroups);
+          } catch (err) {
+            if (import.meta.env.DEV) console.warn('Error reloading groups:', err);
+          }
+        }
+      )
+      // 2b. Group members table changes (crucial for updating membership count and roles in Admin panel)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'group_members'
+        },
+        async () => {
+          try {
+            const allGroups = await adminGetGroups();
+            setGroups(allGroups);
+          } catch (err) {
+            if (import.meta.env.DEV) console.warn('Error reloading groups on membership change:', err);
           }
         }
       )
@@ -15380,56 +15348,12 @@ export default function Admin() {
           schema: 'public',
           table: 'files'
         },
-        async (payload) => {
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const isApproved = payload.new.approved;
-            if (isApproved) {
-              setPendingFiles((prev) => prev.filter(f => String(f.id) !== String(payload.new.id)));
-            } else {
-              try {
-                const { data: relData } = await supabase
-                  .from('files')
-                  .select('users(full_name), study_groups(name)')
-                  .eq('id', payload.new.id)
-                  .single();
-                const formattedFile = {
-                  id: payload.new.id.toString(),
-                  groupId: payload.new.group_id.toString(),
-                  userId: payload.new.user_id,
-                  userFullName: relData?.users?.full_name || 'Thành viên',
-                  groupName: relData?.study_groups?.name || 'Nhóm học',
-                  fileName: payload.new.file_name,
-                  fileSize: payload.new.file_size,
-                  fileType: payload.new.file_type,
-                  fileData: payload.new.file_url,
-                  createdAt: payload.new.created_at
-                };
-                setPendingFiles((prev) => {
-                  const filtered = prev.filter(f => String(f.id) !== String(formattedFile.id));
-                  return [formattedFile, ...filtered];
-                });
-              } catch (err) {
-                // fallback if query fails
-                const formattedFile = {
-                  id: payload.new.id.toString(),
-                  groupId: payload.new.group_id.toString(),
-                  userId: payload.new.user_id,
-                  userFullName: 'Thành viên',
-                  groupName: 'Nhóm học',
-                  fileName: payload.new.file_name,
-                  fileSize: payload.new.file_size,
-                  fileType: payload.new.file_type,
-                  fileData: payload.new.file_url,
-                  createdAt: payload.new.created_at
-                };
-                setPendingFiles((prev) => {
-                  const filtered = prev.filter(f => String(f.id) !== String(formattedFile.id));
-                  return [formattedFile, ...filtered];
-                });
-              }
-            }
-          } else if (payload.eventType === 'DELETE') {
-            setPendingFiles((prev) => prev.filter(f => String(f.id) !== String(payload.old.id)));
+        async () => {
+          try {
+            const allPendingFiles = await getPendingFiles();
+            setPendingFiles(allPendingFiles);
+          } catch (err) {
+            if (import.meta.env.DEV) console.warn('Error reloading pending files:', err);
           }
         }
       )
@@ -15441,51 +15365,12 @@ export default function Admin() {
           schema: 'public',
           table: 'posts'
         },
-        async (payload) => {
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const isApproved = payload.new.approved;
-            if (isApproved) {
-              setPendingPosts((prev) => prev.filter(p => String(p.id) !== String(payload.new.id)));
-            } else {
-              try {
-                const { data: relData } = await supabase
-                  .from('posts')
-                  .select('users(full_name, avatar)')
-                  .eq('id', payload.new.id)
-                  .single();
-                const formattedPost = {
-                  id: payload.new.id.toString(),
-                  userId: payload.new.user_id,
-                  userFullName: relData?.users?.full_name || 'Người dùng',
-                  userAvatar: relData?.users?.avatar || '',
-                  content: payload.new.content,
-                  image: payload.new.image || null,
-                  tag: payload.new.tag || null,
-                  createdAt: payload.new.created_at
-                };
-                setPendingPosts((prev) => {
-                  const filtered = prev.filter(p => String(p.id) !== String(formattedPost.id));
-                  return [formattedPost, ...filtered];
-                });
-              } catch (err) {
-                const formattedPost = {
-                  id: payload.new.id.toString(),
-                  userId: payload.new.user_id,
-                  userFullName: 'Người dùng',
-                  userAvatar: '',
-                  content: payload.new.content,
-                  image: payload.new.image || null,
-                  tag: payload.new.tag || null,
-                  createdAt: payload.new.created_at
-                };
-                setPendingPosts((prev) => {
-                  const filtered = prev.filter(p => String(p.id) !== String(formattedPost.id));
-                  return [formattedPost, ...filtered];
-                });
-              }
-            }
-          } else if (payload.eventType === 'DELETE') {
-            setPendingPosts((prev) => prev.filter(p => String(p.id) !== String(payload.old.id)));
+        async () => {
+          try {
+            const allPendingPosts = await getPendingPosts();
+            setPendingPosts(allPendingPosts);
+          } catch (err) {
+            if (import.meta.env.DEV) console.warn('Error reloading pending posts:', err);
           }
         }
       )
@@ -15843,6 +15728,44 @@ export default function Admin() {
               );
             })}
           </div>
+
+          <button
+            onClick={() => {
+              adminLogout();
+              navigate('/admin-login', { replace: true });
+            }}
+            style={{
+              padding: '10px 18px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontSize: '13.5px',
+              fontWeight: 700,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              border: '1px solid var(--border)',
+              background: 'transparent',
+              color: 'var(--text-secondary)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--error)';
+              e.currentTarget.style.color = '#f87171';
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span>Đăng xuất</span>
+          </button>
         </div>
 
         {/* Content */}
