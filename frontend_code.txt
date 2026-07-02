@@ -2778,14 +2778,13 @@ export default function GroupChatPanel({
   return (
     <div
       ref={chatContainerRef}
+      className="group-chat-panel"
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
         display: 'flex',
         flexDirection: 'column',
-        height: '480px',
-        maxHeight: 'calc(100vh - 260px)',
         boxShadow: 'var(--shadow)',
         overflow: 'hidden',
         position: 'relative',
@@ -7001,7 +7000,12 @@ const ReplyIcon = () => (
 export default function CommentRow({ comment: c, onReply }) {
   return (
     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-      <Avatar src={c.userAvatar} initial={c.userFullName || 'U'} size={30} />
+      <div className="mobile-only">
+        <Avatar src={c.userAvatar} initial={c.userFullName || 'U'} size={24} />
+      </div>
+      <div className="desktop-only">
+        <Avatar src={c.userAvatar} initial={c.userFullName || 'U'} size={30} />
+      </div>
       <div style={{ flex: 1 }}>
         <div style={{ background: 'var(--bg-input)', borderRadius: '12px', padding: '8px 12px' }}>
           <div style={{ fontWeight: 700, fontSize: '12px', color: 'var(--text-primary)', marginBottom: '2px' }}>
@@ -7538,14 +7542,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
 
   return (
     <article
-      style={{
-        background: 'var(--bg-card)',
-        border: '1.5px solid var(--border)',
-        borderRadius: 'var(--radius-lg)',
-        marginBottom: '14px',
-        overflow: 'hidden',
-        transition: 'border-color 0.25s, box-shadow 0.25s',
-      }}
+      className="post-card"
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = 'rgba(42, 117, 118, 0.35)';
         e.currentTarget.style.boxShadow = '0 4px 24px rgba(42, 117, 118, 0.06)';
@@ -7556,7 +7553,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
       }}
     >
       {/* Author row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 18px 0' }}>
+      <div className="post-card-header">
         <Link to={profileUrl} style={{ textDecoration: 'none' }}>
           <Avatar src={post.userAvatar} initial={post.userFullName || 'U'} size={46} />
         </Link>
@@ -7612,7 +7609,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
       </div>
 
       {/* Content */}
-      <div style={{ padding: '12px 18px 14px' }}>
+      <div className="post-card-content">
         <p style={{ fontSize: '15px', lineHeight: 1.75, color: 'var(--text-primary)', margin: 0, whiteSpace: 'pre-wrap' }}>
           {isLong && !expanded ? renderContent.slice(0, 200) + '…' : renderContent}
         </p>
@@ -7723,6 +7720,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
                   />
                   {replies.length > 0 && (
                     <div
+                      className="comment-replies-container"
                       style={{
                         marginLeft: depth < 1 ? '40px' : '20px',
                         marginTop: '8px',
@@ -10707,6 +10705,27 @@ export default function useGroupDetail(groupId, user, addToast) {
 }
 
 
+===== D:\StudyConect\frontend\src\hooks\useMobile.js =====
+
+// frontend/src/hooks/useMobile.js
+import { useState, useEffect } from 'react';
+
+export default function useMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(
+    () => window.innerWidth <= breakpoint
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
+
 ===== D:\StudyConect\frontend\src\hooks\useNotifications.js =====
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -12062,6 +12081,13 @@ export default function useNotifications(userId) {
   --radius-md: 10px;
   --radius-lg: 14px;
   --transition: all 0.2s ease;
+  --navbar-height: 64px;
+}
+
+@media (max-width: 991px) {
+  :root {
+    --navbar-height: 56px;
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -12091,6 +12117,7 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #root {
@@ -12610,7 +12637,7 @@ input::-ms-clear {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
-  height: 64px;
+  height: var(--navbar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -12997,11 +13024,19 @@ input::-ms-clear {
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
-@media (max-width: 991px) {
-  .auth-card { padding: 32px 24px; }
-  .form-row { grid-template-columns: 1fr; }
-  .profile-container { grid-template-columns: 1fr; }
-  .profile-sidebar { order: -1; }
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 0 12px 100px !important;
+    gap: 16px !important;
+  }
+
+  .profile-sidebar {
+    padding: 24px 16px !important;
+  }
+
+  .profile-card {
+    padding: 20px 16px !important;
+  }
 }
 /* ═══════════════════════════════════════════
    HIDE SCROLLBARS (keep scroll functionality)
@@ -13057,6 +13092,21 @@ input::-ms-clear {
   gap: 16px;
 }
 
+@media (max-width: 991px) {
+  .desktop-only-flex {
+    display: none !important;
+  }
+  .mobile-only-flex-row {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .mobile-only-flex-row {
+    display: none !important;
+  }
+}
+
 /* Visibility classes */
 .desktop-only {
   display: block !important;
@@ -13075,45 +13125,221 @@ input::-ms-clear {
 @media (max-width: 991px) {
   .layout-2col, .layout-3col {
     grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-  
-  .layout-2col > aside:first-of-type,
-  .layout-3col > aside:first-of-type {
-    display: none !important; /* Hide left sidebar on mobile */
-  }
-  
-  .layout-3col > aside:last-of-type {
-    display: flex !important;
-    position: static !important;
-    width: 100% !important;
-    margin-top: 16px;
-    box-shadow: none !important;
+    gap: 0 !important;
   }
 
-  .flex-responsive {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
+  .layout-2col > aside:first-of-type,
+  .layout-3col > aside:first-of-type {
+    display: none !important;
+  }
+
+  .layout-3col > aside:last-of-type {
+    display: none !important;
   }
 
   .desktop-only, .inline-desktop-only, .flex-desktop-only {
     display: none !important;
   }
+
   .mobile-only {
     display: block !important;
   }
+
   .flex-mobile-only {
     display: flex !important;
   }
-  
-  /* Navbar adjustments */
+
   .navbar {
-    padding: 10px 16px !important;
-    height: auto !important;
+    padding: 8px 12px !important;
+    height: 56px !important;
   }
+
   .nav-brand-text {
-    font-size: 18px !important;
+    display: none !important;
+  }
+
+  .nav-brand-icon img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 44px !important; /* Thậm chí thấp hơn nữa */
+    --radius-lg: 12px;
+  }
+
+  /* Header siêu nhỏ gọn */
+  .navbar {
+    height: 44px !important;
+    padding: 0 6px !important;
+  }
+
+  .nav-brand {
+    gap: 2px !important;
+  }
+
+  .nav-brand-icon, .mobile-logo-small {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .nav-brand-text, .page-subtitle, .page-subtitle.desktop-only {
+    display: none !important;
+  }
+
+  .nav-actions {
+    gap: 4px !important;
+  }
+
+  /* Khung nhắn tin nhỏ lại đáng kể */
+  .group-chat-panel {
+    height: 350px !important;
+    max-height: 50vh !important;
+  }
+
+  /* Fix trang Nhóm học bị đụng hàng */
+  .groups-header-section {
+    display: block !important;
+    padding: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .page-title {
+    font-size: 16px !important;
+    margin-bottom: 8px !important;
+    font-weight: 900 !important;
+  }
+
+  .groups-actions-container {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .groups-btn-mobile {
+    height: 32px !important;
+    padding: 0 6px !important;
+    font-size: 10px !important;
+    border-radius: 6px !important;
+  }
+
+  .groups-btn-mobile .btn-text {
+    font-size: 10px !important;
+  }
+
+  body {
+    font-size: 14px;
+  }
+}
+  /* Optimize layout for small screens */
+  .layout-container-custom {
+    padding: 8px 8px 80px !important;
+    max-width: 100%;
+  }
+
+  /* Full width cards on mobile to maximize content area */
+  .post-card, .group-card, .sc-card-animated {
+    border-radius: 12px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    border-width: 1px !important;
+  }
+
+  .group-card {
+    padding: 16px !important;
+  }
+
+  .group-card h3 {
+    font-size: 16px !important;
+  }
+
+  /* Better touch targets for buttons */
+  .btn, button:not(.password-toggle) {
+    min-height: 48px;
+    padding: 10px 20px !important;
+  }
+
+  .form-input, .form-textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on mobile browsers */
+    padding: 12px 16px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Improved scrolling tabs for mobile */
+  .profile-tabs {
+    padding: 6px !important;
+    gap: 6px !important;
+    background: #f0f0f2 !important;
+    border-radius: 12px !important;
+    margin-bottom: 16px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .profile-tab {
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Premium Bottom Navigation */
+  .mobile-bottom-nav {
+    display: flex !important;
+    height: 72px;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .mobile-bottom-nav-item {
+    padding-top: 8px;
+  }
+
+  .mobile-bottom-nav-item span {
+    font-size: 9px !important; /* Slightly smaller font */
+    font-weight: 700;
+    margin-top: 4px;
+    letter-spacing: -0.2px;
+  }
+
+  .mobile-bottom-nav-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Modal/Drawer adjustments for mobile */
+  .mobile-drawer {
+    width: 85% !important;
+    max-width: 320px !important;
+  }
+
+@media (max-width: 768px) {
+  .auth-page {
+    padding: 0 !important;
+    background: var(--bg-card);
+  }
+
+  .auth-card {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 32px 20px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .auth-logo {
+    margin-bottom: 24px;
   }
 }
 
@@ -13241,7 +13467,8 @@ input::-ms-clear {
   .meet-sidebar {
     width: 100% !important;
     height: auto !important;
-    min-height: 400px;
+    min-height: min(280px, 38vh) !important;
+    max-height: 40vh !important;
     flex-shrink: 0 !important;
     border-left: none !important;
     border-top: 1px solid rgba(255,255,255,0.07) !important;
@@ -13303,21 +13530,26 @@ input::-ms-clear {
 /* Container paddings & sizes on mobile */
 @media (max-width: 991px) {
   .group-detail-container {
-    padding: 0 12px 32px !important;
+    padding: 12px 10px 32px !important;
   }
   
   .group-header-card {
-    border-radius: 16px !important;
-    margin-bottom: 20px !important;
+    border-radius: 0 !important;
+    margin-left: -8px;
+    margin-right: -8px;
+    width: calc(100% + 16px);
+    margin-bottom: 12px !important;
+    border-left: none !important;
+    border-right: none !important;
   }
-  
+
   .group-header-content {
-    padding: 18px 20px !important;
+    padding: 16px 12px !important;
   }
   
   .group-header-title {
-    font-size: 22px !important;
-    margin-bottom: 6px !important;
+    font-size: 20px !important;
+    margin-bottom: 4px !important;
   }
 
   /* Document & Deadline List Item Rows */
@@ -13385,30 +13617,9 @@ input::-ms-clear {
   background: rgba(0,0,0,0.03);
 }
 
-@media (max-width: 991px) {
+@media (max-width: 768px) {
   .app-layout-wrapper {
-    padding-bottom: 80px !important; /* Perfect space for mobile bottom nav without empty gaps */
-  }
-  .responsive-btn-full {
-    width: 100% !important;
-    align-self: stretch !important;
-    text-align: center !important;
-  }
-  .document-upload-box {
-    padding: 16px 14px !important;
-  }
-  .document-upload-icon-wrap {
-    width: 32px !important;
-    height: 32px !important;
-    margin-bottom: 8px !important;
-  }
-  .document-upload-icon-wrap svg {
-    width: 16px !important;
-    height: 16px !important;
-  }
-  .document-share-card {
-    padding: 16px 14px !important;
-    border-radius: 12px !important;
+    padding-bottom: 72px !important;
   }
 }
 
@@ -13453,6 +13664,30 @@ input::-ms-clear {
 }
 
 /* Custom Responsive layout classes for AppLayout */
+.layout-container-custom {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+@media (max-width: 991px) {
+  .layout-container-custom {
+    padding: 12px 8px;
+  }
+}
+
+.group-chat-panel {
+  height: 480px;
+  max-height: calc(100vh - 260px);
+}
+
+@media (max-width: 768px) {
+  .group-chat-panel {
+    height: 480px; /* Reduced from 550px */
+    max-height: calc(100vh - 180px);
+  }
+}
+
 .layout-grid-custom {
   display: grid;
   height: 100%;
@@ -13582,6 +13817,53 @@ input::-ms-clear {
   border-color: #1A1A1A !important;
 }
 
+.post-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  borderRadius: var(--radius-lg);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.post-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 0;
+}
+
+@media (max-width: 768px) {
+  .post-card-header {
+    padding: 12px 12px 0;
+    gap: 8px;
+  }
+
+  .post-card-header span {
+    font-size: 14px !important;
+  }
+}
+
+.post-card-content p {
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .comment-replies-container {
+    margin-left: 16px !important;
+    padding-left: 8px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .post-card-header {
+    padding: 12px 12px 0;
+  }
+  .post-card-content {
+    padding: 10px 12px 12px;
+  }
+}
+
 /* Khung trắng viền đen cho tất cả card, panel và container trong web */
 .profile-card,
 .profile-sidebar,
@@ -13684,6 +13966,63 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 }
 .btn-mono:active:not(:disabled) {
   transform: translateY(0) scale(0.97) !important;
+}
+
+/* ── Capacitor / Notch / Gesture bar safe areas ──────────── */
+@media (max-width: 991px) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+  .app-layout-wrapper {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .navbar {
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
+  }
+}
+
+/* ── Điện thoại ≤ 480px ────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* Font scaling */
+  .auth-header h1          { font-size: 22px !important; }
+  .group-header-title      { font-size: 18px !important; }
+  .nav-brand-text          { font-size: 18px !important; }
+
+  /* Auth card */
+  .auth-card  { padding: 24px 16px !important; border-radius: var(--radius) !important; }
+  .auth-page  { padding: 24px 12px 60px !important; }
+
+  /* Touch targets — tối thiểu 44px theo Material Design */
+  button:not(.icon-btn),
+  .btn,
+  [role="button"],
+  .mobile-bottom-nav-item  { min-height: 44px; }
+  .mobile-bottom-nav-item  { font-size: 9px !important; }
+
+  /* Group detail */
+  .group-detail-container  { padding: 0 8px 24px !important; }
+  .group-header-content    { padding: 14px 16px !important; }
+
+  /* Profile tabs */
+  .profile-tab { padding: 8px 14px !important; font-size: 12px !important; }
+
+  /* Document upload */
+  .document-upload-box { padding: 12px 10px !important; }
+
+  /* Ẩn right sidebar — tránh chiếm không gian bên dưới feed */
+  .layout-3col > aside:last-of-type,
+  .layout-3col-custom > aside.flex-desktop-only {
+    display: none !important;
+  }
+}
+
+/* ── Điện thoại ≤ 360px ────────────────────────────────────── */
+@media (max-width: 360px) {
+  .auth-card              { padding: 20px 12px !important; }
+  .nav-brand-text         { font-size: 16px !important; }
+  .mobile-bottom-nav-item { font-size: 8px !important; gap: 2px !important; }
 }
 
 ===== D:\StudyConect\frontend\src\layouts\AppLayout.jsx =====
@@ -14110,26 +14449,52 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           background: 'var(--bg-card)',
           backdropFilter: 'blur(20px)',
           borderBottom: '1px solid var(--border)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)'
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)',
+          padding: '0 10px'
         }}>
-          <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-            <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img src="/studyconect_logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
-            </div>
-            <span className="nav-brand-text" style={{
-              fontFamily: "'Fraunces', serif",
-              fontStyle: 'italic',
-              fontSize: '21px',
-              fontWeight: 900,
-              background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              letterSpacing: '-0.3px'
-            }}>StudyConnect</span>
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {location.pathname !== '/' && (
+              <button
+                onClick={() => navigate(-1)}
+                className="mobile-only"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '4px',
+                  cursor: 'pointer',
+                  color: 'var(--text-primary)',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12" />
+                  <polyline points="12 19 5 12 12 5" />
+                </svg>
+              </button>
+            )}
+            <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}>
+              <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src="/studyconect_logo.png" alt="Logo" style={{ width: '20px', height: '20px', objectFit: 'contain' }} className="mobile-logo-small" />
+              </div>
+              <span className="nav-brand-text desktop-only" style={{
+                fontFamily: "'Fraunces', serif",
+                fontStyle: 'italic',
+                fontSize: '19px',
+                fontWeight: 900,
+                background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.3px'
+              }}>StudyConnect</span>
+            </Link>
+          </div>
 
-          <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div className="mobile-only" style={{ display: 'flex', alignItems: 'center', scale: '0.85' }}>
+              <NotificationBell />
+            </div>
             {(location.pathname.startsWith('/groups') || location.pathname === '/schedule') && (
               <div className="flex-desktop-only" style={{ alignItems: 'center', gap: '10px' }}>
                 <Link to="/" style={{
@@ -14313,11 +14678,11 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         </div>
       </div>
 
-      <main style={{ position: 'relative', zIndex: 1, height: hideNavbar ? '100%' : 'calc(100% - 64px)', overflow: shouldHideSidebar ? 'auto' : 'hidden' }}>
+      <main style={{ position: 'relative', zIndex: 1, height: hideNavbar ? '100%' : 'calc(100% - var(--navbar-height))', overflow: shouldHideSidebar ? 'auto' : 'hidden' }}>
         {shouldHideSidebar ? (
           children
         ) : (
-          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '24px 16px', height: '100%' }}>
+          <div className="layout-container-custom" style={{ height: '100%' }}>
             <div className={`layout-grid-custom ${layoutClass}`} style={{ height: '100%' }}>
               {/* Unified desktop left sidebar */}
               <aside className="desktop-only no-scrollbar" style={{ position: 'sticky', top: 0, display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 10, height: 'calc(100vh - 112px)', maxHeight: 'calc(100vh - 112px)', overflowY: 'auto' }}>
@@ -14688,37 +15053,37 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       {!hideNavbar && (
         <div className="mobile-bottom-nav">
           <Link to="/" className={`mobile-bottom-nav-item ${location.pathname === '/' ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
-              {NAV_ICONS.home(location.pathname === '/')}
+            <span className="mobile-bottom-nav-icon">
+              {NAV_ICONS.home(location.pathname === '/', location.pathname === '/' ? 'var(--text-primary)' : undefined)}
             </span>
-            <span>Trang chủ</span>
+            <span>Home</span>
           </Link>
           <Link to="/groups" className={`mobile-bottom-nav-item ${location.pathname.startsWith('/groups') ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
-              {NAV_ICONS.groups(location.pathname.startsWith('/groups'))}
+            <span className="mobile-bottom-nav-icon">
+              {NAV_ICONS.groups(location.pathname.startsWith('/groups'), location.pathname.startsWith('/groups') ? 'var(--text-primary)' : undefined)}
             </span>
-            <span>Nhóm học</span>
+            <span>Nhóm</span>
           </Link>
           <Link to="/schedule" className={`mobile-bottom-nav-item ${location.pathname === '/schedule' ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
-              {NAV_ICONS.schedule(location.pathname === '/schedule')}
+            <span className="mobile-bottom-nav-icon">
+              {NAV_ICONS.schedule(location.pathname === '/schedule', location.pathname === '/schedule' ? 'var(--text-primary)' : undefined)}
             </span>
-            <span>Lịch học</span>
+            <span>Lịch</span>
           </Link>
           <Link to="/chat" className={`mobile-bottom-nav-item ${location.pathname === '/chat' ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px', position: 'relative' }}>
-              {NAV_ICONS.chat(location.pathname === '/chat')}
+            <span className="mobile-bottom-nav-icon">
+              {NAV_ICONS.chat(location.pathname === '/chat', location.pathname === '/chat' ? 'var(--text-primary)' : undefined)}
+              {unreadCount > 0 && (
+                <span className="mobile-bottom-nav-badge">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </span>
-            <span>Nhắn tin</span>
-            {unreadCount > 0 && (
-              <span className="mobile-bottom-nav-badge">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
+            <span>Chat</span>
           </Link>
           <button className="mobile-bottom-nav-item" onClick={() => setMobileMenuOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
-              {NAV_ICONS.more(mobileMenuOpen)}
+            <span className="mobile-bottom-nav-icon">
+              {NAV_ICONS.more(mobileMenuOpen, mobileMenuOpen ? 'var(--text-primary)' : undefined)}
             </span>
             <span>Thêm</span>
           </button>
@@ -16140,7 +16505,7 @@ import {
   deleteMessage,
 } from '../services/chatServiceTEMP.js';
 import { supabase } from '../config/supabaseClient';
-import { compressImage as compressImageFile } from '../utils/imageCompress';
+import useMobile from '@/hooks/useMobile';
 
 // ── Avatar ──────────────────────────────────────────────────────────
 function Avatar({ src, initial, color = '#3A3A3A', size = 40 }) {
@@ -18753,7 +19118,7 @@ export default function Chat() {
   const [lastMessages, setLastMessages] = useState({});
   const [totalUnread, setTotalUnread] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const isMobile = useMobile();
 
   const friendsRef = useRef([]);
   useEffect(() => {
@@ -18812,12 +19177,6 @@ export default function Chat() {
       supabase.removeChannel(channel);
     };
   }, [user?.id]);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => { if (!isAuth) { navigate('/login'); } }, [isAuth, navigate]);
 
@@ -20776,18 +21135,15 @@ import ConfirmModal from '@/components/ConfirmModal';
 import { getJoinRequests, approveJoinRequest, rejectJoinRequest } from '@/services/groupService';
 import { supabase } from '@/config/supabaseClient';
 
+import useMobile from '@/hooks/useMobile';
+
 export default function GroupDetail() {
   const { id: groupId } = useParams();
   const { user } = useAuth();
   const location = useLocation();
   const { addToast } = useToast();
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useMobile();
 
   const h = useGroupDetail(groupId, user, addToast);
 
@@ -20836,6 +21192,7 @@ export default function GroupDetail() {
   // Load and subscribe to join requests in realtime khi vào tab members
   useEffect(() => {
     if (h.activeTab !== 'members' || !h.group?.isPrivate || String(user?.id) !== String(h.group?.creatorId)) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadJoinRequests();
 
     const channelName = `group-join-requests-realtime-${groupId}`;
@@ -20922,12 +21279,12 @@ export default function GroupDetail() {
 
   return (
     <>
-      <div className="group-detail-container" style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 48px 48px' }}>
+      <div className="group-detail-container">
 
         {/* ── Group Header Card ── */}
         <div className="group-header-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', marginBottom: '28px', overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
           <div style={{ height: '4px', background: 'linear-gradient(90deg, var(--primary), var(--secondary))' }} />
-          <div className="group-header-content" style={{ padding: '28px 32px' }}>
+          <div className="group-header-content">
             {/* Role pills */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 12px', borderRadius: '6px', background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
@@ -22984,92 +23341,55 @@ export default function Groups() {
       </div>
 
       <div className="groups-page-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', gap: '16px', flexWrap: 'wrap' }}>
-          <div>
-            <h2 className="page-title">Nhóm Học Tập</h2>
-            <p className="page-subtitle">Khám phá và tham gia các nhóm học phù hợp với bạn</p>
+        <div className="groups-header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 auto' }}>
+            <h2 className="page-title">Nhóm học</h2>
+            <p className="page-subtitle desktop-only">Khám phá và tham gia các nhóm học phù hợp</p>
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+
+          <div className="groups-actions-container" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <button
-              className="btn"
+              className="btn btn-primary groups-btn-mobile"
               onClick={() => setShowModal(true)}
               style={{
-                padding: '0 22px',
-                height: '42px',
-                boxSizing: 'border-box',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                width: 'auto',
-                minWidth: 0,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-primary) 100%)',
-                border: 'none',
-                color: '#ffffff',
+                padding: '0 16px',
+                height: '38px',
+                fontSize: '12.5px',
+                borderRadius: '19px',
                 fontWeight: 700,
-                borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
-                cursor: 'pointer',
-                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                fontFamily: 'inherit',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.35)';
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'var(--text-primary)',
+                color: 'white',
+                border: 'none'
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <line x1="19" y1="8" x2="19" y2="14" />
-                <line x1="16" y1="11" x2="22" y2="11" />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              Tạo nhóm mới
+              <span className="btn-text">Tạo nhóm</span>
             </button>
             <button
-              className="btn"
+              className="btn btn-secondary groups-btn-mobile"
               onClick={() => setShowNearbyModal(true)}
               style={{
-                padding: '0 22px',
-                height: '42px',
-                boxSizing: 'border-box',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                width: 'auto',
-                minWidth: 0,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                background: 'transparent',
-                border: '1.5px solid #1A1A1A',
-                color: '#1A1A1A',
+                padding: '0 16px',
+                height: '38px',
+                fontSize: '12.5px',
+                borderRadius: '19px',
                 fontWeight: 700,
-                borderRadius: '24px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontFamily: 'inherit',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.background = '#FAFAFA';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.background = 'transparent';
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                border: '1.5px solid var(--border)',
+                background: 'transparent'
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
               </svg>
-              Nhóm học lân cận
+              <span className="btn-text">Lân cận</span>
             </button>
           </div>
         </div>
@@ -23119,10 +23439,11 @@ export default function Groups() {
               <input 
                 type="text" 
                 className="search-input" 
-                placeholder="Nhập ID phòng học để tìm kiếm..." 
+                placeholder="Nhập 6 số ID phòng học..."
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)} 
                 autoFocus
+                style={{ fontSize: '16px' }}
               />
               <button 
                 onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
@@ -23575,6 +23896,17 @@ export default function Groups() {
           font-family: 'Inter', sans-serif;
           overflow-x: hidden;
         }
+        @media (max-width: 991px) {
+          .groups-page-container {
+            padding: 12px 10px 80px;
+          }
+          .page-title {
+            font-size: 20px !important;
+          }
+          .page-subtitle {
+            font-size: 12px !important;
+          }
+        }
         .page-title {
           font-family: 'Fraunces', serif;
           font-size: 24px;
@@ -23664,6 +23996,18 @@ export default function Groups() {
           border: 1px solid;
         }
       `}</style>
+
+      {/* Mobile Floating Action Button for Create Group */}
+      <button
+        className="mobile-only fab-mobile"
+        onClick={() => setShowModal(true)}
+        aria-label="Tạo nhóm mới"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
 
     {inviteGroup && (
       <InviteFriendsModal group={inviteGroup} currentUser={user} onClose={() => setInviteGroup(null)} onInvited={fetchGroups} addToast={addToast} />
@@ -24206,6 +24550,18 @@ export default function Home() {
           onSubmit={() => {}}
         />
       )}
+
+      {/* Mobile Floating Action Button */}
+      <button
+        className="mobile-only fab-mobile"
+        onClick={() => setShowCreateModal(true)}
+        aria-label="Tạo bài viết mới"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
 
       <ConfirmModal
         isOpen={!!confirmConfig}
@@ -26838,6 +27194,7 @@ export default function MyDocuments() {
 
   useEffect(() => {
     if (!user?.id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadFiles();
 
     const channelName = `my-documents-realtime-${user.id}`;
@@ -30295,6 +30652,17 @@ export default function Schedule() {
           position: relative;
           z-index: 1;
         }
+        @media (max-width: 991px) {
+          .schedule-container {
+            padding: 12px 10px 80px;
+          }
+          .page-title {
+            font-size: 20px !important;
+          }
+          .page-subtitle {
+            font-size: 12px !important;
+          }
+        }
         .page-title {
           font-family: 'Fraunces', serif;
           font-size: 24px;
@@ -30352,6 +30720,19 @@ export default function Schedule() {
           gap: 12px;
           margin-top: 16px;
           box-shadow: 0 8px 24px rgba(239,68,68,0.1);
+        }
+        @media (max-width: 768px) {
+          .urgent-banner {
+            padding: 12px 14px;
+            gap: 10px;
+          }
+          .urgent-banner svg {
+            width: 24px;
+            height: 24px;
+          }
+          .urgent-banner div div:first-child {
+            font-size: 14px !important;
+          }
         }
         
         .grid-responsive {
