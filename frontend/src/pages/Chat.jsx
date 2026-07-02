@@ -16,6 +16,7 @@ import {
   deleteMessage,
 } from '../services/chatServiceTEMP.js';
 import { supabase } from '../config/supabaseClient';
+import { compressImage as compressImageFile } from '../utils/imageCompress';
 import useMobile from '@/hooks/useMobile';
 
 // ── Avatar ──────────────────────────────────────────────────────────
@@ -550,6 +551,7 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
 
   useEffect(() => {
     setChatBg('');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBgFilePreview('');
     setBgPos('center');
   }, [friend.userId, setChatBg]);
