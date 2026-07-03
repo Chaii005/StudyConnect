@@ -1182,91 +1182,6 @@ input::-ms-clear {
     font-size: 14px;
   }
 }
-  /* Optimize layout for small screens */
-  .layout-container-custom {
-    padding: 8px 8px 80px !important;
-    max-width: 100%;
-  }
-
-  /* Full width cards on mobile to maximize content area */
-  .post-card, .group-card, .sc-card-animated {
-    border-radius: 12px !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100% !important;
-    border-width: 1px !important;
-  }
-
-  .group-card {
-    padding: 16px !important;
-  }
-
-  .group-card h3 {
-    font-size: 16px !important;
-  }
-
-  /* Better touch targets for buttons */
-  .btn, button:not(.password-toggle) {
-    min-height: 48px;
-    padding: 10px 20px !important;
-  }
-
-  .form-input, .form-textarea {
-    font-size: 16px !important; /* Prevents auto-zoom on mobile browsers */
-    padding: 12px 16px !important;
-    border-radius: 10px !important;
-  }
-
-  /* Improved scrolling tabs for mobile */
-  .profile-tabs {
-    padding: 6px !important;
-    gap: 6px !important;
-    background: #f0f0f2 !important;
-    border-radius: 12px !important;
-    margin-bottom: 16px !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  
-  .profile-tab {
-    padding: 10px 16px !important;
-    font-size: 13px !important;
-    border-radius: 8px !important;
-    flex: 0 0 auto !important;
-  }
-
-  /* Premium Bottom Navigation */
-  .mobile-bottom-nav {
-    display: flex !important;
-    height: 72px;
-    padding-bottom: env(safe-area-inset-bottom);
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
-  }
-
-  .mobile-bottom-nav-item {
-    padding-top: 8px;
-  }
-
-  .mobile-bottom-nav-item span {
-    font-size: 9px !important; /* Slightly smaller font */
-    font-weight: 700;
-    margin-top: 4px;
-    letter-spacing: -0.2px;
-  }
-
-  .mobile-bottom-nav-icon svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  /* Modal/Drawer adjustments for mobile */
-  .mobile-drawer {
-    width: 85% !important;
-    max-width: 320px !important;
-  }
 
 @media (max-width: 768px) {
   .auth-page {
@@ -1388,11 +1303,6 @@ input::-ms-clear {
   transform: translateX(0);
 }
 
-@media (max-width: 991px) {
-  .mobile-bottom-nav {
-    display: flex;
-  }
-}
 
 .grid-responsive {
   display: grid;
@@ -1415,8 +1325,7 @@ input::-ms-clear {
   .meet-sidebar {
     width: 100% !important;
     height: auto !important;
-    min-height: min(280px, 38vh) !important;
-    max-height: 40vh !important;
+    min-height: 400px;
     flex-shrink: 0 !important;
     border-left: none !important;
     border-top: 1px solid rgba(255,255,255,0.07) !important;
@@ -1914,61 +1823,4 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 }
 .btn-mono:active:not(:disabled) {
   transform: translateY(0) scale(0.97) !important;
-}
-
-/* ── Capacitor / Notch / Gesture bar safe areas ──────────── */
-@media (max-width: 991px) {
-  .mobile-bottom-nav {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    height: calc(64px + env(safe-area-inset-bottom, 0px));
-  }
-  .app-layout-wrapper {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-  .navbar {
-    padding-top: max(10px, env(safe-area-inset-top, 0px));
-  }
-}
-
-/* ── Điện thoại ≤ 480px ────────────────────────────────────── */
-@media (max-width: 480px) {
-
-  /* Font scaling */
-  .auth-header h1          { font-size: 22px !important; }
-  .group-header-title      { font-size: 18px !important; }
-  .nav-brand-text          { font-size: 18px !important; }
-
-  /* Auth card */
-  .auth-card  { padding: 24px 16px !important; border-radius: var(--radius) !important; }
-  .auth-page  { padding: 24px 12px 60px !important; }
-
-  /* Touch targets — tối thiểu 44px theo Material Design */
-  button:not(.icon-btn),
-  .btn,
-  [role="button"],
-  .mobile-bottom-nav-item  { min-height: 44px; }
-  .mobile-bottom-nav-item  { font-size: 9px !important; }
-
-  /* Group detail */
-  .group-detail-container  { padding: 0 8px 24px !important; }
-  .group-header-content    { padding: 14px 16px !important; }
-
-  /* Profile tabs */
-  .profile-tab { padding: 8px 14px !important; font-size: 12px !important; }
-
-  /* Document upload */
-  .document-upload-box { padding: 12px 10px !important; }
-
-  /* Ẩn right sidebar — tránh chiếm không gian bên dưới feed */
-  .layout-3col > aside:last-of-type,
-  .layout-3col-custom > aside.flex-desktop-only {
-    display: none !important;
-  }
-}
-
-/* ── Điện thoại ≤ 360px ────────────────────────────────────── */
-@media (max-width: 360px) {
-  .auth-card              { padding: 20px 12px !important; }
-  .nav-brand-text         { font-size: 16px !important; }
-  .mobile-bottom-nav-item { font-size: 8px !important; gap: 2px !important; }
 }

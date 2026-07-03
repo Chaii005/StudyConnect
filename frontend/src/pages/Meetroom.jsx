@@ -1453,8 +1453,6 @@ export default function MeetRoom() {
                     <div style={{
                       position: 'absolute', bottom: '-1px', right: '-1px',
                       width: '9px', height: '9px', borderRadius: '50%',
-                      background: '#22c55e', border: '1.5px solid #0a0a14',
-                      // eslint-disable-next-line no-dupe-keys
                       background: '#525252', border: '1.5px solid #0a0a14',
                     }} />
                   </div>
