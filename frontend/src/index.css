@@ -1535,7 +1535,9 @@ input::-ms-clear {
 
 .group-chat-panel {
   height: 480px;
-  max-height: calc(100vh - 260px);
+  max-height: 480px;
+  min-height: 320px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
