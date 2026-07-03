@@ -25,12 +25,7 @@ const ReplyIcon = () => (
 export default function CommentRow({ comment: c, onReply }) {
   return (
     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-      <div className="mobile-only">
-        <Avatar src={c.userAvatar} initial={c.userFullName || 'U'} size={24} />
-      </div>
-      <div className="desktop-only">
-        <Avatar src={c.userAvatar} initial={c.userFullName || 'U'} size={30} />
-      </div>
+      <Avatar src={c.userAvatar} initial={c.userFullName || 'U'} size={30} />
       <div style={{ flex: 1 }}>
         <div style={{ background: 'var(--bg-input)', borderRadius: '12px', padding: '8px 12px' }}>
           <div style={{ fontWeight: 700, fontSize: '12px', color: 'var(--text-primary)', marginBottom: '2px' }}>

@@ -1,4 +1,4 @@
-# StudyConnect Full-Stack System 
+# StudyConnect Full-Stack System 🚀
 
 Chào mừng bạn đến với hệ thống **StudyConnect** - Nền tảng mạng xã hội kết nối học tập và tìm kiếm nhóm học dành cho sinh viên. 
 
@@ -69,7 +69,7 @@ Hoặc nếu bạn muốn khởi chạy độc lập từng thư mục:
 
 ---
 
-##  Cấu trúc Cơ sở dữ liệu (`database/schema.sql`)
+## 🗄️ Cấu trúc Cơ sở dữ liệu (`database/schema.sql`)
 Lược đồ SQL mẫu đã được thiết lập sẵn tại thư mục `database/schema.sql` gồm các bảng:
 1. `users` — Thông tin tài khoản sinh viên.
 2. `study_groups` — Thông tin các nhóm học tập được tạo.

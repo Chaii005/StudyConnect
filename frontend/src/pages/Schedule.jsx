@@ -590,17 +590,6 @@ export default function Schedule() {
           position: relative;
           z-index: 1;
         }
-        @media (max-width: 991px) {
-          .schedule-container {
-            padding: 12px 10px 80px;
-          }
-          .page-title {
-            font-size: 20px !important;
-          }
-          .page-subtitle {
-            font-size: 12px !important;
-          }
-        }
         .page-title {
           font-family: 'Fraunces', serif;
           font-size: 24px;
@@ -658,19 +647,6 @@ export default function Schedule() {
           gap: 12px;
           margin-top: 16px;
           box-shadow: 0 8px 24px rgba(239,68,68,0.1);
-        }
-        @media (max-width: 768px) {
-          .urgent-banner {
-            padding: 12px 14px;
-            gap: 10px;
-          }
-          .urgent-banner svg {
-            width: 24px;
-            height: 24px;
-          }
-          .urgent-banner div div:first-child {
-            font-size: 14px !important;
-          }
         }
         
         .grid-responsive {

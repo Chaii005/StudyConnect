@@ -343,6 +343,7 @@ function CtrlBtn({ onClick, title, active = true, danger = false, children }) {
       style={{
         width: danger ? 64 : 56, height: danger ? 64 : 56,
         borderRadius: '50%',
+        border: 'none',
         cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '22px',
@@ -352,6 +353,7 @@ function CtrlBtn({ onClick, title, active = true, danger = false, children }) {
           : active
             ? (hov ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)')
             : (hov ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.12)'),
+        // eslint-disable-next-line no-dupe-keys
         border: danger ? 'none' : `1.5px solid ${active ? 'rgba(255,255,255,0.12)' : 'rgba(239,68,68,0.35)'}`,
         boxShadow: danger ? '0 4px 14px rgba(239,68,68,0.4)' : 'none',
         transform: hov ? (danger ? 'scale(1.15) rotate(-10deg)' : 'scale(1.1)') : 'scale(1)',

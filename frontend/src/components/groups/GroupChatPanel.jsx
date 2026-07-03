@@ -174,13 +174,14 @@ export default function GroupChatPanel({
   return (
     <div
       ref={chatContainerRef}
-      className="group-chat-panel"
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
         display: 'flex',
         flexDirection: 'column',
+        height: '480px',
+        maxHeight: 'calc(100vh - 260px)',
         boxShadow: 'var(--shadow)',
         overflow: 'hidden',
         position: 'relative',

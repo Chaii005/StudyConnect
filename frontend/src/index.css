@@ -29,13 +29,6 @@
   --radius-md: 10px;
   --radius-lg: 14px;
   --transition: all 0.2s ease;
-  --navbar-height: 64px;
-}
-
-@media (max-width: 991px) {
-  :root {
-    --navbar-height: 56px;
-  }
 }
 
 /* ═══════════════════════════════════════════
@@ -65,7 +58,6 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #root {
@@ -585,7 +577,7 @@ input::-ms-clear {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
-  height: var(--navbar-height);
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -972,19 +964,11 @@ input::-ms-clear {
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
-@media (max-width: 768px) {
-  .profile-container {
-    padding: 0 12px 100px !important;
-    gap: 16px !important;
-  }
-
-  .profile-sidebar {
-    padding: 24px 16px !important;
-  }
-
-  .profile-card {
-    padding: 20px 16px !important;
-  }
+@media (max-width: 991px) {
+  .auth-card { padding: 32px 24px; }
+  .form-row { grid-template-columns: 1fr; }
+  .profile-container { grid-template-columns: 1fr; }
+  .profile-sidebar { order: -1; }
 }
 /* ═══════════════════════════════════════════
    HIDE SCROLLBARS (keep scroll functionality)
@@ -1040,21 +1024,6 @@ input::-ms-clear {
   gap: 16px;
 }
 
-@media (max-width: 991px) {
-  .desktop-only-flex {
-    display: none !important;
-  }
-  .mobile-only-flex-row {
-    display: flex !important;
-  }
-}
-
-@media (min-width: 992px) {
-  .mobile-only-flex-row {
-    display: none !important;
-  }
-}
-
 /* Visibility classes */
 .desktop-only {
   display: block !important;
@@ -1073,136 +1042,45 @@ input::-ms-clear {
 @media (max-width: 991px) {
   .layout-2col, .layout-3col {
     grid-template-columns: 1fr !important;
-    gap: 0 !important;
+    gap: 16px !important;
   }
-
+  
   .layout-2col > aside:first-of-type,
   .layout-3col > aside:first-of-type {
-    display: none !important;
+    display: none !important; /* Hide left sidebar on mobile */
+  }
+  
+  .layout-3col > aside:last-of-type {
+    display: flex !important;
+    position: static !important;
+    width: 100% !important;
+    margin-top: 16px;
+    box-shadow: none !important;
   }
 
-  .layout-3col > aside:last-of-type {
-    display: none !important;
+  .flex-responsive {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
   }
 
   .desktop-only, .inline-desktop-only, .flex-desktop-only {
     display: none !important;
   }
-
   .mobile-only {
     display: block !important;
   }
-
   .flex-mobile-only {
     display: flex !important;
   }
-
+  
+  /* Navbar adjustments */
   .navbar {
-    padding: 8px 12px !important;
-    height: 56px !important;
+    padding: 10px 16px !important;
+    height: auto !important;
   }
-
   .nav-brand-text {
-    display: none !important;
-  }
-
-  .nav-brand-icon img {
-    width: 32px !important;
-    height: 32px !important;
-  }
-}
-
-@media (max-width: 768px) {
-  :root {
-    --navbar-height: 44px !important; /* Thậm chí thấp hơn nữa */
-    --radius-lg: 12px;
-  }
-
-  /* Header siêu nhỏ gọn */
-  .navbar {
-    height: 44px !important;
-    padding: 0 6px !important;
-  }
-
-  .nav-brand {
-    gap: 2px !important;
-  }
-
-  .nav-brand-icon, .mobile-logo-small {
-    width: 18px !important;
-    height: 18px !important;
-  }
-
-  .nav-brand-text, .page-subtitle, .page-subtitle.desktop-only {
-    display: none !important;
-  }
-
-  .nav-actions {
-    gap: 4px !important;
-  }
-
-  /* Khung nhắn tin nhỏ lại đáng kể */
-  .group-chat-panel {
-    height: 350px !important;
-    max-height: 50vh !important;
-  }
-
-  /* Fix trang Nhóm học bị đụng hàng */
-  .groups-header-section {
-    display: block !important;
-    padding: 0 !important;
-    margin-bottom: 12px !important;
-  }
-
-  .page-title {
-    font-size: 16px !important;
-    margin-bottom: 8px !important;
-    font-weight: 900 !important;
-  }
-
-  .groups-actions-container {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
-    width: 100% !important;
-  }
-
-  .groups-btn-mobile {
-    height: 32px !important;
-    padding: 0 6px !important;
-    font-size: 10px !important;
-    border-radius: 6px !important;
-  }
-
-  .groups-btn-mobile .btn-text {
-    font-size: 10px !important;
-  }
-
-  body {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 768px) {
-  .auth-page {
-    padding: 0 !important;
-    background: var(--bg-card);
-  }
-
-  .auth-card {
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    min-height: 100vh;
-    margin: 0 !important;
-    padding: 32px 20px !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .auth-logo {
-    margin-bottom: 24px;
+    font-size: 18px !important;
   }
 }
 
@@ -1303,6 +1181,11 @@ input::-ms-clear {
   transform: translateX(0);
 }
 
+@media (max-width: 991px) {
+  .mobile-bottom-nav {
+    display: flex;
+  }
+}
 
 .grid-responsive {
   display: grid;
@@ -1387,26 +1270,21 @@ input::-ms-clear {
 /* Container paddings & sizes on mobile */
 @media (max-width: 991px) {
   .group-detail-container {
-    padding: 12px 10px 32px !important;
+    padding: 0 12px 32px !important;
   }
   
   .group-header-card {
-    border-radius: 0 !important;
-    margin-left: -8px;
-    margin-right: -8px;
-    width: calc(100% + 16px);
-    margin-bottom: 12px !important;
-    border-left: none !important;
-    border-right: none !important;
+    border-radius: 16px !important;
+    margin-bottom: 20px !important;
   }
-
+  
   .group-header-content {
-    padding: 16px 12px !important;
+    padding: 18px 20px !important;
   }
   
   .group-header-title {
-    font-size: 20px !important;
-    margin-bottom: 4px !important;
+    font-size: 22px !important;
+    margin-bottom: 6px !important;
   }
 
   /* Document & Deadline List Item Rows */
@@ -1474,9 +1352,30 @@ input::-ms-clear {
   background: rgba(0,0,0,0.03);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .app-layout-wrapper {
-    padding-bottom: 72px !important;
+    padding-bottom: 80px !important; /* Perfect space for mobile bottom nav without empty gaps */
+  }
+  .responsive-btn-full {
+    width: 100% !important;
+    align-self: stretch !important;
+    text-align: center !important;
+  }
+  .document-upload-box {
+    padding: 16px 14px !important;
+  }
+  .document-upload-icon-wrap {
+    width: 32px !important;
+    height: 32px !important;
+    margin-bottom: 8px !important;
+  }
+  .document-upload-icon-wrap svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .document-share-card {
+    padding: 16px 14px !important;
+    border-radius: 12px !important;
   }
 }
 
@@ -1521,32 +1420,6 @@ input::-ms-clear {
 }
 
 /* Custom Responsive layout classes for AppLayout */
-.layout-container-custom {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
-
-@media (max-width: 991px) {
-  .layout-container-custom {
-    padding: 12px 8px;
-  }
-}
-
-.group-chat-panel {
-  height: 480px;
-  max-height: 480px;
-  min-height: 320px;
-  flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-  .group-chat-panel {
-    height: 480px; /* Reduced from 550px */
-    max-height: calc(100vh - 180px);
-  }
-}
-
 .layout-grid-custom {
   display: grid;
   height: 100%;
@@ -1674,53 +1547,6 @@ input::-ms-clear {
   background: #FAFAFA !important;
   color: #1A1A1A !important;
   border-color: #1A1A1A !important;
-}
-
-.post-card {
-  background: var(--bg-card);
-  border: 1.5px solid var(--border);
-  borderRadius: var(--radius-lg);
-  margin-bottom: 14px;
-  overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s;
-}
-
-.post-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 18px 0;
-}
-
-@media (max-width: 768px) {
-  .post-card-header {
-    padding: 12px 12px 0;
-    gap: 8px;
-  }
-
-  .post-card-header span {
-    font-size: 14px !important;
-  }
-}
-
-.post-card-content p {
-  word-break: break-word;
-}
-
-@media (max-width: 768px) {
-  .comment-replies-container {
-    margin-left: 16px !important;
-    padding-left: 8px !important;
-  }
-}
-
-@media (max-width: 991px) {
-  .post-card-header {
-    padding: 12px 12px 0;
-  }
-  .post-card-content {
-    padding: 10px 12px 12px;
-  }
 }
 
 /* Khung trắng viền đen cho tất cả card, panel và container trong web */

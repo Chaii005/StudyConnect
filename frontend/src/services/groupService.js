@@ -16,7 +16,7 @@ const mapGroup = (g) => {
     } else {
       try {
         parsedLocation = JSON.parse(g.location);
-      } catch (_e) {
+      } catch (e) {
         parsedLocation = { name: g.location, address: g.location };
       }
     }

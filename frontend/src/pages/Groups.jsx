@@ -1788,55 +1788,92 @@ export default function Groups() {
       </div>
 
       <div className="groups-page-container">
-        <div className="groups-header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 auto' }}>
-            <h2 className="page-title">Nhóm học</h2>
-            <p className="page-subtitle desktop-only">Khám phá và tham gia các nhóm học phù hợp</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', gap: '16px', flexWrap: 'wrap' }}>
+          <div>
+            <h2 className="page-title">Nhóm Học Tập</h2>
+            <p className="page-subtitle">Khám phá và tham gia các nhóm học phù hợp với bạn</p>
           </div>
-
-          <div className="groups-actions-container" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <button
-              className="btn btn-primary groups-btn-mobile"
+              className="btn"
               onClick={() => setShowModal(true)}
               style={{
-                padding: '0 16px',
-                height: '38px',
-                fontSize: '12.5px',
-                borderRadius: '19px',
-                fontWeight: 700,
-                display: 'flex',
+                padding: '0 22px',
+                height: '42px',
+                boxSizing: 'border-box',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                width: 'auto',
+                minWidth: 0,
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                background: 'var(--text-primary)',
-                color: 'white',
-                border: 'none'
+                justifyContent: 'center',
+                gap: '8px',
+                background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-primary) 100%)',
+                border: 'none',
+                color: '#ffffff',
+                fontWeight: 700,
+                borderRadius: '12px',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
+                cursor: 'pointer',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.35)';
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <line x1="19" y1="8" x2="19" y2="14" />
+                <line x1="16" y1="11" x2="22" y2="11" />
               </svg>
-              <span className="btn-text">Tạo nhóm</span>
+              Tạo nhóm mới
             </button>
             <button
-              className="btn btn-secondary groups-btn-mobile"
+              className="btn"
               onClick={() => setShowNearbyModal(true)}
               style={{
-                padding: '0 16px',
-                height: '38px',
-                fontSize: '12.5px',
-                borderRadius: '19px',
-                fontWeight: 700,
-                display: 'flex',
+                padding: '0 22px',
+                height: '42px',
+                boxSizing: 'border-box',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                width: 'auto',
+                minWidth: 0,
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                border: '1.5px solid var(--border)',
-                background: 'transparent'
+                justifyContent: 'center',
+                gap: '8px',
+                background: 'transparent',
+                border: '1.5px solid #1A1A1A',
+                color: '#1A1A1A',
+                fontWeight: 700,
+                borderRadius: '24px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.background = '#FAFAFA';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.background = 'transparent';
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
               </svg>
-              <span className="btn-text">Lân cận</span>
+              Nhóm học lân cận
             </button>
           </div>
         </div>
@@ -1886,11 +1923,10 @@ export default function Groups() {
               <input 
                 type="text" 
                 className="search-input" 
-                placeholder="Nhập 6 số ID phòng học..."
+                placeholder="Nhập ID phòng học để tìm kiếm..." 
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)} 
                 autoFocus
-                style={{ fontSize: '16px' }}
               />
               <button 
                 onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
@@ -2343,17 +2379,6 @@ export default function Groups() {
           font-family: 'Inter', sans-serif;
           overflow-x: hidden;
         }
-        @media (max-width: 991px) {
-          .groups-page-container {
-            padding: 12px 10px 80px;
-          }
-          .page-title {
-            font-size: 20px !important;
-          }
-          .page-subtitle {
-            font-size: 12px !important;
-          }
-        }
         .page-title {
           font-family: 'Fraunces', serif;
           font-size: 24px;
@@ -2443,18 +2468,6 @@ export default function Groups() {
           border: 1px solid;
         }
       `}</style>
-
-      {/* Mobile Floating Action Button for Create Group */}
-      <button
-        className="mobile-only fab-mobile"
-        onClick={() => setShowModal(true)}
-        aria-label="Tạo nhóm mới"
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-      </button>
 
     {inviteGroup && (
       <InviteFriendsModal group={inviteGroup} currentUser={user} onClose={() => setInviteGroup(null)} onInvited={fetchGroups} addToast={addToast} />

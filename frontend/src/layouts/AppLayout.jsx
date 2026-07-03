@@ -420,52 +420,26 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           background: 'var(--bg-card)',
           backdropFilter: 'blur(20px)',
           borderBottom: '1px solid var(--border)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)',
-          padding: '0 10px'
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {location.pathname !== '/' && (
-              <button
-                onClick={() => navigate(-1)}
-                className="mobile-only"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: '4px',
-                  cursor: 'pointer',
-                  color: 'var(--text-primary)',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" />
-                  <polyline points="12 19 5 12 12 5" />
-                </svg>
-              </button>
-            )}
-            <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}>
-              <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src="/studyconect_logo.png" alt="Logo" style={{ width: '20px', height: '20px', objectFit: 'contain' }} className="mobile-logo-small" />
-              </div>
-              <span className="nav-brand-text desktop-only" style={{
-                fontFamily: "'Fraunces', serif",
-                fontStyle: 'italic',
-                fontSize: '19px',
-                fontWeight: 900,
-                background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                letterSpacing: '-0.3px'
-              }}>StudyConnect</span>
-            </Link>
-          </div>
-
-          <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <div className="mobile-only" style={{ display: 'flex', alignItems: 'center', scale: '0.85' }}>
-              <NotificationBell />
+          <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+            <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="/studyconect_logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
             </div>
+            <span className="nav-brand-text" style={{
+              fontFamily: "'Fraunces', serif",
+              fontStyle: 'italic',
+              fontSize: '21px',
+              fontWeight: 900,
+              background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              letterSpacing: '-0.3px'
+            }}>StudyConnect</span>
+          </Link>
+
+          <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             {(location.pathname.startsWith('/groups') || location.pathname === '/schedule') && (
               <div className="flex-desktop-only" style={{ alignItems: 'center', gap: '10px' }}>
                 <Link to="/" style={{
@@ -649,11 +623,11 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         </div>
       </div>
 
-      <main style={{ position: 'relative', zIndex: 1, height: hideNavbar ? '100%' : 'calc(100% - var(--navbar-height))', overflow: shouldHideSidebar ? 'auto' : 'hidden' }}>
+      <main style={{ position: 'relative', zIndex: 1, height: hideNavbar ? '100%' : 'calc(100% - 64px)', overflow: shouldHideSidebar ? 'auto' : 'hidden' }}>
         {shouldHideSidebar ? (
           children
         ) : (
-          <div className="layout-container-custom" style={{ height: '100%' }}>
+          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '24px 16px', height: '100%' }}>
             <div className={`layout-grid-custom ${layoutClass}`} style={{ height: '100%' }}>
               {/* Unified desktop left sidebar */}
               <aside className="desktop-only no-scrollbar" style={{ position: 'sticky', top: 0, display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 10, height: 'calc(100vh - 112px)', maxHeight: 'calc(100vh - 112px)', overflowY: 'auto' }}>
@@ -1024,37 +998,37 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       {!hideNavbar && (
         <div className="mobile-bottom-nav">
           <Link to="/" className={`mobile-bottom-nav-item ${location.pathname === '/' ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon">
-              {NAV_ICONS.home(location.pathname === '/', location.pathname === '/' ? 'var(--text-primary)' : undefined)}
+            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+              {NAV_ICONS.home(location.pathname === '/')}
             </span>
-            <span>Home</span>
+            <span>Trang chủ</span>
           </Link>
           <Link to="/groups" className={`mobile-bottom-nav-item ${location.pathname.startsWith('/groups') ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon">
-              {NAV_ICONS.groups(location.pathname.startsWith('/groups'), location.pathname.startsWith('/groups') ? 'var(--text-primary)' : undefined)}
+            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+              {NAV_ICONS.groups(location.pathname.startsWith('/groups'))}
             </span>
-            <span>Nhóm</span>
+            <span>Nhóm học</span>
           </Link>
           <Link to="/schedule" className={`mobile-bottom-nav-item ${location.pathname === '/schedule' ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon">
-              {NAV_ICONS.schedule(location.pathname === '/schedule', location.pathname === '/schedule' ? 'var(--text-primary)' : undefined)}
+            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+              {NAV_ICONS.schedule(location.pathname === '/schedule')}
             </span>
-            <span>Lịch</span>
+            <span>Lịch học</span>
           </Link>
           <Link to="/chat" className={`mobile-bottom-nav-item ${location.pathname === '/chat' ? 'active' : ''}`}>
-            <span className="mobile-bottom-nav-icon">
-              {NAV_ICONS.chat(location.pathname === '/chat', location.pathname === '/chat' ? 'var(--text-primary)' : undefined)}
-              {unreadCount > 0 && (
-                <span className="mobile-bottom-nav-badge">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
+            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px', position: 'relative' }}>
+              {NAV_ICONS.chat(location.pathname === '/chat')}
             </span>
-            <span>Chat</span>
+            <span>Nhắn tin</span>
+            {unreadCount > 0 && (
+              <span className="mobile-bottom-nav-badge">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Link>
           <button className="mobile-bottom-nav-item" onClick={() => setMobileMenuOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-            <span className="mobile-bottom-nav-icon">
-              {NAV_ICONS.more(mobileMenuOpen, mobileMenuOpen ? 'var(--text-primary)' : undefined)}
+            <span className="mobile-bottom-nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24px' }}>
+              {NAV_ICONS.more(mobileMenuOpen)}
             </span>
             <span>Thêm</span>
           </button>

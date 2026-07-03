@@ -12,15 +12,18 @@ import ConfirmModal from '@/components/ConfirmModal';
 import { getJoinRequests, approveJoinRequest, rejectJoinRequest } from '@/services/groupService';
 import { supabase } from '@/config/supabaseClient';
 
-import useMobile from '@/hooks/useMobile';
-
 export default function GroupDetail() {
   const { id: groupId } = useParams();
   const { user } = useAuth();
   const location = useLocation();
   const { addToast } = useToast();
 
-  const isMobile = useMobile();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const h = useGroupDetail(groupId, user, addToast);
 
@@ -69,7 +72,6 @@ export default function GroupDetail() {
   // Load and subscribe to join requests in realtime khi vào tab members
   useEffect(() => {
     if (h.activeTab !== 'members' || !h.group?.isPrivate || String(user?.id) !== String(h.group?.creatorId)) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadJoinRequests();
 
     const channelName = `group-join-requests-realtime-${groupId}`;
@@ -156,12 +158,12 @@ export default function GroupDetail() {
 
   return (
     <>
-      <div className="group-detail-container">
+      <div className="group-detail-container" style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 48px 48px' }}>
 
         {/* ── Group Header Card ── */}
         <div className="group-header-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', marginBottom: '28px', overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
           <div style={{ height: '4px', background: 'linear-gradient(90deg, var(--primary), var(--secondary))' }} />
-          <div className="group-header-content">
+          <div className="group-header-content" style={{ padding: '28px 32px' }}>
             {/* Role pills */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 12px', borderRadius: '6px', background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
