@@ -350,12 +350,16 @@ function CtrlBtn({ onClick, title, active = true, danger = false, children }) {
         background: danger
           ? (hov ? '#dc2626' : '#ef4444')
           : active
-            ? (hov ? '#000000' : 'var(--primary)')
-            : (hov ? 'var(--bg-input)' : 'transparent'),
-        border: '1.5px solid var(--border)',
+            ? (hov ? '#e5e5e5' : '#ffffff')
+            : (hov ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'),
+        border: danger
+          ? '1.5px solid #ef4444'
+          : active
+            ? '1.5px solid #ffffff'
+            : '1.5px solid rgba(255,255,255,0.2)',
         boxShadow: 'none',
-        transform: hov ? (danger ? 'scale(1.15) rotate(-10deg)' : 'scale(1.1)') : 'scale(1)',
-        color: danger ? '#fff' : active ? '#fff' : 'var(--text-primary)',
+        transform: hov ? (danger ? 'scale(1.1) rotate(-5deg)' : 'scale(1.08)') : 'scale(1)',
+        color: danger ? '#ffffff' : active ? '#000000' : '#ffffff',
       }}
     >
       {children}
@@ -379,7 +383,7 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
     <div style={{
       position: 'relative',
       background: '#1A1A1A',
-      border: '1.5px solid var(--border)',
+      border: '1.5px solid #262626',
       borderRadius: '20px',
       overflow: 'hidden',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -587,6 +591,19 @@ export default function PrivateCall() {
         .pc-controls-bar {
           transition: opacity 0.35s ease, transform 0.35s ease;
         }
+        .pc-pip-container {
+          width: 180px !important;
+          height: 260px !important;
+          bottom: var(--bottom-pos) !important;
+        }
+        @media (max-width: 768px) {
+          .pc-pip-container {
+            width: 100px !important;
+            height: 145px !important;
+            right: 16px !important;
+            bottom: var(--bottom-pos-mobile) !important;
+          }
+        }
       `}</style>
 
       <div
@@ -594,11 +611,11 @@ export default function PrivateCall() {
         onClick={resetHideTimer}
         style={{
           position: 'fixed', inset: 0,
-          background: 'var(--bg)',
+          background: '#0A0A0C',
           display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
           fontFamily: "'Inter', 'Segoe UI', sans-serif",
-          color: 'var(--text-primary)',
+          color: '#ffffff',
           userSelect: 'none',
           cursor: showControls ? 'default' : 'none',
         }}
@@ -608,9 +625,9 @@ export default function PrivateCall() {
           position: 'absolute', top: 0, left: 0, right: 0,
           padding: '20px 24px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'rgba(255,255,255,0.75)',
+          background: 'rgba(10, 10, 12, 0.85)',
           backdropFilter: 'blur(20px)',
-          borderBottom: '1.5px solid var(--border)',
+          borderBottom: '1.5px solid #262626',
           zIndex: 10,
           opacity: showControls ? 1 : 0,
           pointerEvents: showControls ? 'auto' : 'none',
@@ -621,8 +638,8 @@ export default function PrivateCall() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Avatar src={friendAvatar} name={friendName} size={40} />
             <div>
-              <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)' }}>{friendName}</div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontWeight: 700, fontSize: '16px', color: '#ffffff' }}>{friendName}</div>
+              <div style={{ fontSize: '12px', color: '#a3a3a3', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {connected ? (
                   <>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
@@ -633,7 +650,7 @@ export default function PrivateCall() {
                     {[0, 1, 2].map(i => (
                       <span key={i} style={{
                         width: 5, height: 5, borderRadius: '50%',
-                        background: '#D4D4D4', display: 'inline-block',
+                        background: '#52525b', display: 'inline-block',
                         animation: `pc-connecting-dot 1.4s ease-in-out ${i * 0.2}s infinite`,
                       }} />
                     ))}
@@ -647,7 +664,7 @@ export default function PrivateCall() {
           {/* Label phòng */}
           <div style={{
             fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em',
-            color: 'var(--text-muted)', textTransform: 'uppercase',
+            color: '#a3a3a3', textTransform: 'uppercase',
           }}>
             Cuộc gọi riêng tư
           </div>
@@ -670,18 +687,19 @@ export default function PrivateCall() {
 
           {/* Video phụ — Picture in Picture (góc dưới phải) */}
           <div
+            className="pc-pip-container"
             style={{
               position: 'absolute',
-              bottom: showControls ? '120px' : '30px',
               right: '30px',
-              width: '180px', height: '260px',
               borderRadius: '16px',
               overflow: 'hidden',
-              border: '1.5px solid var(--border)',
+              border: '1.5px solid rgba(255, 255, 255, 0.2)',
               boxShadow: 'none',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 40, cursor: 'pointer',
               animation: 'pc-fade-in 0.4s ease forwards',
+              '--bottom-pos': showControls ? '120px' : '30px',
+              '--bottom-pos-mobile': showControls ? '110px' : '16px',
             }}
             onClick={() => setPipSwapped(s => !s)}
             title="Nhấn để đổi màn hình chính"
@@ -721,7 +739,7 @@ export default function PrivateCall() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(255,255,255,0.92)', zIndex: 15,
+              background: 'rgba(10, 10, 12, 0.95)', zIndex: 15,
               backdropFilter: 'blur(12px)',
               flexDirection: 'column', gap: '16px', padding: '32px',
               textAlign: 'center',
@@ -732,10 +750,10 @@ export default function PrivateCall() {
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
               <div style={{ fontWeight: 700, fontSize: '18px', color: '#ef4444' }}>Không thể kết nối</div>
-              <div style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '300px', lineHeight: 1.6 }}>{error}</div>
+              <div style={{ fontSize: '14px', color: '#a3a3a3', maxWidth: '300px', lineHeight: 1.6 }}>{error}</div>
               <button onClick={handleEndCall} style={{
                 padding: '10px 24px', background: '#ef4444',
-                border: '1.5px solid var(--border)', borderRadius: '12px', color: '#fff',
+                border: '1.5px solid #ef4444', borderRadius: '12px', color: '#fff',
                 fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit',
                 boxShadow: 'none',
               }}>Quay lại</button>
@@ -747,7 +765,7 @@ export default function PrivateCall() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(255,255,255,0.92)', zIndex: 15,
+              background: 'rgba(10, 10, 12, 0.95)', zIndex: 15,
               backdropFilter: 'blur(12px)',
               flexDirection: 'column', gap: '16px', padding: '32px',
               textAlign: 'center',
@@ -756,8 +774,8 @@ export default function PrivateCall() {
                 <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
                 <line x1="23" y1="1" x2="1" y2="23" />
               </svg>
-              <div style={{ fontWeight: 700, fontSize: '18px', color: 'var(--text-primary)' }}>Cuộc gọi đã kết thúc</div>
-              <div style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '300px', lineHeight: 1.6 }}>Đối phương đã gác máy. Đang quay lại phòng chat...</div>
+              <div style={{ fontWeight: 700, fontSize: '18px', color: '#ffffff' }}>Cuộc gọi đã kết thúc</div>
+              <div style={{ fontSize: '14px', color: '#a3a3a3', maxWidth: '300px', lineHeight: 1.6 }}>Đối phương đã gác máy. Đang quay lại phòng chat...</div>
             </div>
           )}
 
@@ -766,7 +784,7 @@ export default function PrivateCall() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(255,255,255,0.92)', zIndex: 16,
+              background: 'rgba(10, 10, 12, 0.95)', zIndex: 16,
               backdropFilter: 'blur(12px)',
               flexDirection: 'column', gap: '20px', padding: '32px',
               textAlign: 'center',
@@ -782,7 +800,7 @@ export default function PrivateCall() {
                 <div style={{
                   width: 64, height: 64, borderRadius: '50%',
                   background: 'rgba(239,68,68,0.1)',
-                  border: '1.5px solid var(--border)',
+                  border: '1.5px solid #ef4444',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   boxShadow: 'none',
                 }}>
@@ -796,7 +814,7 @@ export default function PrivateCall() {
                 <div style={{ fontWeight: 800, fontSize: '20px', color: '#ef4444', marginBottom: '8px', letterSpacing: '-0.01em' }}>
                   {callEndedMsg === 'no_answer' ? 'Người nhận không bắt máy' : callEndedMsg === 'rejected' ? 'Người nhận đang bận' : 'Cuộc gọi đã bị hủy'}
                 </div>
-                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                <div style={{ fontSize: '13px', color: '#a3a3a3', lineHeight: 1.6 }}>
                   Đang quay lại phòng chat...
                 </div>
               </div>
@@ -811,9 +829,9 @@ export default function PrivateCall() {
             position: 'absolute',
             bottom: 0, left: 0, right: 0,
             padding: '24px 0 36px',
-            background: 'rgba(255, 255, 255, 0.85)',
+            background: 'rgba(10, 10, 12, 0.85)',
             backdropFilter: 'blur(20px)',
-            borderTop: '1.5px solid var(--border)',
+            borderTop: '1.5px solid #262626',
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', gap: '16px',
             zIndex: 10,
@@ -871,7 +889,7 @@ export default function PrivateCall() {
           {/* Trạng thái */}
           {!connected && !error && (
             <div style={{
-              fontSize: '12px', color: 'var(--text-muted)',
+              fontSize: '12px', color: '#a3a3a3',
               letterSpacing: '0.05em',
             }}>
               Đang chờ {friendName} kết nối...
