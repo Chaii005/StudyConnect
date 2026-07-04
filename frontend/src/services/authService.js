@@ -290,12 +290,52 @@ export const adminLogin = async ({ email, password }) => {
 
 // ─── QUÊN MẬT KHẨU ──────────────────────────────────
 export const forgotPassword = async (email) => {
-  const emailVal = typeof email === 'string' ? email : email.email;
+  const emailVal = typeof email === 'string' ? email.toLowerCase().trim() : email.email.toLowerCase().trim();
+  
+  // 1. Kiểm tra xem email có tồn tại trong bảng public.users không
+  const { data: dbUser, error: dbError } = await supabase
+    .from('users')
+    .select('id, full_name, supabase_uid')
+    .eq('email', emailVal)
+    .maybeSingle();
+
+  if (dbError) {
+    throw new Error('Lỗi kiểm tra thông tin tài khoản.');
+  }
+
+  if (!dbUser) {
+    throw new Error('Email này chưa được đăng ký trong hệ thống.');
+  }
+
+  // 2. Nếu là người dùng cũ chưa đồng bộ sang Supabase Auth
+  if (!dbUser.supabase_uid) {
+    try {
+      const tempPass = Math.random().toString(36).substring(2, 15);
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: emailVal,
+        password: tempPass,
+        options: {
+          data: { full_name: dbUser.full_name }
+        }
+      });
+      
+      if (!signUpError && authData?.user) {
+        await supabase
+          .from('users')
+          .update({ supabase_uid: authData.user.id })
+          .eq('id', dbUser.id);
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn('Legacy sync in forgot password failed:', e);
+    }
+  }
+
+  // 3. Gửi yêu cầu reset mật khẩu
   const { error } = await supabase.auth
     .resetPasswordForEmail(emailVal, {
       redirectTo: `${window.location.origin}/reset-password`
     });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(`Lỗi gửi mail: ${error.message}`);
 };
 
 // ─── XÁC THỰC OTP & ĐẶT LẠI MẬT KHẨU ────────────────
