@@ -2217,83 +2217,149 @@ export default function ConversationView({
 
 
 
-            {bgFilePreview && (
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 800, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Điều chỉnh vị trí ảnh
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {['top', 'center', 'bottom'].map(pos => {
-                    const isActive = bgPos === pos;
-                    return (
-                      <button
-                        key={pos}
-                        onClick={() => setBgPos(pos)}
-                        style={{
-                          flex: 1, 
-                          padding: '10px 8px', 
-                          borderRadius: '10px',
-                          background: isActive ? 'var(--primary)' : 'var(--bg-input)',
-                          border: '1.5px solid var(--border)',
-                          color: isActive ? 'white' : 'var(--text-primary)',
-                          cursor: 'pointer', 
-                          fontSize: '12px', 
-                          fontWeight: isActive ? 800 : 700, 
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        {pos === 'top' ? 'Trên' : pos === 'center' ? 'Giữa' : 'Dưới'}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {bgFilePreview && (() => {
+              // Parse current bgPos ("50% 50%" or keyword) → numeric %
+              const parsePosToXY = (pos) => {
+                if (!pos || pos === 'center') return { x: 50, y: 50 };
+                if (pos === 'top') return { x: 50, y: 0 };
+                if (pos === 'bottom') return { x: 50, y: 100 };
+                const parts = pos.split(' ');
+                if (parts.length === 2) {
+                  const px = parseFloat(parts[0]);
+                  const py = parseFloat(parts[1]);
+                  if (!isNaN(px) && !isNaN(py)) return { x: px, y: py };
+                }
+                return { x: 50, y: 50 };
+              };
 
-            {bgFilePreview && (
-              <div style={{ marginBottom: '28px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 800, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Xem trước hình nền
-                  </label>
-                  <label 
+              const { x: crossX, y: crossY } = parsePosToXY(bgPos);
+
+              const handleDragGrid = (e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const rawX = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+                const rawY = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+                setBgPos(`${Math.round(rawX)}% ${Math.round(rawY)}%`);
+              };
+
+              const handleMouseMove = (e) => {
+                if (e.buttons !== 1) return;
+                handleDragGrid(e);
+              };
+
+              return (
+                <div style={{ marginBottom: '28px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 800, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Kéo để chọn vùng hiển thị
+                    </label>
+                    <label
+                      style={{
+                        fontSize: '11px',
+                        color: 'var(--text-primary)',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        background: 'var(--bg-input)',
+                        border: '1.5px solid var(--border)',
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        margin: 0,
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--primary)';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'var(--bg-input)';
+                        e.currentTarget.style.color = 'var(--text-primary)';
+                      }}
+                    >
+                      Đổi ảnh
+                      <input type="file" accept="image/*" onChange={handleBgFileChange} style={{ display: 'none' }} />
+                    </label>
+                  </div>
+
+                  {/* Draggable preview — kéo lưới tới vị trí muốn hiển thị */}
+                  <div
                     style={{
-                      fontSize: '11px', 
-                      color: 'var(--text-primary)', 
-                      fontWeight: 800, 
-                      cursor: 'pointer',
-                      background: 'var(--bg-input)', 
-                      border: '1.5px solid var(--border)', 
-                      padding: '4px 10px', 
-                      borderRadius: '8px', 
-                      margin: 0,
-                      transition: 'all 0.2s'
+                      position: 'relative',
+                      width: '100%',
+                      height: '180px',
+                      borderRadius: '14px',
+                      overflow: 'hidden',
+                      border: '1.5px solid var(--border)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                      cursor: 'crosshair',
+                      userSelect: 'none',
                     }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = 'var(--primary)';
-                      e.currentTarget.style.color = 'white';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.background = 'var(--bg-input)';
-                      e.currentTarget.style.color = 'var(--text-primary)';
-                    }}
+                    onMouseDown={handleDragGrid}
+                    onMouseMove={handleMouseMove}
+                    onTouchStart={handleDragGrid}
+                    onTouchMove={e => { e.preventDefault(); handleDragGrid(e); }}
                   >
-                    Đổi ảnh
-                    <input type="file" accept="image/*" onChange={handleBgFileChange} style={{ display: 'none' }} />
-                  </label>
+                    {/* Background image */}
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      backgroundImage: `url(${bgFilePreview})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: bgPos,
+                      backgroundRepeat: 'no-repeat',
+                      transition: 'background-position 0.05s linear',
+                    }} />
+
+                    {/* Subtle dark overlay */}
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(10, 14, 28, 0.28)' }} />
+
+                    {/* Faint rule-of-thirds grid lines */}
+                    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 300 180" preserveAspectRatio="none">
+                      {/* Vertical thirds */}
+                      <line x1="100" y1="0" x2="100" y2="180" stroke="rgba(255,255,255,0.18)" strokeWidth="0.8" strokeDasharray="4 4" />
+                      <line x1="200" y1="0" x2="200" y2="180" stroke="rgba(255,255,255,0.18)" strokeWidth="0.8" strokeDasharray="4 4" />
+                      {/* Horizontal thirds */}
+                      <line x1="0" y1="60" x2="300" y2="60" stroke="rgba(255,255,255,0.18)" strokeWidth="0.8" strokeDasharray="4 4" />
+                      <line x1="0" y1="120" x2="300" y2="120" stroke="rgba(255,255,255,0.18)" strokeWidth="0.8" strokeDasharray="4 4" />
+                    </svg>
+
+                    {/* Crosshair indicator at current bgPos */}
+                    <div style={{
+                      position: 'absolute',
+                      left: `${crossX}%`,
+                      top: `${crossY}%`,
+                      transform: 'translate(-50%, -50%)',
+                      pointerEvents: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      {/* outer ring */}
+                      <div style={{
+                        width: '34px', height: '34px',
+                        borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.15)',
+                        border: '2px solid rgba(255,255,255,0.9)',
+                        boxShadow: '0 0 0 1px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.4)',
+                        position: 'relative',
+                      }}>
+                        {/* crosshair lines */}
+                        <div style={{ position: 'absolute', left: '50%', top: '4px', bottom: '4px', width: '1.5px', background: 'white', transform: 'translateX(-50%)', borderRadius: '1px' }} />
+                        <div style={{ position: 'absolute', top: '50%', left: '4px', right: '4px', height: '1.5px', background: 'white', transform: 'translateY(-50%)', borderRadius: '1px' }} />
+                      </div>
+                    </div>
+
+                    {/* Hint label */}
+                    <div style={{
+                      position: 'absolute', bottom: '8px', left: 0, right: 0,
+                      textAlign: 'center', fontSize: '10px', color: 'rgba(255,255,255,0.75)',
+                      fontWeight: 600, letterSpacing: '0.3px', pointerEvents: 'none',
+                    }}>
+                      Nhấp hoặc kéo để chọn vùng hiển thị
+                    </div>
+                  </div>
                 </div>
-                <div
-                  style={{
-                    width: '100%',
-                    height: '140px',
-                    borderRadius: '14px',
-                    background: `linear-gradient(rgba(11, 15, 25, 0.65), rgba(11, 15, 25, 0.65)), url(${bgFilePreview}) ${bgPos}/cover no-repeat`,
-                    border: '1.5px solid var(--border)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                  }}
-                />
-              </div>
-            )}
+              );
+            })()}
 
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <button
