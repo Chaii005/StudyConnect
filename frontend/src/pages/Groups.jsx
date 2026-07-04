@@ -1007,7 +1007,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
 
                   {/* Cột phải: Các tag và Nút hành động */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' }}>
                       <span style={{ fontSize: 11, fontWeight: 700, color: modeColor, background: modeBg, border: `1px solid ${modeBorder}`, borderRadius: 20, padding: '2px 9px', display: 'inline-block', whiteSpace: 'nowrap' }}>
                         {isOnline ? 'Online' : 'Offline'}
                       </span>
@@ -1017,7 +1017,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                         </span>
                       )}
                       {distanceText && (
-                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)' }}>{distanceText}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{distanceText}</span>
                       )}
                     </div>
 
