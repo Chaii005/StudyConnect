@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from '@/components/common/Avatar';
 import { timeAgo } from '@/utils';
@@ -34,6 +34,22 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(post?.content || '');
+  const commentsEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (commentsEndRef.current) {
+      commentsEndRef.current.scrollTo({
+        top: commentsEndRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (showComments) {
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [post?.comments?.length, showComments]);
 
   useEffect(() => {
     setEditText(post?.content || '');
@@ -72,6 +88,7 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
     onComment(post.id, finalText, replyTo ? { id: replyTo.id, name: replyTo.name } : null);
     setCommentText('');
     setReplyTo(null);
+    setTimeout(scrollToBottom, 120);
   };
 
   const handleSave = async () => {
@@ -421,7 +438,20 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
               );
             };
             return (
-              <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div 
+                ref={commentsEndRef}
+                className="comments-scroll-container"
+                style={{ 
+                  maxHeight: '280px', 
+                  overflowY: 'auto', 
+                  marginBottom: '16px', 
+                  paddingRight: '6px',
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '12px',
+                  scrollBehavior: 'smooth'
+                }}
+              >
                 {roots.map((c) => renderComment(c))}
               </div>
             );
