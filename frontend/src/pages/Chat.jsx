@@ -31,9 +31,6 @@ export default function Chat() {
   const friendsRef = useRef([]);
   useEffect(() => { friendsRef.current = friends; }, [friends]);
 
-  // bgMode derived from chatBg string
-  const bgMode = chatBg && chatBg.split('|').length > 2 ? chatBg.split('|')[2] : 'landscape';
-
   // Track active chat friend for GlobalMessageListener
   useEffect(() => {
     if (selectedFriend?.userId) {
@@ -275,10 +272,7 @@ export default function Chat() {
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
-              maxWidth: (!isMobile && bgMode === 'portrait') ? '480px' : '100%',
-              margin: (!isMobile && bgMode === 'portrait') ? '0 auto' : '0',
               width: '100%',
-              transition: 'max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
             <ConversationView
