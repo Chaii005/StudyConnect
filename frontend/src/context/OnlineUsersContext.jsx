@@ -16,8 +16,8 @@ export function OnlineUsersProvider({ children }) {
       return;
     }
 
-    const channelKey = `online-users-${user.id.toString()}`;
-    const channel = supabase.channel(channelKey, {
+    // IMPORTANT: all users must join the SAME static channel to see each other
+    const channel = supabase.channel('sc-online-users', {
       config: {
         presence: {
           key: user.id.toString(),
@@ -25,12 +25,16 @@ export function OnlineUsersProvider({ children }) {
       },
     });
 
+    const syncState = () => {
+      const state = channel.presenceState();
+      const ids = Object.keys(state);
+      setOnlineIds(ids);
+    };
+
     channel
-      .on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState();
-        const ids = Object.keys(state);
-        setOnlineIds(ids);
-      })
+      .on('presence', { event: 'sync' }, syncState)
+      .on('presence', { event: 'join' }, syncState)
+      .on('presence', { event: 'leave' }, syncState)
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           try {
