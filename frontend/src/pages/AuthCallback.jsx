@@ -8,101 +8,112 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
-      // 1. Get current session from Supabase Auth
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        if (import.meta.env.DEV) console.error('Error fetching session:', sessionError);
-        const errorMsg = sessionError ? sessionError.message : 'No session available';
-        navigate(`/login?error=no_session&message=${encodeURIComponent(errorMsg)}`);
-        return;
-      }
+    let isSyncing = false;
 
-      const authUser = session.user;
+    // Đăng ký lắng nghe sự kiện thay đổi trạng thái Auth (bao gồm cả khi parse xong hash token từ Google redirect)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (isSyncing) return;
 
-      try {
-        // 2. Check if user already exists in public.users by email
-        const { data: existingUser, error: queryError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', authUser.email)
-          .maybeSingle();
+      if (session) {
+        isSyncing = true;
+        const authUser = session.user;
 
-        if (queryError) {
-          throw queryError;
-        }
-
-        let finalUser;
-
-        if (!existingUser) {
-          // 3. If new Google OAuth user, register them in public.users
-          const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
-          const avatarUrl = authUser.user_metadata?.avatar_url || '';
-
-          const { data: newUser, error: insertError } = await supabase
+        try {
+          // 2. Kiểm tra xem người dùng đã tồn tại trong public.users theo email chưa
+          const { data: existingUser, error: queryError } = await supabase
             .from('users')
-            .insert([{
-              full_name: fullName,
-              email: authUser.email,
-              password: '', // OAuth doesn't use passwords in our public.users table
-              avatar: avatarUrl,
-              supabase_uid: authUser.id,
-              role: 'user',
-              university: '',
-              major: '',
-              bio: ''
-            }])
-            .select()
-            .single();
+            .select('*')
+            .eq('email', authUser.email)
+            .maybeSingle();
 
-          if (insertError) {
-            throw insertError;
+          if (queryError) {
+            throw queryError;
           }
-          finalUser = newUser;
-        } else {
-          // 4. Update the supabase_uid link if not already set
-          if (!existingUser.supabase_uid) {
-            const { data: updatedUser, error: updateError } = await supabase
+
+          let finalUser;
+
+          if (!existingUser) {
+            // 3. Nếu là người dùng Google OAuth mới, đăng ký họ vào public.users
+            const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
+            const avatarUrl = authUser.user_metadata?.avatar_url || '';
+
+            const { data: newUser, error: insertError } = await supabase
               .from('users')
-              .update({ supabase_uid: authUser.id })
-              .eq('id', existingUser.id)
+              .insert([{
+                full_name: fullName,
+                email: authUser.email,
+                password: '', // Đăng nhập OAuth không lưu mật khẩu trong db của ta
+                avatar: avatarUrl,
+                supabase_uid: authUser.id,
+                role: 'user',
+                university: '',
+                major: '',
+                bio: ''
+              }])
               .select()
               .single();
 
-            if (updateError) {
-              throw updateError;
+            if (insertError) {
+              throw insertError;
             }
-            finalUser = updatedUser;
+            finalUser = newUser;
           } else {
-            finalUser = existingUser;
+            // 4. Cập nhật liên kết supabase_uid nếu chưa được đặt
+            if (!existingUser.supabase_uid) {
+              const { data: updatedUser, error: updateError } = await supabase
+                .from('users')
+                .update({ supabase_uid: authUser.id })
+                .eq('id', existingUser.id)
+                .select()
+                .single();
+
+              if (updateError) {
+                throw updateError;
+              }
+              finalUser = updatedUser;
+            } else {
+              finalUser = existingUser;
+            }
           }
+
+          // 5. Lưu phiên đăng nhập vào localStorage để đăng nhập ở phía frontend
+          const safeUser = {
+            id: finalUser.id,
+            fullName: finalUser.full_name,
+            email: finalUser.email,
+            role: finalUser.role,
+            university: finalUser.university || '',
+            major: finalUser.major || '',
+            avatar: finalUser.avatar || '',
+            bio: finalUser.bio || '',
+            createdAt: finalUser.created_at,
+          };
+
+          localStorage.setItem('sc_session', JSON.stringify(safeUser));
+
+          // Chuyển hướng về trang chủ
+          window.location.href = '/';
+        } catch (err) {
+          if (import.meta.env.DEV) console.error('Error synchronizing user session:', err);
+          navigate(`/login?error=sync_failed&message=${encodeURIComponent(err.message || 'Sync failed')}`);
         }
-
-        // 5. Store session in localStorage to log user in
-        const safeUser = {
-          id: finalUser.id,
-          fullName: finalUser.full_name,
-          email: finalUser.email,
-          role: finalUser.role,
-          university: finalUser.university || '',
-          major: finalUser.major || '',
-          avatar: finalUser.avatar || '',
-          bio: finalUser.bio || '',
-          createdAt: finalUser.created_at,
-        };
-
-        localStorage.setItem('sc_session', JSON.stringify(safeUser));
-
-        // Redirect to homepage
-        window.location.href = '/';
-      } catch (err) {
-        if (import.meta.env.DEV) console.error('Error synchronizing user session:', err);
-        navigate(`/login?error=sync_failed&message=${encodeURIComponent(err.message || 'Sync failed')}`);
       }
-    };
+    });
 
-    handleAuthCallback();
+    // Fallback: Chờ tối đa 4 giây để SDK xử lý phân tích tokens từ URL hash.
+    // Nếu hết 4 giây vẫn không phát hiện session, hiển thị lỗi.
+    const timeoutId = setTimeout(async () => {
+      if (isSyncing) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login?error=no_session&message=Không%20nhận%20được%20phiên%20đăng%20nhập%20sau%204s');
+      }
+    }, 4000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, [navigate]);
 
   return (
