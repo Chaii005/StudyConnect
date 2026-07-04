@@ -233,11 +233,70 @@ export default function FriendList({ user, friends, onSelect, lastMessages, onli
                           ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã thay đổi hình nền' : `${nickname} đã thay đổi hình nền`)
                           : last.content?.startsWith('[chat_nickname]')
                             ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã thay đổi biệt danh' : `${nickname} đã thay đổi biệt danh`)
-                            : (last.type === 'image' || last.content?.startsWith('data:image')
-                              ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi ảnh' : 'Đã gửi ảnh')
-                              : last.fileAttachment
-                                ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi một tệp' : 'Đã gửi một tệp')
-                                : (String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '') + last.content))
+                                : (() => {
+                                    const isMinePrefix = String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '';
+                                    if (last.type === 'image' || last.content?.startsWith('data:image')) {
+                                      return String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi ảnh' : 'Đã gửi ảnh';
+                                    }
+                                    if (last.fileAttachment) {
+                                      return String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi một tệp' : 'Đã gửi một tệp';
+                                    }
+                                    if (last.content?.startsWith('📵')) {
+                                      const text = last.content.replace(/^\S+\s*/, '');
+                                      return (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', verticalAlign: 'middle' }}>
+                                          <span>{isMinePrefix}</span>
+                                          <span 
+                                            style={{
+                                              width: '18px',
+                                              height: '18px',
+                                              borderRadius: '50%',
+                                              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              color: '#ffffff',
+                                              flexShrink: 0,
+                                            }}
+                                          >
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                              <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
+                                              <line x1="23" y1="1" x2="1" y2="23" />
+                                            </svg>
+                                          </span>
+                                          <span style={{ color: 'var(--text-secondary)' }}>{text}</span>
+                                        </span>
+                                      );
+                                    }
+                                    if (last.content?.startsWith('📹')) {
+                                      const text = last.content.replace(/^\S+\s*/, '');
+                                      return (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', verticalAlign: 'middle' }}>
+                                          <span>{isMinePrefix}</span>
+                                          <span 
+                                            style={{
+                                              width: '18px',
+                                              height: '18px',
+                                              borderRadius: '50%',
+                                              background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              color: '#ffffff',
+                                              flexShrink: 0,
+                                            }}
+                                          >
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                              <path d="m22 8-6 4 6 4V8Z" />
+                                              <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+                                            </svg>
+                                          </span>
+                                          <span style={{ color: 'var(--text-secondary)' }}>{text}</span>
+                                        </span>
+                                      );
+                                    }
+                                    return isMinePrefix + last.content;
+                                  })())
                         : (f.status === 'pending'
                           ? (f.fromUserId === String(user.id) ? '⌛ Chờ chấp nhận kết bạn...' : '🤝 Lời mời kết nối từ đối phương')
                           : 'Bắt đầu nhắn tin...')}

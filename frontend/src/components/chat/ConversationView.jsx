@@ -1139,12 +1139,13 @@ export default function ConversationView({
                       width: '28px', 
                       height: '28px', 
                       borderRadius: '50%', 
-                      background: bgInfo.luminance > 135 ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.12)',
+                      background: isMissed ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #14b8a6, #0d9488)',
                       display: 'inline-flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      border: '1.5px solid var(--border-chat)',
-                      color: 'var(--text-primary-chat)',
+                      color: '#ffffff',
+                      boxShadow: isMissed ? '0 2px 8px rgba(239, 68, 68, 0.35)' : '0 2px 8px rgba(20, 184, 166, 0.35)',
+                      flexShrink: 0,
                     }}
                   >
                     {isMissed ? (
