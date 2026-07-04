@@ -5,15 +5,41 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
       {/* ── Header: search LEFT, nút RIGHT, luôn cùng hàng ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '20px' }}>
 
-        {/* Search — cố định chiều rộng, không co giãn */}
-        <div className="form-input-wrap" style={{ width: '300px', flexShrink: 0 }}>
+        {/* Search — compact, icon bên trái, không placeholder dài */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          background: 'var(--bg)', border: '1px solid var(--border)',
+          borderRadius: '10px', padding: '7px 12px',
+          width: '220px', flexShrink: 0,
+          transition: 'border-color 0.15s',
+        }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
           <input
             type="text"
-            className="form-input"
-            placeholder=" Nhập chính xác mã ID phòng (6 số)..."
+            placeholder="ID 6 số..."
             value={groupSearch}
             onChange={(e) => setGroupSearch(e.target.value)}
+            style={{
+              border: 'none', outline: 'none', background: 'transparent',
+              fontSize: '13px', color: 'var(--text-primary)',
+              width: '100%', fontFamily: 'inherit',
+            }}
           />
+          {groupSearch && (
+            <button
+              onClick={() => setGroupSearch('')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Nút — compact, tự co theo nội dung */}
