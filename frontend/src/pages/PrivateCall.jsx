@@ -343,22 +343,19 @@ function CtrlBtn({ onClick, title, active = true, danger = false, children }) {
       style={{
         width: danger ? 64 : 56, height: danger ? 64 : 56,
         borderRadius: '50%',
-        border: 'none',
         cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '22px',
-        transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        transition: 'all 0.2s ease',
         background: danger
-          ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+          ? (hov ? '#dc2626' : '#ef4444')
           : active
-            ? (hov ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)')
-            : (hov ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.12)'),
-        // eslint-disable-next-line no-dupe-keys
-        border: danger ? 'none' : `1.5px solid ${active ? 'rgba(255,255,255,0.12)' : 'rgba(239,68,68,0.35)'}`,
-        boxShadow: danger ? '0 4px 14px rgba(239,68,68,0.4)' : 'none',
+            ? (hov ? '#000000' : 'var(--primary)')
+            : (hov ? 'var(--bg-input)' : 'transparent'),
+        border: '1.5px solid var(--border)',
+        boxShadow: 'none',
         transform: hov ? (danger ? 'scale(1.15) rotate(-10deg)' : 'scale(1.1)') : 'scale(1)',
-        color: danger ? '#fff' : active ? '#fff' : '#ef4444',
-        animation: danger ? 'pc-reject-pulse 1.5s ease-in-out infinite' : 'none',
+        color: danger ? '#fff' : active ? '#fff' : 'var(--text-primary)',
       }}
     >
       {children}
@@ -381,7 +378,8 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
   return (
     <div style={{
       position: 'relative',
-      background: '#0a0a1a',
+      background: '#1A1A1A',
+      border: '1.5px solid var(--border)',
       borderRadius: '20px',
       overflow: 'hidden',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -405,7 +403,7 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
         <div style={{
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', gap: '20px',
-          background: `radial-gradient(circle at center, ${colorOf(name)}22 0%, #0a0a1a 70%)`,
+          background: '#1A1A1A',
           width: '100%', height: '100%',
           justifyContent: 'center',
           position: 'absolute',
@@ -413,25 +411,17 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
           zIndex: 2,
         }}>
           <div style={{ position: 'relative', marginBottom: isConnecting ? '10px' : '0px' }}>
-            {isConnecting && [0, 1, 2].map(i => (
-              <div key={i} style={{
-                position: 'absolute', inset: '-12px',
-                borderRadius: '50%',
-                border: '2px solid rgba(255,255,255,0.4)',
-                animation: `pc-wave 2s ease-out ${i * 0.6}s infinite`,
-              }} />
-            ))}
             <div style={{
               borderRadius: '50%',
-              animation: isConnecting ? 'pc-avatar-glow 2s ease-in-out infinite' : 'none',
-              border: '3px solid rgba(255,255,255,0.2)',
+              border: '1.5px solid rgba(255,255,255,0.1)',
               display: 'inline-flex',
               overflow: 'hidden',
+              boxShadow: 'none',
             }}>
               <Avatar src={avatar} name={name} size={isConnecting ? 88 : 80} />
             </div>
           </div>
-          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>
+          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>
             {camOff ? 'Camera tắt' : 'Đang kết nối...'}
           </span>
         </div>
@@ -440,11 +430,12 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
       {/* Tên */}
       <div style={{
         position: 'absolute', bottom: '14px', left: '14px',
-        background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)',
-        borderRadius: '10px', padding: '5px 12px',
-        fontSize: '13px', fontWeight: 600, color: '#fff',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)',
+        borderRadius: '12px', padding: '6px 14px',
+        fontSize: '12.5px', fontWeight: 600, color: '#fff',
+        border: '1px solid rgba(255,255,255,0.15)',
         zIndex: 5,
+        boxShadow: 'none',
       }}>
         {name}
       </div>
@@ -603,11 +594,11 @@ export default function PrivateCall() {
         onClick={resetHideTimer}
         style={{
           position: 'fixed', inset: 0,
-          background: 'radial-gradient(ellipse at 30% 20%, #1a1a1a 0%, #0a0a0a 100%)',
+          background: 'var(--bg)',
           display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
           fontFamily: "'Inter', 'Segoe UI', sans-serif",
-          color: '#fff',
+          color: 'var(--text-primary)',
           userSelect: 'none',
           cursor: showControls ? 'default' : 'none',
         }}
@@ -617,7 +608,9 @@ export default function PrivateCall() {
           position: 'absolute', top: 0, left: 0, right: 0,
           padding: '20px 24px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)',
+          background: 'rgba(255,255,255,0.75)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1.5px solid var(--border)',
           zIndex: 10,
           opacity: showControls ? 1 : 0,
           pointerEvents: showControls ? 'auto' : 'none',
@@ -628,11 +621,11 @@ export default function PrivateCall() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Avatar src={friendAvatar} name={friendName} size={40} />
             <div>
-              <div style={{ fontWeight: 700, fontSize: '16px' }}>{friendName}</div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)' }}>{friendName}</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {connected ? (
                   <>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 6px #22c55e' }} />
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
                     <span>{String(Math.floor(elapsed / 60)).padStart(2, '0')}:{String(elapsed % 60).padStart(2, '0')}</span>
                   </>
                 ) : (
@@ -654,7 +647,7 @@ export default function PrivateCall() {
           {/* Label phòng */}
           <div style={{
             fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em',
-            color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase',
+            color: 'var(--text-muted)', textTransform: 'uppercase',
           }}>
             Cuộc gọi riêng tư
           </div>
@@ -684,8 +677,8 @@ export default function PrivateCall() {
               width: '180px', height: '260px',
               borderRadius: '16px',
               overflow: 'hidden',
-              border: '2px solid rgba(255,255,255,0.2)',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+              border: '1.5px solid var(--border)',
+              boxShadow: 'none',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 40, cursor: 'pointer',
               animation: 'pc-fade-in 0.4s ease forwards',
@@ -707,7 +700,7 @@ export default function PrivateCall() {
               background: 'rgba(0,0,0,0.65)', borderRadius: '6px',
               padding: '6px 10px', fontSize: '11px', color: '#fff',
               fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              boxShadow: 'none',
               transition: 'all 0.2s',
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.85)'}
@@ -728,21 +721,23 @@ export default function PrivateCall() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(0,0,0,0.8)', zIndex: 15,
+              background: 'rgba(255,255,255,0.92)', zIndex: 15,
+              backdropFilter: 'blur(12px)',
               flexDirection: 'column', gap: '16px', padding: '32px',
               textAlign: 'center',
             }}>
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 10px rgba(239,68,68,0.35))' }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
                 <line x1="12" y1="9" x2="12" y2="13" />
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
-              <div style={{ fontWeight: 700, fontSize: '18px', color: '#fca5a5' }}>Không thể kết nối</div>
-              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', maxWidth: '300px', lineHeight: 1.6 }}>{error}</div>
+              <div style={{ fontWeight: 700, fontSize: '18px', color: '#ef4444' }}>Không thể kết nối</div>
+              <div style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '300px', lineHeight: 1.6 }}>{error}</div>
               <button onClick={handleEndCall} style={{
-                padding: '10px 24px', background: 'linear-gradient(135deg,#ef4444,#dc2626)',
-                border: 'none', borderRadius: '12px', color: '#fff',
+                padding: '10px 24px', background: '#ef4444',
+                border: '1.5px solid var(--border)', borderRadius: '12px', color: '#fff',
                 fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit',
+                boxShadow: 'none',
               }}>Quay lại</button>
             </div>
           )}
@@ -752,16 +747,17 @@ export default function PrivateCall() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(0,0,0,0.85)', zIndex: 15,
+              background: 'rgba(255,255,255,0.92)', zIndex: 15,
+              backdropFilter: 'blur(12px)',
               flexDirection: 'column', gap: '16px', padding: '32px',
               textAlign: 'center',
             }}>
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 10px rgba(239,68,68,0.35))' }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
                 <line x1="23" y1="1" x2="1" y2="23" />
               </svg>
-              <div style={{ fontWeight: 700, fontSize: '18px', color: '#fca5a5' }}>Cuộc gọi đã kết thúc</div>
-              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', maxWidth: '300px', lineHeight: 1.6 }}>Đối phương đã gác máy. Đang quay lại phòng chat...</div>
+              <div style={{ fontWeight: 700, fontSize: '18px', color: 'var(--text-primary)' }}>Cuộc gọi đã kết thúc</div>
+              <div style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '300px', lineHeight: 1.6 }}>Đối phương đã gác máy. Đang quay lại phòng chat...</div>
             </div>
           )}
 
@@ -770,7 +766,8 @@ export default function PrivateCall() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(0,0,0,0.88)', zIndex: 16,
+              background: 'rgba(255,255,255,0.92)', zIndex: 16,
+              backdropFilter: 'blur(12px)',
               flexDirection: 'column', gap: '20px', padding: '32px',
               textAlign: 'center',
               animation: 'pc-fade-in 0.3s ease',
@@ -781,31 +778,25 @@ export default function PrivateCall() {
                 width: 80, height: 80,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                {/* Outer glow ring */}
-                <div style={{
-                  position: 'absolute', inset: 0, borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, transparent 70%)',
-                  animation: 'pc-pulse-ring 2s ease-in-out infinite',
-                }} />
                 {/* Icon circle */}
                 <div style={{
                   width: 64, height: 64, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(239,68,68,0.25) 0%, rgba(239,68,68,0.08) 100%)',
-                  border: '1.5px solid rgba(239,68,68,0.4)',
+                  background: 'rgba(239,68,68,0.1)',
+                  border: '1.5px solid var(--border)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 0 24px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
+                  boxShadow: 'none',
                 }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 6px rgba(239,68,68,0.5))' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
                     <line x1="23" y1="1" x2="1" y2="23" />
                   </svg>
                 </div>
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '20px', color: '#fca5a5', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                <div style={{ fontWeight: 800, fontSize: '20px', color: '#ef4444', marginBottom: '8px', letterSpacing: '-0.01em' }}>
                   {callEndedMsg === 'no_answer' ? 'Người nhận không bắt máy' : callEndedMsg === 'rejected' ? 'Người nhận đang bận' : 'Cuộc gọi đã bị hủy'}
                 </div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                   Đang quay lại phòng chat...
                 </div>
               </div>
@@ -820,7 +811,9 @@ export default function PrivateCall() {
             position: 'absolute',
             bottom: 0, left: 0, right: 0,
             padding: '24px 0 36px',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px)',
+            borderTop: '1.5px solid var(--border)',
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', gap: '16px',
             zIndex: 10,
@@ -878,7 +871,7 @@ export default function PrivateCall() {
           {/* Trạng thái */}
           {!connected && !error && (
             <div style={{
-              fontSize: '12px', color: 'rgba(255,255,255,0.4)',
+              fontSize: '12px', color: 'var(--text-muted)',
               letterSpacing: '0.05em',
             }}>
               Đang chờ {friendName} kết nối...

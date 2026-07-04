@@ -42,16 +42,14 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
       position: 'relative',
       borderRadius: fullScreen ? '0' : '24px',
       overflow: 'hidden',
-      background: '#0d0d18',
-      border: speaking ? '2.5px solid #FFFFFF' : screenSharing ? '2px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.08)',
+      background: '#000000',
+      border: speaking ? '3px solid var(--primary)' : '1.5px solid var(--border)',
       aspectRatio: fullScreen ? 'auto' : '16/9',
       width: fullScreen ? '100%' : '100%',
       height: fullScreen ? '100%' : '100%',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      boxShadow: speaking 
-        ? '0 0 20px rgba(255,255,255,0.35), 0 12px 40px rgba(0,0,0,0.5)' 
-        : '0 8px 30px rgba(0,0,0,0.35)',
+      boxShadow: 'none',
       maxWidth: '100%',
       maxHeight: '100%',
       ...style
@@ -65,15 +63,15 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
           width: '100%',
           height: '100%',
           justifyContent: 'center',
-          background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, rgba(13, 13, 24, 1) 100%)',
+          background: '#1A1A1A',
         }}>
           <div style={{
             padding: '20px',
             borderRadius: '50%',
-            background: 'rgba(255,255,255,0.2)',
-            border: '2px solid rgba(255,255,255,0.4)',
-            color: '#D4D4D4',
-            boxShadow: '0 8px 32px rgba(255,255,255,0.25)',
+            background: 'rgba(255,255,255,0.08)',
+            border: '1.5px solid rgba(255,255,255,0.2)',
+            color: '#FFFFFF',
+            boxShadow: 'none',
           }}>
             <MonitorSvg active={true} size={48} />
           </div>
@@ -106,15 +104,15 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
               onClick={(e) => { e.stopPropagation(); onToggleMirror(); }}
               style={{
                 position: 'absolute', top: '16px', right: '16px',
-                background: 'rgba(15,15,26,0.75)', backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px',
+                background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)',
+                border: '1.5px solid rgba(255,255,255,0.2)', borderRadius: '12px',
                 color: 'white', fontSize: '11px', padding: '6px 12px',
                 cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', gap: '6px',
                 fontWeight: 600, fontFamily: 'inherit', transition: 'all 0.2s',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                boxShadow: 'none',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,15,26,0.9)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(15,15,26,0.75)'}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.85)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.65)'}
               title="Lật/Không lật camera"
             >
               🔄 Lật camera
@@ -125,11 +123,12 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
           {screenSharing && !isLocal && (
             <div style={{
               position: 'absolute', top: '16px', left: '16px',
-              background: 'linear-gradient(135deg, #3A3A3A, #1A1A1A)',
+              background: 'var(--primary)',
               borderRadius: '8px', padding: '6px 12px',
               fontSize: '12px', fontWeight: 700, color: 'white',
               display: 'flex', alignItems: 'center', gap: '6px',
-              boxShadow: '0 4px 12px rgba(255,255,255,0.15)',
+              border: '1.5px solid var(--border)',
+              boxShadow: 'none',
               zIndex: 10,
             }}>
               <MonitorSvg active={true} size={14} />
@@ -149,15 +148,15 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
               justifyContent: 'center',
               position: 'absolute',
               inset: 0,
-              background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0%, rgba(13, 13, 24, 1) 100%)',
+              background: '#1A1A1A',
               zIndex: 2,
             }}>
               <div style={{
                 padding: '6px',
                 borderRadius: '50%',
                 background: 'rgba(255,255,255,0.03)',
-                border: '1.5px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 12px 30px rgba(0,0,0,0.4)',
+                border: '1.5px solid rgba(255,255,255,0.1)',
+                boxShadow: 'none',
                 transition: 'transform 0.3s ease',
               }}>
                 <Avatar src={avatar} name={name} size={fullScreen ? 110 : 76} />
@@ -173,11 +172,11 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
       {/* Name tag */}
       <div style={{
         position: 'absolute', bottom: '16px', left: '16px',
-        background: 'rgba(15,15,26,0.7)', backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.15)',
         borderRadius: '12px', padding: '6px 14px',
         display: 'flex', alignItems: 'center', gap: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        boxShadow: 'none',
       }}>
         {speaking && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FFFFFF', animation: 'pulse 1s infinite' }} />}
         <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'white', letterSpacing: '0.01em' }}>
@@ -189,10 +188,10 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
       {mutedProp && (
         <div style={{
           position: 'absolute', top: '16px', right: '16px',
-          background: 'rgba(239,68,68,0.9)', backdropFilter: 'blur(8px)',
+          background: '#ef4444', border: '1.5px solid var(--border)',
           borderRadius: '50%',
           width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '14px', boxShadow: '0 4px 12px rgba(239,68,68,0.3)',
+          fontSize: '14px', boxShadow: 'none',
         }}>🔇</div>
       )}
     </div>
@@ -1085,7 +1084,7 @@ export default function MeetRoom() {
 
   return (
     <AppLayout hideSidebar={true} hideNavbar={true}>
-      <div ref={containerRef} onMouseMove={resetHideTimer} style={{ height: '100vh', background: '#0a0a14', display: 'flex', flexDirection: 'column', fontFamily: 'inherit', overflow: 'hidden' }}>
+      <div ref={containerRef} onMouseMove={resetHideTimer} style={{ height: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', fontFamily: 'inherit', overflow: 'hidden' }}>
 
         {/* ── Navbar ── */}
         <nav style={{
@@ -1093,9 +1092,9 @@ export default function MeetRoom() {
           top: 0, left: 0, right: 0, zIndex: 50,
           opacity: isFullscreen ? (showControls ? 1 : 0) : 1,
           pointerEvents: isFullscreen ? (showControls ? 'auto' : 'none') : 'auto',
-          background: isFullscreen ? 'rgba(10,10,20,0.75)' : '#0a0a14',
+          background: isFullscreen ? 'rgba(255, 255, 255, 0.75)' : 'var(--bg)',
           backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          borderBottom: '1.5px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 24px',
           height: '64px',
@@ -1108,8 +1107,8 @@ export default function MeetRoom() {
           {!isFullscreen && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0, pointerEvents: 'auto' }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 750, fontSize: '15px', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>{groupName}</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontWeight: 750, fontSize: '15px', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>{groupName}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#22c55e', fontWeight: 550 }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', animation: 'pulse 1.5s infinite' }} />
                     {allFeeds.length} trực tuyến
@@ -1118,7 +1117,7 @@ export default function MeetRoom() {
               </div>
 
               {/* Stacked Avatars list */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '16px', flexWrap: 'nowrap', overflow: 'visible' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', borderLeft: '1.5px solid var(--border)', paddingLeft: '16px', flexWrap: 'nowrap', overflow: 'visible' }}>
                 {allFeeds.map((f, i) => (
                   <div
                     key={f.id}
@@ -1142,7 +1141,7 @@ export default function MeetRoom() {
                       height: '9px',
                       borderRadius: '50%',
                       background: '#22c55e',
-                      border: '1.5px solid #0a0a14',
+                      border: '1.5px solid var(--bg)',
                     }} />
                   </div>
                 ))}
@@ -1160,15 +1159,15 @@ export default function MeetRoom() {
             {/* Copy link */}
             {!isFullscreen && (
               <button onClick={copyLink} style={{
-                background: copied ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.06)',
-                border: `1px solid ${copied ? 'rgba(34,197,94,0.35)' : 'rgba(255,255,255,0.1)'}`,
+                background: copied ? 'rgba(34,197,94,0.1)' : 'var(--bg-input)',
+                border: `1.5px solid ${copied ? '#22c55e' : 'var(--border)'}`,
                 borderRadius: '12px', padding: '8px 16px', cursor: 'pointer',
-                color: copied ? '#4ade80' : 'rgba(255,255,255,0.85)',
+                color: copied ? '#22c55e' : 'var(--text-primary)',
                 fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600, transition: 'all 0.2s',
-                boxShadow: copied ? '0 4px 12px rgba(34,197,94,0.15)' : 'none',
+                boxShadow: 'none',
               }}
-              onMouseEnter={e => { if(!copied) e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-              onMouseLeave={e => { if(!copied) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+              onMouseEnter={e => { if(!copied) e.currentTarget.style.background = 'var(--border)'; if(!copied) e.currentTarget.style.color = 'var(--bg)'; }}
+              onMouseLeave={e => { if(!copied) e.currentTarget.style.background = 'var(--bg-input)'; if(!copied) e.currentTarget.style.color = 'var(--text-primary)'; }}
               >
                 {copied ? '✓ Đã sao chép link' : '🔗 Chia sẻ link'}
               </button>
@@ -1176,14 +1175,14 @@ export default function MeetRoom() {
 
             {/* Fullscreen toggle */}
             <button onClick={toggleFullscreen} title={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'} style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--bg-input)',
+              border: '1.5px solid var(--border)',
               borderRadius: '12px', width: '36px', height: '36px', cursor: 'pointer',
-              color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.2s',
             }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--bg)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
             >
               {isFullscreen ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -1203,15 +1202,15 @@ export default function MeetRoom() {
               <button onClick={() => setFsChatOpen(o => !o)} title="Chat & Thành viên" style={{
                 height: '36px', borderRadius: '12px', flexShrink: 0,
                 padding: '0 16px',
-                background: fsChatOpen ? 'linear-gradient(135deg, #3A3A3A, #1A1A1A)' : 'rgba(255,255,255,0.06)',
-                border: `1px solid ${fsChatOpen ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                background: fsChatOpen ? 'var(--primary)' : 'var(--bg-input)',
+                border: '1.5px solid var(--border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 cursor: 'pointer', fontSize: '13px', fontWeight: 600, transition: 'all 0.2s',
                 backdropFilter: 'blur(12px)',
-                color: '#ffffff',
+                color: fsChatOpen ? '#ffffff' : 'var(--text-primary)',
                 fontFamily: 'inherit',
                 whiteSpace: 'nowrap',
-                boxShadow: fsChatOpen ? '0 4px 16px rgba(255,255,255,0.15)' : 'none',
+                boxShadow: 'none',
               }}>
                 <ChatSvg size={14} />
                 Trò chuyện
@@ -1228,7 +1227,7 @@ export default function MeetRoom() {
 
             {/* Error banner */}
             {error && (
-              <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 120, background: 'rgba(239,68,68,0.92)', backdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', padding: '10px 20px', fontSize: '13px', color: 'white', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+              <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 120, background: '#ef4444', border: '1.5px solid var(--border)', borderRadius: '12px', padding: '10px 20px', fontSize: '13px', color: 'white', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: 'none' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                   <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
                   <line x1="12" y1="9" x2="12" y2="13" />
@@ -1450,20 +1449,24 @@ export default function MeetRoom() {
                     marginLeft: i > 0 ? '-10px' : '0',
                   }}>
                     <Avatar src={f.avatar} name={f.name} size={32} />
-                    <div style={{
-                      position: 'absolute', bottom: '-1px', right: '-1px',
-                      width: '9px', height: '9px', borderRadius: '50%',
-                      background: '#22c55e', border: '1.5px solid #0a0a14',
-                      // eslint-disable-next-line no-dupe-keys
-                      background: '#525252', border: '1.5px solid #0a0a14',
-                    }} />
+                    {(() => {
+                      const active = f.isLocal ? (camOn || micOn) : (!f.camOff || !f.micMuted);
+                      return (
+                        <div style={{
+                          position: 'absolute', bottom: '-1px', right: '-1px',
+                          width: '9px', height: '9px', borderRadius: '50%',
+                          background: active ? '#22c55e' : '#737373',
+                          border: '1.5px solid var(--bg)',
+                        }} />
+                      );
+                    })()}
                   </div>
                 ))}
                 <span style={{
-                  fontSize: '12px', color: 'rgba(255,255,255,0.75)', fontWeight: 600,
-                  background: 'rgba(10,10,20,0.6)', backdropFilter: 'blur(10px)',
+                  fontSize: '12px', color: 'var(--text-primary)', fontWeight: 600,
+                  background: 'var(--bg-input)',
                   padding: '4px 10px', borderRadius: '10px', marginLeft: '6px',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  border: '1.5px solid var(--border)',
                 }}>{allFeeds.length} trực tuyến</span>
               </div>
             )}
@@ -1661,11 +1664,11 @@ export default function MeetRoom() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               gap: '12px',
               padding: '10px 20px',
-              background: 'rgba(255, 255, 255, 0.8)',
+              background: 'rgba(255, 255, 255, 0.92)',
               backdropFilter: 'blur(24px)',
-              border: '1px solid rgba(0,0,0,0.1)',
+              border: '1.5px solid var(--border)',
               borderRadius: '32px',
-              boxShadow: '0 16px 40px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.5)',
+              boxShadow: 'none',
               whiteSpace: 'nowrap',
             }}>
               {/* Mic toggle */}
@@ -1696,7 +1699,7 @@ export default function MeetRoom() {
               />
 
               {/* Divider */}
-              <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
+              <div style={{ width: '1px', height: '24px', background: 'var(--border)', opacity: 0.15, flexShrink: 0 }} />
 
               {/* Chat Toggle (only when NOT fullscreen) */}
               {!isFullscreen && (
@@ -1739,7 +1742,7 @@ export default function MeetRoom() {
               )}
 
               {/* Divider */}
-              <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
+              <div style={{ width: '1px', height: '24px', background: 'var(--border)', opacity: 0.15, flexShrink: 0 }} />
 
               {/* End call (Leave Room) */}
               <button
@@ -1751,26 +1754,24 @@ export default function MeetRoom() {
                 }}
                 title="Rời phòng"
                 style={{
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  border: 'none',
+                  background: '#ef4444',
+                  border: '1.5px solid var(--border)',
                   borderRadius: '50%',
                   width: '46px',
                   height: '46px',
                   cursor: 'pointer', color: 'white',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                  boxShadow: '0 4px 14px rgba(239,68,68,0.4)',
+                  boxShadow: 'none',
                   flexShrink: 0,
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+                  e.currentTarget.style.background = '#dc2626';
                   e.currentTarget.style.transform = 'scale(1.12) rotate(-10deg)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(239,68,68,0.55)';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                  e.currentTarget.style.background = '#ef4444';
                   e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(239,68,68,0.4)';
                 }}
               >
                 <PhoneOffSvg />
@@ -1782,30 +1783,29 @@ export default function MeetRoom() {
           {!isFullscreen && sidebarOpen && (
             <div className="meet-sidebar" style={{
               width: '375px', flexShrink: 0,
-              background: 'rgba(255,255,255,0.95)', borderLeft: '1px solid rgba(0,0,0,0.08)',
+              background: '#ffffff', borderLeft: '1.5px solid var(--border)',
               display: 'flex', flexDirection: 'column', height: '100%',
-              backdropFilter: 'blur(20px)',
-              boxShadow: '-10px 0 30px rgba(0,0,0,0.05)',
+              boxShadow: 'none',
               animation: 'slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
             }}>
-              {/* Header với Segmented Control cực kỳ cao cấp chứa 3 tab kéo giãn */}
+              {/* Header với Segmented Control chứa 3 tab kéo giãn */}
               <div style={{
                 padding: '16px 10px 14px',
                 display: 'flex',
                 flexDirection: 'column',
                 flexShrink: 0,
                 background: '#ffffff',
-                borderBottom: '2.5px solid #171717',
+                borderBottom: '1.5px solid var(--border)',
               }}>
                 {/* Pill Segmented Swapper */}
                 <div style={{
                   display: 'flex',
-                  background: '#f4f4f5',
+                  background: 'var(--bg-input)',
                   borderRadius: '12px',
                   padding: '5px',
                   gap: '3px',
-                  border: '1.5px solid #171717',
-                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+                  border: '1.5px solid var(--border)',
+                  boxShadow: 'none'
                 }}>
                   {TABS.map(t => (
                     <button
@@ -1814,11 +1814,11 @@ export default function MeetRoom() {
                       style={{
                         flex: 1,
                         padding: '12px 4px',
-                        border: 'none',
+                        border: tab === t.key ? '1.5px solid var(--border)' : '1.5px solid transparent',
                         cursor: 'pointer',
                         background: tab === t.key ? '#ffffff' : 'transparent',
                         borderRadius: '8px',
-                        color: tab === t.key ? '#171717' : '#71717a',
+                        color: tab === t.key ? 'var(--text-primary)' : 'var(--text-secondary)',
                         fontFamily: 'inherit',
                         fontSize: '12.5px',
                         fontWeight: tab === t.key ? 750 : 600,
@@ -1827,8 +1827,8 @@ export default function MeetRoom() {
                         justifyContent: 'center',
                         gap: '4px',
                         whiteSpace: 'nowrap',
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: tab === t.key ? '0 2px 6px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' : 'none',
+                        transition: 'all 0.2s ease',
+                        boxShadow: 'none',
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', opacity: tab === t.key ? 1 : 0.7 }}>
@@ -1872,20 +1872,20 @@ export default function MeetRoom() {
                       })}
                       <div ref={msgEndRef} />
                     </div>
-                    <div style={{ padding: '12px', borderTop: '1px solid rgba(0,0,0,0.08)', display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    <div style={{ padding: '12px', borderTop: '1.5px solid var(--border)', display: 'flex', gap: '8px', flexShrink: 0 }}>
                       <input
                         value={input} onChange={e => setInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                         placeholder="Nhắn tin..."
                         style={{
-                          flex: 1, background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)',
-                          borderRadius: '20px', padding: '9px 16px', color: '#171717',
+                          flex: 1, background: 'var(--bg-input)', border: '1.5px solid var(--border)',
+                          borderRadius: '20px', padding: '9px 16px', color: 'var(--text-primary)',
                           fontSize: '13px', fontFamily: 'inherit', outline: 'none',
                         }} />
                       <button onClick={sendMessage} style={{
-                        width: '38px', height: '38px', borderRadius: '50%', border: 'none',
-                        background: input.trim() ? '#171717' : 'rgba(0,0,0,0.08)',
-                        color: input.trim() ? '#ffffff' : '#888', cursor: 'pointer',
+                        width: '38px', height: '38px', borderRadius: '50%', border: '1.5px solid var(--border)',
+                        background: input.trim() ? 'var(--primary)' : 'transparent',
+                        color: input.trim() ? '#ffffff' : 'var(--text-muted)', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.2s',
                         flexShrink: 0,
                       }}>
@@ -1911,14 +1911,14 @@ export default function MeetRoom() {
                       {allFeeds.map(f => {
                         const role = getParticipantRole(f);
                         return (
-                          <div key={f.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(0,0,0,0.02)', border: '1px solid var(--border)', borderRadius: '14px' }}>
+                          <div key={f.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: '14px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                               <div style={{ position: 'relative' }}>
                                 <Avatar src={f.avatar} name={f.name} size={34} />
                                 <div style={{
                                   position: 'absolute', bottom: '-1px', right: '-1px',
                                   width: '8px', height: '8px', borderRadius: '50%',
-                                  background: '#22c55e', border: '1.5px solid #ffffff'
+                                  background: '#22c55e', border: '1.5px solid var(--bg)'
                                 }} />
                               </div>
                               <div>
@@ -1935,13 +1935,13 @@ export default function MeetRoom() {
                                 <div style={{ marginTop: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                   {role === 'Trưởng phòng' ? (
                                     <span style={{
-                                      background: 'rgba(0,0,0,0.04)',
+                                      background: 'var(--bg-input)',
                                       color: 'var(--text-primary)',
                                       fontSize: '10px',
                                       fontWeight: 700,
                                       padding: '1px 7px',
                                       borderRadius: '5px',
-                                      border: '1px solid var(--border)',
+                                      border: '1.5px solid var(--border)',
                                       lineHeight: '16px',
                                       whiteSpace: 'nowrap',
                                       display: 'inline-flex',
@@ -1969,7 +1969,7 @@ export default function MeetRoom() {
 
                                 const iconBtn = (active, type, Icon, titleOn, titleOff) => {
                                   const color = active ? 'var(--text-primary)' : 'var(--text-muted)';
-                                  const bg = 'rgba(0, 0, 0, 0.04)';
+                                  const bg = active ? 'var(--bg-input)' : 'transparent';
                                   const border = 'var(--border)';
                                   const payload = type === 'cam'
                                     ? { type: 'force-mute', to: f.id, room: roomId, muteCam: true, muteMic: false }
@@ -1986,17 +1986,17 @@ export default function MeetRoom() {
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         width: '30px', height: '30px', borderRadius: '50%',
                                         background: bg,
-                                        border: `1px solid ${border}`,
+                                        border: `1.5px solid ${border}`,
                                         color: color,
                                         cursor: canForce && active ? 'pointer' : 'default',
-                                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        transition: 'all 0.2s ease',
                                         flexShrink: 0,
                                         padding: 0,
                                       }}
                                       onMouseEnter={canForce && active ? e => {
-                                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                                        e.currentTarget.style.color = '#ef4444';
+                                        e.currentTarget.style.background = '#ef4444';
+                                        e.currentTarget.style.borderColor = 'var(--border)';
+                                        e.currentTarget.style.color = '#ffffff';
                                         e.currentTarget.style.transform = 'scale(1.1)';
                                       } : undefined}
                                       onMouseLeave={canForce && active ? e => {
@@ -2157,20 +2157,24 @@ function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null
   const [hover, setHover] = useState(false);
 
   const bg = danger
-    ? (hover ? 'rgba(239, 68, 68, 0.18)' : 'rgba(239, 68, 68, 0.1)')
+    ? (hover ? 'rgba(239, 68, 68, 0.15)' : 'transparent')
     : active || highlight
-      ? (hover ? 'rgba(0, 0, 0, 0.14)' : 'rgba(0, 0, 0, 0.08)')
+      ? (hover ? '#000000' : 'var(--primary)')
       : hover
-        ? 'rgba(0, 0, 0, 0.08)'
-        : 'rgba(0, 0, 0, 0.03)';
+        ? 'var(--bg-input)'
+        : 'transparent';
 
   const border = danger
-    ? '1px solid rgba(239, 68, 68, 0.3)'
+    ? '1.5px solid #ef4444'
     : active || highlight
-      ? '1px solid rgba(0, 0, 0, 0.18)'
-      : '1px solid rgba(0, 0, 0, 0.08)';
+      ? '1.5px solid var(--border)'
+      : '1.5px solid var(--border)';
 
-  const color = danger ? '#ef4444' : active || highlight ? '#171717' : 'rgba(0, 0, 0, 0.65)';
+  const color = danger
+    ? '#ef4444'
+    : active || highlight
+      ? '#ffffff'
+      : 'var(--text-primary)';
 
   return (
     <button
@@ -2189,9 +2193,9 @@ function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.2s ease',
         position: 'relative',
-        boxShadow: active || highlight ? '0 0 14px rgba(255, 255, 255, 0.18)' : 'none',
+        boxShadow: 'none',
         transform: hover ? 'scale(1.08)' : 'scale(1)',
       }}
     >
@@ -2206,7 +2210,7 @@ function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null
             height: '10px',
             background: '#ef4444',
             borderRadius: '50%',
-            border: '2px solid #0a0a14',
+            border: '2px solid var(--bg)',
           }} />
         ) : badge > 0 ? (
           <span style={{
@@ -2219,7 +2223,7 @@ function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null
             fontWeight: 700,
             borderRadius: '10px',
             padding: '2px 5.5px',
-            border: '1.5px solid #0a0a14',
+            border: '1.5px solid var(--bg)',
             lineHeight: 1,
           }}>
             {badge > 99 ? '99+' : badge}

@@ -1139,12 +1139,13 @@ export default function ConversationView({
                       width: '28px', 
                       height: '28px', 
                       borderRadius: '50%', 
-                      background: isMissed ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #14b8a6, #0d9488)',
+                      background: isMissed ? '#ef4444' : 'var(--primary)',
                       display: 'inline-flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
                       color: '#ffffff',
-                      boxShadow: isMissed ? '0 2px 8px rgba(239, 68, 68, 0.35)' : '0 2px 8px rgba(20, 184, 166, 0.35)',
+                      boxShadow: 'none',
+                      border: '1.5px solid var(--border)',
                       flexShrink: 0,
                     }}
                   >
@@ -1224,7 +1225,7 @@ export default function ConversationView({
                   <div
                     style={{
                       background: isMine 
-                        ? 'linear-gradient(135deg, #0d9488, #111827)' 
+                        ? 'var(--primary)' 
                         : 'var(--bg-card)',
                       color: isMine ? 'white' : 'var(--text-primary-chat)',
                       padding: isImage ? '4px' : '10px 16px',

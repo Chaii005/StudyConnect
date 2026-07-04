@@ -56,88 +56,141 @@ export const register = async ({ fullName, email, password, university, major, b
     throw new Error('Email này đã được sử dụng.');
   }
 
+  // 1. Tạo tài khoản trong Supabase Auth (Supabase tự động gửi mail xác nhận)
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email: normalizedEmail,
+    password: password,
+    options: {
+      data: {
+        full_name: fullName
+      }
+    }
+  });
+
+  if (authError) {
+    throw new Error(`Đăng ký thất bại: ${authError.message}`);
+  }
+
   const hashedPassword = await hashPassword(password, normalizedEmail);
 
-  // Insert user
+  // 2. Thêm thông tin vào bảng public.users để lấy BIGINT ID dùng cho chat/group
   const { data: newUser, error: insertError } = await supabase
     .from('users')
     .insert([
       {
         full_name: fullName,
         email: normalizedEmail,
-        password: hashedPassword, // Đã được hash Salted SHA-256 an toàn
+        password: hashedPassword, // Vẫn lưu password hash để tương thích
         role: 'user',
         university: university || '',
         major: major || '',
         avatar: '',
         bio: bio || '',
+        supabase_uid: authData.user?.id || null
       },
     ])
     .select('id, full_name, email, role, university, major, avatar, bio, created_at')
     .single();
 
   if (insertError) {
-    throw new Error(`Đăng ký thất bại: ${insertError.message}`);
+    throw new Error(`Đăng ký dữ liệu thất bại: ${insertError.message}`);
   }
 
-  // Map to frontend user structure
-  const safeUser = {
-    id: newUser.id,
-    fullName: newUser.full_name,
-    email: newUser.email,
-    role: newUser.role,
-    university: newUser.university,
-    major: newUser.major,
-    avatar: newUser.avatar,
-    bio: newUser.bio,
-    createdAt: newUser.created_at,
+  // Vì bật "Confirm email", nên không lưu session lúc này mà bắt người dùng kiểm tra mail
+  return { 
+    user: null, 
+    needsConfirmation: true,
+    message: 'Đăng ký thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản trước khi đăng nhập.'
   };
-
-  saveSession(safeUser);
-  return { user: safeUser };
 };
 
 // ─── ĐĂNG NHẬP ──────────────────────────────────────
 export const login = async ({ email, password }) => {
   const normalizedEmail = email.toLowerCase().trim();
-  const hashedPassword = await hashPassword(password, normalizedEmail);
 
-  const { data: user, error } = await supabase
+  // 1. Cố gắng đăng nhập bằng Supabase Auth trước
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password: password
+  });
+
+  if (authError) {
+    // Nếu chưa xác nhận email, chặn luôn
+    if (authError.message.includes('Email not confirmed') || authError.message.includes('email_not_confirmed')) {
+      throw new Error('Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư email (bao gồm cả spam) để kích hoạt tài khoản.');
+    }
+    
+    // Nếu lỗi đăng nhập khác (ví dụ: người dùng cũ chưa có trong Supabase Auth), ta check tương thích ngược
+    const hashedPassword = await hashPassword(password, normalizedEmail);
+    const { data: legacyUser, error: legacyError } = await supabase
+      .from('users')
+      .select('id, full_name, email, password, role, university, major, avatar, bio, created_at, is_banned, supabase_uid')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+
+    if (legacyError || !legacyUser) {
+      throw new Error('Email hoặc mật khẩu không đúng.');
+    }
+
+    const isLegacyMatch = legacyUser.password === password;
+    const isHashMatch = legacyUser.password === hashedPassword;
+
+    if (!isLegacyMatch && !isHashMatch) {
+      throw new Error('Email hoặc mật khẩu không đúng.');
+    }
+
+    if (legacyUser.is_banned) {
+      throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống do vi phạm chính sách nội dung khiêu dâm.');
+    }
+
+    // Đây là người dùng cũ đăng nhập đúng mật khẩu lần đầu:
+    // Tự động tạo tài khoản cho họ trên Supabase Auth
+    try {
+      const { data: newAuth, error: signUpError } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password: password,
+        options: {
+          data: { full_name: legacyUser.full_name }
+        }
+      });
+      
+      if (!signUpError && newAuth?.user) {
+        // Cập nhật cột supabase_uid
+        await supabase
+          .from('users')
+          .update({ supabase_uid: newAuth.user.id })
+          .eq('id', legacyUser.id);
+        
+        throw new Error('Tài khoản của bạn đã được cập nhật hệ thống bảo mật mới. Vui lòng kiểm tra email để xác thực tài khoản trước khi tiếp tục đăng nhập.');
+      } else {
+        throw signUpError;
+      }
+    } catch (err) {
+      throw new Error(err.message || 'Lỗi hệ thống khi tự động đồng bộ tài khoản bảo mật.');
+    }
+  }
+
+  // 2. Đăng nhập Supabase Auth thành công -> Lấy thông tin user có BIGINT ID tương ứng từ public.users
+  const { data: user, error: dbError } = await supabase
     .from('users')
-    .select('id, full_name, email, password, role, university, major, avatar, bio, created_at, is_banned, reset_token, reset_expires')
+    .select('id, full_name, email, role, university, major, avatar, bio, created_at, is_banned, supabase_uid')
     .eq('email', normalizedEmail)
     .maybeSingle();
 
-  if (error) {
-    throw new Error(`Đăng nhập thất bại: ${error.message}`);
+  if (dbError || !user) {
+    throw new Error('Đăng nhập thành công nhưng không tìm thấy dữ liệu hồ sơ người dùng.');
   }
-  if (!user) {
-    throw new Error('Email hoặc mật khẩu không đúng.');
-  }
+
   if (user.is_banned) {
     throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống do vi phạm chính sách nội dung khiêu dâm.');
   }
 
-  // Hỗ trợ tự động nâng cấp mật khẩu cũ (plaintext) lên bảo mật hash
-  const isLegacyMatch = user.password === password;
-  const isHashMatch = user.password === hashedPassword;
-
-  if (!isLegacyMatch && !isHashMatch) {
-    throw new Error('Email hoặc mật khẩu không đúng.');
-  }
-
-  if (isLegacyMatch && !isHashMatch) {
-    try {
-      await supabase
-        .from('users')
-        .update({ password: hashedPassword })
-        .eq('id', user.id);
-      if (import.meta.env.DEV) console.log(`[Auth] Tự động nâng cấp mật khẩu lên Salted SHA-256 cho: ${normalizedEmail}`);
-    } catch (upgradeErr) {
-      if (import.meta.env.DEV) {
-        console.warn('[Auth] Không thể nâng cấp mật khẩu cũ:', upgradeErr);
-      }
-    }
+  // Đồng bộ lại supabase_uid nếu trước đó chưa được gán
+  if (!user.supabase_uid && authData.user) {
+    await supabase
+      .from('users')
+      .update({ supabase_uid: authData.user.id })
+      .eq('id', user.id);
   }
 
   const safeUser = {
@@ -145,10 +198,10 @@ export const login = async ({ email, password }) => {
     fullName: user.full_name,
     email: user.email,
     role: user.role,
-    university: user.university,
-    major: user.major,
-    avatar: user.avatar,
-    bio: user.bio,
+    university: user.university || '',
+    major: user.major || '',
+    avatar: user.avatar || '',
+    bio: user.bio || '',
     createdAt: user.created_at,
   };
 
@@ -156,8 +209,20 @@ export const login = async ({ email, password }) => {
   return { user: safeUser };
 };
 
+// ─── ĐĂNG NHẬP GOOGLE (OAUTH) ─────────────────────────
+export const signInWithGoogle = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`
+    }
+  });
+  if (error) throw new Error(error.message);
+};
+
 // ─── ĐĂNG XUẤT ──────────────────────────────────────
-export const logout = () => {
+export const logout = async () => {
+  await supabase.auth.signOut();
   clearSession();
 };
 

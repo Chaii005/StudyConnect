@@ -309,28 +309,26 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
                 disabled={!editText.trim()}
                 style={{
                   background: editText.trim()
-                    ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)'
-                    : 'var(--border)',
-                  border: 'none',
+                    ? 'var(--primary)'
+                    : 'var(--bg-input)',
+                  border: editText.trim() ? 'none' : '1.5px solid var(--border)',
                   color: editText.trim() ? '#ffffff' : 'var(--text-muted)',
                   cursor: editText.trim() ? 'pointer' : 'not-allowed',
                   padding: '6px 16px',
                   borderRadius: '20px',
                   fontSize: '13px',
                   fontWeight: 700,
-                  boxShadow: editText.trim() ? '0 2px 8px rgba(42, 117, 118, 0.25)' : 'none',
-                  transition: 'all 0.25s ease',
+                  boxShadow: 'none',
+                  transition: 'all 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
                   if (editText.trim()) {
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(42, 117, 118, 0.35)';
+                    e.currentTarget.style.background = 'var(--text-primary)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (editText.trim()) {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(42, 117, 118, 0.25)';
+                    e.currentTarget.style.background = 'var(--primary)';
                   }
                 }}
               >
@@ -683,9 +681,9 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
                     disabled={!commentText.trim()}
                     style={{
                       background: commentText.trim()
-                        ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)'
+                        ? 'var(--primary)'
                         : 'transparent',
-                      border: 'none',
+                      border: commentText.trim() ? 'none' : '1.5px solid var(--border)',
                       cursor: commentText.trim() ? 'pointer' : 'default',
                       padding: '0 18px',
                       color: commentText.trim() ? '#ffffff' : 'var(--text-muted)',
@@ -694,22 +692,20 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
                       fontFamily: 'inherit',
                       borderRadius: '20px',
                       margin: '4px',
-                      boxShadow: commentText.trim() ? '0 2px 8px rgba(0, 0, 0, 0.25)' : 'none',
-                      transition: 'all 0.25s ease',
+                      boxShadow: 'none',
+                      transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                     onMouseEnter={(e) => {
                       if (commentText.trim()) {
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+                        e.currentTarget.style.background = 'var(--text-primary)';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (commentText.trim()) {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.25)';
+                        e.currentTarget.style.background = 'var(--primary)';
                       }
                     }}
                   >
