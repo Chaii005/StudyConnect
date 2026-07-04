@@ -331,7 +331,7 @@ export default function Chat() {
                   Trò chuyện
                 </h4>
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', maxWidth: '280px', lineHeight: 1.5 }}>
-                  Chọn một người bạn để bắt đầu cuộc trò chuyện.
+                  Bắt đầu cuộc trò chuyện.
                 </p>
               </div>
             )}
