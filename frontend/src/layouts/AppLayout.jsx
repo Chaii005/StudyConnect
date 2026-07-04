@@ -559,23 +559,6 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
 
 
 
-            {displayUser && location.pathname !== '/groups' && (
-              <button className="btn-logout desktop-only" onClick={handleLogout} style={{
-                background: 'transparent',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                color: 'var(--text-secondary)',
-                padding: '6px 14px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'var(--transition)'
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}>
-                Đăng xuất
-              </button>
-            )}
           </div>
         </nav>
       )}
