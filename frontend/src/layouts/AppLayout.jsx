@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { useAuth } from '@/context/AuthContext';
 import { useOnlineUsers } from '@/context/OnlineUsersContext';
 import studyconectLogo from '@/assets/studyconect_logo.png';
@@ -98,6 +99,19 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingFriendsCount, setPendingFriendsCount] = useState(0);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
+  const [isCapacitorApp, setIsCapacitorApp] = useState(false);
+
+  useEffect(() => {
+    const isNative = Capacitor.isNativePlatform();
+    setIsCapacitorApp(isNative);
+    if (isNative) {
+      document.documentElement.classList.add('is-native-app');
+      document.documentElement.classList.remove('is-web-browser');
+    } else {
+      document.documentElement.classList.add('is-web-browser');
+      document.documentElement.classList.remove('is-native-app');
+    }
+  }, []);
 
   const [schedules, setSchedules] = useState([]);
   const [deadlines, setDeadlines] = useState([]);
@@ -440,7 +454,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     <div className="app-layout-wrapper sc-animated-bg" style={{ height: '100%', overflow: 'hidden', overscrollBehavior: 'none', position: 'relative' }}>
 
 
-      {!hideNavbar && (
+      {!hideNavbar && !isCapacitorApp && (
         <nav className="navbar" style={{ 
           position: 'sticky', 
           top: 0, 

@@ -1716,4 +1716,25 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 
 .comment-row-animated {
   animation: sc-comment-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══════════════════════════════════════════
+   NATIVE APP PLATFORM OVERRIDES
+   ═══════════════════════════════════════════ */
+.is-native-app .desktop-only,
+.is-native-app .inline-desktop-only,
+.is-native-app .flex-desktop-only {
+  display: none !important;
+}
+
+.is-native-app .mobile-bottom-nav {
+  display: flex !important;
+}
+
+.is-native-app .app-layout-wrapper {
+  padding-bottom: 80px !important;
+}
+
+.is-native-app .navbar {
+  display: none !important;
 }
