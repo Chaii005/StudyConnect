@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../config/supabaseClient';
 import { hashPassword } from '../services/authService';
+import studyconectLogo from '@/assets/studyconect_logo.png';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -128,7 +129,7 @@ export default function ResetPassword() {
         {/* Brand Header */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+            <img src={studyconectLogo} alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>StudyConnect</h2>

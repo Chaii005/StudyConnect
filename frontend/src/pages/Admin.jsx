@@ -440,6 +440,7 @@ export default function Admin() {
   const [currentEditGroup,  setCurrentEditGroup]  = useState(null);
   const [groupForm,         setGroupForm]         = useState(EMPTY_GROUP_FORM);
   const [locationSearchVal, setLocationSearchVal] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [submittingGroup,   setSubmittingGroup]   = useState(false);
 
   // Members viewer
@@ -630,13 +631,13 @@ export default function Admin() {
   };
 
   // ── Group handlers ───────────────────────────────────────────────
-  const openCreateGroup = () => { setCurrentEditGroup(null); setGroupForm({ ...EMPTY_GROUP_FORM, creatorId: users[0]?.id || '' }); setLocationSearchVal(''); setShowGroupModal(true); };
-  const openEditGroup   = (g) => { setCurrentEditGroup(g); setGroupForm({ name: g.name || '', subject: g.subject || '', major: g.major || '', description: g.description || '', creatorId: g.creatorId || '', deputyId: g.deputyId || '', meetingMode: g.meetingMode || 'online' }); setLocationSearchVal(g.location ? (g.location.name + (g.location.address ? ` — ${g.location.address}` : '')) : ''); setShowGroupModal(true); };
+  const openCreateGroup = () => { setCurrentEditGroup(null); setGroupForm({ ...EMPTY_GROUP_FORM, creatorId: users[0]?.id || '' }); setLocationSearchVal(''); setSelectedLocation(null); setShowGroupModal(true); };
+  const openEditGroup   = (g) => { setCurrentEditGroup(g); setGroupForm({ name: g.name || '', subject: g.subject || '', major: g.major || '', description: g.description || '', creatorId: g.creatorId || '', deputyId: g.deputyId || '', meetingMode: g.meetingMode || 'online' }); setLocationSearchVal(g.location ? (g.location.name + (g.location.address ? ` — ${g.location.address}` : '')) : ''); setSelectedLocation(g.location || null); setShowGroupModal(true); };
 
   const handleGroupSubmit = async (e) => {
     e.preventDefault();
     if (!groupForm.name || !groupForm.subject) return showToast('Vui lòng nhập tên nhóm và môn học!', 'error');
-    const payload = { ...groupForm, creatorId: groupForm.creatorId ? Number(groupForm.creatorId) : admin.id, deputyId: groupForm.deputyId ? Number(groupForm.deputyId) : null, location: groupForm.meetingMode === 'offline' && locationSearchVal.trim() ? { name: locationSearchVal.trim(), address: '', lat: null, lng: null } : null };
+    const payload = { ...groupForm, creatorId: groupForm.creatorId ? Number(groupForm.creatorId) : admin.id, deputyId: groupForm.deputyId ? Number(groupForm.deputyId) : null, location: groupForm.meetingMode === 'offline' && selectedLocation ? selectedLocation : null };
     try {
       setSubmittingGroup(true);
       if (currentEditGroup) { await adminUpdateGroup(currentEditGroup.id, payload); showToast('Cập nhật phòng học thành công!'); }
@@ -1390,7 +1391,7 @@ export default function Admin() {
       </div>
 
       <UserFormModal show={showUserModal} onClose={() => setShowUserModal(false)} currentEditUser={currentEditUser} userForm={userForm} setUserForm={setUserForm} onSubmit={handleUserSubmit} submitting={submittingUser} />
-      <GroupFormModal show={showGroupModal} onClose={() => setShowGroupModal(false)} currentEditGroup={currentEditGroup} groupForm={groupForm} setGroupForm={setGroupForm} locationSearchVal={locationSearchVal} setLocationSearchVal={setLocationSearchVal} onSubmit={handleGroupSubmit} submitting={submittingGroup} />
+      <GroupFormModal show={showGroupModal} onClose={() => setShowGroupModal(false)} currentEditGroup={currentEditGroup} groupForm={groupForm} setGroupForm={setGroupForm} locationSearchVal={locationSearchVal} setLocationSearchVal={setLocationSearchVal} selectedLocation={selectedLocation} setSelectedLocation={setSelectedLocation} onSubmit={handleGroupSubmit} submitting={submittingGroup} />
       <MembersModal group={selectedGroupMembers} users={users} onClose={() => setSelectedGroupMembers(null)} />
       <FilePreviewModal file={previewingFile} onClose={() => setPreviewingFile(null)} />
       <PostPreviewModal post={previewingPost} onClose={() => setPreviewingPost(null)} />

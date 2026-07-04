@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { forgotPassword } from '../services/authService';
+import studyconectLogo from '@/assets/studyconect_logo.png';
 
 export default function ForgotPassword() {
   const [mode, setMode] = useState('forgot'); // 'forgot' | 'sent'
@@ -95,7 +96,7 @@ export default function ForgotPassword() {
         {/* Brand Header */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+            <img src={studyconectLogo} alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>StudyConnect</h2>

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import studyconectLogo from '@/assets/studyconect_logo.png';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export default function Login() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+            <img src={studyconectLogo} alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>StudyConnect</h2>

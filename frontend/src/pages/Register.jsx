@@ -5,6 +5,7 @@ import { register } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { HCM_UNIVERSITIES, MAJORS } from '../constants/educationData';
 import { VIETNAM_LOCATIONS } from '../constants/locationData';
+import studyconectLogo from '@/assets/studyconect_logo.png';
 
 /* ─── LocationModal: Nổi trên web, lướt nội dung, không bể khung ─── */
 function LocationModal({ isOpen, onClose, title, options, value, onSelect }) {
@@ -247,7 +248,7 @@ export default function Register() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/studyconect_logo.png" alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+            <img src={studyconectLogo} alt="Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
           </div>
           <div className="auth-logo-text">
             <h2>StudyConnect</h2>

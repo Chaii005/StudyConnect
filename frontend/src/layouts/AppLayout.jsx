@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useOnlineUsers } from '@/context/OnlineUsersContext';
+import studyconectLogo from '@/assets/studyconect_logo.png';
 import { getTotalUnread, refreshCache } from '@/services/chatServiceTEMP';
 import { supabase } from '@/config/supabaseClient';
 import Avatar from '@/components/common/Avatar';
@@ -450,8 +451,8 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)'
         }}>
           <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-            <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img src="/studyconect_logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
+            <div className="nav-brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '42px', height: '42px', flexShrink: 0 }}>
+              <img src={studyconectLogo} alt="" style={{ width: '42px', height: '42px', objectFit: 'contain', display: 'block' }} />
             </div>
             <span className="nav-brand-text" style={{
               fontFamily: "'Fraunces', serif",
@@ -568,7 +569,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         <div className={`mobile-drawer ${mobileMenuOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <img src="/studyconect_logo.png" alt="Logo" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+              <img src={studyconectLogo} alt="" style={{ width: '24px', height: '24px', objectFit: 'contain', display: 'block', flexShrink: 0 }} />
               <span style={{ fontSize: '18px', fontWeight: 900, fontFamily: "'Fraunces', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--primary-light) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>StudyConnect</span>
             </div>
             <button onClick={() => setMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px' }}>✕</button>

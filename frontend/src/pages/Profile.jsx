@@ -67,7 +67,7 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-md)',
             boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-            maxHeight: '300px',
+            maxHeight: '165px',
             overflowY: 'auto',
             overscrollBehavior: 'contain',
             zIndex: 9999,
