@@ -33,7 +33,13 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
   const textareaRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  useEffect(() => { textareaRef.current?.focus(); }, []);
+  useEffect(() => {
+    textareaRef.current?.focus();
+    document.documentElement.classList.add('has-modal');
+    return () => {
+      document.documentElement.classList.remove('has-modal');
+    };
+  }, []);
 
   // ── build suggestion list ──────────────────────────────────────
   const suggestions = useCallback(() => {

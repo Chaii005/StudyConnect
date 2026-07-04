@@ -16,10 +16,15 @@ export default function Modal({ open, onClose, children, maxWidth = 560, classNa
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('has-modal');
     } else {
       document.body.style.overflow = '';
+      document.documentElement.classList.remove('has-modal');
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.classList.remove('has-modal');
+    };
   }, [open]);
 
   if (!open) return null;

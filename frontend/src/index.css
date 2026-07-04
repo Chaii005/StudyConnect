@@ -1762,4 +1762,9 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
   .mobile-nav-bell {
     display: flex !important;
   }
+}
+
+/* Hide bottom nav when keyboard is active or a modal is open */
+.has-modal .mobile-bottom-nav {
+  display: none !important;
 }
