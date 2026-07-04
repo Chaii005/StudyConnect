@@ -311,60 +311,9 @@ export default function useNotifications(userId) {
             });
         }
 
-        // Fetch group messages (24h qua, giới hạn nhỏ để tiết kiệm egress)
-        const { data: groupMsgs } = await supabase
-          .from('messages')
-          .select(`
-            id,
-            group_id,
-            sender_id,
-            content,
-            meetroom_id,
-            created_at,
-            users:users!sender_id (
-              full_name
-            ),
-            study_groups (
-              name
-            )
-          `)
-          .in('group_id', joinedIds)
-          .neq('sender_id', uid)
-          .gte('created_at', cutoff)
-          .order('created_at', { ascending: false })
-          .limit(10);
-
-        if (groupMsgs) {
-          groupMsgs
-            .filter(m => (now - new Date(m.created_at)) < ONE_DAY_MS)
-            .forEach(m => {
-              const rawContent = m.content || '';
-              const groupName = m.study_groups?.name || 'Nhóm';
-              const isMeetroom = m.meetroom_id || rawContent.startsWith('[meetroom:');
-              if (isMeetroom) {
-                const cleanText = rawContent.startsWith('[meetroom:') ? rawContent.replace(/^\[meetroom:[^\]]+\]\s*/, '') : rawContent;
-                notifsList.push({
-                  key: `groupcall:${m.id}`,
-                  type: 'groupcall',
-                  title: `Cuộc gọi trong "${groupName}"`,
-                  body: cleanText,
-                  createdAt: m.created_at,
-                  groupId: m.group_id.toString(),
-                });
-                return;
-              }
-
-              const senderName = m.users?.full_name || 'Thành viên';
-              notifsList.push({
-                key: `groupmsg:${m.id}`,
-                type: 'groupmsg',
-                title: `👥 Tin nhắn mới trong "${groupName}"`,
-                body: `${senderName}: ${rawContent}`,
-                createdAt: m.created_at,
-                groupId: m.group_id.toString(),
-              });
-            });
-        }
+        // NOTE: Group chat messages are intentionally excluded from the global
+        // notification bell. Users read them directly inside the group chat tab,
+        // which has its own unread badge (unreadChatCount in useGroupDetail).
 
         // Fetch shared documents/files in groups (24h qua)
         const { data: recentFiles } = await supabase
@@ -1071,48 +1020,9 @@ export default function useNotifications(userId) {
           });
         }
       )
-      // messages (group)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          const m = payload.new;
-          if (!m) return;
-          if (!m.group_id) return; // Chỉ xử lý tin nhắn nhóm ở đây
-          const senderId = m.sender_id;
-          if (String(senderId) === String(userId)) return;
-
-          if (!myGroupIdsRef.current.includes(Number(m.group_id))) return;
-          const rawContent = m.content || '';
-          const isMeetroom = m.meetroom_id || rawContent.startsWith('[meetroom:');
-          getGroupName(Number(m.group_id)).then(groupName => {
-            if (isMeetroom) {
-              const cleanText = rawContent.startsWith('[meetroom:') 
-                ? rawContent.replace(/^\[meetroom:[^\]]+\]\s*/, '') 
-                : rawContent;
-              addIncrementalNotif({
-                key: `groupcall:${m.id}`,
-                type: 'groupcall',
-                title: `Cuộc gọi trong "${groupName}"`,
-                body: cleanText || 'Cuộc gọi nhóm học tập đã bắt đầu.',
-                createdAt: m.created_at,
-                groupId: m.group_id.toString(),
-              });
-            } else {
-              getUserName(senderId).then(senderName => {
-                addIncrementalNotif({
-                  key: `groupmsg:${m.id}`,
-                  type: 'groupmsg',
-                  title: `👥 Tin nhắn mới trong "${groupName}"`,
-                  body: `${senderName}: ${rawContent}`,
-                  createdAt: m.created_at,
-                  groupId: m.group_id.toString(),
-                });
-              });
-            }
-          });
-        }
-      )
+      // NOTE: Group chat messages realtime is intentionally excluded from
+      // the global notification bell. Group-internal messages are handled
+      // by the unreadChatCount badge inside useGroupDetail.
       // files
       .on(
         'postgres_changes',

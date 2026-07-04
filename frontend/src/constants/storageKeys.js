@@ -11,4 +11,7 @@ export const STORAGE_KEYS = {
 
   // Submissions (dynamic — append groupId)
   submissions: (groupId) => `sc_submissions_${groupId}`,
+
+  // Group chat last-seen timestamp (dynamic — append groupId + userId)
+  chatLastSeen: (groupId, userId) => `sc_chat_last_seen_${groupId}_${userId}`,
 };

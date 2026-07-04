@@ -177,6 +177,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState(1);
+  const [success, setSuccess] = useState(false);
+  const [registeredName, setRegisteredName] = useState('');
 
   // States mở/đóng Modal chọn vị trí
   const [openProvinceModal, setOpenProvinceModal] = useState(false);
@@ -228,7 +230,10 @@ export default function Register() {
       };
       const { user } = await register(payload);
       setUser(user);
-      navigate('/profile');
+      setRegisteredName(form.fullName.trim().split(' ').pop()); // Lấy tên (từ cuối)
+      setSuccess(true);
+      // Tự navigate sau 2.5 giây để user đọc thông báo
+      setTimeout(() => navigate('/profile'), 2500);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -249,6 +254,63 @@ export default function Register() {
             <span>Học nhóm hiệu quả hơn</span>
           </div>
         </div>
+
+        {/* SUCCESS SCREEN */}
+        {success ? (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            padding: '20px 0 8px', animation: 'successFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both'
+          }}>
+            {/* Animated checkmark circle */}
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 0 12px rgba(34, 197, 94, 0.12), 0 8px 32px rgba(34, 197, 94, 0.35)',
+              marginBottom: '24px',
+              animation: 'checkPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both'
+            }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
+                stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                style={{ animation: 'checkDraw 0.4s ease 0.35s both' }}>
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+
+            <h2 style={{
+              margin: '0 0 8px',
+              fontSize: '22px', fontWeight: 800,
+              color: 'var(--text-primary)',
+              textAlign: 'center'
+            }}>
+              Chào mừng, {registeredName}! 🎉
+            </h2>
+
+            <p style={{
+              margin: '0 0 24px',
+              fontSize: '14px', color: 'var(--text-secondary)',
+              textAlign: 'center', lineHeight: 1.6, maxWidth: '280px'
+            }}>
+              Tài khoản đã được tạo thành công! Bạn sẽ được chuyển đến trang hồ sơ trong giây lát.
+            </p>
+
+            {/* Progress bar auto-redirect */}
+            <div style={{
+              width: '100%', height: '4px', borderRadius: '4px',
+              background: 'var(--bg-input)', overflow: 'hidden'
+            }}>
+              <div style={{
+                height: '100%', borderRadius: '4px',
+                background: 'linear-gradient(90deg, #22c55e, #16a34a)',
+                animation: 'progressFill 2.5s linear forwards',
+                boxShadow: '0 0 8px rgba(34, 197, 94, 0.5)'
+              }} />
+            </div>
+            <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>
+              Đang chuyển hướng...
+            </p>
+          </div>
+        ) : (<>
 
         {/* Header */}
         <div className="auth-header">
@@ -533,7 +595,8 @@ export default function Register() {
           Đã có tài khoản?{' '}
           <Link to="/login" className="auth-link">Đăng nhập ngay</Link>
         </div>
-      </div>
+      </>)}
+    </div>
 
       {/* ─── MODAL CHỌN TỈNH / THÀNH PHỐ ─── */}
       <LocationModal
@@ -586,6 +649,22 @@ export default function Register() {
         @keyframes fadeIn {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes successFadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes checkPop {
+          from { transform: scale(0); opacity: 0; }
+          to   { transform: scale(1); opacity: 1; }
+        }
+        @keyframes checkDraw {
+          from { stroke-dasharray: 0 40; }
+          to   { stroke-dasharray: 40 0; }
+        }
+        @keyframes progressFill {
+          from { width: 0%; }
+          to   { width: 100%; }
         }
       `}</style>
     </div>

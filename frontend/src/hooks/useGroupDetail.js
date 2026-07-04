@@ -128,6 +128,13 @@ export default function useGroupDetail(groupId, user, addToast) {
   const [replyTo, setReplyTo] = useState(null);
   const [msgReactions, setMsgReactions] = useState({});
   const [chatLastSeenTime, setChatLastSeenTime] = useState(() => {
+    // Load persisted last-seen for this group on first render
+    if (groupId && user?.id) {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEYS.chatLastSeen(groupId, user.id));
+        if (saved) return saved;
+      } catch { /* ignore */ }
+    }
     return new Date(0).toISOString();
   });
   const [confirmConfig, setConfirmConfig] = useState(null);
@@ -153,6 +160,16 @@ export default function useGroupDetail(groupId, user, addToast) {
     // Xóa cache tab khi đổi nhóm
     tabCacheRef.current = {};
     membersDetailsCacheRef.current = {};
+    // Restore last-seen timestamp for new group
+    if (user?.id) {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEYS.chatLastSeen(groupId, user.id));
+        setChatLastSeenTime(saved || new Date(0).toISOString());
+      } catch {
+        setChatLastSeenTime(new Date(0).toISOString());
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId]);
 
   const fetchGroupSchedules = useCallback(async () => {
@@ -309,6 +326,14 @@ export default function useGroupDetail(groupId, user, addToast) {
       if (!isFresh('deadlines')) fetchGroupDeadlines().then(() => { tabCacheRef.current['deadlines'] = { ts: Date.now() }; });
     } else if (activeTab === 'chat') {
       if (!isFresh('chat')) fetchChatMessages().then(() => { tabCacheRef.current['chat'] = { ts: Date.now() }; });
+      // Mark all messages as read when the user opens the chat tab
+      const now = new Date().toISOString();
+      setChatLastSeenTime(now);
+      if (user?.id) {
+        try {
+          localStorage.setItem(STORAGE_KEYS.chatLastSeen(groupId, user.id), now);
+        } catch { /* ignore */ }
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [group, activeTab]);
