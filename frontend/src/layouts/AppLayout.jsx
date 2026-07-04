@@ -469,7 +469,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
 
           <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             {(location.pathname.startsWith('/groups') || location.pathname === '/schedule') && (
-              <div className="flex-desktop-only" style={{ alignItems: 'center', gap: '10px' }}>
+              <div className="flex-desktop-only" style={{ alignItems: 'center', gap: '12px' }}>
                 <Link to="/" style={{
                   textDecoration: 'none',
                   fontSize: '13px',
@@ -481,6 +481,8 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   borderRadius: '10px',
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '140px',
                   transition: 'all 0.2s ease-in-out'
                 }}
                   onMouseEnter={(e) => {
@@ -509,6 +511,8 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   borderRadius: '10px',
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '140px',
                   transition: 'all 0.2s ease-in-out'
                 }}
                   onMouseEnter={(e) => {
@@ -537,6 +541,8 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                   borderRadius: '10px',
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '140px',
                   transition: 'all 0.2s ease-in-out'
                 }}
                   onMouseEnter={(e) => {
