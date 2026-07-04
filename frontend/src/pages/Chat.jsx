@@ -328,10 +328,10 @@ export default function Chat() {
                   </svg>
                 </div>
                 <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  Chưa chọn cuộc trò chuyện
+                  Kết nối & Học tập
                 </h4>
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', maxWidth: '280px', lineHeight: 1.5 }}>
-                  Hãy chọn một người bạn từ danh sách bên trái để bắt đầu nhắn tin.
+                  Chọn một người bạn từ danh sách để bắt đầu chia sẻ kiến thức.
                 </p>
               </div>
             )}
