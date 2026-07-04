@@ -330,23 +330,25 @@ export const forgotPassword = async (email) => {
     }
   }
 
-  // 3. Gửi yêu cầu reset mật khẩu
-  const { error } = await supabase.auth
-    .resetPasswordForEmail(emailVal, {
-      redirectTo: `${window.location.origin}/reset-password`
-    });
-  if (error) throw new Error(`Lỗi gửi mail: ${error.message}`);
+  // 3. Gửi yêu cầu reset mật khẩu bằng mã OTP (Sử dụng signInWithOtp)
+  const { error } = await supabase.auth.signInWithOtp({
+    email: emailVal,
+    options: {
+      shouldCreateUser: false
+    }
+  });
+  if (error) throw new Error(`Lỗi gửi mã OTP: ${error.message}`);
 };
 
 // ─── XÁC THỰC OTP & ĐẶT LẠI MẬT KHẨU ────────────────
 export const verifyOtpAndResetPassword = async ({ email, token, password }) => {
   const normalizedEmail = email.toLowerCase().trim();
   
-  // 1. Xác thực mã OTP qua Supabase Auth
+  // 1. Xác thực mã OTP qua Supabase Auth (Sử dụng type 'email' cho OTP)
   const { error: otpError } = await supabase.auth.verifyOtp({
     email: normalizedEmail,
     token: token.trim(),
-    type: 'recovery'
+    type: 'email'
   });
 
   if (otpError) {
