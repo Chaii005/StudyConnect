@@ -1391,10 +1391,12 @@ input::-ms-clear {
 }
 
 .sc-nav-item {
-  transition: background 0.2s ease, transform 0.15s ease !important;
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease !important;
 }
 .sc-nav-item:hover {
-  background: rgba(74, 37, 48, 0.08) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: var(--border) !important;
+  border-radius: 10px !important;
   transform: translateX(2px) !important;
 }
 
@@ -1647,6 +1649,8 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 /* Remove colored hover icons and transition gradients */
 .sc-nav-item:hover {
   background: rgba(26, 26, 26, 0.05) !important;
+  border-color: var(--border) !important;
+  border-radius: 10px !important;
 }
 .sc-card-hover:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;

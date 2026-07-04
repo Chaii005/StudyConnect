@@ -314,6 +314,7 @@ export default function Home() {
             <PostList
               posts={sortedPosts}
               currentUser={user}
+              friends={friends}
               onLike={handleLikePost}
               onDelete={handleDeletePost}
               onComment={handleCommentPost}

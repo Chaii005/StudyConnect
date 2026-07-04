@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Avatar from '@/components/common/Avatar';
 import { timeAgo } from '@/utils';
 import LikeCommentBar from './LikeCommentBar';
 import CommentRow from './CommentRow';
+import { sendFriendRequest } from '@/services/friendService';
 
 const ReplyIcon = () => (
   <svg
@@ -26,7 +27,8 @@ const ReplyIcon = () => (
   </svg>
 );
 
-export default function PostCard({ post, currentUser, onLike, onDelete, onComment, onEdit }) {
+export default function PostCard({ post, currentUser, friends = [], onLike, onDelete, onComment, onEdit }) {
+  const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [replyTo, setReplyTo] = useState(null); // { id, name }
@@ -35,6 +37,35 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(post?.content || '');
   const commentsEndRef = useRef(null);
+  // Tag popover state: { name, userId } | null
+  const [tagPopover, setTagPopover] = useState(null);
+  const [addFriendLoading, setAddFriendLoading] = useState(false);
+  const [addFriendDone, setAddFriendDone] = useState(false);
+  const popoverRef = useRef(null);
+
+  // Close popover on outside click
+  useEffect(() => {
+    if (!tagPopover) return;
+    const handler = (e) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target)) {
+        setTagPopover(null);
+        setAddFriendDone(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [tagPopover]);
+
+  // Build a Set of friend user IDs for O(1) lookup
+  const friendIdSet = new Set((friends || []).map(f => String(f.userId)));
+
+  // Map taggedUserNames → their IDs from post.taggedUsers
+  // post.taggedUsers  = [id1, id2, ...]  (same order as taggedUserNames)
+  // post.taggedUserNames = [name1, name2, ...]
+  const getTaggedUserId = (index) => {
+    const ids = post.taggedUsers || [];
+    return ids[index] ? String(ids[index]) : null;
+  };
 
   const scrollToBottom = () => {
     if (commentsEndRef.current) {
@@ -335,18 +366,95 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
 
       {/* Tagged users / groups chips */}
       {((post.taggedUsers && post.taggedUsers.length > 0) || (post.taggedGroups && post.taggedGroups.length > 0)) && (
-        <div style={{ padding: '0 18px 12px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+        <div style={{ padding: '0 18px 12px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', position: 'relative' }}>
           <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginRight: '2px' }}>Cùng với:</span>
-          {(post.taggedUserNames || []).map((name, i) => (
-            <span key={`tu:${i}`} style={{
-              display: 'inline-flex', alignItems: 'center',
-              padding: '3px 10px', borderRadius: '20px',
-              background: '#E0F2FE',
-              color: '#0369A1', fontSize: '12px', fontWeight: 700,
-            }}>
-              @{name}
-            </span>
-          ))}
+
+          {(post.taggedUserNames || []).map((name, i) => {
+            const uid = getTaggedUserId(i);
+            const isFriend = uid && (friendIdSet.has(uid) || String(currentUser?.id) === uid);
+            const isOwn = String(currentUser?.id) === uid;
+            const isPopoverOpen = tagPopover?.uid === uid;
+
+            return (
+              <span key={`tu:${i}`} style={{ position: 'relative', display: 'inline-block' }}>
+                <span
+                  onClick={() => {
+                    if (isOwn || isFriend) {
+                      navigate(isOwn ? '/profile' : `/friends/${uid}`);
+                    } else {
+                      setTagPopover(isPopoverOpen ? null : { name, uid });
+                      setAddFriendDone(false);
+                    }
+                  }}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    padding: '3px 10px', borderRadius: '20px',
+                    background: isFriend ? '#E0F2FE' : 'rgba(0,0,0,0.05)',
+                    color: isFriend ? '#0369A1' : 'var(--text-primary)',
+                    fontSize: '12px', fontWeight: 700,
+                    cursor: 'pointer',
+                    border: isFriend ? '1px solid #BAE6FD' : '1px solid var(--border)',
+                    transition: 'opacity 0.15s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >
+                  @{name}
+                </span>
+
+                {/* Popover for non-friends */}
+                {isPopoverOpen && (
+                  <div
+                    ref={popoverRef}
+                    style={{
+                      position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+                      zIndex: 9999,
+                      background: 'var(--bg-card)',
+                      border: '1.5px solid var(--border)',
+                      borderRadius: '14px',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+                      padding: '14px 16px',
+                      minWidth: '200px',
+                      display: 'flex', flexDirection: 'column', gap: '10px',
+                    }}
+                  >
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>@{name}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Bạn chưa kết bạn với người này.</span>
+                    <button
+                      disabled={addFriendLoading || addFriendDone}
+                      onClick={async () => {
+                        if (!uid || !currentUser?.id) return;
+                        setAddFriendLoading(true);
+                        try {
+                          await sendFriendRequest(currentUser.id, uid);
+                          setAddFriendDone(true);
+                        } catch (err) {
+                          if (import.meta.env.DEV) console.warn('Friend request error:', err);
+                          setAddFriendDone(true); // show done even if already sent
+                        } finally {
+                          setAddFriendLoading(false);
+                        }
+                      }}
+                      style={{
+                        padding: '7px 14px',
+                        borderRadius: '20px',
+                        border: 'none',
+                        background: addFriendDone ? 'rgba(0,0,0,0.08)' : '#1A1A1A',
+                        color: addFriendDone ? 'var(--text-muted)' : '#fff',
+                        fontSize: '13px', fontWeight: 700,
+                        cursor: addFriendLoading || addFriendDone ? 'default' : 'pointer',
+                        fontFamily: 'inherit',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {addFriendDone ? '✓ Đã gửi lời mời' : addFriendLoading ? 'Đang gửi...' : '+ Kết bạn'}
+                    </button>
+                  </div>
+                )}
+              </span>
+            );
+          })}
+
           {(post.taggedGroupNames || []).map((name, i) => (
             <span key={`tg:${i}`} style={{
               display: 'inline-flex', alignItems: 'center',
