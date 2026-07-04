@@ -168,16 +168,16 @@ export const ToastProvider = ({ children }) => {
         
         @media (max-width: 576px) {
           .toast-container {
-            top: 76px;
-            left: 16px;
+            top: 80px;
+            left: auto;
             right: 16px;
-            align-items: center;
+            align-items: flex-end;
           }
           .toast-card {
             min-width: 0;
             width: auto;
-            max-width: 320px;
-            margin: 0 auto;
+            max-width: 290px;
+            margin: 0;
             padding: 8px 14px;
             border-radius: 30px;
             font-size: 12.5px;
@@ -191,16 +191,16 @@ export const ToastProvider = ({ children }) => {
         }
         
         .is-native-app .toast-container {
-          top: 100px !important;
+          top: 105px !important;
         }
         
         @keyframes slideInMobile {
-          from { transform: translateY(-30px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+          from { transform: translateX(50px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
         }
         @keyframes slideOutMobile {
-          from { transform: translateY(0); opacity: 1; }
-          to { transform: translateY(-30px); opacity: 0; }
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(50px); opacity: 0; }
         }
       `}</style>
     </ToastContext.Provider>
