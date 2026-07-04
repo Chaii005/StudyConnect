@@ -13,8 +13,23 @@ export default function AuthCallback() {
     const handleAuth = async () => {
       try {
         const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
+        
+        // 1. Kiểm tra xem Supabase có trả về lỗi trong query parameters không
+        const queryErrorName = urlParams.get('error');
+        const queryErrorDesc = urlParams.get('error_description');
+        if (queryErrorName) {
+          throw new Error(`Lỗi OAuth (${queryErrorName}): ${queryErrorDesc || 'Không có mô tả chi tiết'}`);
+        }
 
+        // 2. Kiểm tra xem Supabase có trả về lỗi trong hash fragment không
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const hashErrorName = hashParams.get('error');
+        const hashErrorDesc = hashParams.get('error_description');
+        if (hashErrorName) {
+          throw new Error(`Lỗi OAuth Hash (${hashErrorName}): ${hashErrorDesc || 'Không có mô tả chi tiết'}`);
+        }
+
+        const code = urlParams.get('code');
         let session = null;
 
         if (code) {
