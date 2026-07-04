@@ -109,8 +109,10 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       document.documentElement.classList.add('is-native-app');
       document.documentElement.classList.remove('is-web-browser');
       try {
-        StatusBar.setStyle({ style: Style.Dark }); // Dark text/icons for light background
-        StatusBar.setBackgroundColor({ color: '#ffffff' });
+        StatusBar.show().catch(() => {});
+        StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+        StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+        StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(() => {});
       } catch (err) {
         console.warn('StatusBar error:', err);
       }

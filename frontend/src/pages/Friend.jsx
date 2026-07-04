@@ -221,6 +221,8 @@ function EmptyState({ icon, text }) {
 export default function Friends() {
   const { isAuth, user } = useAuth();
   const [tab, setTab] = useState('friends');
+  const [requestSubTab, setRequestSubTab] = useState('received'); // 'received' | 'sent'
+  const [suggestionSubTab, setSuggestionSubTab] = useState('all'); // 'all' | 'nearby'
   const [friends, setFriends] = useState([]);
   const onlineUserIds = useOnlineUsers();
 
@@ -456,11 +458,48 @@ export default function Friends() {
           {/* Tabs */}
           <div className="friends-tab-container">
             <TabBtn label="Bạn bè" count={friends.length} active={tab === 'friends'} onClick={() => setTab('friends')} />
-            <TabBtn label="Lời mời nhận" count={pending.length} active={tab === 'pending'} onClick={() => { setTab('pending'); setNewPendingAlert(false); }} highlight={newPendingAlert && tab !== 'pending'} />
-            <TabBtn label="Đã gửi" count={sent.length} active={tab === 'sent'} onClick={() => setTab('sent')} />
-            <TabBtn label="Lân cận" count={myLocation.province ? nearbySuggestions.length : 0} active={tab === 'nearby'} onClick={() => setTab('nearby')} />
-            <TabBtn label="Gợi ý" count={suggestions.length} active={tab === 'suggestions'} onClick={() => setTab('suggestions')} />
+            <TabBtn label="Lời mời" count={pending.length} active={tab === 'pending'} onClick={() => { setTab('pending'); setNewPendingAlert(false); }} highlight={newPendingAlert && tab !== 'pending'} />
+            <TabBtn label="Gợi ý" count={suggestions.length + (myLocation.province ? nearbySuggestions.length : 0)} active={tab === 'suggestions'} onClick={() => setTab('suggestions')} />
           </div>
+
+          {/* Sub Tabs / Sub Toggle */}
+          {tab === 'pending' && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setRequestSubTab('received')}
+                className={`tab-btn ${requestSubTab === 'received' ? 'active' : ''}`}
+                style={{ padding: '6px 14px', fontSize: '12px' }}
+              >
+                Nhận ({pending.length})
+              </button>
+              <button
+                onClick={() => setRequestSubTab('sent')}
+                className={`tab-btn ${requestSubTab === 'sent' ? 'active' : ''}`}
+                style={{ padding: '6px 14px', fontSize: '12px' }}
+              >
+                Đã gửi ({sent.length})
+              </button>
+            </div>
+          )}
+
+          {tab === 'suggestions' && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setSuggestionSubTab('all')}
+                className={`tab-btn ${suggestionSubTab === 'all' ? 'active' : ''}`}
+                style={{ padding: '6px 14px', fontSize: '12px' }}
+              >
+                Tất cả ({suggestions.length})
+              </button>
+              <button
+                onClick={() => setSuggestionSubTab('nearby')}
+                className={`tab-btn ${suggestionSubTab === 'nearby' ? 'active' : ''}`}
+                style={{ padding: '6px 14px', fontSize: '12px' }}
+              >
+                Lân cận ({myLocation.province ? nearbySuggestions.length : 0})
+              </button>
+            </div>
+          )}
 
           {/* Content  min-height cố định tránh giật layout */}
           <div style={{ minHeight: '400px' }}>
@@ -496,77 +535,75 @@ export default function Friends() {
                       })()
                 )}
 
-                {/*  Lời mời nhận  */}
+                {/*  Lời mời (gồm Lời mời nhận và Đã gửi) */}
                 {tab === 'pending' && (
-                  filter(pending).length === 0
-                    ? <EmptyState icon="" text="Không có lời mời kết bạn nào." />
-                    : filter(pending).map(p => (
-                      <PersonCard key={p.requestId} person={p} actions={<>
-                        <Btn variant="success" disabled={actionLoading[p.requestId]} onClick={() => handleAccept(p)}>
-                           Chấp nhận
-                        </Btn>
-                        <Btn variant="secondary" disabled={actionLoading[p.requestId]} onClick={() => handleReject(p, 'Đã từ chối lời mời')}>
-                          Từ chối
-                        </Btn>
-                      </>} />
-                    ))
-                )}
-
-                {/*  Đã gửi  */}
-                {tab === 'sent' && (
-                  filter(sent).length === 0
-                    ? <EmptyState icon="" text="Chưa gửi lời mời kết bạn nào." />
-                    : filter(sent).map(p => (
-                      <PersonCard key={p.requestId} person={p} actions={
-                        <Btn variant="danger" disabled={actionLoading[p.requestId]} onClick={() => handleReject(p, 'Đã thu hồi lời mời')}>
-                          Thu hồi
-                        </Btn>
-                      } />
-                    ))
-                )}
-
-                {/*  Lân cận  */}
-                {tab === 'nearby' && (
-                  !myLocation.province ? (
-                    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '32px 24px', textAlign: 'center' }}>
-                      <div style={{ color: 'var(--text-primary)', display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.15))' }}>
-                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                          <circle cx="12" cy="10" r="3"/>
-                        </svg>
-                      </div>
-                      <h3 style={{ margin: '0 0 8px', fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Chưa thiết lập vị trí</h3>
-                      <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', maxWidth: '340px', margin: '0 auto 16px', lineHeight: 1.5 }}>
-                        Cập nhật địa phương sinh sống (Tỉnh/Thành phố & Quận/Huyện) trong trang cá nhân của bạn để tìm các bạn học quanh đây nhé!
-                      </p>
-                      <Link to="/profile" className="btn btn-primary" style={{ padding: '8px 20px', borderRadius: '24px', fontSize: '13.5px', fontWeight: 600, display: 'inline-block', textDecoration: 'none' }}>
-                        Đến Trang cá nhân
-                      </Link>
-                    </div>
+                  requestSubTab === 'received' ? (
+                    filter(pending).length === 0
+                      ? <EmptyState icon="" text="Không có lời mời kết bạn nào." />
+                      : filter(pending).map(p => (
+                        <PersonCard key={p.requestId} person={p} actions={<>
+                          <Btn variant="success" disabled={actionLoading[p.requestId]} onClick={() => handleAccept(p)}>
+                             Chấp nhận
+                          </Btn>
+                          <Btn variant="secondary" disabled={actionLoading[p.requestId]} onClick={() => handleReject(p, 'Đã từ chối lời mời')}>
+                            Từ chối
+                          </Btn>
+                        </>} />
+                      ))
                   ) : (
-                    filter(nearbySuggestions).length === 0
-                      ? <EmptyState icon={<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>} text={search ? 'Không tìm thấy bạn học lân cận nào phù hợp.' : 'Không tìm thấy bạn học lân cận nào xung quanh.'} />
-                      : filter(nearbySuggestions).map(p => (
-                        <PersonCard key={p.userId} person={p} actions={
-                          <Btn variant="primary" disabled={actionLoading[p.userId]} onClick={() => handleSend(p)}>
-                            + Kết bạn
+                    filter(sent).length === 0
+                      ? <EmptyState icon="" text="Chưa gửi lời mời kết bạn nào." />
+                      : filter(sent).map(p => (
+                        <PersonCard key={p.requestId} person={p} actions={
+                          <Btn variant="danger" disabled={actionLoading[p.requestId]} onClick={() => handleReject(p, 'Đã thu hồi lời mời')}>
+                            Thu hồi
                           </Btn>
                         } />
                       ))
                   )
                 )}
 
-                {/*  Gợi ý  */}
+                {/*  Gợi ý (gồm gợi ý chung và lân cận) */}
                 {tab === 'suggestions' && (
-                  filter(suggestions).length === 0
-                    ? <EmptyState icon="" text={search ? 'Không tìm thấy người dùng phù hợp.' : 'Không còn gợi ý kết bạn nào.'} />
-                    : filter(suggestions).map(p => (
-                      <PersonCard key={p.userId} person={p} actions={
-                        <Btn variant="primary" disabled={actionLoading[p.userId]} onClick={() => handleSend(p)}>
-                          + Kết bạn
-                        </Btn>
-                      } />
-                    ))
+                  suggestionSubTab === 'all' ? (
+                    filter(suggestions).length === 0
+                      ? <EmptyState icon="" text={search ? 'Không tìm thấy người dùng phù hợp.' : 'Không còn gợi ý kết bạn nào.'} />
+                      : filter(suggestions).map(p => (
+                        <PersonCard key={p.userId} person={p} actions={
+                          <Btn variant="primary" disabled={actionLoading[p.userId]} onClick={() => handleSend(p)}>
+                            + Kết bạn
+                          </Btn>
+                        } />
+                      ))
+                  ) : (
+                    !myLocation.province ? (
+                      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '32px 24px', textAlign: 'center' }}>
+                        <div style={{ color: 'var(--text-primary)', display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.15))' }}>
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                          </svg>
+                        </div>
+                        <h3 style={{ margin: '0 0 8px', fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Chưa thiết lập vị trí</h3>
+                        <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', maxWidth: '340px', margin: '0 auto 16px', lineHeight: 1.5 }}>
+                          Cập nhật địa phương sinh sống (Tỉnh/Thành phố & Quận/Huyện) trong trang cá nhân của bạn để tìm các bạn học quanh đây nhé!
+                        </p>
+                        <Link to="/profile" className="btn btn-primary" style={{ padding: '8px 20px', borderRadius: '24px', fontSize: '13.5px', fontWeight: 600, display: 'inline-block', textDecoration: 'none' }}>
+                          Đến Trang cá nhân
+                        </Link>
+                      </div>
+                    ) : (
+                      filter(nearbySuggestions).length === 0
+                        ? <EmptyState icon={<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>} text={search ? 'Không tìm thấy bạn học lân cận nào phù hợp.' : 'Không tìm thấy bạn học lân cận nào xung quanh.'} />
+                        : filter(nearbySuggestions).map(p => (
+                          <PersonCard key={p.userId} person={p} actions={
+                            <Btn variant="primary" disabled={actionLoading[p.userId]} onClick={() => handleSend(p)}>
+                              + Kết bạn
+                            </Btn>
+                          } />
+                        ))
+                    )
+                  )
                 )}
               </div>
             )}

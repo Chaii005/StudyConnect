@@ -245,20 +245,24 @@ export default function GroupDocuments({
                       {icon}
                     </span>
                     <div style={{ overflow: 'hidden', minWidth: 0, flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <span
-                          style={{
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            background: 'rgba(0,0,0,0.06)',
-                            color: 'var(--text-primary)',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            border: '1px solid var(--border)'
-                          }}
-                        >
-                          {subject}
-                        </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
+                        {subject && (
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              background: 'rgba(0,0,0,0.06)',
+                              color: 'var(--text-primary)',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              border: '1px solid var(--border)',
+                              display: 'inline-block',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {subject}
+                          </span>
+                        )}
                         <h4
                           style={{
                             fontSize: '15px',
@@ -268,7 +272,8 @@ export default function GroupDocuments({
                             textOverflow: 'ellipsis',
                             overflow: 'hidden',
                             whiteSpace: 'nowrap',
-                            maxWidth: '100%'
+                            width: '100%',
+                            minWidth: 0
                           }}
                         >
                           {displayName}
