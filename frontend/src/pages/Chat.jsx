@@ -83,12 +83,19 @@ export default function Chat() {
       .channel(`chat-overview-${user.id}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
+        { event: 'INSERT', schema: 'public', table: 'messages' },
         async (payload) => {
           const msg = payload.new;
           if (!msg || msg.group_id) return;
           const senderIdStr = msg.sender_id.toString();
-          const hasFriend = friendsRef.current.some(f => String(f.userId) === senderIdStr);
+          const receiverIdStr = msg.receiver_id.toString();
+          const userIdStr = user.id.toString();
+
+          // Only process messages involving the current user
+          if (senderIdStr !== userIdStr && receiverIdStr !== userIdStr) return;
+
+          const friendIdStr = senderIdStr === userIdStr ? receiverIdStr : senderIdStr;
+          const hasFriend = friendsRef.current.some(f => String(f.userId) === friendIdStr);
           if (!hasFriend) {
             try {
               await refreshCache(user.id);

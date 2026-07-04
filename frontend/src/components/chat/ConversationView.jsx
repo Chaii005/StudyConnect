@@ -480,10 +480,10 @@ export default function ConversationView({
     if (!container) return;
     const newCount = messages.length;
     if (newCount > prevMsgCount.current) {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 120;
-      if (isNearBottom) {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      const { scrollTop } = container;
+      const isNearTop = scrollTop < 120;
+      if (isNearTop) {
+        container.scrollTo({ top: 0, behavior: 'smooth' });
         setShowScrollBtn(false);
       } else {
         setShowScrollBtn(true);
@@ -495,13 +495,16 @@ export default function ConversationView({
   const handleScroll = () => {
     const container = msgsContainerRef.current;
     if (!container) return;
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    const isNearBottom = scrollHeight - scrollTop - clientHeight < 80;
-    setShowScrollBtn(!isNearBottom);
+    const { scrollTop } = container;
+    const isNearTop = scrollTop < 80;
+    setShowScrollBtn(!isNearTop);
   };
 
-  const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToTop = () => {
+    const container = msgsContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setShowScrollBtn(false);
   };
 
@@ -512,7 +515,7 @@ export default function ConversationView({
       await sendMessage(user.id, friend.userId, text.trim());
       setInput('');
       await load();
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      msgsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     } catch { /* ignore */ }
     finally { setSending(false); }
   };
@@ -574,7 +577,7 @@ export default function ConversationView({
       setInput('');
       setAttachedFile(null);
       await load();
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      msgsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     } catch { /* ignore */ }
     finally { setSending(false); }
   };
@@ -602,7 +605,7 @@ export default function ConversationView({
           const reader = new FileReader();
           reader.onload = (ev) => {
             setImgPreview(ev.target.result);
-            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+            setTimeout(() => msgsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
           };
           reader.readAsDataURL(file);
           e.preventDefault();
@@ -624,7 +627,7 @@ export default function ConversationView({
     const reader = new FileReader();
     reader.onload = (ev) => {
       setImgPreview(ev.target.result);
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+      setTimeout(() => msgsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -682,10 +685,11 @@ export default function ConversationView({
     document.body.removeChild(a);
   };
 
-  // Group messages by date
+  // Group messages by date (newest first)
   const groupedMsgs = [];
   let lastDate = null;
-  messages.forEach(m => {
+  const reversedMessages = [...messages].reverse();
+  reversedMessages.forEach(m => {
     const d = new Date(m.createdAt).toLocaleDateString('vi-VN');
     if (d !== lastDate) { 
       groupedMsgs.push({ type: 'date', label: d }); 
@@ -1332,10 +1336,10 @@ export default function ConversationView({
         <div ref={bottomRef} />
       </div>
 
-      {/* Floating Scroll to Bottom Button */}
+      {/* Floating Scroll to Top Button */}
       {showScrollBtn && (
         <button 
-          onClick={scrollToBottom} 
+          onClick={scrollToTop} 
           style={{
             position: 'absolute',
             bottom: imgPreview ? '170px' : '84px',
@@ -1357,10 +1361,10 @@ export default function ConversationView({
           }}
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          title="Cuộn xuống dưới"
+          title="Cuộn lên trên"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="18 15 12 9 6 15"/>
           </svg>
         </button>
       )}

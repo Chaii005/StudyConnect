@@ -160,10 +160,6 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           rs.addTrack(e.track);
           setRemoteStream(new MediaStream(rs.getTracks()));
           setConnected(true);
-          if (readyIntervalRef.current) {
-            clearInterval(readyIntervalRef.current);
-            readyIntervalRef.current = null;
-          }
         };
 
         pc.onicecandidate = (e) => {
@@ -179,21 +175,25 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           if (import.meta.env.DEV) {
             console.log(`[PrivateCall] Connection state changed:`, pc.connectionState);
           }
+          if (pc.connectionState === 'connected') {
+            setConnected(true);
+          }
           if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
             setConnected(false);
             setRemoteStream(null);
-          }
-          if (pc.connectionState === 'connected') {
-            if (readyIntervalRef.current) {
-              clearInterval(readyIntervalRef.current);
-              readyIntervalRef.current = null;
-            }
           }
         };
 
         pc.oniceconnectionstatechange = () => {
           if (import.meta.env.DEV) {
             console.log(`[PrivateCall] ICE Connection state changed:`, pc.iceConnectionState);
+          }
+          if (pc.iceConnectionState === 'connected') {
+            setConnected(true);
+          }
+          if (['disconnected', 'failed', 'closed'].includes(pc.iceConnectionState)) {
+            setConnected(false);
+            setRemoteStream(null);
           }
         };
 
@@ -204,52 +204,74 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         if (!msg || msg.from === myId || cancelled) return;
 
         if (msg.type === 'ready') {
-          if (mode === 'caller' && !pcRef.current) {
-            const currentStream = localRef.current;
-            const pc = createPC(currentStream);
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            ch.send({
-              type: 'broadcast', event: 'pc_signal',
-              payload: { type: 'offer', from: myId, offer }
-            });
+          if (mode === 'caller') {
+            const isConnected = pcRef.current && (
+              pcRef.current.connectionState === 'connected' ||
+              pcRef.current.iceConnectionState === 'connected'
+            );
+            if (!isConnected) {
+              if (import.meta.env.DEV) console.log('[PrivateCall] Peer not connected, recreating RTCPeerConnection for offer...');
+              if (pcRef.current) {
+                try { pcRef.current.close(); } catch (e) {}
+                pcRef.current = null;
+              }
+              iceCandidateQueue.current = []; // Clear old queue
+              const currentStream = localRef.current;
+              const pc = createPC(currentStream);
+              const offer = await pc.createOffer({ iceRestart: true });
+              await pc.setLocalDescription(offer);
+              ch.send({
+                type: 'broadcast', event: 'pc_signal',
+                payload: { type: 'offer', from: myId, offer }
+              });
+            }
           }
         }
 
         if (msg.type === 'offer') {
-          const currentStream = localRef.current;
-          const pc = createPC(currentStream);
-          await pc.setRemoteDescription(msg.offer);
-          // Flush ICE candidates đã queue trước khi setRemoteDescription
-          while (iceCandidateQueue.current.length > 0) {
-            const c = iceCandidateQueue.current.shift();
-            await pc.addIceCandidate(c).catch(() => {});
-          }
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
-          ch.send({
-            type: 'broadcast', event: 'pc_signal',
-            payload: { type: 'answer', from: myId, answer }
-          });
-          setConnected(true);
-          if (readyIntervalRef.current) {
-            clearInterval(readyIntervalRef.current);
-            readyIntervalRef.current = null;
+          const isConnected = pcRef.current && (
+            pcRef.current.connectionState === 'connected' ||
+            pcRef.current.iceConnectionState === 'connected'
+          );
+          if (!isConnected) {
+            if (import.meta.env.DEV) console.log('[PrivateCall] Received new offer, resetting peer connection...');
+            if (pcRef.current) {
+              try { pcRef.current.close(); } catch (e) {}
+              pcRef.current = null;
+            }
+            iceCandidateQueue.current = []; // Clear old queue
+            const currentStream = localRef.current;
+            const pc = createPC(currentStream);
+            await pc.setRemoteDescription(msg.offer);
+            // Flush ICE candidates
+            while (iceCandidateQueue.current.length > 0) {
+              const c = iceCandidateQueue.current.shift();
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(c));
+              } catch (e) {}
+            }
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            ch.send({
+              type: 'broadcast', event: 'pc_signal',
+              payload: { type: 'answer', from: myId, answer }
+            });
           }
         }
 
         if (msg.type === 'answer') {
           if (pcRef.current) {
-            await pcRef.current.setRemoteDescription(msg.answer);
-            // Flush ICE candidates đã queue trước khi setRemoteDescription
-            while (iceCandidateQueue.current.length > 0) {
-              const c = iceCandidateQueue.current.shift();
-              await pcRef.current.addIceCandidate(c).catch(() => {});
-            }
-            setConnected(true);
-            if (readyIntervalRef.current) {
-              clearInterval(readyIntervalRef.current);
-              readyIntervalRef.current = null;
+            const isConnected = pcRef.current.connectionState === 'connected' || pcRef.current.iceConnectionState === 'connected';
+            if (!isConnected) {
+              if (import.meta.env.DEV) console.log('[PrivateCall] Received answer, applying remote description...');
+              await pcRef.current.setRemoteDescription(msg.answer);
+              // Flush ICE candidates
+              while (iceCandidateQueue.current.length > 0) {
+                const c = iceCandidateQueue.current.shift();
+                try {
+                  await pcRef.current.addIceCandidate(new RTCIceCandidate(c));
+                } catch (e) {}
+              }
             }
           }
         }
@@ -257,10 +279,10 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         if (msg.type === 'ice') {
           const pc = pcRef.current;
           if (pc && pc.remoteDescription) {
-            // Remote description đã set → thêm ngay
-            pc.addIceCandidate(msg.candidate).catch(() => {});
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+            } catch (e) {}
           } else {
-            // Chưa có remote description → queue lại
             iceCandidateQueue.current.push(msg.candidate);
           }
         }
@@ -275,19 +297,20 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
       ch.subscribe(async (status) => {
         if (status !== 'SUBSCRIBED' || cancelled) return;
 
-        // Gửi ready ngay khi subscribe xong
+        // Send ready immediately
         ch.send({
           type: 'broadcast', event: 'pc_signal',
           payload: { type: 'ready', from: myId }
         });
 
-        // Gửi lại mỗi 3s nếu chưa kết nối (tăng từ 1.5s để tránh Supabase Broadcast rate limit)
+        // Re-send ready every 3s if not connected (keeps signaling open and self-healing)
         readyIntervalRef.current = setInterval(() => {
-          if (pcRef.current?.connectionState === 'connected' || pcRef.current?.iceConnectionState === 'connected') {
-            clearInterval(readyIntervalRef.current);
-            readyIntervalRef.current = null;
-            return;
-          }
+          const isConnected = pcRef.current && (
+            pcRef.current.connectionState === 'connected' ||
+            pcRef.current.iceConnectionState === 'connected'
+          );
+          if (isConnected) return;
+
           ch.send({
             type: 'broadcast', event: 'pc_signal',
             payload: { type: 'ready', from: myId }
