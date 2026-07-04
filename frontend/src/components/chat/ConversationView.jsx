@@ -92,7 +92,7 @@ export default function ConversationView({
   const [renameVal, setRenameVal] = useState('');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showMenuDropdown, setShowMenuDropdown] = useState(false);
-  const [bgMode, setBgMode] = useState('landscape');
+  const [bgTheme, setBgTheme] = useState('default');
   const [showBgModal, setShowBgModal] = useState(false);
   const [bgFilePreview, setBgFilePreview] = useState('');
   const [bgPos, setBgPos] = useState('center');
@@ -100,6 +100,101 @@ export default function ConversationView({
   const [attachedFile, setAttachedFile] = useState(null);
   const [bgToast, setBgToast] = useState(null); // { name }
   const prevBgRef = useRef(null);
+
+  useEffect(() => {
+    if (!chatBg) {
+      setBgTheme('default');
+      return;
+    }
+    const imgUrl = chatBg.split('|')[0];
+    if (!imgUrl) {
+      setBgTheme('default');
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 10;
+        canvas.height = 10;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          setBgTheme('dark');
+          return;
+        }
+        ctx.drawImage(img, 0, 0, 10, 10);
+        const imgData = ctx.getImageData(0, 0, 10, 10).data;
+        
+        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+        for (let i = 0; i < imgData.length; i += 4) {
+          if (imgData[i + 3] > 0) {
+            rSum += imgData[i];
+            gSum += imgData[i + 1];
+            bSum += imgData[i + 2];
+            count++;
+          }
+        }
+        
+        if (count === 0) {
+          setBgTheme('dark');
+          return;
+        }
+        
+        const rAvg = rSum / count;
+        const gAvg = gSum / count;
+        const bAvg = bSum / count;
+        const luminance = 0.299 * rAvg + 0.587 * gAvg + 0.114 * bAvg;
+        
+        if (luminance > 135) {
+          setBgTheme('light');
+        } else {
+          setBgTheme('dark');
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) console.warn('[Chat] Failed to analyze bg color:', err);
+        setBgTheme('dark');
+      }
+    };
+    img.onerror = () => {
+      setBgTheme('dark');
+    };
+    img.src = imgUrl;
+  }, [chatBg]);
+
+  const getChatStyleVariables = () => {
+    if (bgTheme === 'light') {
+      return {
+        '--text-primary-chat': '#111827',
+        '--text-secondary-chat': '#374151',
+        '--text-muted-chat': '#4b5563',
+        '--bg-input-chat': 'rgba(17, 24, 39, 0.08)',
+        '--border-chat': 'rgba(17, 24, 39, 0.15)',
+        '--bg-overlay-chat': 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45))',
+      };
+    } else if (bgTheme === 'dark') {
+      return {
+        '--text-primary-chat': '#ffffff',
+        '--text-secondary-chat': '#e5e7eb',
+        '--text-muted-chat': '#9ca3af',
+        '--bg-input-chat': 'rgba(255, 255, 255, 0.12)',
+        '--border-chat': 'rgba(255, 255, 255, 0.18)',
+        '--bg-overlay-chat': 'linear-gradient(rgba(11, 15, 25, 0.7), rgba(11, 15, 25, 0.7))',
+      };
+    } else {
+      return {
+        '--text-primary-chat': 'var(--text-primary)',
+        '--text-secondary-chat': 'var(--text-secondary)',
+        '--text-muted-chat': 'var(--text-muted)',
+        '--bg-input-chat': 'var(--bg-input)',
+        '--border-chat': 'var(--border)',
+        '--bg-overlay-chat': 'none',
+      };
+    }
+  };
+
+  const chatStyles = getChatStyleVariables();
 
   useEffect(() => {
     const n = localStorage.getItem(`sc_nickname_${user.id}_${friend.userId}`) || '';
@@ -895,13 +990,14 @@ export default function ConversationView({
           position: 'relative',
           overscrollBehavior: 'contain',
           background: chatBg 
-            ? `linear-gradient(rgba(11, 15, 25, 0.7), rgba(11, 15, 25, 0.7)), url(${chatBg.split('|')[0]}) ${chatBg.split('|')[1] || 'center'}/cover no-repeat`
+            ? `${chatStyles['--bg-overlay-chat']}, url(${chatBg.split('|')[0]}) ${chatBg.split('|')[1] || 'center'}/cover no-repeat`
             : undefined,
           transition: 'background 0.3s ease',
+          ...chatStyles,
         }}
       >
         {groupedMsgs.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)', fontSize: '14px' }}>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted-chat)', fontSize: '14px' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
             {friend.status === 'pending' ? (
               friend.fromUserId === String(user.id) ? (
@@ -923,11 +1019,11 @@ export default function ConversationView({
               <div key={`date-${idx}`} style={{ textAlign: 'center', margin: '18px 0 10px' }}>
                 <span 
                   style={{
-                    background: 'var(--bg-input)',
+                    background: 'var(--bg-input-chat)',
                     padding: '4px 14px',
                     borderRadius: '12px',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-chat)',
+                    color: 'var(--text-primary-chat)',
                     fontWeight: 700,
                     fontSize: '11px',
                     fontFamily: 'var(--font-mono, monospace)',
@@ -945,7 +1041,7 @@ export default function ConversationView({
           if (m.content?.startsWith('[chat_background]')) {
             return (
               <div key={m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
-                <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'var(--bg-input-chat)', border: '1px solid var(--border-chat)', color: 'var(--text-secondary-chat)' }}>
                   {isMine ? 'Bạn đã thay đổi hình nền' : `${nickname || friend.fullName} đã thay đổi hình nền`}
                 </span>
               </div>
@@ -960,7 +1056,7 @@ export default function ConversationView({
             
             return (
               <div key={m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
-                <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'var(--bg-input-chat)', border: '1px solid var(--border-chat)', color: 'var(--text-secondary-chat)' }}>
                   {msgText}
                 </span>
               </div>
@@ -979,11 +1075,11 @@ export default function ConversationView({
                     gap: '10px',
                     padding: '8px 18px', 
                     borderRadius: '20px',
-                    background: 'var(--bg-input)',
-                    border: '1.5px solid var(--border)',
+                    background: 'var(--bg-input-chat)',
+                    border: '1.5px solid var(--border-chat)',
                     fontSize: '12.5px', 
                     fontWeight: 700,
-                    color: 'var(--text-primary)',
+                    color: 'var(--text-primary-chat)',
                   }}
                 >
                   <span 
@@ -995,7 +1091,7 @@ export default function ConversationView({
                       display: 'inline-flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      border: '1.5px solid var(--border)',
+                      border: '1.5px solid var(--border-chat)',
                     }}
                   >
                     {isMissed ? (
@@ -1076,13 +1172,13 @@ export default function ConversationView({
                       background: isMine 
                         ? 'linear-gradient(135deg, #0d9488, #111827)' 
                         : 'var(--bg-card)',
-                      color: isMine ? 'white' : 'var(--text-primary)',
+                      color: isMine ? 'white' : 'var(--text-primary-chat)',
                       padding: isImage ? '4px' : '10px 16px',
                       borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                       fontSize: '14px', 
                       lineHeight: 1.5, 
                       wordBreak: 'break-word',
-                      border: isMine ? 'none' : '1.5px solid var(--border)',
+                      border: isMine ? 'none' : '1.5px solid var(--border-chat)',
                       position: 'relative',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     }}
@@ -1110,8 +1206,8 @@ export default function ConversationView({
                             display: 'flex', 
                             alignItems: 'center', 
                             gap: '12px', 
-                            background: isMine ? 'rgba(0,0,0,0.2)' : 'var(--bg-input)', 
-                            border: '1px solid var(--border)', 
+                            background: isMine ? 'rgba(0,0,0,0.2)' : 'var(--bg-input-chat)', 
+                            border: '1.5px solid var(--border-chat)', 
                             padding: '10px 12px', 
                             borderRadius: '10px', 
                             minWidth: '220px' 
@@ -1126,7 +1222,7 @@ export default function ConversationView({
                                 whiteSpace: 'nowrap', 
                                 overflow: 'hidden', 
                                 textOverflow: 'ellipsis', 
-                                color: isMine ? 'white' : 'var(--text-primary)' 
+                                color: isMine ? 'white' : 'var(--text-primary-chat)' 
                               }}
                             >
                               {m.fileAttachment.fileName}
@@ -1166,7 +1262,7 @@ export default function ConversationView({
                   <span 
                     style={{ 
                       fontSize: '10px', 
-                      color: 'var(--text-muted)', 
+                      color: 'var(--text-muted-chat)', 
                       padding: '0 4px',
                       fontFamily: 'var(--font-mono, monospace)' 
                     }}
