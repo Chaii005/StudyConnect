@@ -1,6 +1,5 @@
-// src/pages/Login.jsx
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { login, signInWithGoogle } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import studyconectLogo from '@/assets/studyconect_logo.png';
@@ -8,11 +7,26 @@ import studyconectLogo from '@/assets/studyconect_logo.png';
 export default function Login() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const errType = searchParams.get('error');
+    const errMsg = searchParams.get('message');
+    if (errType) {
+      if (errType === 'sync_failed') {
+        setError(`Đồng bộ tài khoản Google thất bại: ${errMsg || 'Lỗi không xác định'}`);
+      } else if (errType === 'no_session') {
+        setError(`Không tìm thấy phiên đăng nhập Google: ${errMsg || 'Session không tồn tại'}`);
+      } else {
+        setError(`Đăng nhập Google thất bại: ${errMsg || errType}`);
+      }
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));

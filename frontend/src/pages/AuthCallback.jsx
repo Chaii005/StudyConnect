@@ -14,7 +14,8 @@ export default function AuthCallback() {
       
       if (sessionError || !session) {
         if (import.meta.env.DEV) console.error('Error fetching session:', sessionError);
-        navigate('/login?error=no_session');
+        const errorMsg = sessionError ? sessionError.message : 'No session available';
+        navigate(`/login?error=no_session&message=${encodeURIComponent(errorMsg)}`);
         return;
       }
 
@@ -97,7 +98,7 @@ export default function AuthCallback() {
         window.location.href = '/';
       } catch (err) {
         if (import.meta.env.DEV) console.error('Error synchronizing user session:', err);
-        navigate('/login?error=sync_failed');
+        navigate(`/login?error=sync_failed&message=${encodeURIComponent(err.message || 'Sync failed')}`);
       }
     };
 
