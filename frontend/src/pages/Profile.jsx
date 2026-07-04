@@ -67,16 +67,12 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-md)',
             boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-            maxHeight: '165px',
-            overflowY: 'auto',
-            overscrollBehavior: 'contain',
+            overflow: 'hidden',
             zIndex: 9999,
-            scrollbarWidth: 'thin',
-            scrollbarColor: 'var(--primary) transparent'
           }}
         >
           {/* Ô tìm kiếm nhanh */}
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 10 }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', background: 'var(--bg-card)', zIndex: 10 }}>
             <input
               type="text"
               placeholder="Tìm kiếm..."
@@ -102,32 +98,34 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
               Không tìm thấy kết quả
             </div>
           ) : (
-            filteredOptions.map((opt) => (
-              <div
-                key={opt}
-                onClick={() => {
-                  onChange(opt);
-                  setIsOpen(false);
-                }}
-                style={{
-                  padding: '10px 16px',
-                  fontSize: '14px',
-                  color: opt === value ? 'var(--primary)' : 'var(--text-primary)',
-                  background: opt === value ? 'rgba(35, 97, 95, 0.12)' : 'transparent',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  textAlign: 'left'
-                }}
-                onMouseEnter={e => {
-                  if (opt !== value) e.currentTarget.style.background = 'var(--bg-input)';
-                }}
-                onMouseLeave={e => {
-                  if (opt !== value) e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                {opt}
-              </div>
-            ))
+            <div style={{ maxHeight: '120px', overflowY: 'auto', overscrollBehavior: 'contain', scrollbarWidth: 'thin', scrollbarColor: 'var(--primary) transparent' }}>
+              {filteredOptions.map((opt) => (
+                <div
+                  key={opt}
+                  onClick={() => {
+                    onChange(opt);
+                    setIsOpen(false);
+                  }}
+                  style={{
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    color: opt === value ? 'var(--primary)' : 'var(--text-primary)',
+                    background: opt === value ? 'rgba(35, 97, 95, 0.12)' : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={e => {
+                    if (opt !== value) e.currentTarget.style.background = 'var(--bg-input)';
+                  }}
+                  onMouseLeave={e => {
+                    if (opt !== value) e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  {opt}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
