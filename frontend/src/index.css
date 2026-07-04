@@ -949,17 +949,18 @@ input::-ms-clear {
   align-items: center;
   gap: 10px;
   box-shadow: var(--shadow);
-  border-left: 4px solid;
+  border: 1px solid var(--border);
+  border-left: 4px solid #000000;
   min-width: 280px;
   max-width: 360px;
   animation: toastIn 0.3s ease, toastOut 0.4s ease 2.6s forwards;
   font-size: 14px;
 }
 
-.toast.success { border-color: var(--success); }
-.toast.error { border-color: var(--error); }
+.toast.success { border-left-color: #22c55e; }
+.toast.error { border-left-color: #ef4444; }
 
-.toast-icon { font-size: 18px; }
+.toast-icon { display: none; }
 .toast-msg { flex: 1; color: var(--text-primary); }
 
 @keyframes toastIn {

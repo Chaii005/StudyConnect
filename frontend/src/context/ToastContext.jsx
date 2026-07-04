@@ -49,30 +49,17 @@ export const ToastProvider = ({ children }) => {
       {/* Toast Overlay Container */}
       <div className="toast-container">
         {toasts.map((toast) => {
-          const isError = toast.type === 'error';
-          const isWarning = toast.type === 'warning';
+          const msgLower = (toast.message || '').toLowerCase();
+          const isError = toast.type === 'error' || toast.type === 'warning' || toast.type === 'delete' || toast.type === 'cancel' ||
+                          msgLower.includes('xóa') || msgLower.includes('hủy') || msgLower.includes('từ chối') || msgLower.includes('lỗi') || msgLower.includes('thất bại');
+          const isSuccess = toast.type === 'success' || toast.type === 'approve' || toast.type === 'accept' ||
+                            msgLower.includes('duyệt') || msgLower.includes('thành công') || msgLower.includes('chấp nhận');
           
-          let icon = (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          );
+          let borderLeftColor = '#000000';
           if (isError) {
-            icon = (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-            );
-          } else if (isWarning) {
-            icon = (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            );
+            borderLeftColor = '#ef4444';
+          } else if (isSuccess) {
+            borderLeftColor = '#22c55e';
           }
 
           return (
@@ -80,11 +67,8 @@ export const ToastProvider = ({ children }) => {
               key={toast.id}
               className={`toast-card ${toast.isDismissing ? 'dismissing' : ''}`}
               style={{
-                border: isError 
-                  ? '1px solid rgba(239, 68, 68, 0.3)' 
-                  : isWarning 
-                  ? '1px solid rgba(245, 158, 11, 0.3)' 
-                  : '1px solid var(--border)',
+                border: '1px solid var(--border)',
+                borderLeft: `4px solid ${borderLeftColor}`,
                 cursor: toast.link ? 'pointer' : 'default',
               }}
               onClick={() => {
@@ -94,7 +78,6 @@ export const ToastProvider = ({ children }) => {
                 }
               }}
             >
-              {icon}
               <span style={{ flex: 1, lineHeight: 1.4 }}>{toast.message}</span>
               <button
                 onClick={(e) => {

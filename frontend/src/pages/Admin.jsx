@@ -16,12 +16,27 @@ import ConfirmModal from '@/components/ConfirmModal';
 function AdminToast({ toasts, remove }) {
   return (
     <div style={{ position: 'fixed', top: '80px', right: '24px', zIndex: 20000 }}>
-      {toasts.map((t) => (
-        <div key={t.id} style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: 'var(--shadow)', borderLeft: `4px solid ${t.type === 'success' ? 'var(--success)' : 'var(--error)'}`, minWidth: '280px', maxWidth: '360px', fontSize: '14px', marginBottom: '10px' }}>
-          <span style={{ flex: 1, color: 'var(--text-primary)' }}>{t.msg}</span>
-          <button onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px' }}>✕</button>
-        </div>
-      ))}
+      {toasts.map((t) => {
+        const msgLower = (t.msg || '').toLowerCase();
+        const isError = t.type === 'error' || t.type === 'warning' || t.type === 'delete' || t.type === 'cancel' ||
+                        msgLower.includes('xóa') || msgLower.includes('hủy') || msgLower.includes('từ chối') || msgLower.includes('lỗi') || msgLower.includes('bại');
+        const isSuccess = t.type === 'success' || t.type === 'approve' || t.type === 'accept' ||
+                          msgLower.includes('duyệt') || msgLower.includes('thành công') || msgLower.includes('nhận');
+        
+        let borderLeftColor = '#000000';
+        if (isError) {
+          borderLeftColor = '#ef4444';
+        } else if (isSuccess) {
+          borderLeftColor = '#22c55e';
+        }
+
+        return (
+          <div key={t.id} style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: 'var(--shadow)', border: '1px solid var(--border)', borderLeft: `4px solid ${borderLeftColor}`, minWidth: '280px', maxWidth: '360px', fontSize: '14px', marginBottom: '10px' }}>
+            <span style={{ flex: 1, color: 'var(--text-primary)' }}>{t.msg}</span>
+            <button onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px' }}>✕</button>
+          </div>
+        );
+      })}
     </div>
   );
 }
