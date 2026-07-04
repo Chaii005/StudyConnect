@@ -53,27 +53,78 @@ export const CallProvider = ({ children }) => {
   useEffect(() => {
     if (!user?.id) return;
 
-    const ch = supabase.channel('private_calls_global', {
-      config: { broadcast: { self: false } }
-    });
-    channelRef.current = ch;
+    let activeChannel = null;
+    let subTimeout = null;
+    let isCancelled = false;
 
-    ch.on('broadcast', { event: 'call_signal' }, ({ payload }) => {
-      if (!payload) return;
-      // Bỏ qua tất cả nếu đang ở trang admin
-      const isAdmin = locationRef.current.startsWith('/admin') || locationRef.current === '/admin-login';
-      if (isAdmin) return;
+    const setupChannel = () => {
+      if (isCancelled) return;
 
-      // Nhận cuộc gọi đến
-      if (payload.type === 'call' && String(payload.receiverId) === String(user.id)) {
-        setIncomingCall({
-          callId: payload.callId,
-          callerId: payload.callerId,
-          callerName: payload.callerName,
-          callerAvatar: payload.callerAvatar,
-        });
-        clearTimeout(ringTimerRef.current);
-        ringTimerRef.current = setTimeout(() => {
+      const ch = supabase.channel('private_calls_global', {
+        config: { broadcast: { self: false } }
+      });
+      activeChannel = ch;
+      channelRef.current = ch;
+
+      ch.on('broadcast', { event: 'call_signal' }, ({ payload }) => {
+        if (!payload || isCancelled) return;
+        // Bỏ qua tất cả nếu đang ở trang admin
+        const isAdmin = locationRef.current.startsWith('/admin') || locationRef.current === '/admin-login';
+        if (isAdmin) return;
+
+        // Nhận cuộc gọi đến
+        if (payload.type === 'call' && String(payload.receiverId) === String(user.id)) {
+          setIncomingCall({
+            callId: payload.callId,
+            callerId: payload.callerId,
+            callerName: payload.callerName,
+            callerAvatar: payload.callerAvatar,
+          });
+          clearTimeout(ringTimerRef.current);
+          ringTimerRef.current = setTimeout(() => {
+            setIncomingCall(null);
+            setCallStatus('missed');
+            clearTimeout(statusTimerRef.current);
+            statusTimerRef.current = setTimeout(() => setCallStatus(null), 3000);
+            if (locationRef.current.startsWith('/call/')) {
+              navigate('/chat');
+            }
+          }, 10000);
+        }
+
+        // Đối phương chấp nhận (người gọi nhận)
+        if (payload.type === 'accept' && outgoingCallRef.current?.callId === payload.callId) {
+          const outCall = outgoingCallRef.current;
+          clearTimeout(ringTimerRef.current);
+          clearTimeout(statusTimerRef.current);
+          setOutgoingCall(null);
+          setCallStatus(null);
+          navigate(`/call/${payload.callId}?mode=caller&friendName=${encodeURIComponent(outCall?.receiverName || '')}&friendAvatar=${encodeURIComponent(outCall?.receiverAvatar || '')}&friendId=${outCall?.receiverId}`);
+        }
+
+        // Đối phương từ chối (người gọi nhận)
+        if (payload.type === 'reject' && outgoingCallRef.current?.callId === payload.callId) {
+          clearTimeout(ringTimerRef.current);
+          const outCall = outgoingCallRef.current;
+          setOutgoingCall(null);
+          setCallStatus('rejected');
+          clearTimeout(statusTimerRef.current);
+          statusTimerRef.current = setTimeout(() => setCallStatus(null), 4000);
+          if (locationRef.current.startsWith('/call/')) {
+            navigate('/chat');
+          }
+          // Gửi tin nhắn vào chat + lưu thông báo chuông (bên gọi)
+          if (outCall?.receiverId && user?.id) {
+            sendMessage(user.id, outCall.receiverId, '📵 Người nhận đang bận').catch(() => {});
+          }
+        }
+
+        // Cuộc gọi bị hủy bởi người gọi hoặc hết thời gian (người nhận đang thấy popup/chuông)
+        if (
+          (payload.type === 'cancel' || payload.type === 'no_answer') &&
+          incomingCallRef.current?.callId === payload.callId
+        ) {
+          clearTimeout(ringTimerRef.current);
           setIncomingCall(null);
           setCallStatus('missed');
           clearTimeout(statusTimerRef.current);
@@ -81,60 +132,39 @@ export const CallProvider = ({ children }) => {
           if (locationRef.current.startsWith('/call/')) {
             navigate('/chat');
           }
-        }, 10000);
-      }
-
-      // Đối phương chấp nhận (người gọi nhận)
-      if (payload.type === 'accept' && outgoingCallRef.current?.callId === payload.callId) {
-        const outCall = outgoingCallRef.current;
-        clearTimeout(ringTimerRef.current);
-        clearTimeout(statusTimerRef.current);
-        setOutgoingCall(null);
-        setCallStatus(null);
-        navigate(`/call/${payload.callId}?mode=caller&friendName=${encodeURIComponent(outCall?.receiverName || '')}&friendAvatar=${encodeURIComponent(outCall?.receiverAvatar || '')}&friendId=${outCall?.receiverId}`);
-      }
-
-      // Đối phương từ chối (người gọi nhận)
-      if (payload.type === 'reject' && outgoingCallRef.current?.callId === payload.callId) {
-        clearTimeout(ringTimerRef.current);
-        const outCall = outgoingCallRef.current;
-        setOutgoingCall(null);
-        setCallStatus('rejected');
-        clearTimeout(statusTimerRef.current);
-        statusTimerRef.current = setTimeout(() => setCallStatus(null), 4000);
-        if (locationRef.current.startsWith('/call/')) {
-          navigate('/chat');
         }
-        // Gửi tin nhắn vào chat + lưu thông báo chuông (bên gọi)
-        if (outCall?.receiverId && user?.id) {
-          sendMessage(user.id, outCall.receiverId, '📵 Người nhận đang bận').catch(() => {});
-        }
-      }
+      });
 
-      // Cuộc gọi bị hủy bởi người gọi hoặc hết thời gian (người nhận đang thấy popup/chuông)
-      if (
-        (payload.type === 'cancel' || payload.type === 'no_answer') &&
-        incomingCallRef.current?.callId === payload.callId
-      ) {
-        clearTimeout(ringTimerRef.current);
-        setIncomingCall(null);
-        setCallStatus('missed');
-        clearTimeout(statusTimerRef.current);
-        statusTimerRef.current = setTimeout(() => setCallStatus(null), 3000);
-        if (locationRef.current.startsWith('/call/')) {
-          navigate('/chat');
+      ch.subscribe((status) => {
+        if (import.meta.env.DEV) {
+          console.log(`[CallContext] Global channel status: ${status}`);
         }
-      }
-    });
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          if (import.meta.env.DEV) {
+            console.warn(`[CallContext] Global channel failed (${status}). Retrying in 4s...`);
+          }
+          clearTimeout(subTimeout);
+          subTimeout = setTimeout(() => {
+            if (activeChannel) {
+              supabase.removeChannel(activeChannel);
+            }
+            setupChannel();
+          }, 4000);
+        }
+      });
+    };
 
-    ch.subscribe();
+    setupChannel();
 
     return () => {
-      // KHÔNG clearTimeout timer ở đây — timer phải sống qua các lần navigate
-      supabase.removeChannel(ch);
+      isCancelled = true;
+      clearTimeout(subTimeout);
+      if (activeChannel) {
+        supabase.removeChannel(activeChannel);
+      }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user]);
 
   // ── Bắt đầu gọi ─────────────────────────────────────────────────
   const initiateCall = useCallback(async (friend) => {

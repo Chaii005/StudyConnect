@@ -134,17 +134,12 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
 
     let cancelled = false;
     let ch = null;
+    let subTimeout = null;
 
     const startCall = async () => {
-      // 1. Khởi động camera và mic trước
+      // 1. Khởi động camera và mic trước (không thoát sớm để vẫn kết nối kênh tín hiệu ngay cả khi từ chối quyền)
       const stream = await startMedia();
-      if (!stream || cancelled) return;
-
-      // 2. Sau khi đã có local stream, mới kết nối kênh Supabase
-      ch = supabase.channel(`private_call_${callId}`, {
-        config: { broadcast: { self: false } }
-      });
-      channelRef.current = ch;
+      if (cancelled) return;
 
       const createPC = (localStreamObj) => {
         const pc = new RTCPeerConnection(ICE_SERVERS);
@@ -163,7 +158,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         };
 
         pc.onicecandidate = (e) => {
-          if (e.candidate) {
+          if (e.candidate && ch) {
             ch.send({
               type: 'broadcast', event: 'pc_signal',
               payload: { type: 'ice', from: myId, candidate: e.candidate }
@@ -200,17 +195,49 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         return pc;
       };
 
-      ch.on('broadcast', { event: 'pc_signal' }, async ({ payload: msg }) => {
-        if (!msg || msg.from === myId || cancelled) return;
+      const setupPrivateChannel = () => {
+        if (cancelled) return;
 
-        if (msg.type === 'ready') {
-          if (mode === 'caller') {
+        ch = supabase.channel(`private_call_${callId}`, {
+          config: { broadcast: { self: false } }
+        });
+        channelRef.current = ch;
+
+        ch.on('broadcast', { event: 'pc_signal' }, async ({ payload: msg }) => {
+          if (!msg || msg.from === myId || cancelled) return;
+
+          if (msg.type === 'ready') {
+            if (mode === 'caller') {
+              const isConnected = pcRef.current && (
+                pcRef.current.connectionState === 'connected' ||
+                pcRef.current.iceConnectionState === 'connected'
+              );
+              if (!isConnected) {
+                if (import.meta.env.DEV) console.log('[PrivateCall] Peer not connected, recreating RTCPeerConnection for offer...');
+                if (pcRef.current) {
+                  try { pcRef.current.close(); } catch (e) {}
+                  pcRef.current = null;
+                }
+                iceCandidateQueue.current = []; // Clear old queue
+                const currentStream = localRef.current;
+                const pc = createPC(currentStream);
+                const offer = await pc.createOffer({ iceRestart: true });
+                await pc.setLocalDescription(offer);
+                ch.send({
+                  type: 'broadcast', event: 'pc_signal',
+                  payload: { type: 'offer', from: myId, offer }
+                });
+              }
+            }
+          }
+
+          if (msg.type === 'offer') {
             const isConnected = pcRef.current && (
               pcRef.current.connectionState === 'connected' ||
               pcRef.current.iceConnectionState === 'connected'
             );
             if (!isConnected) {
-              if (import.meta.env.DEV) console.log('[PrivateCall] Peer not connected, recreating RTCPeerConnection for offer...');
+              if (import.meta.env.DEV) console.log('[PrivateCall] Received new offer, resetting peer connection...');
               if (pcRef.current) {
                 try { pcRef.current.close(); } catch (e) {}
                 pcRef.current = null;
@@ -218,120 +245,122 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
               iceCandidateQueue.current = []; // Clear old queue
               const currentStream = localRef.current;
               const pc = createPC(currentStream);
-              const offer = await pc.createOffer({ iceRestart: true });
-              await pc.setLocalDescription(offer);
-              ch.send({
-                type: 'broadcast', event: 'pc_signal',
-                payload: { type: 'offer', from: myId, offer }
-              });
-            }
-          }
-        }
-
-        if (msg.type === 'offer') {
-          const isConnected = pcRef.current && (
-            pcRef.current.connectionState === 'connected' ||
-            pcRef.current.iceConnectionState === 'connected'
-          );
-          if (!isConnected) {
-            if (import.meta.env.DEV) console.log('[PrivateCall] Received new offer, resetting peer connection...');
-            if (pcRef.current) {
-              try { pcRef.current.close(); } catch (e) {}
-              pcRef.current = null;
-            }
-            iceCandidateQueue.current = []; // Clear old queue
-            const currentStream = localRef.current;
-            const pc = createPC(currentStream);
-            await pc.setRemoteDescription(msg.offer);
-            // Flush ICE candidates
-            while (iceCandidateQueue.current.length > 0) {
-              const c = iceCandidateQueue.current.shift();
-              try {
-                await pc.addIceCandidate(new RTCIceCandidate(c));
-              } catch (e) {}
-            }
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            ch.send({
-              type: 'broadcast', event: 'pc_signal',
-              payload: { type: 'answer', from: myId, answer }
-            });
-          }
-        }
-
-        if (msg.type === 'answer') {
-          if (pcRef.current) {
-            const isConnected = pcRef.current.connectionState === 'connected' || pcRef.current.iceConnectionState === 'connected';
-            if (!isConnected) {
-              if (import.meta.env.DEV) console.log('[PrivateCall] Received answer, applying remote description...');
-              await pcRef.current.setRemoteDescription(msg.answer);
+              await pc.setRemoteDescription(msg.offer);
               // Flush ICE candidates
               while (iceCandidateQueue.current.length > 0) {
                 const c = iceCandidateQueue.current.shift();
                 try {
-                  await pcRef.current.addIceCandidate(new RTCIceCandidate(c));
+                  await pc.addIceCandidate(new RTCIceCandidate(c));
                 } catch (e) {}
+              }
+              const answer = await pc.createAnswer();
+              await pc.setLocalDescription(answer);
+              ch.send({
+                type: 'broadcast', event: 'pc_signal',
+                payload: { type: 'answer', from: myId, answer }
+              });
+            }
+          }
+
+          if (msg.type === 'answer') {
+            if (pcRef.current) {
+              const isConnected = pcRef.current.connectionState === 'connected' || pcRef.current.iceConnectionState === 'connected';
+              if (!isConnected) {
+                if (import.meta.env.DEV) console.log('[PrivateCall] Received answer, applying remote description...');
+                await pcRef.current.setRemoteDescription(msg.answer);
+                // Flush ICE candidates
+                while (iceCandidateQueue.current.length > 0) {
+                  const c = iceCandidateQueue.current.shift();
+                  try {
+                    await pcRef.current.addIceCandidate(new RTCIceCandidate(c));
+                  } catch (e) {}
+                }
               }
             }
           }
-        }
 
-        if (msg.type === 'ice') {
-          const pc = pcRef.current;
-          if (pc && pc.remoteDescription) {
-            try {
-              await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
-            } catch (e) {}
-          } else {
-            iceCandidateQueue.current.push(msg.candidate);
+          if (msg.type === 'ice') {
+            const pc = pcRef.current;
+            if (pc && pc.remoteDescription) {
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+              } catch (e) {}
+            } else {
+              iceCandidateQueue.current.push(msg.candidate);
+            }
           }
-        }
 
-        if (msg.type === 'hangup') {
-          setConnected(false);
-          setRemoteStream(null);
-          if (onHangup) onHangup();
-        }
-      });
-
-      ch.subscribe(async (status) => {
-        if (status !== 'SUBSCRIBED' || cancelled) return;
-
-        // Send ready immediately
-        ch.send({
-          type: 'broadcast', event: 'pc_signal',
-          payload: { type: 'ready', from: myId }
+          if (msg.type === 'hangup') {
+            setConnected(false);
+            setRemoteStream(null);
+            if (onHangup) onHangup();
+          }
         });
 
-        // Re-send ready every 3s if not connected (keeps signaling open and self-healing)
-        readyIntervalRef.current = setInterval(() => {
-          const isConnected = pcRef.current && (
-            pcRef.current.connectionState === 'connected' ||
-            pcRef.current.iceConnectionState === 'connected'
-          );
-          if (isConnected) return;
+        ch.subscribe(async (status) => {
+          if (cancelled) return;
+          if (import.meta.env.DEV) {
+            console.log(`[PrivateCall] Channel status: ${status}`);
+          }
 
-          ch.send({
-            type: 'broadcast', event: 'pc_signal',
-            payload: { type: 'ready', from: myId }
-          });
-        }, 3000);
-      });
+          if (status === 'SUBSCRIBED') {
+            // Send ready immediately
+            ch.send({
+              type: 'broadcast', event: 'pc_signal',
+              payload: { type: 'ready', from: myId }
+            });
+
+            // Start interval if not running
+            if (!readyIntervalRef.current) {
+              readyIntervalRef.current = setInterval(() => {
+                const isConnected = pcRef.current && (
+                  pcRef.current.connectionState === 'connected' ||
+                  pcRef.current.iceConnectionState === 'connected'
+                );
+                if (isConnected) return;
+
+                ch.send({
+                  type: 'broadcast', event: 'pc_signal',
+                  payload: { type: 'ready', from: myId }
+                });
+              }, 3000);
+            }
+          }
+
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            if (import.meta.env.DEV) {
+              console.warn(`[PrivateCall] Channel subscription failed (${status}). Retrying in 3s...`);
+            }
+            clearTimeout(subTimeout);
+            subTimeout = setTimeout(() => {
+              if (ch) {
+                supabase.removeChannel(ch);
+              }
+              setupPrivateChannel();
+            }, 3000);
+          }
+        });
+      };
+
+      setupPrivateChannel();
     };
 
     startCall();
 
     return () => {
       cancelled = true;
+      clearTimeout(subTimeout);
       if (readyIntervalRef.current) {
         clearInterval(readyIntervalRef.current);
         readyIntervalRef.current = null;
       }
       if (ch) {
-        ch.send({
-          type: 'broadcast', event: 'pc_signal',
-          payload: { type: 'hangup', from: myId }
-        });
+        try {
+          ch.send({
+            type: 'broadcast', event: 'pc_signal',
+            payload: { type: 'hangup', from: myId }
+          });
+        } catch (e) {}
         supabase.removeChannel(ch);
       }
       pcRef.current?.close();
