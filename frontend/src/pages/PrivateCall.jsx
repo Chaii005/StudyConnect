@@ -675,11 +675,9 @@ export default function PrivateCall() {
         {/* ── Header ── */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0,
-          padding: '20px 24px',
+          padding: '24px 24px 40px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'rgba(10, 10, 12, 0.85)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1.5px solid #262626',
+          background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)',
           zIndex: 10,
           opacity: showControls ? 1 : 0,
           pointerEvents: showControls ? 'auto' : 'none',
@@ -691,7 +689,7 @@ export default function PrivateCall() {
             <Avatar src={friendAvatar} name={friendName} size={40} />
             <div>
               <div style={{ fontWeight: 700, fontSize: '16px', color: '#ffffff' }}>{friendName}</div>
-              <div style={{ fontSize: '12px', color: '#a3a3a3', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '12px', color: '#e5e5e5', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {connected ? (
                   <>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
@@ -702,11 +700,11 @@ export default function PrivateCall() {
                     {[0, 1, 2].map(i => (
                       <span key={i} style={{
                         width: 5, height: 5, borderRadius: '50%',
-                        background: '#52525b', display: 'inline-block',
+                        background: '#d4d4d8', display: 'inline-block',
                         animation: `pc-connecting-dot 1.4s ease-in-out ${i * 0.2}s infinite`,
                       }} />
                     ))}
-                    <span style={{ marginLeft: 4 }}>Đang kết nối...</span>
+                    <span style={{ marginLeft: 4, color: '#d4d4d8' }}>Đang kết nối...</span>
                   </>
                 )}
               </div>
@@ -716,7 +714,7 @@ export default function PrivateCall() {
           {/* Label phòng */}
           <div style={{
             fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em',
-            color: '#a3a3a3', textTransform: 'uppercase',
+            color: '#d4d4d8', textTransform: 'uppercase',
           }}>
             Cuộc gọi riêng tư
           </div>
@@ -734,7 +732,7 @@ export default function PrivateCall() {
             muted={pipSwapped ? true : false}
             camOff={pipSwapped ? !camOn : !remoteStream}
             mirrored={pipSwapped ? localMirrored : false}
-            style={{ position: 'absolute', inset: 0, borderRadius: 0 }}
+            style={{ position: 'absolute', inset: 0, borderRadius: 0, border: 'none' }}
           />
 
           {/* Video phụ — Picture in Picture (góc dưới phải) */}
@@ -880,10 +878,8 @@ export default function PrivateCall() {
           style={{
             position: 'absolute',
             bottom: 0, left: 0, right: 0,
-            padding: '24px 0 36px',
-            background: 'rgba(10, 10, 12, 0.85)',
-            backdropFilter: 'blur(20px)',
-            borderTop: '1.5px solid #262626',
+            padding: '40px 0 36px',
+            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)',
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', gap: '16px',
             zIndex: 10,

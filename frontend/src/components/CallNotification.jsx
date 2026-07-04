@@ -76,32 +76,32 @@ export default function CallNotification() {
       {/* Style animations */}
       <style>{`
         @keyframes cn-slideIn {
-          from { opacity: 0; transform: scale(0.85); }
-          to   { opacity: 1; transform: scale(1); }
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes cn-ring-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
-          50%       { box-shadow: 0 0 0 18px rgba(34, 197, 94, 0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3); }
+          50%       { box-shadow: 0 0 0 14px rgba(34, 197, 94, 0); }
         }
         @keyframes cn-reject-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-          50%       { box-shadow: 0 0 0 18px rgba(239, 68, 68, 0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+          50%       { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
         }
         @keyframes cn-avatar-glow {
-          0%, 100% { box-shadow: 0 0 0 4px rgba(255,255,255,0.2), 0 0 30px rgba(255,255,255,0.1); }
-          50%       { box-shadow: 0 0 0 8px rgba(255,255,255,0.3), 0 0 50px rgba(255,255,255,0.2); }
+          0%, 100% { box-shadow: 0 0 0 4px rgba(255,255,255,0.05), 0 0 25px rgba(255,255,255,0.05); }
+          50%       { box-shadow: 0 0 0 8px rgba(255,255,255,0.1), 0 0 40px rgba(255,255,255,0.15); }
         }
         @keyframes cn-wave {
-          0%   { transform: scale(1); opacity: 0.8; }
-          100% { transform: scale(2.2); opacity: 0; }
+          0%   { transform: scale(1); opacity: 0.4; }
+          100% { transform: scale(2.0); opacity: 0; }
         }
       `}</style>
 
       {/* Overlay backdrop + căn giữa tuyệt đối — LUÔN CHÍNH GIỮA MÀN HÌNH */}
       <div style={{
         position: 'fixed', inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(5px)',
+        background: 'rgba(0,0,0,0.6)',
+        backdropFilter: 'blur(8px)',
         zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
@@ -110,18 +110,19 @@ export default function CallNotification() {
       }}>
         {/* Wrapper animation */}
         <div style={{
-          width: '340px',
-          maxWidth: '95vw',
+          width: '320px',
+          maxWidth: '90vw',
           flexShrink: 0,
-          animation: 'cn-slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          animation: 'cn-slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         }}>
           {/* Card nội dung */}
           <div style={{
-            background: 'linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f1b35 100%)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: '28px',
-            padding: '36px 28px 28px',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08)',
+            background: 'rgba(10, 10, 12, 0.85)',
+            border: '1.5px solid #262626',
+            borderRadius: '24px',
+            padding: '32px 24px 28px',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -130,67 +131,61 @@ export default function CallNotification() {
             overflow: 'hidden',
             position: 'relative',
           }}>
-            {/* Decorative gradient top */}
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
-              background: 'linear-gradient(90deg, #FFFFFF, #D4D4D4, #AAAAAA)',
-            }} />
-
             {/* Status label */}
             <div style={{
               fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em',
-              color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase',
-              marginBottom: '20px',
+              color: '#a3a3a3', textTransform: 'uppercase',
+              marginBottom: '24px',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
             }}>
               <span style={{
-                width: '22px', height: '22px', borderRadius: '6px', flexShrink: 0,
-                background: 'rgba(255,255,255,0.12)',
+                width: '24px', height: '24px', borderRadius: '6px', flexShrink: 0,
+                background: '#18181b',
+                border: '1px solid #27272a',
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))',
               }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4D4D4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m22 8-6 4 6 4V8Z" />
                   <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
                 </svg>
               </span>
-              Gọi Video Đến
+              Cuộc gọi đến
             </div>
 
             {/* Avatar với sóng động */}
-            <div style={{ position: 'relative', marginBottom: '20px' }}>
+            <div style={{ position: 'relative', marginBottom: '24px' }}>
               {[0, 1, 2].map(i => (
                 <div key={i} style={{
                   position: 'absolute', inset: '-12px',
                   borderRadius: '50%',
-                  border: '2px solid rgba(255,255,255,0.25)',
+                  border: '1.5px solid rgba(255,255,255,0.08)',
                   animation: `cn-wave 2s ease-out ${i * 0.6}s infinite`,
                 }} />
               ))}
               <div style={{
                 borderRadius: '50%',
                 animation: 'cn-avatar-glow 2s ease-in-out infinite',
-                border: '3px solid rgba(255,255,255,0.2)',
+                border: '2px solid #262626',
                 display: 'inline-flex',
                 overflow: 'hidden'
               }}>
-                <Avatar src={incomingCall.callerAvatar} initial={incomingCall.callerName} size={88} />
+                <Avatar src={incomingCall.callerAvatar} initial={incomingCall.callerName} size={80} />
               </div>
             </div>
 
             {/* Tên người gọi */}
             <div style={{
-              fontSize: '22px', fontWeight: 800,
+              fontSize: '20px', fontWeight: 700,
               color: '#ffffff',
               marginBottom: '6px',
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.01em',
             }}>
               {incomingCall.callerName}
             </div>
 
             <div style={{
-              fontSize: '13px', color: 'rgba(255,255,255,0.5)',
-              marginBottom: '32px', fontWeight: 500,
+              fontSize: '12px', color: '#737373',
+              marginBottom: '28px', fontWeight: 500,
             }}>
               Đang gọi video cho bạn...
             </div>
@@ -203,31 +198,30 @@ export default function CallNotification() {
                   id="btn-reject-call"
                   onClick={rejectCall}
                   style={{
-                    width: '64px', height: '64px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    width: '56px', height: '56px', borderRadius: '50%',
+                    background: '#ef4444',
                     border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    animation: 'cn-reject-pulse 1.5s ease-in-out infinite',
-                    transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    animation: 'cn-reject-pulse 1.8s ease-in-out infinite',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                     color: '#fff',
-                    boxShadow: '0 4px 14px rgba(239,68,68,0.4)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'scale(1.15) rotate(-10deg)';
-                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(239,68,68,0.6)';
+                    e.currentTarget.style.transform = 'scale(1.1) rotate(-8deg)';
+                    e.currentTarget.style.background = '#dc2626';
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(239,68,68,0.4)';
+                    e.currentTarget.style.background = '#ef4444';
                   }}
                   title="Từ chối"
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
                     <line x1="23" y1="1" x2="1" y2="23" />
                   </svg>
                 </button>
-                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Từ chối</span>
+                <span style={{ fontSize: '11px', color: '#737373', fontWeight: 600 }}>Từ chối</span>
               </div>
 
               {/* Chấp nhận */}
@@ -236,31 +230,30 @@ export default function CallNotification() {
                   id="btn-accept-call"
                   onClick={acceptCall}
                   style={{
-                    width: '64px', height: '64px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    width: '56px', height: '56px', borderRadius: '50%',
+                    background: '#22c55e',
                     border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    animation: 'cn-ring-pulse 1.5s ease-in-out infinite',
-                    transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    animation: 'cn-ring-pulse 1.8s ease-in-out infinite',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                     color: '#fff',
-                    boxShadow: '0 4px 14px rgba(34,197,94,0.4)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'scale(1.15) rotate(10deg)';
-                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(34,197,94,0.6)';
+                    e.currentTarget.style.transform = 'scale(1.1) rotate(8deg)';
+                    e.currentTarget.style.background = '#16a34a';
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(34,197,94,0.4)';
+                    e.currentTarget.style.background = '#22c55e';
                   }}
                   title="Chấp nhận"
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m22 8-6 4 6 4V8Z" />
                     <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
                   </svg>
                 </button>
-                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Chấp nhận</span>
+                <span style={{ fontSize: '11px', color: '#737373', fontWeight: 600 }}>Chấp nhận</span>
               </div>
             </div>
           </div>{/* end card */}
