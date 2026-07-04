@@ -111,7 +111,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       try {
         StatusBar.show().catch(() => {});
         StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
-        StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+        StatusBar.setStyle({ style: Style.Light }).catch(() => {});
         StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(() => {});
       } catch (err) {
         console.warn('StatusBar error:', err);
