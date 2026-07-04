@@ -298,6 +298,46 @@ export const forgotPassword = async (email) => {
   if (error) throw new Error(error.message);
 };
 
+// ─── XÁC THỰC OTP & ĐẶT LẠI MẬT KHẨU ────────────────
+export const verifyOtpAndResetPassword = async ({ email, token, password }) => {
+  const normalizedEmail = email.toLowerCase().trim();
+  
+  // 1. Xác thực mã OTP qua Supabase Auth
+  const { error: otpError } = await supabase.auth.verifyOtp({
+    email: normalizedEmail,
+    token: token.trim(),
+    type: 'recovery'
+  });
+
+  if (otpError) {
+    throw new Error('Mã xác nhận (OTP) không chính xác hoặc đã hết hạn.');
+  }
+
+  // 2. Hash mật khẩu mới và cập nhật bảng public.users để đồng bộ
+  const hashedPasswordValue = await hashPassword(password, normalizedEmail);
+  const { error: dbError } = await supabase
+    .from('users')
+    .update({ password: hashedPasswordValue })
+    .eq('email', normalizedEmail);
+
+  if (dbError) {
+    throw new Error(`Cập nhật cơ sở dữ liệu thất bại: ${dbError.message}`);
+  }
+
+  // 3. Cập nhật mật khẩu trong Supabase Auth
+  const { error: authError } = await supabase.auth.updateUser({ password });
+  if (authError) {
+    throw new Error(`Cập nhật mật khẩu Auth thất bại: ${authError.message}`);
+  }
+
+  // 4. Đăng xuất phiên tạm thời để làm sạch session
+  await supabase.auth.signOut();
+  clearSession();
+
+  return { message: 'Đặt lại mật khẩu thành công!' };
+};
+
+
 // ─── ĐẶT LẠI MẬT KHẨU ──────────────────────────────
 export const resetPassword = async ({ token, password }) => {
   const now = Date.now();
