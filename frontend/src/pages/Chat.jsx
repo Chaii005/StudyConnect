@@ -124,7 +124,7 @@ export default function Chat() {
           margin: isMobile ? '0 auto' : '20px auto',
           padding: isMobile ? '0' : '0 5px',
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : (selectedFriend ? '340px 1fr' : '1fr'),
+          gridTemplateColumns: isMobile ? '1fr' : '340px 1fr',
           gap: isMobile ? '0' : '5px',
           height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 120px)',
           overflowX: 'hidden',
@@ -262,7 +262,7 @@ export default function Chat() {
         )}
 
         {/* ── Conversation View ─────────────────────────────────────────── */}
-        {selectedFriend && (
+        {(selectedFriend || !isMobile) && (
           <div
             className={isMobile ? '' : 'premium-panel'}
             style={{
@@ -275,25 +275,66 @@ export default function Chat() {
               width: '100%',
             }}
           >
-            <ConversationView
-              user={user}
-              friend={selectedFriend}
-              friends={friends}
-              onBack={() => setSelectedFriend(null)}
-              onlineUserIds={onlineUserIds}
-              onNicknameChange={() => setFriends(prev => [...prev])}
-              onRelationChange={(updatedFriend) => {
-                if (updatedFriend) {
-                  setSelectedFriend(updatedFriend);
-                  setFriends(prev => prev.map(f => f.userId === updatedFriend.userId ? updatedFriend : f));
-                } else {
-                  setSelectedFriend(null);
-                  getFriends(String(user.id), true).then(list => setFriends(list)).catch(() => {});
-                }
-              }}
-              chatBg={chatBg}
-              setChatBg={setChatBg}
-            />
+            {selectedFriend ? (
+              <ConversationView
+                user={user}
+                friend={selectedFriend}
+                friends={friends}
+                onBack={() => setSelectedFriend(null)}
+                onlineUserIds={onlineUserIds}
+                onNicknameChange={() => setFriends(prev => [...prev])}
+                onRelationChange={(updatedFriend) => {
+                  if (updatedFriend) {
+                    setSelectedFriend(updatedFriend);
+                    setFriends(prev => prev.map(f => f.userId === updatedFriend.userId ? updatedFriend : f));
+                  } else {
+                    setSelectedFriend(null);
+                    getFriends(String(user.id), true).then(list => setFriends(list)).catch(() => {});
+                  }
+                }}
+                chatBg={chatBg}
+                setChatBg={setChatBg}
+              />
+            ) : (
+              <div
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '40px',
+                  textAlign: 'center',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: 'var(--bg-input)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '16px',
+                    color: 'var(--primary)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.01)',
+                  }}
+                >
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Chưa chọn cuộc trò chuyện
+                </h4>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', maxWidth: '280px', lineHeight: 1.5 }}>
+                  Hãy chọn một người bạn từ danh sách bên trái để bắt đầu nhắn tin.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
