@@ -1,2714 +1,60 @@
 // src/pages/Chat.jsx
-import { useState, useEffect, useRef, useCallback } from 'react';
+// ── Orchestrator: composes Chat sidebar + ConversationView ─────────
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useCall } from '../context/CallContext';
 import { useOnlineUsers } from '../context/OnlineUsersContext';
-import { getFriends, acceptFriendRequest, removeFriend } from '../services/friendService.js';
+import { getFriends } from '../services/friendService.js';
 import {
-  sendMessage,
-  getConversation,
-  getConversationFromCache,
-  markAsRead,
   getUnreadCount,
   getLastMessages,
   refreshCache,
-  deleteMessage,
 } from '../services/chatServiceTEMP.js';
 import { supabase } from '../config/supabaseClient';
-import { compressImage as compressImageFile } from '../utils/imageCompress';
 
-// ── Avatar ──────────────────────────────────────────────────────────
-function Avatar({ src, initial, color = '#3A3A3A', size = 40 }) {
-  if (src) return (
-    <img src={src} alt="" draggable="false" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-  );
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: '50%', flexShrink: 0,
-      background: `linear-gradient(135deg, ${color}, ${color}88)`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: size * 0.4, fontWeight: 700, color: 'white',
-    }}>
-      {initial}
-    </div>
-  );
-}
+import FriendList from '../components/chat/FriendList';
+import ConversationView from '../components/chat/ConversationView';
 
-const AVATAR_COLORS = ['#1A1A1A', '#3A3A3A', '#2E2E2E', '#4A4A4A', '#222222'];
-const colorOf = (str) => AVATAR_COLORS[(str || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length];
-
-function fmtTime(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const diff = Date.now() - d;
-  if (diff < 60000) return 'vừa xong';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
-  return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-}
-
-function fmtFull(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
-}
-
-function formatBytes(bytes, decimals = 2) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
-const downloadBaseFile = (base64Data, filename) => {
-  fetch(base64Data)
-    .then(res => res.blob())
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    })
-    .catch(err => {
-      if (import.meta.env.DEV) console.error('File download failed:', err);
-    });
-};
-
-// ── Emoji list ───────────────────────────────────────────────────
-const EMOJI_LIST = [
-  '😀','😂','😍','🥰','😎','🤩','😢','😭','😡','🤔',
-  '😅','😇','🥳','😴','🤯','🥺','😏','😬','🤗','😤',
-  '👍','👎','👏','🙏','🤝','✌️','🤞','💪','🫶','❤️',
-  '🧡','💛','💚','💙','💜','🖤','🤍','💔','💯','🔥',
-  '⭐','🌟','✨','🎉','🎊','🎁','🏆','🥇','🚀','💡',
-  '😺','😸','🐶','🐱','🐸','🦄','🐼','🦊','🍎','🍕',
-];
-
-
-
-// ── Emoji Picker (có scroll, khung cố định) ───────────────────────
-function EmojiPicker({ onSelect, onClose }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const handleClick = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [onClose]);
-
-  return (
-    <div ref={ref} style={{
-      position: 'absolute', bottom: '60px', left: 0,
-      background: 'var(--bg-card)', border: '1px solid var(--border)',
-      borderRadius: '16px', padding: '10px',
-      width: '300px', height: '220px',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
-      zIndex: 20, display: 'flex', flexDirection: 'column',
-    }}>
-      <div style={{
-        overflowY: 'auto', overflowX: 'hidden', flex: 1,
-        display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)',
-        gap: '2px',
-        scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent',
-        overscrollBehavior: 'contain',
-      }}>
-        {EMOJI_LIST.map(em => (
-          <button key={em} onClick={() => onSelect(em)} onMouseDown={e => e.preventDefault()} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: '20px', padding: '4px', borderRadius: '6px',
-            transition: 'background 0.12s', lineHeight: 1,
-          }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >{em}</button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Camera Modal ────────────────────────────────────────────────
-function CameraModal({ onCapture, onClose }) {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const streamRef = useRef(null);
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const startCamera = async () => {
-      const constraintOptions = [
-        { video: { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } } },
-        { video: { width: { ideal: 1920 }, height: { ideal: 1080 } } },
-        { video: true }
-      ];
-
-      let stream = null;
-      for (const constraints of constraintOptions) {
-        try {
-          stream = await navigator.mediaDevices.getUserMedia(constraints);
-          if (stream) break;
-        } catch (err) {
-          if (import.meta.env.DEV) console.warn('Failed with constraints:', constraints, err);
-        }
-      }
-
-      if (stream && videoRef.current) {
-        streamRef.current = stream;
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        setReady(true);
-      } else {
-        setError('Không thể truy cập camera hoặc quyền bị từ chối.');
-      }
-    };
-    startCamera();
-
-    return () => {
-      streamRef.current?.getTracks().forEach(t => t.stop());
-    };
-  }, []);
-
-  const handleCapture = () => {
-    const canvas = canvasRef.current, video = videoRef.current;
-    if (!canvas || !video) return;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext('2d');
-
-    // Mirror the canvas draw to match the user preview exactly
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Stop stream then auto-send immediately
-    streamRef.current?.getTracks().forEach(t => t.stop());
-    onCapture(canvas.toDataURL('image/jpeg', 0.95));
-  };
-
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(10, 10, 20, 0.85)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          borderRadius: '24px',
-          padding: '24px',
-          width: '680px',
-          maxWidth: '100%',
-          boxShadow: 'var(--shadow-lg)',
-          animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>Chụp ảnh trực tiếp</h3>
-            {ready && (
-              <span
-                style={{
-                  fontSize: '11px',
-                  background: 'rgba(34, 197, 94, 0.15)',
-                  color: '#4ade80',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                ● LIVE HD
-              </span>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'var(--bg-input)',
-              border: '1px solid var(--border)',
-              borderRadius: '50%',
-              width: '32px',
-              height: '32px',
-              cursor: 'pointer',
-              color: 'var(--text-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px',
-              transition: 'background 0.2s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-card)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-input)'}
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Video stream container — landscape 16:9 */}
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            aspectRatio: '16/9',
-            borderRadius: '16px',
-            background: '#000',
-            overflow: 'hidden',
-            border: '1px solid rgba(255, 255, 255, 0.05)'
-          }}
-        >
-          {error ? (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#ff6b6b', fontSize: '14px', fontWeight: 600, padding: '20px', textAlign: 'center', gap: '8px' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          ) : (
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              disablePictureInPicture
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: 'scaleX(-1)'
-              }}
-            />
-          )}
-        </div>
-
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-
-        {/* Shutter button */}
-        <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-          <button
-            onClick={onClose}
-            style={{
-              flex: 1,
-              padding: '12px',
-              background: 'var(--bg-input)',
-              border: '1px solid var(--border)',
-              borderRadius: '14px',
-              color: 'var(--text-secondary)',
-              fontFamily: 'inherit',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 600,
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-input)'; }}
-          >
-            Hủy
-          </button>
-          {ready && (
-            <button
-              onClick={handleCapture}
-              style={{
-                flex: 2,
-                padding: '12px',
-                background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
-                border: 'none',
-                borderRadius: '14px',
-                color: 'white',
-                fontWeight: 700,
-                fontFamily: 'inherit',
-                cursor: 'pointer',
-                fontSize: '14px',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-              Chụp & Gửi
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Share Modal ─────────────────────────────────────────────────
-function ShareModal({ message, friends, onSend, onClose }) {
-  const [selected, setSelected] = useState([]);
-  const [sent, setSent] = useState(false);
-
-  const toggle = (uid) => setSelected(prev => prev.includes(uid) ? prev.filter(x => x !== uid) : [...prev, uid]);
-
-  const handleSend = async () => {
-    if (selected.length === 0) return;
-    await Promise.all(selected.map(uid => onSend(uid, message)));
-    setSent(true);
-    setTimeout(onClose, 1200);
-  };
-
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: '20px', padding: '20px', width: '340px', maxWidth: '95vw', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>↗️ Chia sẻ tin nhắn</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: 'var(--text-muted)' }}></button>
-        </div>
-
-        {/* Preview */}
-        <div style={{ background: 'var(--bg-input)', borderRadius: '10px', padding: '10px 14px', marginBottom: '14px', fontSize: '13px', color: 'var(--text-secondary)', maxHeight: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {message.type === 'image' || message.content?.startsWith('data:image') ? '️ Ảnh' : message.content}
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto', overscrollBehavior: 'contain', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
-          {friends.map(f => (
-            <button key={f.userId} onClick={() => toggle(String(f.userId))} style={{
-              display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px',
-              borderRadius: '10px', border: `1px solid ${selected.includes(String(f.userId)) ? 'var(--primary)' : 'var(--border)'}`,
-              background: selected.includes(String(f.userId)) ? 'rgba(0,0,0,0.06)' : 'none',
-              cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
-            }}>
-              <Avatar src={f.avatar} initial={f.initial} color={colorOf(f.fullName)} size={36} />
-              <span style={{ flex: 1, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{f.fullName}</span>
-              {selected.includes(String(f.userId)) && <span style={{ fontSize: '16px' }}></span>}
-            </button>
-          ))}
-        </div>
-
-        <button onClick={handleSend} disabled={selected.length === 0 || sent} style={{
-          padding: '11px', background: sent ? 'var(--success)' : selected.length > 0 ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
-          border: 'none', borderRadius: '10px', color: selected.length > 0 || sent ? 'white' : 'var(--text-muted)',
-          fontWeight: 700, fontFamily: 'inherit', cursor: selected.length > 0 ? 'pointer' : 'default', fontSize: '14px', transition: 'all 0.2s',
-        }}>
-          {sent ? ' Đã gửi!' : `Gửi${selected.length > 0 ? ` (${selected.length})` : ''}`}
-        </button>
-      </div>
-
-    </div>
-  );
-}
-
-// ── Message Context Menu (Actions only — no reactions) ──────────
-function MessageMenu({ clientX, clientY, msg, onSaveImage, onShare, onDelete, onClose, isMine }) {
-  const ref = useRef(null);
-  const [pos, setPos] = useState({ top: clientY - 60, left: clientX });
-  const isImage = msg?.type === 'image' || msg?.content?.startsWith('data:image');
-
-  useEffect(() => {
-    const handle = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [onClose]);
-
-  // Adjust to keep menu inside viewport
-  useEffect(() => {
-    if (!ref.current) return;
-    const menuW = ref.current.offsetWidth || 200;
-    const menuH = ref.current.offsetHeight || 100;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const PADDING = 8;
-    let left = clientX;
-    let top = clientY - menuH - 8;
-
-    if (left + menuW + PADDING > vw) left = vw - menuW - PADDING;
-    if (left < PADDING) left = PADDING;
-    if (top < PADDING) top = clientY + 32;
-    if (top + menuH + PADDING > vh) top = vh - menuH - PADDING;
-
-    setPos({ top, left });
-  }, [clientX, clientY]);
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        position: 'fixed', top: pos.top, left: pos.left,
-        background: 'var(--bg-card)', border: '1px solid var(--border)',
-        borderRadius: '14px', padding: '8px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-        zIndex: 9999, minWidth: '180px',
-        animation: 'fadeIn 0.12s ease',
-      }}>
-      <MenuBtn icon={
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-          <polyline points="16 6 12 2 8 6" />
-          <line x1="12" y1="2" x2="12" y2="15" />
-        </svg>
-      } label="Chia sẻ" onClick={() => { onShare(); onClose(); }} />
-      {isImage && <MenuBtn icon={
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-      } label="Lưu ảnh" onClick={() => { onSaveImage(); onClose(); }} />}
-      {isMine && <MenuBtn icon={
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="3 6 5 6 21 6" />
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          <line x1="10" y1="11" x2="10" y2="17" />
-          <line x1="14" y1="11" x2="14" y2="17" />
-        </svg>
-      } label="Xóa tin nhắn" danger onClick={() => { onDelete(); onClose(); }} />}
-    </div>
-  );
-}
-
-function MenuBtn({ icon, label, onClick, danger }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <button onClick={onClick}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
-        padding: '8px 10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-        background: hov ? (danger ? 'rgba(239,68,68,0.1)' : 'var(--bg-input)') : 'none',
-        color: danger ? '#ef4444' : 'var(--text-primary)',
-        fontSize: '13px', fontWeight: 600, fontFamily: 'inherit', textAlign: 'left',
-        transition: 'background 0.12s',
-      }}>
-      <span style={{ fontSize: '14px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px' }}>{icon}</span>
-      {label}
-    </button>
-  );
-}
-
-// ── ConversationView ───────────────────────────────────────────────
-function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNicknameChange, onRelationChange, chatBg, setChatBg }) {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [sending, setSending] = useState(false);
-  const [showEmoji, setShowEmoji] = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
-  const [imgPreview, setImgPreview] = useState(null);
-  const [contextMenu, setContextMenu] = useState(null); // { x, y, msg }
-  const [shareMsg, setShareMsg] = useState(null);
-
-  const [showScrollBtn, setShowScrollBtn] = useState(false);
-  const bottomRef = useRef(null);
-  const msgsContainerRef = useRef(null);
-  const chatOuterRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const textareaRef = useRef(null);
-  const prevMsgCount = useRef(0);
-
-  const navigate = useNavigate();
-  const { initiateCall, callStatus } = useCall();
-
-  const [nickname, setNickname] = useState('');
-  const [showRenameModal, setShowRenameModal] = useState(false);
-  const [renameVal, setRenameVal] = useState('');
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showMenuDropdown, setShowMenuDropdown] = useState(false);
-  const [bgMode, setBgMode] = useState('landscape');
-  const [showBgModal, setShowBgModal] = useState(false);
-  const [bgFilePreview, setBgFilePreview] = useState('');
-  const [bgPos, setBgPos] = useState('center');
-  const [viewingImage, setViewingImage] = useState(null);
-  const [attachedFile, setAttachedFile] = useState(null);
-  const [bgToast, setBgToast] = useState(null); // { name }
-  const prevBgRef = useRef(null);
-
-  useEffect(() => {
-    const n = localStorage.getItem(`sc_nickname_${user.id}_${friend.userId}`) || '';
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setNickname(n);
-  }, [user.id, friend.userId]);
-
-  useEffect(() => {
-    setChatBg('');
-    setBgFilePreview('');
-    setBgPos('center');
-  }, [friend.userId, setChatBg]);
-
-  const handleRenameClick = () => {
-    setRenameVal(nickname);
-    setShowRenameModal(true);
-  };
-
-  const handleSaveRename = async () => {
-    const cleanName = renameVal.trim();
-    try {
-      await sendMessage(user.id, friend.userId, `[chat_nickname]:${cleanName}`, 'text');
-      if (cleanName === '') {
-        localStorage.removeItem(`sc_nickname_${user.id}_${friend.userId}`);
-        setNickname('');
-      } else {
-        localStorage.setItem(`sc_nickname_${user.id}_${friend.userId}`, cleanName);
-        setNickname(cleanName);
-      }
-      setShowRenameModal(false);
-      if (onNicknameChange) onNicknameChange();
-    } catch (err) {
-      if (import.meta.env.DEV) console.error('Error saving nickname:', err);
-    }
-  };
-
-  const handleClearChat = async () => {
-    try {
-      const uid = parseInt(user.id, 10);
-      const fid = parseInt(friend.userId, 10);
-      
-      const { error: err1 } = await supabase
-        .from('messages')
-        .delete()
-        .eq('sender_id', uid)
-        .eq('receiver_id', fid)
-        .is('group_id', null);
-
-      const { error: err2 } = await supabase
-        .from('messages')
-        .delete()
-        .eq('sender_id', fid)
-        .eq('receiver_id', uid)
-        .is('group_id', null);
-
-      if (err1 || err2) {
-        if (import.meta.env.DEV) console.error('Error clearing chat:', err1 || err2);
-        return;
-      }
-
-      setMessages([]);
-      setShowClearConfirm(false);
-      if (onNicknameChange) onNicknameChange();
-    } catch (err) {
-      if (import.meta.env.DEV) console.error('Exception clearing chat:', err);
-    }
-  };
-
-  const compressImage = (base64Str, maxWidth = 800, maxHeight = 800) => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.src = base64Str;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
-      };
-      img.onerror = () => resolve(base64Str);
-    });
-  };
-
-  const handleBgFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const compressed = await compressImage(ev.target.result);
-      setBgFilePreview(compressed);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  };
-
-  const handleSaveBg = async (bgValue) => {
-    try {
-      await sendMessage(user.id, friend.userId, `[chat_background]:${bgValue}`, 'text');
-      setChatBg(bgValue);
-      setShowBgModal(false);
-    } catch (err) {
-      if (import.meta.env.DEV) console.error('Error saving background:', err);
-    }
-  };
-
-
-
-  const load = useCallback(async () => {
-    // Bước 1: Render ngay từ cache (0ms delay)
-    const cached = getConversationFromCache(user.id, friend.userId);
-    if (cached.messages.length > 0) {
-      setMessages(cached.messages);
-      const newBg = cached.background || '';
-      if (prevBgRef.current !== null && newBg !== prevBgRef.current) {
-        const lastBgMsg = cached.messages.filter(m => m.content?.startsWith('[chat_background]')).slice(-1)[0];
-        if (lastBgMsg && String(lastBgMsg.fromUserId) !== String(user.id)) {
-          setBgToast({ name: nickname || friend.fullName });
-          setTimeout(() => setBgToast(null), 4000);
-        }
-      }
-      prevBgRef.current = newBg;
-      setChatBg(newBg);
-
-      // Cập nhật nickname từ cache nếu có tin nickname do Tôi gửi
-      const lastNickMsg = cached.messages
-        .filter(m => m.content?.startsWith('[chat_nickname]:') && String(m.fromUserId) === String(user.id))
-        .slice(-1)[0];
-      if (lastNickMsg) {
-        const val = lastNickMsg.content.replace('[chat_nickname]:', '');
-        if (val) {
-          try {
-            localStorage.setItem(`sc_nickname_${user.id}_${friend.userId}`, val);
-          } catch (err) {
-            if (import.meta.env.DEV) console.warn('Error saving nickname:', err);
-          }
-          setNickname(val);
-        } else {
-          localStorage.removeItem(`sc_nickname_${user.id}_${friend.userId}`);
-          setNickname('');
-        }
-      }
-    }
-
-    // Bước 2: Sync DB ngầm để lấy tin mới
-    const res = await getConversation(user.id, friend.userId);
-    const msgs = res.messages || [];
-    setMessages(msgs);
-    const newBg = res.background || '';
-    if (prevBgRef.current !== null && newBg !== prevBgRef.current) {
-      const lastBgMsg = msgs.filter(m => m.content?.startsWith('[chat_background]')).slice(-1)[0];
-      if (lastBgMsg && String(lastBgMsg.fromUserId) !== String(user.id)) {
-        setBgToast({ name: nickname || friend.fullName });
-        setTimeout(() => setBgToast(null), 4000);
-      }
-    }
-    prevBgRef.current = newBg;
-    setChatBg(newBg);
-
-    // Cập nhật nickname từ DB mới nếu có tin nickname do Tôi gửi
-    const lastNickMsg = msgs
-      .filter(m => m.content?.startsWith('[chat_nickname]:') && String(m.fromUserId) === String(user.id))
-      .slice(-1)[0];
-    if (lastNickMsg) {
-      const val = lastNickMsg.content.replace('[chat_nickname]:', '');
-      if (val) {
-        try {
-          localStorage.setItem(`sc_nickname_${user.id}_${friend.userId}`, val);
-        } catch (err) {
-            if (import.meta.env.DEV) console.warn('Error saving nickname:', err);
-          }
-        setNickname(val);
-      } else {
-        localStorage.removeItem(`sc_nickname_${user.id}_${friend.userId}`);
-        setNickname('');
-      }
-      if (onNicknameChange) onNicknameChange();
-    }
-
-    await markAsRead(user.id, friend.userId);
-  }, [user.id, friend.userId, nickname, friend.fullName, onNicknameChange]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-    // Không dùng setInterval — Realtime subscription bên dưới xử lý cập nhật thời gian thực
-  }, [load]);
-
-  useEffect(() => {
-    if (!user?.id || !friend?.userId) return;
-
-    const channelName = `chat-msg-${user.id}-${friend.userId}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `receiver_id=eq.${user.id}`,
-        },
-        async (payload) => {
-          const msg = payload.new;
-          if (String(msg.sender_id) === String(friend.userId)) {
-            await load();
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, friend?.userId, load]);
-
-  // Only auto-scroll when NEW messages arrive (not on initial load or poll refresh without new msgs)
-  useEffect(() => {
-    const container = msgsContainerRef.current;
-    if (!container) return;
-    const newCount = messages.length;
-    if (newCount > prevMsgCount.current) {
-      // Check if user is near bottom (within 120px)
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 120;
-      if (isNearBottom) {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        setShowScrollBtn(false);
-      } else {
-        setShowScrollBtn(true);
-      }
-    }
-    prevMsgCount.current = newCount;
-  }, [messages]);
-
-  const handleScroll = () => {
-    const container = msgsContainerRef.current;
-    if (!container) return;
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    const isNearBottom = scrollHeight - scrollTop - clientHeight < 80;
-    setShowScrollBtn(!isNearBottom);
-  };
-
-  const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    setShowScrollBtn(false);
-  };
-
-  const handleSendText = async (text) => {
-    if (!text?.trim() || sending) return;
-    setSending(true);
-    try {
-      await sendMessage(user.id, friend.userId, text.trim());
-      setInput('');
-      await load();
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch { /* ignore */ }
-    finally { setSending(false); }
-  };
-
-  const handleSendAttachment = async (dataUrl, caption) => {
-    if (!dataUrl || sending) return;
-    setSending(true);
-    setImgPreview(null);
-    try {
-      const isImage = attachedFile?.type?.startsWith('image/') || dataUrl.startsWith('data:image');
-      
-      let fileUrlValue = '';
-      if (attachedFile) {
-        let fileToUpload = attachedFile;
-        // Compress ảnh trước khi upload vào private chat
-        if (attachedFile.type?.startsWith('image/')) {
-          try {
-            fileToUpload = await compressImageFile(attachedFile, { maxWidth: 1280, maxHeight: 1280, quality: 0.78 });
-          } catch {
-            fileToUpload = attachedFile; // fallback
-          }
-        }
-        const fileName = `private/${user.id}/${Date.now()}_${fileToUpload.name || attachedFile.name || 'clipboard.png'}`;
-        const { error: uploadError } = await supabase.storage
-          .from('attachments')
-          .upload(fileName, fileToUpload, { cacheControl: '2592000', upsert: true });
-
-        if (uploadError) {
-          if (import.meta.env.DEV) {
-            console.error('[Chat] Private file Storage error:', uploadError.message);
-          }
-          throw new Error('Không thể tải file đính kèm lên máy chủ. Vui lòng thử lại sau.');
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('attachments')
-          .getPublicUrl(fileName);
-        fileUrlValue = publicUrl;
-      } else {
-        fileUrlValue = dataUrl;
-      }
-
-      if (isImage) {
-        await sendMessage(user.id, friend.userId, fileUrlValue, 'image');
-      } else {
-        const fileData = {
-          fileName: attachedFile?.name || 'document.file',
-          fileType: attachedFile?.type || 'application/octet-stream',
-          fileData: fileUrlValue,
-          // eslint-disable-next-line no-undef
-          fileSize: formatBytes(fileToUpload?.size || attachedFile?.size || 0)
-        };
-        await sendMessage(user.id, friend.userId, '', 'text', fileData);
-      }
-      
-      if (caption?.trim()) {
-        await sendMessage(user.id, friend.userId, caption.trim());
-      }
-      setInput('');
-      setAttachedFile(null);
-      await load();
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch { /* ignore */ }
-    finally { setSending(false); }
-  };
-
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendText(input); }
-  };
-
-  const handlePaste = (e) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        const file = items[i].getAsFile();
-        if (file) {
-          const MAX_FILE_SIZE = 20 * 1024 * 1024;
-          if (file.size > MAX_FILE_SIZE) {
-            alert('File đính kèm quá lớn! Vui lòng chọn file nhỏ hơn 20MB.');
-            return;
-          }
-          setAttachedFile(file);
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            setImgPreview(ev.target.result);
-            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
-          };
-          reader.readAsDataURL(file);
-          e.preventDefault();
-          break;
-        }
-      }
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const MAX_FILE_SIZE = 20 * 1024 * 1024;
-    if (file.size > MAX_FILE_SIZE) {
-      alert('File đính kèm quá lớn! Vui lòng chọn file nhỏ hơn 20MB.');
-      return;
-    }
-    setAttachedFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setImgPreview(ev.target.result);
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  };
-
-  const addEmoji = (em) => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const newValue = input.substring(0, start) + em + input.substring(end);
-      setInput(newValue);
-      // Đặt lại vị trí con trỏ sau emoji vừa chèn
-      setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start + em.length, start + em.length);
-      }, 0);
-    } else {
-      setInput(prev => prev + em);
-    }
-    setShowEmoji(false);
-  };
-
-  // Delete message — uses in-app confirm modal
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-
-  const handleDelete = (msgId) => {
-    setDeleteConfirmId(msgId);
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteConfirmId) return;
-    const id = deleteConfirmId;
-    setDeleteConfirmId(null);
-    try {
-      await deleteMessage(id);
-      await load();
-    } catch (err) {
-      if (import.meta.env.DEV) console.error('Error deleting message:', err);
-    }
-  };
-
-  // Share message to other friends
-  const handleShare = async (toUserId, msg) => {
-    const content = msg.type === 'image' || msg.content?.startsWith('data:image')
-      ? msg.content : `↗️ "${msg.content}"`;
-    const type = msg.type === 'image' || msg.content?.startsWith('data:image') ? 'image' : 'text';
-    await sendMessage(user.id, toUserId, content, type);
-  };
-
-  // Save image to disk
-  const handleSaveImage = (msg) => {
-    const url = msg.content;
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `studyconect_img_${msg.id || Date.now()}.jpg`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  // Group messages by date
-  const groupedMsgs = [];
-  let lastDate = null;
-  messages.forEach(m => {
-    const d = new Date(m.createdAt).toLocaleDateString('vi-VN');
-    if (d !== lastDate) { groupedMsgs.push({ type: 'date', label: d }); lastDate = d; }
-    groupedMsgs.push({ type: 'msg', data: m });
-  });
-
-  return (
-    <div ref={chatOuterRef} style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', overflowX: 'hidden' }}>
-      <style>{`
-        @keyframes floatEmojiUp {
-          0% {
-            transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg);
-            opacity: 0;
-          }
-          12% {
-            transform: translate3d(0, -20px, 0) scale(1.4) rotate(15deg);
-            opacity: 1;
-          }
-          50% {
-            transform: translate3d(calc(var(--dx) * 0.5), -80px, 0) scale(1.1) rotate(-15deg);
-            opacity: 0.95;
-          }
-          100% {
-            transform: translate3d(var(--dx), -160px, 0) scale(0.6) rotate(35deg);
-            opacity: 0;
-          }
-        }
-        .emoji-particle {
-          position: absolute;
-          pointer-events: none;
-          font-size: 32px;
-          z-index: 9999;
-          animation: floatEmojiUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-          user-select: none;
-        }
-        .reaction-btn-pop {
-          transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        }
-        .reaction-btn-pop:hover {
-          transform: scale(1.45) translateY(-5px) !important;
-          text-shadow: 0 8px 16px rgba(0,0,0,0.3) !important;
-        }
-        .reaction-btn-pop:active {
-          transform: scale(0.9) translateY(0) !important;
-        }
-        .reaction-bubble-pop {
-          transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-          animation: popInReaction 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .reaction-bubble-pop:hover {
-          transform: scale(1.22) !important;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.22) !important;
-        }
-        @keyframes popInReaction {
-          0% { transform: scale(0); opacity: 0; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        .msg-container {
-          position: relative;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          border-radius: 12px;
-          transition: background 0.15s ease;
-        }
-        .msg-actions {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.15s ease, transform 0.15s ease;
-          transform: scale(0.9);
-          flex-shrink: 0;
-        }
-        .msg-container:hover .msg-actions {
-          opacity: 1;
-          pointer-events: auto;
-          transform: scale(1);
-        }
-        .msg-action-btn {
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          color: var(--text-secondary);
-          cursor: pointer;
-          font-size: 13px;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-          padding: 0;
-          line-height: 1;
-        }
-        .msg-action-btn:hover {
-          transform: scale(1.18);
-          background: var(--bg-input);
-          color: var(--text-primary);
-          border-color: var(--primary-light);
-        }
-        .msg-action-btn.danger {
-          color: #ef4444;
-          border-color: rgba(239, 68, 68, 0.3);
-        }
-        .msg-action-btn.danger:hover {
-          color: #ef4444;
-          border-color: #ef4444;
-          background: rgba(239, 68, 68, 0.08);
-        }
-      `}</style>
-      {/* Toast: bạn bè đổi hình nền */}
-      {bgToast && (
-        <div style={{
-          position: 'absolute', top: '16px', right: '16px', zIndex: 9999,
-          background: 'rgba(20,20,40,0.95)', border: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: '14px', padding: '12px 16px',
-          display: 'flex', alignItems: 'center', gap: '10px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-          animation: 'fadeIn 0.3s ease',
-          backdropFilter: 'blur(12px)',
-          maxWidth: '260px',
-        }}>
-          <span style={{ fontSize: '22px' }}>🖼️</span>
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '2px' }}>{bgToast.name}</div>
-            <div style={{ fontSize: '12px', color: '#a0aec0' }}>đã thay đổi hình nền trò chuyện</div>
-          </div>
-        </div>
-      )}
-      {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '12px 20px', borderBottom: '1px solid var(--border)',
-        background: 'var(--bg-card)', flexShrink: 0,
-      }}>
-        <button onClick={onBack} style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: 'var(--text-muted)', fontSize: '20px', padding: '4px 8px',
-          borderRadius: '8px', transition: 'var(--transition)', lineHeight: 1,
-        }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'none'}
-        >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12"/>
-                  <polyline points="12 19 5 12 12 5"/>
-                </svg>
-              </button>
-        <Avatar src={friend.avatar} initial={friend.initial} color={colorOf(friend.fullName)} size={40} />
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>{nickname || friend.fullName}</div>
-          </div>
-          {(() => {
-            const isOnline = onlineUserIds.includes(String(friend.userId));
-            return (
-              <div style={{ fontSize: '12px', color: isOnline ? '#2A7576' : '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#2A7576' : '#ef4444' }} />
-                {isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}
-              </div>
-            );
-          })()}
-        </div>
-
-        {/* Cụm nút chức năng bên phải */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
-          {/* Nút gọi video */}
-          {(!friend.status || friend.status === 'accepted') && (
-            <button
-              onClick={() => initiateCall(friend)}
-              title="Gọi video"
-              style={{
-                width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
-                background: 'linear-gradient(135deg, #1A1A1A, #3A3A3A)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.4)', transition: 'all 0.2s', flexShrink: 0,
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m22 8-6 4 6 4V8Z" />
-                <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
-              </svg>
-            </button>
-          )}
-
-          {/* Nút menu 3 gạch */}
-          {(!friend.status || friend.status === 'accepted') && (
-            <button
-              onClick={() => setShowMenuDropdown(prev => !prev)}
-              title="Tùy chọn"
-              style={{
-                width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
-                background: 'rgba(255, 255, 255, 0.05)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all 0.2s', flexShrink: 0,
-                color: 'var(--text-primary)',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            </button>
-          )}
-
-          {/* Dropdown Menu */}
-          {showMenuDropdown && (
-            <>
-              {/* Overlay click to close */}
-              <div 
-                onClick={() => setShowMenuDropdown(false)}
-                style={{ position: 'fixed', inset: 0, zIndex: 999 }}
-              />
-              <div style={{
-                position: 'absolute',
-                top: '48px',
-                right: '0',
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border)',
-                borderRadius: '12px',
-                width: '160px',
-                boxShadow: 'var(--shadow-lg)',
-                zIndex: 1000,
-                overflow: 'hidden',
-                animation: 'fadeIn 0.15s ease-out'
-              }}>
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    navigate(`/friends/${friend.userId}`);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: 'var(--text-primary)',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Trang cá nhân
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    handleRenameClick();
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: 'var(--text-primary)',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit',
-                    borderTop: '1px solid var(--border)'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Đổi tên
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    const savedUrl = chatBg ? chatBg.split('|')[0] : '';
-                    const savedPos = chatBg && chatBg.includes('|') ? chatBg.split('|')[1] : 'center';
-                    const savedMode = chatBg && chatBg.split('|').length > 2 ? chatBg.split('|')[2] : 'landscape';
-                    setBgFilePreview(savedUrl.startsWith('data:') ? savedUrl : '');
-                    setBgPos(savedPos);
-                    setBgMode(savedMode);
-                    setShowBgModal(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: 'var(--text-primary)',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit',
-                    borderTop: '1px solid var(--border)'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Đổi hình nền
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    setShowClearConfirm(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: '#ff4d4d',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit',
-                    borderTop: '1px solid var(--border)'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,77,0.08)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Xóa tin nhắn
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Popup thông báo từ chối / nhỡ máy */}
-      {(callStatus === 'rejected' || callStatus === 'missed' || callStatus === 'no_answer') && (
-        <div style={{
-          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(40,40,40,0.95)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: '14px', padding: '12px 20px',
-          fontSize: '13px', fontWeight: 600, color: '#fff',
-          zIndex: 1000, display: 'flex', alignItems: 'center', gap: '8px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-          animation: 'fadeIn 0.25s ease',
-        }}>
-          {/* SVG icon + text thay emoji thô */}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <path
-              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
-              fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.9)" strokeWidth="1.8"
-            />
-            <line x1="16" y1="6" x2="6" y2="16" stroke="rgba(255,255,255,0.9)" strokeWidth="2.2" />
-          </svg>
-          {callStatus === 'rejected'
-            ? 'Người nhận đang bận'
-            : callStatus === 'no_answer'
-            ? 'Người nhận không bắt máy'
-            : 'Bạn bỏ lỡ cuộc gọi'}
-        </div>
-      )}
-
-
-      {/* Messages */}
-      <div
-        ref={msgsContainerRef}
-        onScroll={handleScroll}
-        className="msgs-no-scrollbar"
-        style={{
-          flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '16px 20px',
-          display: 'flex', flexDirection: 'column', gap: '4px',
-          scrollbarWidth: 'none', // hide scrollbar Firefox
-          msOverflowStyle: 'none', // hide scrollbar IE
-          position: 'relative',
-          overscrollBehavior: 'contain',
-          background: chatBg 
-            ? `linear-gradient(rgba(10, 10, 20, 0.65), rgba(10, 10, 20, 0.65)), url(${chatBg.split('|')[0]}) ${chatBg.split('|')[1] || 'center'}/cover no-repeat`
-            : undefined,
-          transition: 'background 0.3s ease',
-        }}>
-        {groupedMsgs.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: chatBg ? '#cbd5e1' : 'var(--text-muted)', fontSize: '14px' }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>{friend.status === 'pending' ? '🤝' : '💬'}</div>
-            {friend.status === 'pending' ? (
-              friend.fromUserId === String(user.id) ? (
-                <>
-                  Đang chờ <strong style={{ color: chatBg ? '#ffffff' : 'var(--text-primary)' }}>{nickname || friend.fullName}</strong> phản hồi lời mời kết bạn.
-                </>
-              ) : (
-                <>
-                  Bạn có một lời mời kết bạn từ <strong style={{ color: chatBg ? '#ffffff' : 'var(--text-primary)' }}>{nickname || friend.fullName}</strong>.
-                </>
-              )
-            ) : (
-              <>
-                Bắt đầu nhắn tin với <strong style={{ color: chatBg ? '#ffffff' : 'var(--text-primary)' }}>{nickname || friend.fullName}</strong>!
-              </>
-            )}
-          </div>
-        )}
-        {groupedMsgs.map((item, idx) => {
-          if (item.type === 'date') return (
-            <div key={`date-${idx}`} style={{ textAlign: 'center', margin: '12px 0 8px', fontSize: '11px', color: chatBg ? '#cbd5e1' : 'var(--text-muted)' }}>
-              <span style={{
-                background: chatBg ? 'rgba(0, 0, 0, 0.6)' : 'var(--bg)',
-                padding: '3px 14px',
-                borderRadius: '12px',
-                border: chatBg ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border)',
-                color: chatBg ? '#ffffff' : 'var(--text-primary)',
-                fontWeight: 600,
-                boxShadow: chatBg ? '0 2px 8px rgba(0,0,0,0.2)' : 'none'
-              }}>{item.label}</span>
-            </div>
-          );
-          const m = item.data;
-          const isMine = String(m.fromUserId) === String(user.id);
-          
-          if (m.content?.startsWith('[chat_background]')) {
-            return (
-              <div key={m.id} style={{ textAlign: 'center', margin: '16px 0', fontSize: '12px', color: chatBg ? '#cbd5e1' : 'var(--text-muted)' }}>
-                <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'rgba(0,0,0,0.5)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }}>
-                  {isMine ? 'Bạn đã thay đổi hình nền' : `${nickname || friend.fullName} đã thay đổi hình nền`}
-                </span>
-              </div>
-            );
-          }
-
-          if (m.content?.startsWith('[chat_nickname]:')) {
-            const cleanNick = m.content.replace('[chat_nickname]:', '');
-            // eslint-disable-next-line no-useless-assignment
-            let msgText = '';
-            if (isMine) {
-              msgText = cleanNick
-                ? `Bạn đã thay đổi biệt danh thành "${cleanNick}"`
-                : 'Bạn đã xóa biệt danh';
-            } else {
-              msgText = cleanNick
-                ? `${friend.fullName} đã thay đổi biệt danh của bạn thành "${cleanNick}"`
-                : `${friend.fullName} đã xóa biệt danh`;
-            }
-            return (
-              <div key={m.id} style={{ textAlign: 'center', margin: '16px 0', fontSize: '12px', color: chatBg ? '#cbd5e1' : 'var(--text-muted)' }}>
-                <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'rgba(0,0,0,0.5)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }}>
-                  {msgText}
-                </span>
-              </div>
-            );
-          }
-
-          // ── Tin nhắn hệ thống: cuộc gọi nhỡ hoặc tóm tắt cuộc gọi
-          if (m.content?.startsWith('📵') || m.content?.startsWith('📹')) {
-            const isMissed = m.content.startsWith('📵');
-            const labelText = m.content.replace(/^\S+\s*/, '');
-            return (
-              <div key={m.id} style={{ textAlign: 'center', margin: '20px 0' }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '10px',
-                  padding: '8px 18px', borderRadius: '20px',
-                  background: 'rgba(0, 0, 0, 0.04)',
-                  border: '1.5px solid #000000',
-                  backdropFilter: 'blur(8px)',
-                  fontSize: '12px', fontWeight: 800,
-                  color: '#000000',
-                  boxShadow: 'none',
-                }}>
-                  {/* Icon container — circular premium style */}
-                  <span style={{
-                    position: 'relative',
-                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-                    background: 'rgba(0, 0, 0, 0.04)',
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    border: '1.5px solid #000000',
-                    boxShadow: 'none',
-                  }}>
-                    {isMissed ? (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                        {/* Thân máy có fill mờ */}
-                        <path
-                          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
-                          fill="rgba(0, 0, 0, 0.05)"
-                          stroke="#000000"
-                          strokeWidth="2"
-                        />
-                        {/* Gạch chéo đậm */}
-                        <line x1="16" y1="6" x2="6" y2="16" stroke="#000000" strokeWidth="2.5" />
-                      </svg>
-                    ) : (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                        {/* Thân camera có fill mờ */}
-                        <rect
-                          width="14" height="12" x="2" y="6" rx="2" ry="2"
-                          fill="rgba(0, 0, 0, 0.05)"
-                          stroke="#000000"
-                          strokeWidth="2"
-                        />
-                        {/* Tam giác play có fill */}
-                        <path
-                          d="m22 8-6 4 6 4V8Z"
-                          fill="rgba(0, 0, 0, 0.05)"
-                          stroke="#000000"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                    )}
-                  </span>
-                  {labelText}
-                </span>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                  {fmtFull(m.createdAt)}
-                </div>
-              </div>
-            );
-          }
-
-          const isImage = m.type === 'image' || m.content?.startsWith('data:image');
-
-          return (
-            <div key={m.id} style={{ display: 'flex', justifyContent: isMine ? 'flex-end' : 'flex-start', marginBottom: '4px' }}>
-              {!isMine && (
-                <div style={{ marginRight: '8px', alignSelf: 'flex-end', marginBottom: '18px' }}>
-                  <Avatar src={friend.avatar} initial={friend.initial} color={colorOf(friend.fullName)} size={28} />
-                </div>
-              )}
-              <div className="msg-container" style={{
-                flexDirection: isMine ? 'row' : 'row-reverse',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                maxWidth: '75%'
-              }}>
-                {/* Hover action buttons on side of message */}
-                <div className="msg-actions">
-                  <button className="msg-action-btn" title="Chia sẻ" onClick={() => setShareMsg(m)}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                  </button>
-                  <button className="msg-action-btn danger" title="Xóa" onClick={() => handleDelete(m.id)}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                  </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: '2px' }}>
-                  <div
-
-                    style={{
-                      background: isMine ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
-                      color: isMine ? 'white' : 'var(--text-primary)',
-                      padding: isImage ? '4px' : '9px 14px',
-                      borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                      fontSize: '14px', lineHeight: 1.5, wordBreak: 'break-word',
-                      border: isMine ? 'none' : '1px solid var(--border)',
-                      cursor: 'context-menu', position: 'relative',
-                    }}>
-                    {isImage ? (
-                      <img 
-                        src={m.content} 
-                        alt="Ảnh" 
-                        draggable="false"
-                        onClick={() => setViewingImage(m.content)}
-                        style={{ maxWidth: '300px', maxHeight: '350px', borderRadius: '12px', display: 'block', objectFit: 'cover', cursor: 'zoom-in' }} 
-                      />
-                    ) : m.fileAttachment ? (
-                      <div>
-                        {m.content && <div style={{ marginBottom: '8px' }}>{m.content}</div>}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: isMine ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '10px', borderRadius: '8px', minWidth: '200px' }}>
-                          <span style={{ fontSize: '24px' }}>📎</span>
-                          <div style={{ flex: 1, overflow: 'hidden' }}>
-                            <div style={{ fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: isMine ? 'white' : 'var(--text-primary)' }}>{m.fileAttachment.fileName}</div>
-                            <div style={{ fontSize: '11px', color: isMine ? 'rgba(255,255,255,0.65)' : 'var(--text-muted)' }}>{m.fileAttachment.fileSize}</div>
-                          </div>
-                          <button onClick={() => downloadBaseFile(m.fileAttachment.fileData, m.fileAttachment.fileName)} style={{ background: isMine ? 'white' : 'var(--primary)', color: isMine ? 'var(--primary)' : 'white', padding: '6px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '12px' }}>Tải về</button>
-                        </div>
-                      </div>
-                    ) : m.content}
-                  </div>
-
-                  <span style={{ fontSize: '10px', color: chatBg ? '#cbd5e1' : 'var(--text-muted)', padding: '0 2px' }}>
-                    {fmtFull(m.createdAt)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Scroll to bottom button */}
-      {showScrollBtn && (
-        <button onClick={scrollToBottom} style={{
-          position: 'absolute',
-          bottom: imgPreview ? '160px' : '80px',
-          right: '24px',
-          width: '40px', height: '40px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--primary), #3A3A3A)',
-          border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-          color: 'white', fontSize: '18px',
-          zIndex: 10, transition: 'transform 0.15s',
-          animation: 'fadeIn 0.2s ease',
-        }}
-          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          title="Cuộn xuống dưới"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
-      )}
-
-      {/* Image/File preview + caption */}
-      {imgPreview && (
-        <div style={{ padding: '10px 20px 0', borderTop: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              {attachedFile?.type?.startsWith('image/') || imgPreview.startsWith('data:image') ? (
-                <img src={imgPreview} alt="preview" draggable="false" style={{ height: '60px', width: '60px', borderRadius: '8px', objectFit: 'cover', display: 'block' }} />
-              ) : (
-                <div style={{ height: '60px', width: '60px', borderRadius: '8px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-                  📎
-                </div>
-              )}
-              <button onClick={() => { setImgPreview(null); setAttachedFile(null); }} style={{
-                position: 'absolute', top: '-6px', right: '-6px',
-                background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
-                width: '18px', height: '18px', cursor: 'pointer', color: 'white',
-                fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
-              }}>✕</button>
-            </div>
-            <div style={{ flex: 1, fontSize: '12px', color: 'var(--text-muted)' }}>
-              {attachedFile?.name || 'Thêm chú thích (tuỳ chọn) hoặc gửi riêng'}
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingBottom: '10px' }}>
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleSendAttachment(imgPreview, input); }}
-              placeholder="Thêm chú thích..."
-              style={{
-                flex: 1, background: 'var(--bg-input)', border: '1px solid var(--border)',
-                borderRadius: '20px', padding: '8px 14px',
-                color: 'var(--text-primary)', fontSize: '13px', fontFamily: 'inherit',
-                outline: 'none',
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            />
-            <button
-              onClick={() => handleSendAttachment(imgPreview, null)}
-              disabled={sending}
-              title="Gửi file riêng"
-              style={{ background: 'var(--bg-input)', color: 'var(--text-secondary)', border: '1px solid var(--border)', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: '12px', flexShrink: 0 }}>
-              Chỉ gửi file
-            </button>
-            <button
-              onClick={() => handleSendAttachment(imgPreview, input)}
-              disabled={sending}
-              title="Gửi file + tin nhắn"
-              style={{ background: 'linear-gradient(135deg, var(--primary), #3A3A3A)', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '12px', flexShrink: 0 }}>
-              Gửi {input.trim() ? '+ tin nhắn' : 'file'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Input area / Relationship Panel */}
-      {friend.status === 'pending' ? (
-        friend.toUserId === String(user.id) ? (
-          <div style={{
-            padding: '24px 20px',
-            borderTop: '1px solid var(--border)',
-            background: 'var(--bg-card)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            gap: '16px',
-            flexShrink: 0,
-          }}>
-            <div style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              <strong>{nickname || friend.fullName}</strong> đã gửi cho bạn một lời mời kết bạn. Kết bạn để bắt đầu trò chuyện học tập!
-            </div>
-            <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '320px' }}>
-              <button
-                onClick={async () => {
-                  try {
-                    await acceptFriendRequest(friend.requestId);
-                    if (onRelationChange) {
-                      onRelationChange({ ...friend, status: 'accepted' });
-                    }
-                  } catch (e) {
-                    alert(e.message);
-                  }
-                }}
-                style={{
-                  flex: 1, padding: '12px', borderRadius: '14px', border: 'none',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  color: 'white', fontWeight: 700, cursor: 'pointer',
-                  fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s',
-                  boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
-                }}
-              >
-                Chấp nhận
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await removeFriend(friend.requestId);
-                    if (onRelationChange) {
-                      onRelationChange(null);
-                    }
-                  } catch (e) {
-                    alert(e.message);
-                  }
-                }}
-                style={{
-                  flex: 1, padding: '12px', borderRadius: '14px',
-                  border: '1px solid rgba(239, 68, 68, 0.4)',
-                  background: 'rgba(239, 68, 68, 0.05)',
-                  color: '#ef4444', fontWeight: 600, cursor: 'pointer',
-                  fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s',
-                }}
-              >
-                Từ chối
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div style={{
-            padding: '24px 20px',
-            borderTop: '1px solid var(--border)',
-            background: 'var(--bg-card)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            gap: '16px',
-            flexShrink: 0,
-          }}>
-            <div style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.6, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '18px' }}>⌛</span>
-              Đang chờ <strong>{nickname || friend.fullName}</strong> chấp nhận lời mời kết bạn...
-            </div>
-            <button
-              onClick={async () => {
-                try {
-                  await removeFriend(friend.requestId);
-                  if (onRelationChange) {
-                    onRelationChange(null);
-                  }
-                } catch (e) {
-                  alert(e.message);
-                }
-              }}
-              style={{
-                padding: '10px 20px', borderRadius: '12px',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                background: 'var(--bg-input)',
-                color: '#ef4444', fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'inherit', fontSize: '13px', transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#ef4444';
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                e.currentTarget.style.background = 'var(--bg-input)';
-              }}
-            >
-              Thu hồi lời mời
-            </button>
-          </div>
-        )
-      ) : (
-        <div style={{
-          padding: '12px 20px', borderTop: '1px solid var(--border)',
-          background: 'var(--bg-card)', flexShrink: 0, position: 'relative',
-        }}>
-          {showEmoji && <EmojiPicker onSelect={addEmoji} onClose={() => setShowEmoji(false)} />}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button onClick={() => setShowEmoji(v => !v)} title="Biểu cảm" style={{
-              background: showEmoji ? 'rgba(0,0,0,0.08)' : 'var(--bg-input)',
-              border: '1px solid var(--border)', borderRadius: '12px',
-              width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'var(--transition)', flexShrink: 0,
-              color: showEmoji ? 'var(--primary-light)' : 'var(--text-muted)',
-            }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
-                <line x1="9" y1="9" x2="9.01" y2="9"/>
-                <line x1="15" y1="9" x2="15.01" y2="9"/>
-              </svg>
-            </button>
-
-            <input ref={fileInputRef} type="file" accept="*/*" onChange={handleFileChange} style={{ display: 'none' }} />
-            <button onClick={() => fileInputRef.current?.click()} title="Gửi file/ảnh" style={{
-              background: 'var(--bg-input)', border: '1px solid var(--border)',
-              borderRadius: '12px', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'var(--transition)', flexShrink: 0, color: 'var(--text-muted)',
-            }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-              </svg>
-            </button>
-
-            <button onClick={() => setShowCamera(true)} title="Chụp ảnh" style={{
-              background: 'var(--bg-input)', border: '1px solid var(--border)',
-              borderRadius: '12px', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'var(--transition)', flexShrink: 0, color: 'var(--text-muted)',
-            }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-            </button>
-
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKey}
-              onPaste={handlePaste}
-              placeholder="Nhập tin nhắn..."
-              rows={1}
-              style={{
-                flex: 1, background: 'var(--bg-input)', border: '1px solid var(--border)',
-                borderRadius: '20px', padding: '10px 16px', resize: 'none',
-                color: 'var(--text-primary)', fontSize: '14px', fontFamily: 'inherit',
-                outline: 'none', lineHeight: 1.5, maxHeight: '100px', overflowY: 'auto',
-                overscrollBehavior: 'contain',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            />
-
-            <button onClick={() => handleSendText(input)} disabled={!input.trim() || sending} title="Gửi (Enter)" style={{
-              background: input.trim() ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
-              border: 'none', borderRadius: '50%', width: '40px', height: '40px',
-              cursor: input.trim() ? 'pointer' : 'default',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '16px', flexShrink: 0, transition: 'var(--transition)',
-              opacity: input.trim() ? 1 : 0.4, color: input.trim() ? 'white' : 'var(--text-muted)',
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Message context menu (share / save / delete) */}
-      {contextMenu && (
-        <MessageMenu
-          clientX={contextMenu.clientX}
-          clientY={contextMenu.clientY}
-          msg={contextMenu.msg}
-          onSaveImage={() => handleSaveImage(contextMenu.msg)}
-          onShare={() => setShareMsg(contextMenu.msg)}
-          onDelete={() => handleDelete(contextMenu.msg.id)}
-          isMine={String(contextMenu.msg?.fromUserId) === String(user?.id)}
-          onClose={() => setContextMenu(null)}
-        />
-      )}
-
-      {/* Share modal */}
-      {shareMsg && (
-        <ShareModal
-          message={shareMsg}
-          friends={friends.filter(f => String(f.userId) !== String(friend.userId))}
-          onSend={handleShare}
-          onClose={() => setShareMsg(null)}
-        />
-      )}
-
-      {/* In-app Delete Confirm Modal */}
-      {deleteConfirmId && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 9998,
-            background: 'rgba(10, 10, 20, 0.75)', backdropFilter: 'blur(12px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-          onClick={() => setDeleteConfirmId(null)}
-        >
-          <div
-            style={{
-              background: 'var(--bg-card)',
-              border: '2.5px solid var(--border)',
-              borderRadius: '16px',
-              padding: '32px 36px',
-              maxWidth: '380px',
-              width: '90%',
-              boxShadow: 'var(--shadow-lg)',
-              position: 'relative',
-              textAlign: 'center',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 style={{ margin: '0 0 12px', fontSize: '20px', fontWeight: 900, color: 'var(--text-primary)', fontFamily: "'Fraunces', serif" }}>Xóa tin nhắn?</h3>
-            <p style={{ margin: '0 0 28px', fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Tin nhắn này sẽ bị xóa vĩnh viễn khỏi cuộc trò chuyện của bạn và không thể khôi phục lại.
-            </p>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                style={{
-                  flex: 1, padding: '12px', borderRadius: '10px',
-                  border: '1.5px solid var(--border)', background: 'var(--bg-input)',
-                  color: 'var(--text-primary)', fontWeight: 700, cursor: 'pointer',
-                  fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = '#000000';
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.borderColor = '#000000';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'var(--bg-input)';
-                  e.currentTarget.style.color = 'var(--text-primary)';
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                }}
-              >Hủy</button>
-              
-              <button
-                onClick={confirmDelete}
-                style={{
-                  flex: 1, padding: '12px', borderRadius: '10px',
-                  border: '1.5px solid var(--border)', background: '#ef4444',
-                  color: 'white', fontWeight: 700, cursor: 'pointer',
-                  fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = '#dc2626';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = '#ef4444';
-                }}
-              >Xóa</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showCamera && <CameraModal onCapture={(d) => {
-        setShowCamera(false);
-        // Auto-send the photo immediately — no caption step needed
-        handleSendAttachment(d, null);
-      }} onClose={() => setShowCamera(false)} />}
-
-      {/* ── IMAGE VIEW MODAL ── */}
-      {viewingImage && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 9999,
-          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexDirection: 'column',
-        }} onClick={() => setViewingImage(null)}>
-          <button style={{
-            position: 'absolute', top: 20, right: 20,
-            background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
-            width: 40, height: 40, color: 'white', fontSize: 20, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-          onClick={(e) => { e.stopPropagation(); setViewingImage(null); }}>
-            ✕
-          </button>
-          
-          <img src={viewingImage} alt="View" draggable="false" style={{
-            maxWidth: '90%', maxHeight: '80%', objectFit: 'contain',
-            borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-            userSelect: 'none'
-          }} onClick={e => e.stopPropagation()} />
-          
-          <a href={viewingImage} download="studyconect_image.png" style={{
-            marginTop: 24, padding: '12px 24px', background: 'var(--primary)',
-            color: 'white', textDecoration: 'none', borderRadius: '12px',
-            fontWeight: 600, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.35)', transition: 'transform 0.2s'
-          }} 
-          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          onClick={e => e.stopPropagation()}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Tải ảnh chất lượng cao
-          </a>
-        </div>
-      )}
-
-      {showRenameModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(10, 10, 20, 0.75)',
-            backdropFilter: 'blur(12px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          onClick={() => setShowRenameModal(false)}
-        >
-          <div
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: '24px',
-              padding: '28px',
-              width: '400px',
-              maxWidth: '100%',
-              boxShadow: 'var(--shadow-lg)',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>Đổi biệt danh</h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              Đặt biệt danh cho <strong>{friend.fullName}</strong>. Biệt danh này sẽ hiển thị thay thế cho tên thật trong tin nhắn và thông báo.
-            </p>
-            
-            <input
-              type="text"
-              value={renameVal}
-              onChange={e => setRenameVal(e.target.value)}
-              placeholder="Nhập biệt danh..."
-              autoFocus
-              onKeyDown={e => {
-                if (e.key === 'Enter') handleSaveRename();
-                if (e.key === 'Escape') setShowRenameModal(false);
-              }}
-              style={{
-                width: '100%',
-                background: 'var(--bg-input)',
-                border: '1px solid var(--border)',
-                borderRadius: '14px',
-                padding: '12px 16px',
-                color: 'var(--text-primary)',
-                fontSize: '14px',
-                fontFamily: 'inherit',
-                outline: 'none',
-                marginBottom: '24px',
-                transition: 'border-color 0.2s',
-                boxSizing: 'border-box'
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            />
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => setShowRenameModal(false)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'var(--bg-input)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '14px',
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-input)'; }}
-              >
-                Hủy bỏ
-              </button>
-              <button
-                onClick={handleSaveRename}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
-                  border: 'none',
-                  borderRadius: '14px',
-                  color: 'white',
-                  fontWeight: 700,
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-              >
-                Lưu lại
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showClearConfirm && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(10, 10, 20, 0.75)',
-            backdropFilter: 'blur(12px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          onClick={() => setShowClearConfirm(false)}
-        >
-          <div
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: '24px',
-              padding: '28px',
-              width: '400px',
-              maxWidth: '100%',
-              boxShadow: 'var(--shadow-lg)',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>Xóa tin nhắn?</h3>
-            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              Bạn có chắc chắn muốn xóa toàn bộ lịch sử tin nhắn với <strong>{nickname || friend.fullName}</strong> không? Hành động này không thể hoàn tác.
-            </p>
-            
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'var(--bg-input)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '14px',
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-input)'; }}
-              >
-                Hủy bỏ
-              </button>
-              <button
-                onClick={handleClearChat}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  border: 'none',
-                  borderRadius: '14px',
-                  color: 'white',
-                  fontWeight: 700,
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-              >
-                Xóa sạch
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showBgModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(10, 10, 20, 0.75)',
-            backdropFilter: 'blur(12px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          onClick={() => setShowBgModal(false)}
-        >
-          <div
-            style={{
-              background: 'var(--bg-card)',
-              border: '2.5px solid var(--border)',
-              borderRadius: '16px',
-              padding: '28px 32px',
-              width: '380px',
-              maxWidth: 'calc(100vw - 40px)',
-              boxShadow: 'var(--shadow-lg)',
-              maxHeight: '85vh',
-              overflowY: 'auto',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>Đổi hình nền</h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              Thay đổi hình nền trò chuyện giữa bạn và <strong>{nickname || friend.fullName}</strong>. Thay đổi này sẽ hiển thị ở cả hai bên thiết bị.
-            </p>
-
-            {/* Vùng chọn ảnh từ thiết bị */}
-            {!bgFilePreview && (
-              <div style={{ marginBottom: '20px' }}>
-                <label
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    padding: '20px',
-                    background: 'var(--bg-input)',
-                    border: '2px dashed var(--border)',
-                    borderRadius: '12px',
-                    cursor: 'pointer',
-                    color: 'var(--text-primary)',
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(0, 0, 0, 0.04)';
-                    e.currentTarget.style.borderColor = 'var(--text-primary)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'var(--bg-input)';
-                    e.currentTarget.style.borderColor = 'var(--border)';
-                  }}
-                >
-                  Chọn ảnh từ thiết bị
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleBgFileChange}
-                    style={{ display: 'none' }}
-                  />
-                </label>
-              </div>
-            )}
-
-            {/* Vùng chọn kiểu hiển thị khung chat */}
-            {bgFilePreview && (
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Kiểu hiển thị khung chat
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {[
-                    { mode: 'portrait', label: 'Khung đứng (Ảnh dọc)' },
-                    { mode: 'landscape', label: 'Khung ngang (Phủ rộng)' }
-                  ].map(item => {
-                    const isActive = bgMode === item.mode;
-                    return (
-                      <button
-                        key={item.mode}
-                        onClick={() => setBgMode(item.mode)}
-                        style={{
-                          flex: 1, padding: '10px 8px', borderRadius: '10px',
-                          background: isActive ? '#000000' : 'var(--bg-input)',
-                          border: '1.5px solid var(--border)',
-                          color: isActive ? '#ffffff' : 'var(--text-primary)',
-                          cursor: 'pointer', fontSize: '12px', fontWeight: isActive ? 700 : 600, transition: 'all 0.2s',
-                        }}
-                        onMouseEnter={e => {
-                          if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
-                        }}
-                        onMouseLeave={e => {
-                          if (!isActive) e.currentTarget.style.background = 'var(--bg-input)';
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Vùng điều chỉnh vị trí ảnh */}
-            {bgFilePreview && (
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Điều chỉnh gốc ảnh nền
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {['top', 'center', 'bottom'].map(pos => {
-                    const isActive = bgPos === pos;
-                    return (
-                      <button
-                        key={pos}
-                        onClick={() => setBgPos(pos)}
-                        style={{
-                          flex: 1, padding: '10px 8px', borderRadius: '10px',
-                          background: isActive ? '#000000' : 'var(--bg-input)',
-                          border: '1.5px solid var(--border)',
-                          color: isActive ? '#ffffff' : 'var(--text-primary)',
-                          cursor: 'pointer', fontSize: '12px', fontWeight: isActive ? 700 : 600, transition: 'all 0.2s',
-                        }}
-                        onMouseEnter={e => {
-                          if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
-                        }}
-                        onMouseLeave={e => {
-                          if (!isActive) e.currentTarget.style.background = 'var(--bg-input)';
-                        }}
-                      >
-                        {pos === 'top' ? 'Trên cùng' : pos === 'center' ? 'Chính giữa' : 'Dưới cùng'}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Xem trước ảnh nền */}
-            {bgFilePreview && (
-              <div style={{ marginBottom: '28px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Xem trước hình nền
-                  </label>
-                  <label style={{
-                    fontSize: '11px', color: 'var(--text-primary)', fontWeight: 700, cursor: 'pointer',
-                    background: 'var(--bg-input)', border: '1.5px solid var(--border)', padding: '4px 10px', borderRadius: '8px', margin: 0,
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = '#000000';
-                    e.currentTarget.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'var(--bg-input)';
-                    e.currentTarget.style.color = 'var(--text-primary)';
-                  }}
-                  >
-                    Đổi ảnh
-                    <input type="file" accept="image/*" onChange={handleBgFileChange} style={{ display: 'none' }} />
-                  </label>
-                </div>
-                <div
-                  style={{
-                    width: bgMode === 'portrait' ? '120px' : '100%',
-                    height: '140px',
-                    margin: '0 auto',
-                    borderRadius: '12px',
-                    background: `linear-gradient(rgba(10, 10, 20, 0.55), rgba(10, 10, 20, 0.55)), url(${bgFilePreview}) ${bgPos}/cover no-repeat`,
-                    border: '2.5px solid var(--border)',
-                    boxShadow: 'var(--shadow-sm)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <button
-                onClick={() => handleSaveBg('')}
-                style={{
-                  flex: 1,
-                  padding: '12px 8px',
-                  background: 'var(--bg-input)',
-                  border: '1.5px solid var(--border)',
-                  borderRadius: '10px',
-                  color: '#ef4444',
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = '#ef4444';
-                  e.currentTarget.style.color = '#ffffff';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'var(--bg-input)';
-                  e.currentTarget.style.color = '#ef4444';
-                }}
-              >
-                Mặc định
-              </button>
-              
-              <button
-                onClick={() => setShowBgModal(false)}
-                style={{
-                  flex: 1,
-                  padding: '12px 8px',
-                  background: 'var(--bg-input)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '10px',
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = '#000000';
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.borderColor = '#000000';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'var(--bg-input)';
-                  e.currentTarget.style.color = 'var(--text-secondary)';
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                }}
-              >
-                Hủy bỏ
-              </button>
-              
-              <button
-                onClick={() => handleSaveBg(bgFilePreview ? `${bgFilePreview}|${bgPos}|${bgMode}` : '')}
-                disabled={!bgFilePreview}
-                style={{
-                  flex: 1,
-                  padding: '12px 8px',
-                  background: 'var(--primary)',
-                  border: '1.5px solid var(--border)',
-                  borderRadius: '10px',
-                  color: 'white',
-                  fontWeight: 700,
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  transition: 'all 0.2s',
-                  opacity: (!bgFilePreview) ? 0.5 : 1,
-                }}
-                onMouseEnter={e => {
-                  if (bgFilePreview) {
-                    e.currentTarget.style.background = 'var(--primary-light)';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (bgFilePreview) {
-                    e.currentTarget.style.background = 'var(--primary)';
-                  }
-                }}
-              >
-                Áp dụng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .msgs-no-scrollbar::-webkit-scrollbar { display: none; }
-      `}</style>
-    </div>
-  );
-}
-
-// ── FriendList ─────────────────────────────────────────────────────
-function FriendList({ user, friends, onSelect, lastMessages, onlineUserIds }) {
-  const [search, setSearch] = useState('');
-  const filtered = friends.filter(f =>
-    !search.trim() || f.fullName.toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <div style={{ padding: '12px', flexShrink: 0 }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          background: 'var(--bg-input)', border: '1px solid var(--border)',
-          borderRadius: '12px', padding: '8px 12px', transition: 'border-color 0.2s',
-        }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-secondary)', flexShrink: 0 }}>
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.3-4.3"/>
-          </svg>
-          <input
-            placeholder="Tìm kiếm bạn bè..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ background: 'none', border: 'none', outline: 'none', flex: 1, color: 'var(--text-primary)', fontSize: '13px', fontFamily: 'inherit' }}
-          />
-        </div>
-      </div>
-
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain', scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent', paddingBottom: '12px' }}>
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: '14px' }}>
-            {friends.length === 0 ? (
-              <>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}></div>
-                <div style={{ fontWeight: 600, marginBottom: '8px' }}>Chưa có bạn bè nào</div>
-                <Link to="/friends" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontSize: '13px' }}>Tìm bạn bè ngay</Link>
-              </>
-            ) : 'Không tìm thấy kết quả.'}
-          </div>
-        ) : (() => {
-          const sortedFiltered = [...filtered].sort((a, b) => {
-            const lastA = lastMessages[String(a.userId)];
-            const lastB = lastMessages[String(b.userId)];
-            const timeA = lastA ? new Date(lastA.createdAt).getTime() : 0;
-            const timeB = lastB ? new Date(lastB.createdAt).getTime() : 0;
-            if (timeB !== timeA) return timeB - timeA;
-
-            const aOn = onlineUserIds.includes(String(a.userId)) ? 1 : 0;
-            const bOn = onlineUserIds.includes(String(b.userId)) ? 1 : 0;
-            return bOn - aOn;
-          });
-          return sortedFiltered.map(f => {
-            const last = lastMessages[String(f.userId)];
-            const unread = getUnreadCount(user.id, f.userId);
-            const isOnline = onlineUserIds.includes(String(f.userId));
-            const nickname = localStorage.getItem(`sc_nickname_${user.id}_${f.userId}`) || f.fullName;
-            return (
-              <button key={f.requestId} onClick={() => onSelect(f)} style={{
-                width: 'calc(100% - 16px)', margin: '0 8px 4px 8px', background: 'transparent', border: '1px solid transparent', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: '10px',
-                padding: '8px 10px', textAlign: 'left', transition: 'all 0.2s',
-                borderRadius: '10px'
-              }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.04)';
-                  e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderColor = 'transparent';
-                }}
-              >
-                <div style={{ position: 'relative', flexShrink: 0 }}>
-                  <Avatar src={f.avatar} initial={f.initial} color={colorOf(f.fullName)} size={40} />
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 1,
-                    right: 1,
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    background: isOnline ? '#2A7576' : '#ef4444',
-                    border: '2px solid var(--bg-card)',
-                    boxShadow: isOnline ? '0 0 6px rgba(168, 124, 135, 0.7)' : 'none'
-                  }} />
-                </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                  <span style={{ fontWeight: unread > 0 ? 700 : 600, fontSize: '13px', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nickname}</span>
-                  {f.status === 'pending' ? (
-                    <span style={{
-                      fontSize: '9px',
-                      background: f.fromUserId === String(user.id) ? 'rgba(17, 24, 39, 0.04)' : 'rgba(0,0,0,0.06)',
-                      color: f.fromUserId === String(user.id) ? 'var(--text-primary)' : 'var(--text-primary)',
-                      padding: '2px 6px',
-                      borderRadius: '8px',
-                      fontWeight: 700,
-                      flexShrink: 0,
-                    }}>
-                      {f.fromUserId === String(user.id) ? 'Đã gửi' : 'Lời mời'}
-                    </span>
-                  ) : (
-                    last && <span style={{ fontSize: '11px', color: 'var(--text-muted)', flexShrink: 0 }}>{fmtTime(last.createdAt)}</span>
-                  )}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
-                  <span style={{ fontSize: '12px', color: unread > 0 ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: unread > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                    {last
-                      ? (last.content?.startsWith('[chat_background]')
-                        ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã thay đổi hình nền' : `${nickname} đã thay đổi hình nền`)
-                        : last.content?.startsWith('[chat_nickname]')
-                          ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã thay đổi biệt danh' : `${nickname} đã thay đổi biệt danh`)
-                          : (last.type === 'image' || last.content?.startsWith('data:image')
-                            ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi ảnh' : 'Đã gửi ảnh')
-                            : last.fileAttachment
-                              ? (String(last.fromUserId) === String(user.id) ? 'Bạn đã gửi một tệp' : 'Đã gửi một tệp')
-                              : (String(last.fromUserId) === String(user.id) ? 'Bạn: ' : '') + last.content))
-                      : (f.status === 'pending'
-                        ? (f.fromUserId === String(user.id) ? '⌛ Chờ chấp nhận kết bạn...' : '🤝 Lời mời kết nối từ đối phương')
-                        : 'Bắt đầu nhắn tin...')}
-                  </span>
-                  {unread > 0 && (
-                    <span style={{ background: 'var(--primary)', color: 'white', fontSize: '11px', fontWeight: 800, padding: '2px 7px', borderRadius: '10px', flexShrink: 0, minWidth: '20px', textAlign: 'center' }}>{unread}</span>
-                  )}
-                </div>
-              </div>
-            </button>
-          );
-        });
-      })()}
-      </div>
-    </div>
-  );
-}
-
-// ── Main Chat Page ─────────────────────────────────────────────────
 export default function Chat() {
   const { isAuth, user } = useAuth();
   const navigate = useNavigate();
-  const [friends, setFriends] = useState([]);
   const onlineUserIds = useOnlineUsers();
 
-
-
+  const [friends, setFriends] = useState([]);
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [chatBg, setChatBg] = useState('');
-  const bgMode = chatBg && chatBg.split('|').length > 2 ? chatBg.split('|')[2] : 'landscape';
-
-  useEffect(() => {
-    if (selectedFriend?.userId) {
-      sessionStorage.setItem('active_chat_friend_id', String(selectedFriend.userId));
-    } else {
-      sessionStorage.removeItem('active_chat_friend_id');
-    }
-    return () => {
-      sessionStorage.removeItem('active_chat_friend_id');
-    };
-  }, [selectedFriend]);
-
   const [lastMessages, setLastMessages] = useState({});
   const [totalUnread, setTotalUnread] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const friendsRef = useRef([]);
+  useEffect(() => { friendsRef.current = friends; }, [friends]);
+
+  // bgMode derived from chatBg string
+  const bgMode = chatBg && chatBg.split('|').length > 2 ? chatBg.split('|')[2] : 'landscape';
+
+  // Track active chat friend for GlobalMessageListener
   useEffect(() => {
-    friendsRef.current = friends;
-  }, [friends]);
+    if (selectedFriend?.userId) {
+      sessionStorage.setItem('active_chat_friend_id', String(selectedFriend.userId));
+    } else {
+      sessionStorage.removeItem('active_chat_friend_id');
+    }
+    return () => { sessionStorage.removeItem('active_chat_friend_id'); };
+  }, [selectedFriend]);
 
-  // Realtime subscription for Chat Sidebar Overview
-  useEffect(() => {
-    if (!user?.id) return;
+  // Auth guard
+  useEffect(() => { if (!isAuth) navigate('/login'); }, [isAuth, navigate]);
 
-    const channel = supabase
-      .channel(`chat-overview-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `receiver_id=eq.${user.id}`
-        },
-        async (payload) => {
-          const msg = payload.new;
-          if (!msg || msg.group_id) return;
-
-          const senderIdStr = msg.sender_id.toString();
-          const hasFriend = friendsRef.current.some(f => String(f.userId) === senderIdStr);
-
-          if (!hasFriend) {
-            try {
-              await refreshCache(user.id);
-              const list = await getFriends(String(user.id), true);
-              setFriends(list);
-              const lm = getLastMessages(user.id);
-              setLastMessages(lm);
-              const total = list.reduce((acc, f) => acc + getUnreadCount(user.id, f.userId), 0);
-              setTotalUnread(total);
-            } catch (err) {
-              if (import.meta.env.DEV) console.warn('[Chat] Realtime full refresh failed:', err);
-            }
-          } else {
-            await refreshCache(user.id);
-            const lm = getLastMessages(user.id);
-            setLastMessages(lm);
-
-            const total = friendsRef.current.reduce((acc, f) => acc + getUnreadCount(user.id, f.userId), 0);
-            setTotalUnread(total);
-
-            // Trigger re-sorting
-            setFriends(prev => [...prev]);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
-
+  // Responsive listener
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => { if (!isAuth) { navigate('/login'); } }, [isAuth, navigate]);
-
+  // Initial data load + polling fallback
   useEffect(() => {
     if (!user?.id) return;
     const refresh = async () => {
@@ -2716,10 +62,8 @@ export default function Chat() {
         await refreshCache(user.id);
         const list = await getFriends(String(user.id), true);
         setFriends(list);
-
         const lm = getLastMessages(user.id);
         setLastMessages(lm);
-
         const total = list.reduce((acc, f) => acc + getUnreadCount(user.id, f.userId), 0);
         setTotalUnread(total);
       } catch (err) {
@@ -2730,59 +74,117 @@ export default function Chat() {
     };
     refresh();
     const timer = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        refresh();
-      }
-    }, 1800000); // fallback 30 phút — Realtime handles real-time message updates
+      if (document.visibilityState === 'visible') refresh();
+    }, 1800000);
     return () => clearInterval(timer);
   }, [user]);
+
+  // Realtime: sidebar overview updates on new message
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`chat-overview-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
+        async (payload) => {
+          const msg = payload.new;
+          if (!msg || msg.group_id) return;
+          const senderIdStr = msg.sender_id.toString();
+          const hasFriend = friendsRef.current.some(f => String(f.userId) === senderIdStr);
+          if (!hasFriend) {
+            try {
+              await refreshCache(user.id);
+              const list = await getFriends(String(user.id), true);
+              setFriends(list);
+              setLastMessages(getLastMessages(user.id));
+              setTotalUnread(list.reduce((acc, f) => acc + getUnreadCount(user.id, f.userId), 0));
+            } catch (err) {
+              if (import.meta.env.DEV) console.warn('[Chat] Realtime full refresh failed:', err);
+            }
+          } else {
+            await refreshCache(user.id);
+            setLastMessages(getLastMessages(user.id));
+            setTotalUnread(friendsRef.current.reduce((acc, f) => acc + getUnreadCount(user.id, f.userId), 0));
+            setFriends(prev => [...prev]);
+          }
+        }
+      )
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [user?.id]);
 
   if (!isAuth || !user) return null;
 
   return (
     <>
-      <div className="chat-page-container" style={{
-        flex: 1, maxWidth: '1200px', width: '100%', margin: isMobile ? '0 auto' : '20px auto',
-        padding: isMobile ? '0' : '0 16px', display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : (selectedFriend ? '340px 1fr' : '1fr'),
-        gap: isMobile ? '0' : '16px', height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 120px)',
-        overflowX: 'hidden',
-      }}>
+      <div
+        className="chat-page-container"
+        style={{
+          flex: 1,
+          maxWidth: '1200px',
+          width: '100%',
+          margin: isMobile ? '0 auto' : '20px auto',
+          padding: isMobile ? '0' : '0 5px',
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : (selectedFriend ? '340px 1fr' : '1fr'),
+          gap: isMobile ? '0' : '5px',
+          height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 120px)',
+          overflowX: 'hidden',
+        }}
+      >
+        {/* ── Sidebar: Friend List ────────────────────────────────────── */}
         {(!isMobile || !selectedFriend) && (
-          <div className={isMobile ? "" : "premium-panel"} style={{
-            padding: 0,
-            background: isMobile ? 'var(--bg-card)' : undefined, border: isMobile ? 'none' : undefined,
-            overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%',
-          }}>
-            <div style={{
-              padding: '12px 16px', borderBottom: '1px solid var(--border)',
-              background: 'var(--bg-input)', flexShrink: 0,
-              display: 'flex', alignItems: 'center', gap: '12px',
-            }}>
-              <Link to="/" style={{
-                textDecoration: 'none',
-                display: 'inline-flex',
+          <div
+            className={isMobile ? '' : 'premium-panel'}
+            style={{
+              padding: 0,
+              background: isMobile ? 'var(--bg-card)' : undefined,
+              border: isMobile ? 'none' : undefined,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+            }}
+          >
+            {/* Sidebar header */}
+            <div
+              style={{
+                padding: '14px 16px',
+                borderBottom: '1.5px solid var(--border)',
+                background: 'var(--bg-input)',
+                flexShrink: 0,
+                display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                borderRadius: '8px',
-                background: 'rgba(17, 24, 39, 0.04)',
-                border: '1px solid var(--border)',
-                color: 'var(--text-primary)',
-                fontSize: '12px',
-                fontWeight: 700,
-                transition: 'all 0.2s ease',
+                gap: '12px',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(17, 24, 39, 0.08)';
-                e.currentTarget.style.borderColor = 'var(--text-primary)';
-                e.currentTarget.style.transform = 'translateX(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(17, 24, 39, 0.04)';
-                e.currentTarget.style.borderColor = 'var(--border)';
-                e.currentTarget.style.transform = 'none';
-              }}
+            >
+              <Link
+                to="/"
+                style={{
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '10px',
+                  background: 'rgba(17, 24, 39, 0.04)',
+                  border: '1.5px solid var(--border)',
+                  color: 'var(--text-primary)',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(17, 24, 39, 0.08)';
+                  e.currentTarget.style.borderColor = 'var(--text-primary)';
+                  e.currentTarget.style.transform = 'translateX(-2px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(17, 24, 39, 0.04)';
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.transform = 'none';
+                }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="19" y1="12" x2="5" y2="12"/>
@@ -2790,70 +192,109 @@ export default function Chat() {
                 </svg>
                 Quay lại
               </Link>
-              <span style={{ flex: 1, fontWeight: 700, fontSize: '16px' }}>Tin nhắn</span>
+
+              <span style={{ flex: 1, fontWeight: 800, fontSize: '16px', color: 'var(--text-primary)', letterSpacing: '-0.015em' }}>
+                Tin nhắn
+              </span>
+
               {totalUnread > 0 && (
-                <span style={{
-                  background: 'linear-gradient(135deg, var(--primary), #3A3A3A)',
-                  color: 'white',
-                  fontSize: '13px',
-                  fontWeight: 800,
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                  letterSpacing: '0.3px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                }}>
-                  <span style={{ fontSize: '10px' }}>🔴</span>
-                  {totalUnread} tin mới
+                <span
+                  style={{
+                    background: '#0D9488',
+                    color: 'white',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    boxShadow: '0 2px 8px rgba(13, 148, 136, 0.35)',
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  {totalUnread} mới
                 </span>
               )}
             </div>
 
+            {/* Friend list or loading skeleton */}
             {loading ? (
-              <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ width: '32px', height: '32px', border: '3px solid var(--border)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '8px' }} />
-                  Đang tải...
+              <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+                  {/* Skeleton loader - no circular spinners */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', width: '100%' }}>
+                    {[0, 1, 2, 3].map(i => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', opacity: 1 - i * 0.2 }}>
+                        <div style={{
+                          width: '42px', height: '42px', borderRadius: '50%',
+                          background: 'var(--bg-input)',
+                          animation: 'skeletonPulse 1.5s ease-in-out infinite',
+                          animationDelay: `${i * 100}ms`,
+                          flexShrink: 0,
+                        }} />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <div style={{
+                            height: '12px', borderRadius: '8px', background: 'var(--bg-input)',
+                            width: `${60 + Math.sin(i) * 20}%`,
+                            animation: 'skeletonPulse 1.5s ease-in-out infinite',
+                            animationDelay: `${i * 100 + 100}ms`,
+                          }} />
+                          <div style={{
+                            height: '10px', borderRadius: '8px', background: 'var(--bg-input)',
+                            width: `${40 + Math.cos(i) * 15}%`,
+                            animation: 'skeletonPulse 1.5s ease-in-out infinite',
+                            animationDelay: `${i * 100 + 200}ms`,
+                          }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : (
               <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <FriendList user={user} friends={friends} onSelect={setSelectedFriend} lastMessages={lastMessages} onlineUserIds={onlineUserIds} />
+                <FriendList
+                  user={user}
+                  friends={friends}
+                  onSelect={setSelectedFriend}
+                  lastMessages={lastMessages}
+                  onlineUserIds={onlineUserIds}
+                  selectedFriend={selectedFriend}
+                />
               </div>
             )}
           </div>
         )}
 
+        {/* ── Conversation View ─────────────────────────────────────────── */}
         {selectedFriend && (
-          <div className={isMobile ? "" : "premium-panel"} style={{
-            padding: 0,
-            background: isMobile ? 'var(--bg-card)' : undefined,
-            overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%',
-            maxWidth: (!isMobile && bgMode === 'portrait') ? '480px' : '100%',
-            margin: (!isMobile && bgMode === 'portrait') ? '0 auto' : '0',
-            width: '100%',
-            transition: 'max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}>
+          <div
+            className={isMobile ? '' : 'premium-panel'}
+            style={{
+              padding: 0,
+              background: isMobile ? 'var(--bg-card)' : undefined,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              maxWidth: (!isMobile && bgMode === 'portrait') ? '480px' : '100%',
+              margin: (!isMobile && bgMode === 'portrait') ? '0 auto' : '0',
+              width: '100%',
+              transition: 'max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          >
             <ConversationView
               user={user}
               friend={selectedFriend}
               friends={friends}
               onBack={() => setSelectedFriend(null)}
               onlineUserIds={onlineUserIds}
-              onNicknameChange={() => setFriends([...friends])}
+              onNicknameChange={() => setFriends(prev => [...prev])}
               onRelationChange={(updatedFriend) => {
                 if (updatedFriend) {
                   setSelectedFriend(updatedFriend);
                   setFriends(prev => prev.map(f => f.userId === updatedFriend.userId ? updatedFriend : f));
                 } else {
                   setSelectedFriend(null);
-                  const refresh = async () => {
-                    const list = await getFriends(String(user.id), true);
-                    setFriends(list);
-                  };
-                  refresh();
+                  getFriends(String(user.id), true).then(list => setFriends(list)).catch(() => {});
                 }
               }}
               chatBg={chatBg}
@@ -2862,17 +303,22 @@ export default function Chat() {
           </div>
         )}
       </div>
+
       <style>{`
+        @keyframes skeletonPulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
         .chat-page-container {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Be Vietnam Pro', system-ui, sans-serif;
         }
         .premium-panel {
           background: var(--bg-card);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
-          border: 1px solid var(--border);
+          border: 1.5px solid var(--border);
           border-radius: 24px;
-          box-shadow: var(--shadow-sm);
+          box-shadow: var(--shadow);
         }
       `}</style>
     </>
