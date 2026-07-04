@@ -39,8 +39,8 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError('');
 
-    if (!otp || otp.trim().length < 6) {
-      setError('Vui lòng nhập mã xác nhận (OTP) gồm 6 số.');
+    if (!otp || otp.trim().length < 6 || otp.trim().length > 8) {
+      setError('Vui lòng nhập mã xác nhận (OTP) gồm từ 6 đến 8 số.');
       return;
     }
     if (password.length < 8) {
@@ -212,7 +212,7 @@ export default function ForgotPassword() {
             <form onSubmit={handleVerifyAndReset} noValidate>
               {/* OTP Input */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label className="form-label" htmlFor="otp-code" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Mã OTP (6 chữ số)</label>
+                <label className="form-label" htmlFor="otp-code" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Mã OTP (6 - 8 chữ số)</label>
                 <div className="form-input-wrap" style={{ position: 'relative' }}>
                   <span className="input-icon" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', color: 'var(--text-muted)' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -223,9 +223,9 @@ export default function ForgotPassword() {
                     id="otp-code"
                     type="text"
                     pattern="[0-9]*"
-                    maxLength="6"
+                    maxLength="8"
                     className="form-input"
-                    placeholder="Nhập 6 số"
+                    placeholder="Nhập mã OTP"
                     value={otp}
                     onChange={e => { setOtp(e.target.value.replace(/\D/g, '')); setError(''); }}
                     style={{ width: '100%', padding: '12px 16px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', letterSpacing: '4px', fontWeight: 'bold', outline: 'none', transition: 'all 0.2s' }}
