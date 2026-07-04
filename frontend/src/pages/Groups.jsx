@@ -30,8 +30,6 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
   const [suggestions, setSuggestions] = useState([]);
   const [placesError, setPlacesError] = useState('');
-  // eslint-disable-next-line react-hooks/purity
-  const sessionTokenRef = useRef(typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36));
   const ignoreNextAutocompleteRef = useRef(false);
   const ignoreNextGeocodeRef = useRef(false);
 
@@ -55,7 +53,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
     });
   };
 
-  // Google Places Autocomplete: Debounce 350ms
+  // Nominatim Autocomplete: Debounce 400ms (tôn trọng rate limit 1req/s)
   useEffect(() => {
     if (meetingMode !== 'offline' || !customName || customName.trim().length < 2) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -68,15 +66,10 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
     }
 
     const timer = setTimeout(async () => {
-      const res = await autocompletePlaces(customName, sessionTokenRef.current);
-      if (res && res.error === 403) {
-        setPlacesError(res.message || 'Places API error (403)');
-        setSuggestions([]);
-        return;
-      }
+      const res = await autocompletePlaces(customName);
       setPlacesError('');
       setSuggestions(Array.isArray(res) ? res : []);
-    }, 350);
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [customName, meetingMode]);
@@ -87,52 +80,36 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
     ignoreNextGeocodeRef.current = true;
     setCustomName(suggestion.text);
     setSuggestions([]);
-    
-    setGeoLoading(true);
-    const detail = await getPlaceDetails(suggestion.placeId);
-    setGeoLoading(false);
-    
-    if (detail) {
-      if (detail.error === 403) {
-        setPlacesError(detail.message || 'Places API error (403)');
-        return;
+
+    // Nominatim trả lat/lng trực tiếp trong suggestion
+    const lat = suggestion.lat || null;
+    const lng = suggestion.lng || null;
+
+    if (!lat || !lng) {
+      // Fallback: thử getPlaceDetails nếu chưa có tọa độ
+      setGeoLoading(true);
+      const detail = await getPlaceDetails(suggestion.placeId);
+      setGeoLoading(false);
+      if (detail?.lat) {
+        suggestion = { ...suggestion, lat: detail.lat, lng: detail.lng };
       }
-      
-      const parts = suggestion.text.split(',').map(p => p.trim());
-      const province = parts[parts.length - 1] || 'Hà Nội';
-      const district = parts[parts.length - 2] || '';
-      const ward = parts[parts.length - 3] || '';
-      
-      setSelectedLocation({
-        name: suggestion.text,
-        address: suggestion.text,
-        province,
-        district,
-        ward,
-        lat: detail.lat,
-        lng: detail.lng,
-        formattedAddress: detail.formattedAddress || suggestion.text
-      });
-    } else {
-      const parts = suggestion.text.split(',').map(p => p.trim());
-      const province = parts[parts.length - 1] || 'Hà Nội';
-      const district = parts[parts.length - 2] || '';
-      const ward = parts[parts.length - 3] || '';
-      setSelectedLocation({
-        name: suggestion.text,
-        address: suggestion.text,
-        province,
-        district,
-        ward,
-        lat: null,
-        lng: null,
-        formattedAddress: suggestion.text
-      });
     }
-    
-    // Tạo session token mới cho lượt tìm tiếp theo
-    // eslint-disable-next-line react-hooks/purity
-    sessionTokenRef.current = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+
+    const parts = suggestion.text.split(',').map(p => p.trim());
+    const province = parts[parts.length - 1] || '';
+    const district = parts[parts.length - 2] || '';
+    const ward = parts[parts.length - 3] || '';
+
+    setSelectedLocation({
+      name: suggestion.text,
+      address: suggestion.text,
+      province,
+      district,
+      ward,
+      lat: suggestion.lat || null,
+      lng: suggestion.lng || null,
+      formattedAddress: suggestion.text,
+    });
   };
 
   // Fallback Geocoding cũ: Debounce 1200ms
@@ -560,12 +537,11 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                   {!geoLoading && selectedLocation && customName.trim() && (
                     <div style={{ marginTop: 10, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.05)' }}>
                       {selectedLocation.lat && selectedLocation.lng && (
-                        <img
-                          src={staticMapUrl({ lat: selectedLocation.lat, lng: selectedLocation.lng })}
-                          alt="Bản đồ địa điểm"
-                          draggable="false"
-                          style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }}
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        <iframe
+                          title="Bản đồ địa điểm"
+                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedLocation.lng - 0.01},${selectedLocation.lat - 0.007},${selectedLocation.lng + 0.01},${selectedLocation.lat + 0.007}&layer=mapnik&marker=${selectedLocation.lat},${selectedLocation.lng}`}
+                          style={{ width: '100%', height: 140, border: 'none', display: 'block' }}
+                          loading="lazy"
                         />
                       )}
                       <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
