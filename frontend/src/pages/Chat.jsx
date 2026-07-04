@@ -1088,10 +1088,14 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
           color: var(--text-primary);
           border-color: var(--primary-light);
         }
+        .msg-action-btn.danger {
+          color: #ef4444;
+          border-color: rgba(239, 68, 68, 0.3);
+        }
         .msg-action-btn.danger:hover {
-          color: #ff4d4d;
-          border-color: #ff4d4d;
-          background: rgba(255,77,77,0.08);
+          color: #ef4444;
+          border-color: #ef4444;
+          background: rgba(239, 68, 68, 0.08);
         }
       `}</style>
       {/* Toast: bạn bè đổi hình nền */}
@@ -1748,10 +1752,18 @@ function ConversationView({ user, friend, friends, onBack, onlineUserIds, onNick
               }}
               style={{
                 padding: '10px 20px', borderRadius: '12px',
-                border: '1px solid var(--border)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
                 background: 'var(--bg-input)',
-                color: 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer',
+                color: '#ef4444', fontWeight: 600, cursor: 'pointer',
                 fontFamily: 'inherit', fontSize: '13px', transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#ef4444';
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                e.currentTarget.style.background = 'var(--bg-input)';
               }}
             >
               Thu hồi lời mời

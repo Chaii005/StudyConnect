@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from '@/components/common/Avatar';
 import { timeAgo } from '@/utils';
@@ -26,12 +26,18 @@ const ReplyIcon = () => (
   </svg>
 );
 
-export default function PostCard({ post, currentUser, onLike, onDelete, onComment }) {
+export default function PostCard({ post, currentUser, onLike, onDelete, onComment, onEdit }) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [replyTo, setReplyTo] = useState(null); // { id, name }
   const [expanded, setExpanded] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(post?.content || '');
+
+  useEffect(() => {
+    setEditText(post?.content || '');
+  }, [post?.content]);
 
   // ── Clean up tagged names from text content for rendering ──
   let renderContent = post?.content || '';
@@ -66,6 +72,23 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
     onComment(post.id, finalText, replyTo ? { id: replyTo.id, name: replyTo.name } : null);
     setCommentText('');
     setReplyTo(null);
+  };
+
+  const handleSave = async () => {
+    if (!editText.trim()) return;
+    try {
+      if (onEdit) {
+        await onEdit(post.id, editText.trim());
+      }
+      setIsEditing(false);
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Lỗi khi sửa bài viết:', err);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditText(post?.content || '');
+    setIsEditing(false);
   };
 
 
@@ -123,49 +146,173 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-          {isOwner && (
-            <button
-              onClick={() => onDelete(post.id)}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--text-muted)',
-                fontSize: '12px',
-                padding: '4px 8px',
-                borderRadius: '6px',
-                transition: 'color 0.15s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
-            >
-              Xóa
-            </button>
+          {isOwner && !isEditing && (
+            <>
+              <button
+                onClick={() => setIsEditing(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  fontSize: '12px',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  transition: 'color 0.15s, background 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.background = 'rgba(0, 0, 0, 0.03)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-muted)';
+                  e.currentTarget.style.background = 'none';
+                }}
+              >
+                Sửa
+              </button>
+              <button
+                onClick={() => onDelete(post.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#ef4444',
+                  fontSize: '12px',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  transition: 'color 0.15s, background 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#dc2626';
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#ef4444';
+                  e.currentTarget.style.background = 'none';
+                }}
+              >
+                Xóa
+              </button>
+            </>
           )}
         </div>
       </div>
 
       {/* Content */}
       <div style={{ padding: '12px 18px 14px' }}>
-        <p style={{ fontSize: '15px', lineHeight: 1.75, color: 'var(--text-primary)', margin: 0, whiteSpace: 'pre-wrap' }}>
-          {isLong && !expanded ? renderContent.slice(0, 200) + '…' : renderContent}
-        </p>
-        {isLong && (
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--text-primary)',
-              fontWeight: 600,
-              fontSize: '13px',
-              padding: '4px 0 0',
-              fontFamily: 'inherit',
-            }}
-          >
-            {expanded ? '▲ Thu gọn' : '▼ Xem thêm'}
-          </button>
+        {isEditing ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '12px 16px',
+                background: 'var(--bg-input)',
+                border: '1.5px solid var(--border)',
+                borderRadius: '12px',
+                color: 'var(--text-primary)',
+                fontFamily: 'inherit',
+                fontSize: '15px',
+                lineHeight: 1.6,
+                outline: 'none',
+                resize: 'vertical',
+                transition: 'border-color 0.25s, box-shadow 0.25s',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--primary)';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(42, 117, 118, 0.15)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+              placeholder="Nhập nội dung bài viết..."
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button
+                onClick={handleCancel}
+                style={{
+                  background: 'none',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  transition: 'background 0.25s, color 0.25s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 0, 0, 0.03)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'none';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }}
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!editText.trim()}
+                style={{
+                  background: editText.trim()
+                    ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)'
+                    : 'var(--border)',
+                  border: 'none',
+                  color: editText.trim() ? '#ffffff' : 'var(--text-muted)',
+                  cursor: editText.trim() ? 'pointer' : 'not-allowed',
+                  padding: '6px 16px',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  boxShadow: editText.trim() ? '0 2px 8px rgba(42, 117, 118, 0.25)' : 'none',
+                  transition: 'all 0.25s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (editText.trim()) {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(42, 117, 118, 0.35)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (editText.trim()) {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(42, 117, 118, 0.25)';
+                  }
+                }}
+              >
+                Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p style={{ fontSize: '15px', lineHeight: 1.75, color: 'var(--text-primary)', margin: 0, whiteSpace: 'pre-wrap' }}>
+              {isLong && !expanded ? renderContent.slice(0, 200) + '…' : renderContent}
+            </p>
+            {isLong && (
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-primary)',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  padding: '4px 0 0',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {expanded ? '▲ Thu gọn' : '▼ Xem thêm'}
+              </button>
+            )}
+          </>
         )}
       </div>
 

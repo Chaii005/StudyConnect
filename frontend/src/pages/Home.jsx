@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { getPosts, deletePost, createComment, toggleLikePost, togglePinPost } from '@/services/interactionService';
+import { getPosts, deletePost, createComment, toggleLikePost, togglePinPost, updatePost } from '@/services/interactionService';
 import { getFriends } from '@/services/friendService';
 import { supabase } from '@/config/supabaseClient';
 
@@ -193,6 +193,19 @@ export default function Home() {
     }
   };
 
+  const handleEditPost = async (postId, newContent) => {
+    try {
+      await updatePost(postId, newContent);
+      setPosts(posts.map((p) => {
+        if (p.id !== postId) return p;
+        return { ...p, content: newContent };
+      }));
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Error updating post:', err);
+      throw err;
+    }
+  };
+
   const sortedPosts = [...posts].sort((a, b) => {
     if (a.isPinned && !b.isPinned) return -1;
     if (!a.isPinned && b.isPinned) return 1;
@@ -305,6 +318,7 @@ export default function Home() {
               onDelete={handleDeletePost}
               onComment={handleCommentPost}
               onPin={handlePinPost}
+              onEdit={handleEditPost}
             />
           </div>
         </main>

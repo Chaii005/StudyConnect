@@ -1,6 +1,6 @@
 import PostCard from './PostCard';
 
-export default function PostList({ posts, currentUser, onLike, onDelete, onComment, onPin }) {
+export default function PostList({ posts, currentUser, onLike, onDelete, onComment, onPin, onEdit }) {
   if (!posts || posts.length === 0) {
     return (
       <div
@@ -35,8 +35,10 @@ export default function PostList({ posts, currentUser, onLike, onDelete, onComme
           onDelete={onDelete}
           onComment={onComment}
           onPin={onPin}
+          onEdit={onEdit}
         />
       ))}
     </div>
   );
 }
+

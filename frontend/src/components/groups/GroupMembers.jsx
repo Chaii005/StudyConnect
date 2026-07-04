@@ -316,17 +316,17 @@ export default function GroupMembers({
                     style={{
                       padding: '7px 14px',
                       borderRadius: 'var(--radius-sm)',
-                      border: '1px solid var(--border)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
                       cursor: 'pointer',
                       background: 'var(--bg-card)',
-                      color: 'var(--text-secondary)',
+                      color: '#ef4444',
                       fontWeight: 600,
                       fontSize: '13px',
                       fontFamily: 'inherit',
                       transition: 'all 0.2s',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.04)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                   >
                     {isAssigningDeputy ? '...' : 'Thu hồi phó nhóm'}
                   </button>
@@ -360,17 +360,17 @@ export default function GroupMembers({
                   style={{
                     padding: '7px 14px',
                     borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--border)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
                     cursor: 'pointer',
                     background: 'var(--bg-card)',
-                    color: 'var(--text-secondary)',
+                    color: '#ef4444',
                     fontWeight: 600,
                     fontSize: '13px',
                     fontFamily: 'inherit',
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.04)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                 >
                   {kickingIds[String(memberId)] ? '...' : 'Kick'}
                 </button>

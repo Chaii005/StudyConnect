@@ -312,6 +312,18 @@ export default function GroupDocuments({
                           padding: '8px 16px',
                           fontSize: '13px',
                           fontWeight: 600,
+                          color: '#ef4444',
+                          borderColor: 'rgba(239, 68, 68, 0.3)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = '#ef4444';
+                          e.currentTarget.style.borderColor = '#ef4444';
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = '#ef4444';
+                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                          e.currentTarget.style.background = 'none';
                         }}
                       >
                         Xóa

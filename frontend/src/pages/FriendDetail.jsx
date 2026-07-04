@@ -7,9 +7,11 @@ import { useOnlineUsers } from '../context/OnlineUsersContext';
 import { useToast } from '../components/Toast';
 import { supabase } from '../config/supabaseClient';
 import PostList from '../components/posts/PostList';
+import ConfirmModal from '../components/ConfirmModal';
 import {
   toggleLikePost,
   deletePost,
+  updatePost,
   createComment,
   togglePinPost,
   getUserPosts
@@ -35,6 +37,7 @@ export default function FriendDetail() {
   const [activeTab, setActiveTab] = useState('posts'); // 'about' | 'posts'
   const onlineUserIds = useOnlineUsers();
   const [particles, setParticles] = useState([]); // { id, x, y, char, delay, leftOffset }
+  const [confirmConfig, setConfirmConfig] = useState(null);
 
   const spawnParticles = (emoji, clientX, clientY) => {
     // Spawn 6 fixed-positioned emoji particles
@@ -229,15 +232,38 @@ export default function FriendDetail() {
     }
   };
 
-  const handleDeletePost = async (postId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-      try {
-        await deletePost(postId);
-        setPosts(posts.filter((p) => p.id !== postId));
-        addToast('Đã xóa bài viết thành công.', 'success');
-      } catch (err) {
-        addToast(`Xóa thất bại: ${err.message}`, 'error');
-      }
+  const handleDeletePost = (postId) => {
+    setConfirmConfig({
+      title: 'Xóa bài viết',
+      message: 'Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.',
+      confirmText: 'Xóa bài viết',
+      cancelText: 'Hủy',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        try {
+          await deletePost(postId);
+          setPosts(posts.filter((p) => p.id !== postId));
+          addToast('Đã xóa bài viết thành công.', 'success');
+        } catch (err) {
+          addToast(`Xóa thất bại: ${err.message}`, 'error');
+        }
+      },
+      onCancel: () => setConfirmConfig(null),
+    });
+  };
+
+  const handleEditPost = async (postId, newContent) => {
+    try {
+      await updatePost(postId, newContent);
+      setPosts(posts.map((p) => {
+        if (p.id !== postId) return p;
+        return { ...p, content: newContent };
+      }));
+      addToast('Đã cập nhật bài viết thành công.', 'success');
+    } catch (err) {
+      addToast(`Cập nhật thất bại: ${err.message}`, 'error');
+      throw err;
     }
   };
 
@@ -719,6 +745,7 @@ export default function FriendDetail() {
                   onDelete={handleDeletePost}
                   onComment={handleCommentPost}
                   onPin={handlePinPost}
+                  onEdit={handleEditPost}
                 />
               )}
             </div>
@@ -726,6 +753,16 @@ export default function FriendDetail() {
 
         </div>
       </div>
+      <ConfirmModal
+        isOpen={!!confirmConfig}
+        title={confirmConfig?.title}
+        message={confirmConfig?.message}
+        confirmText={confirmConfig?.confirmText}
+        cancelText={confirmConfig?.cancelText}
+        variant={confirmConfig?.variant}
+        onConfirm={confirmConfig?.onConfirm}
+        onCancel={confirmConfig?.onCancel || (() => setConfirmConfig(null))}
+      />
     </>
   );
 }

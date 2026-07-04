@@ -429,9 +429,18 @@ export default function MyDocuments() {
                               alignItems: 'center',
                               gap: '4px',
                               padding: '5px 10px',
-                              background: 'rgba(239,68,68,0.1)',
+                              background: 'rgba(239,68,68,0.08)',
                               border: '1px solid rgba(239,68,68,0.2)',
-                              color: '#f87171'
+                              color: '#dc2626',
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
                             }}
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

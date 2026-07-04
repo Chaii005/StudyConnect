@@ -518,7 +518,7 @@ export default function Friends() {
                     ? <EmptyState icon="" text="Chưa gửi lời mời kết bạn nào." />
                     : filter(sent).map(p => (
                       <PersonCard key={p.requestId} person={p} actions={
-                        <Btn variant="secondary" disabled={actionLoading[p.requestId]} onClick={() => handleReject(p, 'Đã thu hồi lời mời')}>
+                        <Btn variant="danger" disabled={actionLoading[p.requestId]} onClick={() => handleReject(p, 'Đã thu hồi lời mời')}>
                           Thu hồi
                         </Btn>
                       } />

@@ -466,11 +466,15 @@ input::-ms-clear {
 .btn-secondary:hover { background: #000000; color: #ffffff; }
 
 .btn-danger {
-  background: #ffffff;
-  border: 1.5px solid var(--border);
-  color: var(--text-primary);
+  background: rgba(239, 68, 68, 0.06);
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+  color: #dc2626;
 }
-.btn-danger:hover { background: #000000; color: #ffffff; }
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #b91c1c;
+}
 
 .btn:disabled {
   opacity: 0.6;
@@ -1537,16 +1541,27 @@ input::-ms-clear {
 }
 
 /* Button outline */
-.btn-secondary, .btn-outline, .btn-outline-primary, button.btn-secondary, .btn-danger {
+.btn-secondary, .btn-outline, .btn-outline-primary, button.btn-secondary {
   background: transparent !important;
   border: 1.5px solid #1A1A1A !important;
   color: #1A1A1A !important;
   border-radius: 24px !important;
 }
-.btn-secondary:hover, .btn-outline:hover, button.btn-secondary:hover, .btn-danger:hover {
+.btn-secondary:hover, .btn-outline:hover, button.btn-secondary:hover {
   background: #FAFAFA !important;
   color: #1A1A1A !important;
   border-color: #1A1A1A !important;
+}
+.btn-danger {
+  background: rgba(239, 68, 68, 0.06) !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.3) !important;
+  color: #dc2626 !important;
+  border-radius: 24px !important;
+}
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #b91c1c !important;
 }
 
 /* Khung trắng viền đen cho tất cả card, panel và container trong web */

@@ -342,6 +342,18 @@ export const deletePost = async (postId) => {
   }
 };
 
+export const updatePost = async (postId, content) => {
+  const { error } = await supabase
+    .from('posts')
+    .update({ content })
+    .eq('id', parseInt(postId, 10));
+
+  if (error) {
+    throw new Error(`Cập nhật câu hỏi thất bại: ${error.message}`);
+  }
+};
+
+
 export const getPendingPosts = async () => {
   const { data, error } = await supabase
     .from('posts')

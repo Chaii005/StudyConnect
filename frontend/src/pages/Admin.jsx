@@ -1057,7 +1057,25 @@ export default function Admin() {
                                               showToast(err.message || 'Lỗi duyệt bài viết', 'error');
                                             }
                                           }}
-                                          style={{ padding: '5px 10px', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', color: '#4ade80', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
+                                          style={{
+                                            padding: '5px 10px',
+                                            background: 'rgba(16, 185, 129, 0.08)',
+                                            border: '1px solid rgba(16, 185, 129, 0.2)',
+                                            color: '#059669',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontWeight: 600,
+                                            fontSize: '12px',
+                                            transition: 'all 0.2s',
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                                            e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.08)';
+                                            e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                                          }}
                                         >Duyệt</button>
                                         <button
                                           onClick={() => {
@@ -1081,7 +1099,25 @@ export default function Admin() {
                                               onCancel: () => setConfirmConfig(null),
                                             });
                                           }}
-                                          style={{ padding: '5px 10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
+                                           style={{
+                                             padding: '5px 10px',
+                                             background: 'rgba(239, 68, 68, 0.08)',
+                                             border: '1px solid rgba(239, 68, 68, 0.2)',
+                                             color: '#dc2626',
+                                             borderRadius: '6px',
+                                             cursor: 'pointer',
+                                             fontWeight: 600,
+                                             fontSize: '12px',
+                                             transition: 'all 0.2s',
+                                           }}
+                                           onMouseEnter={(e) => {
+                                             e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                                             e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                                           }}
+                                           onMouseLeave={(e) => {
+                                             e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                                             e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                                           }}
                                         >Xóa</button>
                                       </div>
                                     </td>
@@ -1156,7 +1192,26 @@ export default function Admin() {
                                         showToast(err.message || 'Lỗi duyệt tài liệu', 'error');
                                       }
                                     }}
-                                    style={{ padding: '5px 10px', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', color: '#4ade80', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap' }}
+                                       style={{
+                                         padding: '5px 10px',
+                                         background: 'rgba(16, 185, 129, 0.08)',
+                                         border: '1px solid rgba(16, 185, 129, 0.2)',
+                                         color: '#059669',
+                                         borderRadius: '6px',
+                                         cursor: 'pointer',
+                                         fontWeight: 600,
+                                         fontSize: '12px',
+                                         whiteSpace: 'nowrap',
+                                         transition: 'all 0.2s',
+                                       }}
+                                       onMouseEnter={(e) => {
+                                         e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                                         e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                                       }}
+                                       onMouseLeave={(e) => {
+                                         e.currentTarget.style.background = 'rgba(16, 185, 129, 0.08)';
+                                         e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                                       }}
                                   >
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1194,7 +1249,26 @@ export default function Admin() {
                                         onCancel: () => setConfirmConfig(null),
                                       });
                                     }}
-                                    style={{ padding: '5px 10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap' }}
+                                       style={{
+                                         padding: '5px 10px',
+                                         background: 'rgba(239, 68, 68, 0.08)',
+                                         border: '1px solid rgba(239, 68, 68, 0.2)',
+                                         color: '#dc2626',
+                                         borderRadius: '6px',
+                                         cursor: 'pointer',
+                                         fontWeight: 600,
+                                         fontSize: '12px',
+                                         whiteSpace: 'nowrap',
+                                         transition: 'all 0.2s',
+                                       }}
+                                       onMouseEnter={(e) => {
+                                         e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                                         e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                                       }}
+                                       onMouseLeave={(e) => {
+                                         e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                                         e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                                       }}
                                   >
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
