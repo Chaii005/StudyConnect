@@ -149,16 +149,10 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
   const sugs = suggestions();
 
   return (
-    <div
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
-      onClick={onClose}
-    >
-      <div
-        style={{ background: 'var(--bg-card)', borderRadius: '20px', width: '100%', maxWidth: '580px', border: '1px solid var(--border)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)', overflow: 'visible', position: 'relative' }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="create-post-modal-overlay" onClick={onClose}>
+      <div className="create-post-modal-card" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Avatar src={user?.avatar} initial={user?.fullName || 'U'} size={40} />
             <div>
@@ -169,155 +163,158 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
           <button onClick={onClose} style={{ background: 'var(--bg-input)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '16px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
 
-        {/* Body */}
-        <div style={{ padding: '16px 20px', position: 'relative' }}>
-          <textarea
-            ref={textareaRef}
-            value={text}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            placeholder={`${user?.fullName || 'Bạn'} đang nghĩ gì? Gõ @ để tag bạn bè hoặc nhóm...`}
-            rows={5}
-            style={{ width: '100%', background: 'none', border: 'none', outline: 'none', resize: 'none', color: 'var(--text-primary)', fontSize: '15px', fontFamily: 'inherit', lineHeight: 1.7, boxSizing: 'border-box' }}
-          />
+        {/* Scrollable Body Wrapper */}
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          {/* Body */}
+          <div style={{ padding: '16px 20px', position: 'relative' }}>
+            <textarea
+              ref={textareaRef}
+              value={text}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              placeholder={`${user?.fullName || 'Bạn'} đang nghĩ gì? Gõ @ để tag bạn bè hoặc nhóm...`}
+              rows={5}
+              style={{ width: '100%', background: 'none', border: 'none', outline: 'none', resize: 'none', color: 'var(--text-primary)', fontSize: '15px', fontFamily: 'inherit', lineHeight: 1.7, boxSizing: 'border-box' }}
+            />
 
-          {/* @ Mention Dropdown */}
-          {mentionQuery !== null && sugs.length > 0 && (
-            <div
-              ref={dropdownRef}
-              style={{
-                position: 'absolute',
-                left: '20px', right: '20px',
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border)',
-                borderRadius: '14px',
-                boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
-                zIndex: 1000,
-                overflow: 'hidden',
-                maxHeight: '220px',
-                overflowY: 'auto',
-              }}
-            >
-              {/* Section header friends */}
-              {sugs.some(s => s.type === 'friend') && (
-                <div style={{ padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.06)' }}>
-                  👤 Bạn bè
-                </div>
-              )}
-              {sugs.filter(s => s.type === 'friend').map((sug) => {
-                const realIdx = sugs.indexOf(sug);
-                return (
-                  <div
-                    key={`f:${sug.id}`}
-                    onMouseDown={(e) => { e.preventDefault(); pickSuggestion(sug); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '10px',
-                      padding: '8px 14px', cursor: 'pointer',
-                      background: realIdx === suggestIdx ? 'rgba(0,0,0,0.06)' : 'transparent',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={() => setSuggestIdx(realIdx)}
-                  >
-                    <SuggestAvatar src={sug.avatar} initial={sug.name} />
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{sug.name}</span>
+            {/* @ Mention Dropdown */}
+            {mentionQuery !== null && sugs.length > 0 && (
+              <div
+                ref={dropdownRef}
+                style={{
+                  position: 'absolute',
+                  left: '20px', right: '20px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '14px',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+                  zIndex: 1000,
+                  overflow: 'hidden',
+                  maxHeight: '220px',
+                  overflowY: 'auto',
+                }}
+              >
+                {/* Section header friends */}
+                {sugs.some(s => s.type === 'friend') && (
+                  <div style={{ padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.06)' }}>
+                    👤 Bạn bè
                   </div>
-                );
-              })}
-
-              {/* Section header groups */}
-              {sugs.some(s => s.type === 'group') && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(17, 24, 39, 0.04)', borderTop: sugs.some(s => s.type === 'friend') ? '1px solid var(--border)' : 'none' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                  <span>Nhóm học (trưởng nhóm)</span>
-                </div>
-              )}
-              {sugs.filter(s => s.type === 'group').map((sug) => {
-                const realIdx = sugs.indexOf(sug);
-                return (
-                  <div
-                    key={`g:${sug.id}`}
-                    onMouseDown={(e) => { e.preventDefault(); pickSuggestion(sug); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '10px',
-                      padding: '8px 14px', cursor: 'pointer',
-                      background: realIdx === suggestIdx ? 'rgba(17, 24, 39, 0.06)' : 'transparent',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={() => setSuggestIdx(realIdx)}
-                  >
-                    <div style={{ width: 28, height: 28, borderRadius: '8px', background: 'rgba(17, 24, 39, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
+                )}
+                {sugs.filter(s => s.type === 'friend').map((sug) => {
+                  const realIdx = sugs.indexOf(sug);
+                  return (
+                    <div
+                      key={`f:${sug.id}`}
+                      onMouseDown={(e) => { e.preventDefault(); pickSuggestion(sug); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        padding: '8px 14px', cursor: 'pointer',
+                        background: realIdx === suggestIdx ? 'rgba(0,0,0,0.06)' : 'transparent',
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={() => setSuggestIdx(realIdx)}
+                    >
+                      <SuggestAvatar src={sug.avatar} initial={sug.name} />
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{sug.name}</span>
                     </div>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{sug.name}</div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Nhóm học • {sug.members?.length || 0} thành viên</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  );
+                })}
 
-        {/* Tag chips */}
-        {tags.length > 0 && (
-          <div style={{ padding: '0 20px 14px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {tags.map(t => (
-              <span key={`${t.type}:${t.id}`} style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                padding: '4px 10px 4px 8px',
-                borderRadius: '20px',
-                background: t.type === 'friend' ? '#E0F2FE' : 'rgba(17, 24, 39, 0.04)',
-                border: t.type === 'friend' ? '1px solid #BAE6FD' : '1px solid var(--border)',
-                color: t.type === 'friend' ? '#0369A1' : 'var(--text-primary)',
-                fontSize: '12px', fontWeight: 700,
-              }}>
-                {t.type === 'friend' ? (
-                  <SuggestAvatar src={t.avatar} initial={t.name} />
-                ) : (
-                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                {/* Section header groups */}
+                {sugs.some(s => s.type === 'group') && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px 4px', fontSize: '10px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(17, 24, 39, 0.04)', borderTop: sugs.some(s => s.type === 'friend') ? '1px solid var(--border)' : 'none' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                       <circle cx="9" cy="7" r="4" />
                       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                  </span>
+                    <span>Nhóm học (trưởng nhóm)</span>
+                  </div>
                 )}
-                @{t.name}
-                <button
-                  onClick={() => removeTag(t.type, t.id)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontSize: '13px', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center' }}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
+                {sugs.filter(s => s.type === 'group').map((sug) => {
+                  const realIdx = sugs.indexOf(sug);
+                  return (
+                    <div
+                      key={`g:${sug.id}`}
+                      onMouseDown={(e) => { e.preventDefault(); pickSuggestion(sug); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        padding: '8px 14px', cursor: 'pointer',
+                        background: realIdx === suggestIdx ? 'rgba(17, 24, 39, 0.06)' : 'transparent',
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={() => setSuggestIdx(realIdx)}
+                    >
+                      <div style={{ width: 28, height: 28, borderRadius: '8px', background: 'rgba(17, 24, 39, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                          <circle cx="9" cy="7" r="4" />
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{sug.name}</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Nhóm học • {sug.members?.length || 0} thành viên</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Hint */}
-        <div style={{ padding: '0 20px 8px', fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#fbbf24', flexShrink: 0 }}>
-            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1 .3 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
-            <line x1="9" y1="18" x2="15" y2="18" />
-            <line x1="10" y1="22" x2="14" y2="22" />
-          </svg>
-          <span>Gõ <strong style={{ color: 'var(--text-primary)' }}>@</strong> để tag bạn bè hoặc nhóm học bạn đang làm trưởng nhóm</span>
+          {/* Tag chips */}
+          {tags.length > 0 && (
+            <div style={{ padding: '0 20px 14px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {tags.map(t => (
+                <span key={`${t.type}:${t.id}`} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '4px 10px 4px 8px',
+                  borderRadius: '20px',
+                  background: t.type === 'friend' ? '#E0F2FE' : 'rgba(17, 24, 39, 0.04)',
+                  border: t.type === 'friend' ? '1px solid #BAE6FD' : '1px solid var(--border)',
+                  color: t.type === 'friend' ? '#0369A1' : 'var(--text-primary)',
+                  fontSize: '12px', fontWeight: 700,
+                }}>
+                  {t.type === 'friend' ? (
+                    <SuggestAvatar src={t.avatar} initial={t.name} />
+                  ) : (
+                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                    </span>
+                  )}
+                  @{t.name}
+                  <button
+                    onClick={() => removeTag(t.type, t.id)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontSize: '13px', lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center' }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Hint */}
+          <div style={{ padding: '0 20px 8px', fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#fbbf24', flexShrink: 0 }}>
+              <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1 .3 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+              <line x1="9" y1="18" x2="15" y2="18" />
+              <line x1="10" y1="22" x2="14" y2="22" />
+            </svg>
+            <span>Gõ <strong style={{ color: 'var(--text-primary)' }}>@</strong> để tag bạn bè hoặc nhóm học bạn đang làm trưởng nhóm</span>
+          </div>
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '12px 20px 18px', display: 'flex', gap: '10px', justifyContent: 'flex-end', borderTop: '1px solid var(--border)' }}>
+        <div style={{ padding: '12px 20px 18px', display: 'flex', gap: '10px', justifyContent: 'flex-end', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
           <button onClick={onClose} style={{ padding: '10px 20px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', color: 'var(--text-secondary)' }}>
             Hủy
           </button>
