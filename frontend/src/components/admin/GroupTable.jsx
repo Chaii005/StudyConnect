@@ -1,9 +1,9 @@
 export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch, users, onEdit, onDelete, onViewMembers, onCreateNew }) {
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '28px 32px', boxShadow: 'var(--shadow), var(--shadow-glow)', backdropFilter: 'blur(16px)' }}>
-      {/* Header: Search + CTA */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
-        <div style={{ flex: '1 1 280px', maxWidth: '380px' }} className="form-input-wrap">
+      {/* Header: Search + CTA — luôn nằm cùng hàng, không wrap */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '24px', flexWrap: 'nowrap', overflow: 'hidden' }}>
+        <div style={{ flex: '0 1 340px', minWidth: 0 }} className="form-input-wrap">
           <input
             type="text"
             className="form-input"
@@ -14,7 +14,7 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
         </div>
         <button
           className="btn btn-primary"
-          style={{ flexShrink: 0, padding: '10px 24px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          style={{ flexShrink: 0, whiteSpace: 'nowrap', padding: '9px 20px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13.5px' }}
           onClick={onCreateNew}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
