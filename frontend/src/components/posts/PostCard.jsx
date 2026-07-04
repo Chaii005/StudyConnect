@@ -403,56 +403,80 @@ export default function PostCard({ post, currentUser, onLike, onDelete, onCommen
           {/* Threaded comments tree */}
           {post.comments && post.comments.length > 0 && (() => {
             const roots = post.comments.filter((c) => !c.parentId);
-            const repliesOf = (pid) => post.comments.filter((c) => c.parentId === pid);
-            const renderComment = (c, depth = 0) => {
-              const replies = repliesOf(c.id);
-              return (
-                <div key={c.id}>
-                  <CommentRow
-                    comment={c}
-                    onReply={() => {
-                      setReplyTo({ id: c.id, name: c.userFullName });
-                      setShowComments(true);
-                      setTimeout(
-                        () => document.getElementById(`comment-input-${post.id}`)?.focus(),
-                        80
-                      );
-                    }}
-                  />
-                  {replies.length > 0 && (
-                    <div
-                      style={{
-                        marginLeft: depth < 1 ? '40px' : '20px',
-                        marginTop: '8px',
-                        paddingLeft: '12px',
-                        borderLeft: '2px solid var(--border)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px',
-                      }}
-                    >
-                      {replies.map((r) => renderComment(r, depth + 1))}
-                    </div>
-                  )}
-                </div>
-              );
+            
+            const getDescendants = (parentComment, allComments) => {
+              let results = [];
+              const directReplies = allComments
+                .filter((c) => c.parentId === parentComment.id)
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+              for (const reply of directReplies) {
+                results.push(reply);
+                results = results.concat(getDescendants(reply, allComments));
+              }
+              return results;
             };
+
             return (
               <div 
                 ref={commentsEndRef}
                 className="comments-scroll-container"
                 style={{ 
-                  maxHeight: '280px', 
+                  maxHeight: '320px', 
                   overflowY: 'auto', 
                   marginBottom: '16px', 
                   paddingRight: '6px',
                   display: 'flex', 
                   flexDirection: 'column', 
-                  gap: '12px',
+                  gap: '16px',
                   scrollBehavior: 'smooth'
                 }}
               >
-                {roots.map((c) => renderComment(c))}
+                {roots.map((root) => {
+                  const descendants = getDescendants(root, post.comments);
+                  return (
+                    <div key={root.id} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <CommentRow
+                        comment={root}
+                        onReply={() => {
+                          setReplyTo({ id: root.id, name: root.userFullName });
+                          setShowComments(true);
+                          setTimeout(
+                            () => document.getElementById(`comment-input-${post.id}`)?.focus(),
+                            80
+                          );
+                        }}
+                      />
+                      {descendants.length > 0 && (
+                        <div
+                          style={{
+                            marginLeft: '28px',
+                            paddingLeft: '14px',
+                            borderLeft: '1.5px solid var(--border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px',
+                            marginTop: '4px'
+                          }}
+                        >
+                          {descendants.map((desc) => (
+                            <CommentRow
+                              key={desc.id}
+                              comment={desc}
+                              onReply={() => {
+                                setReplyTo({ id: desc.id, name: desc.userFullName });
+                                setShowComments(true);
+                                setTimeout(
+                                  () => document.getElementById(`comment-input-${post.id}`)?.focus(),
+                                  80
+                                );
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             );
           })()}
