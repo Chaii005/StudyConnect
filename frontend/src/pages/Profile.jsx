@@ -39,17 +39,17 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '10px 16px',
+          padding: '8px 14px',
           background: 'var(--bg-input)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-md)',
           color: value ? 'var(--text-primary)' : 'var(--text-muted)',
-          fontSize: '14.5px',
+          fontSize: '14px',
           cursor: disabled ? 'not-allowed' : 'pointer',
           userSelect: 'none',
           opacity: disabled ? 0.6 : 1,
           transition: 'all 0.2s',
-          height: '46px',
+          height: '40px',
           boxSizing: 'border-box'
         }}
       >
@@ -437,7 +437,7 @@ export default function Profile() {
                   </div>
 
                   {info.university === 'Trường khác...' && (
-                    <div className="form-group" style={{ marginTop: '12px' }}>
+                    <div className="form-group" style={{ marginTop: '6px', marginBottom: '6px' }}>
                       <label className="form-label" htmlFor="p-uni-custom">Tên trường đại học khác</label>
                       <div className="form-input-wrap">
                         <input id="p-uni-custom" name="customUniversity" type="text" className="form-input no-icon"
@@ -446,7 +446,7 @@ export default function Profile() {
                     </div>
                   )}
 
-                  <div className="form-group" style={{ marginTop: '16px' }}>
+                  <div className="form-group" style={{ marginTop: '10px' }}>
                     <label className="form-label">Ngành học</label>
                     <CustomSelect
                       value={info.major}
@@ -457,7 +457,7 @@ export default function Profile() {
                   </div>
 
                   {info.major === 'Ngành khác...' && (
-                    <div className="form-group" style={{ marginTop: '12px' }}>
+                    <div className="form-group" style={{ marginTop: '6px', marginBottom: '6px' }}>
                       <label className="form-label" htmlFor="p-major-custom">Tên ngành học khác</label>
                       <div className="form-input-wrap">
                         <input id="p-major-custom" name="customMajor" type="text" className="form-input no-icon"
@@ -467,7 +467,7 @@ export default function Profile() {
                   )}
 
                   {/* Khu vực hoạt động */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px', marginBottom: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '10px', marginBottom: '10px' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label className="form-label">Tỉnh / Thành phố</label>
                       <div className="form-input-wrap">
@@ -501,19 +501,19 @@ export default function Profile() {
                     <label className="form-label" htmlFor="p-bio">Giới thiệu bản thân</label>
                     <textarea id="p-bio" name="bio" className="form-textarea"
                       placeholder="Viết vài dòng giới thiệu về bạn..."
-                      value={info.bio} onChange={handleInfoChange} maxLength={300} />
-                    <div className="char-count">{info.bio.length}/300</div>
+                      value={info.bio} onChange={handleInfoChange} maxLength={300} style={{ minHeight: '64px' }} />
+                    <div className="char-count" style={{ display: 'none' }}>{info.bio.length}/300</div>
                   </div>
 
                   {/* Thiết lập quyền riêng tư */}
-                  <div className="form-group" style={{ marginTop: '20px', marginBottom: '20px' }}>
-                    <label className="form-label" style={{ fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+                  <div className="form-group" style={{ marginTop: '12px', marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                       </svg>
                       Thiết lập quyền riêng tư
                     </label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px' }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13.5px', color: 'var(--text-primary)', margin: 0 }}>
                         <input
                           type="checkbox"

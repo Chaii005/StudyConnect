@@ -660,13 +660,20 @@ input::-ms-clear {
 /* Profile content */
 .profile-container {
   max-width: 1140px;
-  margin: 10px auto 40px;
+  margin: 10px auto 10px;
   padding: 0 16px;
   display: grid;
   grid-template-columns: 290px 1fr;
-  gap: 28px;
+  gap: 16px;
   align-items: start;
 }
+
+/* Compact overrides for form controls inside profile container */
+.profile-container .form-group { margin-bottom: 10px; }
+.profile-container .form-label { margin-bottom: 4px; font-size: 12px; }
+.profile-container .form-input { padding: 9px 12px; font-size: 14px; }
+.profile-container .form-input.no-icon { padding-left: 12px; }
+.profile-container .form-textarea { padding: 9px 12px; font-size: 14px; min-height: 60px; }
 
 /* Left panel - avatar + info */
 .profile-sidebar {
@@ -675,7 +682,7 @@ input::-ms-clear {
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 36px 24px;
+  padding: 20px 16px;
   text-align: center;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) ease;
@@ -688,38 +695,38 @@ input::-ms-clear {
 
 .avatar-wrap {
   position: relative;
-  width: 110px;
-  height: 110px;
-  margin: 0 auto 20px;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 12px;
 }
 
 .avatar-img {
-  width: 110px;
-  height: 110px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3.5px solid var(--primary-light);
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.12);
+  border: 2.5px solid var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08), 0 3px 12px rgba(0, 0, 0, 0.12);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .avatar-img:hover {
   transform: scale(1.03);
-  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.12), 0 6px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.18);
 }
 
 .avatar-placeholder {
-  width: 110px;
-  height: 110px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 800;
   color: white;
-  border: 3.5px solid var(--primary-light);
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.12);
+  border: 2.5px solid var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08), 0 3px 12px rgba(0, 0, 0, 0.12);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .avatar-placeholder:hover {
@@ -729,9 +736,9 @@ input::-ms-clear {
 
 .avatar-edit-btn {
   position: absolute;
-  bottom: 4px;
-  right: 4px;
-  width: 32px; height: 32px;
+  bottom: 2px;
+  right: 2px;
+  width: 26px; height: 26px;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   border: 2px solid var(--bg-card);
   border-radius: 50%;
@@ -739,22 +746,22 @@ input::-ms-clear {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 11px;
   transition: var(--transition);
   color: white;
 }
 .avatar-edit-btn:hover { transform: scale(1.1); }
 
 .profile-name {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .profile-email {
   font-size: 13px;
   color: var(--text-muted);
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .profile-badge {
@@ -764,25 +771,25 @@ input::-ms-clear {
   background: rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  padding: 4px 14px;
+  padding: 3px 12px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .profile-meta {
   text-align: left;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .profile-meta-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 0;
+  padding: 6px 0;
   border-bottom: 1px solid var(--border);
   font-size: 13px;
   color: var(--text-secondary);
@@ -794,7 +801,7 @@ input::-ms-clear {
 .profile-main {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   animation: slideUp 0.4s ease;
 }
 
@@ -804,7 +811,7 @@ input::-ms-clear {
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px 36px;
+  padding: 20px 24px;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -818,8 +825,8 @@ input::-ms-clear {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
   position: relative;
 }
@@ -836,9 +843,9 @@ input::-ms-clear {
 }
 
 .card-header-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid var(--border);
   display: flex;
@@ -857,22 +864,22 @@ input::-ms-clear {
 }
 
 .card-header-text h2 {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.3px;
 }
 
 .card-header-text p {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .form-actions {
   display: flex;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 .form-actions .btn { flex: 1; }
 
@@ -885,18 +892,18 @@ input::-ms-clear {
   background: #F5F5F7;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 5px;
-  margin-bottom: 28px;
+  padding: 4px;
+  margin-bottom: 16px;
 }
 
 .profile-tab {
   flex: 1;
-  padding: 10px 18px;
+  padding: 7px 12px;
   border-radius: var(--radius-sm);
   border: none;
   background: none;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
