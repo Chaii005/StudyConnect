@@ -137,6 +137,18 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     }
   }, [user?.id]);
 
+  // Reload friends list and update sidebar (invalidates cache so fresh data is fetched)
+  const reloadFriends = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const list = await getFriends(user.id);
+      friendsCacheRef.current[user.id] = list;
+      setFriends(list);
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('Error reloading friends in layout:', err);
+    }
+  }, [user?.id]);
+
   // Fetch sidebar data: friends, schedules & deadlines
   useEffect(() => {
     if (!user?.id) return;
@@ -149,13 +161,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         setFriends(friendsCacheRef.current[user.id]);
         return;
       }
-      try {
-        const list = await getFriends(user.id);
-        friendsCacheRef.current[user.id] = list;
-        if (isMounted) setFriends(list);
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn('Error fetching friends in layout:', err);
-      }
+      await reloadFriends();
     };
 
     loadFriends();
@@ -349,7 +355,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           table: 'friendships',
           filter: `to_user_id=eq.${user.id}`,
         },
-        async () => {
+        async (payload) => {
           try {
             const { count } = await supabase
               .from('friendships')
@@ -363,6 +369,27 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           } catch {
             // ignore
           }
+          // Khi được chấp nhận kết bạn hoặc bị xóa → reload sidebar friends list
+          if (payload.new?.status === 'accepted' || payload.eventType === 'DELETE') {
+            delete friendsCacheRef.current[user.id];
+            reloadFriends();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'friendships',
+          filter: `from_user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          // Khi lời mời kết bạn của mình được chấp nhận → cũng reload friends list
+          if (payload.new?.status === 'accepted') {
+            delete friendsCacheRef.current[user.id];
+            reloadFriends();
+          }
         }
       )
       .subscribe();
@@ -370,7 +397,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id, reloadFriends]);
 
   // Close drawer when route changes
   useEffect(() => {
