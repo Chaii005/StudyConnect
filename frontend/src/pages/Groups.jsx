@@ -976,21 +976,43 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
 
               return (
                 <div key={group.id}
-                  style={{ display: 'flex', flexDirection: 'column', gap: 9, padding: '13px 15px', borderRadius: 13, background: 'rgba(255,255,255,0.025)', border: '1px solid var(--border)', transition: 'border-color 0.2s, background 0.2s' }}
+                  style={{ display: 'flex', gap: 16, padding: '13px 15px', borderRadius: 13, background: 'rgba(255,255,255,0.025)', border: '1px solid var(--border)', transition: 'border-color 0.2s, background 0.2s' }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.025)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Cột trái: Thông tin nhóm */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0, justifyContent: 'space-between' }}>
+                    <div style={{ minWidth: 0 }}>
                       <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.name}</h4>
                       <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{group.subject}</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: modeColor, background: modeBg, border: `1px solid ${modeBorder}`, borderRadius: 20, padding: '2px 9px' }}>
+
+                    {!isOnline && !group.isPrivate && group.location && group.location.name && (
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 6, marginTop: 2 }}>
+                        <span style={{ flexShrink: 0, color: 'var(--text-muted)', fontWeight: 600 }}>Địa điểm:</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.name} — {group.location.address}</span>
+                      </div>
+                    )}
+
+                    {group.description && (
+                      <p style={{ margin: '2px 0 0 0', fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.description}</p>
+                    )}
+
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 6, marginTop: 4 }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        {group.members.length}/{group.maxMembers} thành viên
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cột phải: Các tag và Nút hành động */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: modeColor, background: modeBg, border: `1px solid ${modeBorder}`, borderRadius: 20, padding: '2px 9px', display: 'inline-block', whiteSpace: 'nowrap' }}>
                         {isOnline ? 'Online' : 'Offline'}
                       </span>
                       {group.sameMajor && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', borderRadius: 20, padding: '2px 9px' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', borderRadius: 20, padding: '2px 9px', display: 'inline-block', whiteSpace: 'nowrap' }}>
                           ✨ Cùng ngành
                         </span>
                       )}
@@ -998,44 +1020,30 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                         <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)' }}>{distanceText}</span>
                       )}
                     </div>
-                  </div>
 
-                  {!isOnline && !group.isPrivate && group.location && group.location.name && (
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 6 }}>
-                      <span style={{ flexShrink: 0, color: 'var(--text-muted)', fontWeight: 600 }}>Địa điểm:</span>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.name} — {group.location.address}</span>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      {isMember ? (
+                        <button onClick={() => { onClose(); navigate(`/groups/${group.id}`); }}
+                          style={{ padding: '5px 14px', fontSize: 12, fontWeight: 600, borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                        >Vào nhóm</button>
+                      ) : (() => {
+                        const reqStatus = joinRequestStatus[group.id];
+                        if (group.isPrivate && reqStatus === 'pending') {
+                          return <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>Đang chờ duyệt</span>;
+                        }
+                        return (
+                          <button onClick={() => handleJoin(group)}
+                            style={{ padding: '5px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: 'none', background: 'var(--text-primary)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}
+                            onMouseEnter={e => { e.currentTarget.style.opacity = '0.82'; }}
+                            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                          >
+                            {group.isPrivate ? 'Yêu cầu tham gia' : 'Tham gia'}
+                          </button>
+                        );
+                      })()}
                     </div>
-                  )}
-
-                  {group.description && (
-                    <p style={{ margin: 0, fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.description}</p>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 8 }}>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                      {group.members.length}/{group.maxMembers} thành viên
-                    </span>
-                    {isMember ? (
-                      <button onClick={() => { onClose(); navigate(`/groups/${group.id}`); }}
-                        style={{ padding: '5px 14px', fontSize: 12, fontWeight: 600, borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-                      >Vào nhóm</button>
-                    ) : (() => {
-                      const reqStatus = joinRequestStatus[group.id];
-                      if (group.isPrivate && reqStatus === 'pending') {
-                        return <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 600 }}>Đang chờ duyệt</span>;
-                      }
-                      return (
-                        <button onClick={() => handleJoin(group)}
-                          style={{ padding: '5px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: 'none', background: 'var(--text-primary)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.2s' }}
-                          onMouseEnter={e => { e.currentTarget.style.opacity = '0.82'; }}
-                          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-                        >
-                          {group.isPrivate ? 'Yêu cầu tham gia' : 'Tham gia'}
-                        </button>
-                      );
-                    })()}
                   </div>
                 </div>
               );
