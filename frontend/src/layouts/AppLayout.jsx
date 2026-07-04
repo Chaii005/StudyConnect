@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { useAuth } from '@/context/AuthContext';
 import { useOnlineUsers } from '@/context/OnlineUsersContext';
 import studyconectLogo from '@/assets/studyconect_logo.png';
@@ -107,6 +108,12 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     if (isNative) {
       document.documentElement.classList.add('is-native-app');
       document.documentElement.classList.remove('is-web-browser');
+      try {
+        StatusBar.setStyle({ style: Style.Dark }); // Dark text/icons for light background
+        StatusBar.setBackgroundColor({ color: '#ffffff' });
+      } catch (err) {
+        console.warn('StatusBar error:', err);
+      }
     } else {
       document.documentElement.classList.add('is-web-browser');
       document.documentElement.classList.remove('is-native-app');
@@ -454,7 +461,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     <div className="app-layout-wrapper sc-animated-bg" style={{ height: '100%', overflow: 'hidden', overscrollBehavior: 'none', position: 'relative' }}>
 
 
-      {!hideNavbar && !isCapacitorApp && (
+      {!hideNavbar && (
         <nav className="navbar" style={{ 
           position: 'sticky', 
           top: 0, 
@@ -482,6 +489,11 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           </Link>
 
           <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {user && (
+              <div className="mobile-nav-bell" style={{ display: 'flex', alignItems: 'center', marginRight: '6px' }}>
+                <NotificationBell />
+              </div>
+            )}
             {(location.pathname.startsWith('/groups') || location.pathname === '/schedule') && (
               <div className="flex-desktop-only" style={{ alignItems: 'center', gap: '12px' }}>
                 <Link to="/" style={{
@@ -615,10 +627,6 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
               Trang chủ
             </Link>
 
-            <Link to="/flashcards" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--text-primary)', background: location.pathname === '/flashcards' ? 'var(--bg-input)' : 'none', border: location.pathname === '/flashcards' ? '1px solid var(--border)' : '1px solid transparent', fontWeight: 600, fontSize: '14px' }}>
-              {NAV_ICONS.flashcards(location.pathname === '/flashcards', 'var(--text-primary)')}
-              Thẻ học và Trắc nghiệm
-            </Link>
             <Link to="/groups" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--text-primary)', background: location.pathname.startsWith('/groups') ? 'var(--bg-input)' : 'none', border: location.pathname.startsWith('/groups') ? '1px solid var(--border)' : '1px solid transparent', fontWeight: 600, fontSize: '14px' }}>
               {NAV_ICONS.groups(location.pathname.startsWith('/groups'), 'var(--text-primary)')}
               Nhóm học
@@ -646,7 +654,6 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           </div>
 
           <div style={{ padding: '16px', borderTop: '1px solid var(--border)', display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <NotificationBell />
             <button onClick={handleLogout} className="btn-logout" style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
               Đăng xuất
             </button>
@@ -654,7 +661,10 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         </div>
       </div>
 
-      <main style={{ position: 'relative', zIndex: 1, height: hideNavbar ? '100%' : 'calc(100% - 64px)', overflow: shouldHideSidebar ? 'auto' : 'hidden' }}>
+      <main 
+        className={hideNavbar ? "no-navbar" : ""}
+        style={{ position: 'relative', zIndex: 1, height: hideNavbar ? '100%' : 'calc(100% - 64px)', overflow: shouldHideSidebar ? 'auto' : 'hidden' }}
+      >
         {shouldHideSidebar ? (
           children
         ) : (

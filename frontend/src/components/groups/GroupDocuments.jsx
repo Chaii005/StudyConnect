@@ -226,18 +226,8 @@ export default function GroupDocuments({
                 <div
                   key={file.id}
                   className="document-file-row"
-                  style={{
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '16px 20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '16px',
-                  }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', overflow: 'hidden', minWidth: 0, flex: 1 }}>
+                  <div className="document-file-info">
                     <span
                       style={{
                         fontSize: '10px',
@@ -278,7 +268,7 @@ export default function GroupDocuments({
                             textOverflow: 'ellipsis',
                             overflow: 'hidden',
                             whiteSpace: 'nowrap',
-                            maxWidth: '400px'
+                            maxWidth: '100%'
                           }}
                         >
                           {displayName}
@@ -293,7 +283,7 @@ export default function GroupDocuments({
                       </p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                  <div className="document-file-actions">
                     <button
                       onClick={() => handleFileDownload(file)}
                       className="btn btn-mono"
@@ -336,6 +326,51 @@ export default function GroupDocuments({
           </div>
         )}
       </div>
+      <style>{`
+        .document-file-row {
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 16px 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        .document-file-info {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          overflow: hidden;
+          min-width: 0;
+          flex: 1;
+        }
+        .document-file-actions {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        
+        @media (max-width: 991px) {
+          .document-file-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+            padding: 16px;
+          }
+          .document-file-info {
+            align-items: flex-start;
+          }
+          .document-file-actions {
+            width: 100%;
+          }
+          .document-file-actions button {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+          }
+        }
+      `}</style>
     </div>
   );
 }

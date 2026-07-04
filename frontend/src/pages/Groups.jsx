@@ -1772,12 +1772,12 @@ export default function Groups() {
       </div>
 
       <div className="groups-page-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', gap: '16px', flexWrap: 'wrap' }}>
+        <div className="groups-header-row">
           <div>
             <h2 className="page-title">Nhóm Học Tập</h2>
             <p className="page-subtitle">Khám phá và tham gia các nhóm học phù hợp với bạn</p>
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div className="groups-action-buttons">
             <button
               className="btn"
               onClick={() => setShowModal(true)}
@@ -1958,182 +1958,180 @@ export default function Groups() {
               const isMember = group?.members?.some(m => Number(m) === Number(user?.id));
               const isCreator = Number(group.creatorId) === Number(user?.id);
               const isDeputy = group.deputyId ? Number(group.deputyId) === Number(user?.id) : false;
-
               return (
                 <div key={group.id} className="group-card">
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: '12px' }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.3, letterSpacing: '-0.01em' }}>{group.name}</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-                      <span 
-                        className="badge-outline" 
-                        onClick={() => {
-                          if (!isCreator) return;
-                          const currentMax = group.maxMembers || 10;
-                          setPromptConfig({
-                            title: 'Sửa số lượng thành viên',
-                            message: `Nhập số lượng thành viên tối đa mới cho nhóm "${group.name}":`,
-                            defaultValue: currentMax,
-                            placeholder: 'Nhập số lượng (ví dụ: 10)',
-                            onConfirm: async (val) => {
-                              const num = parseInt(val, 10);
-                              if (isNaN(num) || num < (group.members?.length || 1)) {
-                                addToast(`Số lượng thành viên tối đa phải là số hợp lệ và không nhỏ hơn số thành viên hiện tại (${group.members?.length || 1})!`, 'error');
-                                return;
-                              }
-                              setPromptConfig(null);
-                              try {
-                                const { error } = await supabase
-                                  .from('study_groups')
-                                  .update({ max_members: num })
-                                  .eq('id', parseInt(group.id, 10));
-                                if (error) throw error;
-                                addToast(`Đã thay đổi số lượng thành viên tối đa thành ${num}!`, 'success');
-                                fetchGroups();
-                              } catch (err) {
-                                addToast(`Lỗi: ${err.message}`, 'error');
-                              }
-                            }
-                          });
-                        }}
-                        style={{ 
-                          borderColor: 'var(--text-primary)', 
-                          color: 'var(--text-primary)', 
-                          background: 'rgba(0,0,0,0.04)', 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '5px', 
-                          borderRadius: '10px', 
-                          padding: '4px 10px', 
-                          fontSize: '11px', 
-                          fontWeight: 800, 
-                          border: '1.5px solid var(--text-primary)',
-                          cursor: isCreator ? 'pointer' : 'default',
-                          userSelect: 'none'
-                        }}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                          <circle cx="9" cy="7" r="4" />
-                          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                        {group?.members?.length || 0}/{group.maxMembers || 10}
-                      </span>
-                      <span 
-                        onClick={async () => {
-                          if (!isCreator) return;
-                          try {
-                            const newMode = group.meetingMode === 'offline' ? 'online' : 'offline';
-                            const { error } = await supabase
-                              .from('study_groups')
-                              .update({ meeting_mode: newMode })
-                              .eq('id', parseInt(group.id, 10));
-                            if (error) throw error;
-                            addToast(`Đã chuyển nhóm sang chế độ học ${newMode === 'offline' ? 'Offline' : 'Online'}!`, 'success');
-                            fetchGroups();
-                          } catch (err) {
-                            addToast(`Lỗi: ${err.message}`, 'error');
-                          }
-                        }}
-                        style={{ 
-                          fontSize: 11, 
-                          fontWeight: 800, 
-                          padding: '4px 10px', 
-                          borderRadius: 10, 
-                          whiteSpace: 'nowrap', 
-                          background: 'rgba(0,0,0,0.04)', 
-                          color: 'var(--text-primary)', 
-                          border: '1.5px solid var(--text-primary)', 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '5px',
-                          cursor: isCreator ? 'pointer' : 'default',
-                          userSelect: 'none'
-                        }}
-                      >
-                        {group.meetingMode === 'offline' ? (
-                          <>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                              <circle cx="12" cy="10" r="3" />
-                            </svg>
-                            Offline
-                          </>
-                        ) : (
-                          <>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <polygon points="23 7 16 12 23 17 23 7" />
-                              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                            </svg>
-                            Online
-                          </>
-                        )}
-                      </span>
-                      <span 
-                        onClick={async () => {
-                          if (!isCreator) return;
-                          try {
-                            const newPrivateStatus = !group.isPrivate;
-                            const { error } = await supabase
-                              .from('study_groups')
-                              .update({ is_private: newPrivateStatus })
-                              .eq('id', parseInt(group.id, 10));
-                            if (error) throw error;
-                            addToast(`Đã chuyển nhóm sang chế độ ${newPrivateStatus ? 'Riêng tư' : 'Công khai'}!`, 'success');
-                            fetchGroups();
-                          } catch (err) {
-                            addToast(`Lỗi: ${err.message}`, 'error');
-                          }
-                        }}
-                        style={{ 
-                          fontSize: 11, 
-                          fontWeight: 800, 
-                          padding: '4px 10px', 
-                          borderRadius: 10, 
-                          whiteSpace: 'nowrap', 
-                          background: 'rgba(0,0,0,0.04)', 
-                          color: 'var(--text-primary)', 
-                          border: '1.5px solid var(--text-primary)', 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '5px',
-                          cursor: isCreator ? 'pointer' : 'default',
-                          userSelect: 'none'
-                        }}
-                      >
-                        {group.isPrivate ? (
-                          <>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                            </svg>
-                            Riêng tư
-                          </>
-                        ) : (
-                          <>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                              <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                            </svg>
-                            Công khai
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="4" y1="9" x2="20" y2="9" />
-                        <line x1="4" y1="15" x2="20" y2="15" />
-                        <line x1="10" y1="3" x2="8" y2="21" />
-                        <line x1="16" y1="3" x2="14" y2="21" />
-                      </svg>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 10px 0', lineHeight: 1.3, letterSpacing: '-0.01em' }}>{group.name}</h3>
+                  
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', marginBottom: '14px' }}>
+                    {/* ID Badge */}
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border)', background: 'var(--bg-input)', padding: '4px 10px', borderRadius: 10, fontWeight: 600 }}>
                       ID: <strong style={{ color: 'var(--text-primary)' }}>{group.id}</strong>
                     </span>
-                    {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: 10, border: '1px solid var(--border)' }}>Trưởng nhóm</span>}
-                    {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: 10, border: '1px solid var(--border)' }}>Phó nhóm</span>}
+
+                    {/* Member Count Badge */}
+                    <span 
+                      className="badge-outline" 
+                      onClick={() => {
+                        if (!isCreator) return;
+                        const currentMax = group.maxMembers || 10;
+                        setPromptConfig({
+                          title: 'Sửa số lượng thành viên',
+                          message: `Nhập số lượng thành viên tối đa mới cho nhóm "${group.name}":`,
+                          defaultValue: currentMax,
+                          placeholder: 'Nhập số lượng (ví dụ: 10)',
+                          onConfirm: async (val) => {
+                            const num = parseInt(val, 10);
+                            if (isNaN(num) || num < (group.members?.length || 1)) {
+                              addToast(`Số lượng thành viên tối đa phải là số hợp lệ và không nhỏ hơn số thành viên hiện tại (${group.members?.length || 1})!`, 'error');
+                              return;
+                            }
+                            setPromptConfig(null);
+                            try {
+                              const { error } = await supabase
+                                .from('study_groups')
+                                .update({ max_members: num })
+                                .eq('id', parseInt(group.id, 10));
+                              if (error) throw error;
+                              addToast(`Đã thay đổi số lượng thành viên tối đa thành ${num}!`, 'success');
+                              fetchGroups();
+                            } catch (err) {
+                              addToast(`Lỗi: ${err.message}`, 'error');
+                            }
+                          }
+                        });
+                      }}
+                      style={{ 
+                        borderColor: 'var(--text-primary)', 
+                        color: 'var(--text-primary)', 
+                        background: 'rgba(0,0,0,0.04)', 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '5px', 
+                        borderRadius: '10px', 
+                        padding: '4px 10px', 
+                        fontSize: '11px', 
+                        fontWeight: 800, 
+                        border: '1.5px solid var(--text-primary)',
+                        cursor: isCreator ? 'pointer' : 'default',
+                        userSelect: 'none'
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                      {group?.members?.length || 0}/{group.maxMembers || 10}
+                    </span>
+
+                    {/* Meeting Mode Badge */}
+                    <span 
+                      onClick={async () => {
+                        if (!isCreator) return;
+                        try {
+                          const newMode = group.meetingMode === 'offline' ? 'online' : 'offline';
+                          const { error } = await supabase
+                            .from('study_groups')
+                            .update({ meeting_mode: newMode })
+                            .eq('id', parseInt(group.id, 10));
+                          if (error) throw error;
+                          addToast(`Đã chuyển nhóm sang chế độ học ${newMode === 'offline' ? 'Offline' : 'Online'}!`, 'success');
+                          fetchGroups();
+                        } catch (err) {
+                          addToast(`Lỗi: ${err.message}`, 'error');
+                        }
+                      }}
+                      style={{ 
+                        fontSize: 11, 
+                        fontWeight: 800, 
+                        padding: '4px 10px', 
+                        borderRadius: 10, 
+                        whiteSpace: 'nowrap', 
+                        background: 'rgba(0,0,0,0.04)', 
+                        color: 'var(--text-primary)', 
+                        border: '1.5px solid var(--text-primary)', 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '5px',
+                        cursor: isCreator ? 'pointer' : 'default',
+                        userSelect: 'none'
+                      }}
+                    >
+                      {group.meetingMode === 'offline' ? (
+                        <>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          Offline
+                        </>
+                      ) : (
+                        <>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7" />
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                          </svg>
+                          Online
+                        </>
+                      )}
+                    </span>
+
+                    {/* Privacy Status Badge */}
+                    <span 
+                      onClick={async () => {
+                        if (!isCreator) return;
+                        try {
+                          const newPrivateStatus = !group.isPrivate;
+                          const { error } = await supabase
+                            .from('study_groups')
+                            .update({ is_private: newPrivateStatus })
+                            .eq('id', parseInt(group.id, 10));
+                          if (error) throw error;
+                          addToast(`Đã chuyển nhóm sang chế độ ${newPrivateStatus ? 'Riêng tư' : 'Công khai'}!`, 'success');
+                          fetchGroups();
+                        } catch (err) {
+                          addToast(`Lỗi: ${err.message}`, 'error');
+                        }
+                      }}
+                      style={{ 
+                        fontSize: 11, 
+                        fontWeight: 800, 
+                        padding: '4px 10px', 
+                        borderRadius: 10, 
+                        whiteSpace: 'nowrap', 
+                        background: 'rgba(0,0,0,0.04)', 
+                        color: 'var(--text-primary)', 
+                        border: '1.5px solid var(--text-primary)', 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '5px',
+                        cursor: isCreator ? 'pointer' : 'default',
+                        userSelect: 'none'
+                      }}
+                    >
+                      {group.isPrivate ? (
+                        <>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                          </svg>
+                          Riêng tư
+                        </>
+                      ) : (
+                        <>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                          </svg>
+                          Công khai
+                        </>
+                      )}
+                    </span>
+
+                    {/* Role Badges */}
+                    {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Trưởng nhóm</span>}
+                    {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Phó nhóm</span>}
                   </div>
 
                   <div 
@@ -2356,6 +2354,35 @@ export default function Groups() {
         )}
       </div>
       <style>{`
+        .groups-header-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 28px;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        .groups-action-buttons {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+        @media (max-width: 576px) {
+          .groups-header-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+          }
+          .groups-action-buttons {
+            width: 100%;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .groups-action-buttons button {
+            width: 100% !important;
+            box-sizing: border-box;
+          }
+        }
         .groups-page-container {
           padding: 24px 16px;
           max-width: 1100px;

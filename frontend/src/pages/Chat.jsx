@@ -126,7 +126,7 @@ export default function Chat() {
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : '340px 1fr',
           gap: isMobile ? '0' : '5px',
-          height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 120px)',
+          height: isMobile ? '100%' : 'calc(100vh - 120px)',
           overflowX: 'hidden',
         }}
       >

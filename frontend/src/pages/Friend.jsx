@@ -454,7 +454,7 @@ export default function Friends() {
           </div>
 
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <div className="friends-tab-container">
             <TabBtn label="Bạn bè" count={friends.length} active={tab === 'friends'} onClick={() => setTab('friends')} />
             <TabBtn label="Lời mời nhận" count={pending.length} active={tab === 'pending'} onClick={() => { setTab('pending'); setNewPendingAlert(false); }} highlight={newPendingAlert && tab !== 'pending'} />
             <TabBtn label="Đã gửi" count={sent.length} active={tab === 'sent'} onClick={() => setTab('sent')} />
@@ -656,6 +656,18 @@ export default function Friends() {
       )}
 
       <style>{`
+        .friends-tab-container {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 20px;
+          overflow-x: auto;
+          padding-bottom: 8px;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .friends-tab-container::-webkit-scrollbar {
+          display: none;
+        }
         .friend-page-container {
           padding: 0 24px 24px;
           max-width: 100%;
@@ -677,6 +689,12 @@ export default function Friends() {
           padding: 28px 32px;
           box-shadow: var(--shadow);
           margin-bottom: 20px;
+        }
+        @media (max-width: 991px) {
+          .premium-panel {
+            padding: 16px;
+            border-radius: 16px;
+          }
         }
         .search-container {
           display: flex;
@@ -713,6 +731,7 @@ export default function Friends() {
           display: flex;
           align-items: center;
           gap: 7px;
+          flex-shrink: 0;
         }
         .tab-btn:hover {
           background: #f3f4f6;
@@ -748,7 +767,7 @@ export default function Friends() {
           background: rgba(239,68,68,0.2);
           color: #fca5a5;
         }
-
+ 
         .person-card {
           background: var(--bg-card);
           backdrop-filter: blur(8px);
@@ -769,6 +788,32 @@ export default function Friends() {
           box-shadow: 0 10px 30px rgba(42,117,118,0.12);
         }
 
+        @media (max-width: 991px) {
+          .person-card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 16px;
+            gap: 14px;
+          }
+          .person-card > div:first-child {
+            align-self: center;
+          }
+          .person-card > div:nth-child(2) > div {
+            justify-content: center;
+          }
+          .card-actions {
+            width: 100%;
+            flex-direction: row !important;
+            justify-content: center;
+            gap: 8px;
+          }
+          .card-actions button {
+            flex: 1 !important;
+            width: 100% !important;
+          }
+        }
+ 
         @keyframes slideIn {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }

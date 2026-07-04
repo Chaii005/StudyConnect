@@ -47,18 +47,7 @@ export const ToastProvider = ({ children }) => {
       {children}
       
       {/* Toast Overlay Container */}
-      <div 
-        style={{
-          position: 'fixed',
-          top: '92px',
-          right: '20px',
-          zIndex: 9999,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-          pointerEvents: 'none'
-        }}
-      >
+      <div className="toast-container">
         {toasts.map((toast) => {
           const isError = toast.type === 'error';
           const isWarning = toast.type === 'warning';
@@ -89,32 +78,14 @@ export const ToastProvider = ({ children }) => {
           return (
             <div
               key={toast.id}
+              className={`toast-card ${toast.isDismissing ? 'dismissing' : ''}`}
               style={{
-                pointerEvents: 'auto',
-                background: 'var(--bg-card)',
-                color: 'var(--text-primary)',
                 border: isError 
                   ? '1px solid rgba(239, 68, 68, 0.3)' 
                   : isWarning 
                   ? '1px solid rgba(245, 158, 11, 0.3)' 
                   : '1px solid var(--border)',
-                padding: '12px 18px',
-                borderRadius: '12px',
-                boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                fontSize: '13.5px',
-                fontWeight: 600,
-                minWidth: '300px',
-                maxWidth: '420px',
                 cursor: toast.link ? 'pointer' : 'default',
-                animation: toast.isDismissing 
-                  ? 'slideOut 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards'
-                  : 'slideIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'transform 0.2s ease'
               }}
               onClick={() => {
                 if (toast.link) {
@@ -123,18 +94,6 @@ export const ToastProvider = ({ children }) => {
                 }
               }}
             >
-              {/* Custom keyframes injection for slideIn/slideOut */}
-              <style>{`
-                @keyframes slideIn {
-                  from { transform: translateX(120%); opacity: 0; }
-                  to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                  from { transform: translateX(0); opacity: 1; }
-                  to { transform: translateX(120%); opacity: 0; }
-                }
-              `}</style>
-
               {icon}
               <span style={{ flex: 1, lineHeight: 1.4 }}>{toast.message}</span>
               <button
@@ -164,6 +123,77 @@ export const ToastProvider = ({ children }) => {
           );
         })}
       </div>
+      <style>{`
+        .toast-container {
+          position: fixed;
+          top: 92px;
+          right: 20px;
+          z-index: 9999;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          pointer-events: none;
+        }
+        .toast-card {
+          pointer-events: auto;
+          background: var(--bg-card);
+          color: var(--text-primary);
+          padding: 12px 18px;
+          border-radius: 12px;
+          box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 13.5px;
+          font-weight: 600;
+          min-width: 300px;
+          max-width: 420px;
+          position: relative;
+          overflow: hidden;
+          transition: transform 0.2s ease;
+          animation: slideIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        .toast-card.dismissing {
+          animation: slideOut 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        
+        @keyframes slideIn {
+          from { transform: translateX(120%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(120%); opacity: 0; }
+        }
+        
+        @media (max-width: 576px) {
+          .toast-container {
+            top: 24px;
+            left: 12px;
+            right: 12px;
+            align-items: center;
+          }
+          .toast-card {
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            animation: slideInMobile 0.3s ease forwards;
+          }
+          .toast-card.dismissing {
+            animation: slideOutMobile 0.3s ease forwards;
+          }
+        }
+        
+        @keyframes slideInMobile {
+          from { transform: translateY(-30px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideOutMobile {
+          from { transform: translateY(0); opacity: 1; }
+          to { transform: translateY(-30px); opacity: 0; }
+        }
+      `}</style>
     </ToastContext.Provider>
   );
 };

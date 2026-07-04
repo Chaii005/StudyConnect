@@ -327,20 +327,8 @@ export default function GroupSchedule({
                 </div>
               )}
               {newScheduleLocation.startsWith('/room/') && (
-                <div
-                  style={{
-                    marginTop: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '10px',
-                    padding: '12px 16px',
-                    background: 'rgba(0, 0, 0, 0.04)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '10px',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="online-room-ready-card">
+                  <div className="online-room-ready-info">
                     <div style={{ display: 'flex', alignItems: 'center', color: '#10b981' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
@@ -350,7 +338,7 @@ export default function GroupSchedule({
                       Phòng học đã sẵn sàng
                     </span>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div className="online-room-ready-actions">
                     <button
                       type="button"
                       onClick={() => {
@@ -494,7 +482,7 @@ export default function GroupSchedule({
                     position: 'relative',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                  <div className="schedule-card-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                       <span
                         style={{
@@ -579,7 +567,7 @@ export default function GroupSchedule({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <strong style={{ color: 'var(--text-muted)' }}>Địa điểm/Phòng học:</strong>
                       {sched.location.startsWith('/room/') ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>
+                        <div className="sched-location-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>
                           <span
                             style={{
                               display: 'inline-flex',
@@ -862,6 +850,93 @@ export default function GroupSchedule({
           </div>
         </div>
       )}
+      <style>{`
+        .online-room-ready-card {
+          margin-top: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 12px 16px;
+          background: rgba(0, 0, 0, 0.04);
+          border: 1px solid var(--border);
+          border-radius: 10px;
+        }
+        .online-room-ready-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .online-room-ready-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+        .schedule-card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        @media (max-width: 991px) {
+          .flex-wrap-responsive {
+            flex-direction: column;
+            align-items: stretch !important;
+          }
+          .flex-wrap-responsive > button {
+            width: 100% !important;
+          }
+          .online-room-ready-card {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+            gap: 12px;
+          }
+          .online-room-ready-info {
+            justify-content: center;
+          }
+          .online-room-ready-actions {
+            justify-content: center;
+            width: 100%;
+          }
+          .online-room-ready-actions button, .online-room-ready-actions a {
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+          }
+          .schedule-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+          .schedule-card-header > div:last-child {
+            width: 100%;
+            justify-content: flex-start;
+            display: flex;
+            gap: 8px;
+          }
+          .schedule-card-header > div:last-child button {
+            flex: 1;
+            text-align: center;
+          }
+          .sched-location-row {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 10px !important;
+          }
+          .sched-location-row > div {
+            width: 100%;
+            display: flex;
+            gap: 8px;
+          }
+          .sched-location-row > div > button, .sched-location-row > div > a {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+          }
+        }
+      `}</style>
     </div>
   );
 }

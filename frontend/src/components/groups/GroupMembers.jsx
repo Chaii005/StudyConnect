@@ -37,7 +37,7 @@ export default function GroupMembers({
             {joinRequests.map(req => {
               const initials = req.fullName?.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase() || '?';
               return (
-                <div key={req.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <div key={req.id} className="join-request-card">
                   {req.avatar
                     ? <img src={req.avatar} alt={req.fullName} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                     : <div style={{ width: 40, height: 40, borderRadius: '50%', flexShrink: 0, background: 'linear-gradient(135deg,var(--primary),var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#fff' }}>{initials}</div>
@@ -46,7 +46,7 @@ export default function GroupMembers({
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{req.fullName}</div>
                     {req.email && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{req.email}</div>}
                   </div>
-                  <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                  <div className="join-request-actions">
                     <button
                       onClick={() => handleApproveJoin(req)}
                       disabled={approvingIds[req.id]}
@@ -140,20 +140,7 @@ export default function GroupMembers({
         return (
           <div
             key={memberId}
-            style={{
-              background: 'var(--bg-card)',
-              border: isLeader
-                ? '1.5px solid var(--text-primary)'
-                : isDeputy
-                ? '1.5px solid var(--border)'
-                : '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)',
-              padding: '18px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              transition: 'all 0.2s ease',
-            }}
+            className={`member-item-card ${isLeader ? 'is-leader' : isDeputy ? 'is-deputy' : 'is-normal'}`}
           >
             <div style={{ position: 'relative', flexShrink: 0 }}>
               {displayAvatar ? (
@@ -199,8 +186,8 @@ export default function GroupMembers({
                 boxShadow: onlineUserIds.includes(String(memberId)) ? '0 0 6px #10b981' : 'none'
               }} />
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="member-item-info">
+              <div className="member-item-info-name-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <span style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text-primary)' }}>
                   {displayName}
                   {isCurrentUser && <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 400 }}> (Bạn)</span>}
@@ -242,7 +229,7 @@ export default function GroupMembers({
                 </div>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '8px', flexShrink: 0, alignItems: 'center' }}>
+            <div className="member-item-actions">
               {!isCurrentUser &&
                 (isFriend ? (
                   <span
@@ -379,6 +366,89 @@ export default function GroupMembers({
           </div>
         );
       })}
+      <style>{`
+        .join-request-card {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 14px;
+          border-radius: 10px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+        }
+        .join-request-actions {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        .member-item-card {
+          background: var(--bg-card);
+          border-radius: var(--radius-md);
+          padding: 18px 20px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          transition: all 0.2s ease;
+        }
+        .member-item-card.is-leader {
+          border: 1.5px solid var(--text-primary);
+        }
+        .member-item-card.is-deputy {
+          border: 1.5px solid var(--border);
+        }
+        .member-item-card.is-normal {
+          border: 1px solid var(--border);
+        }
+        .member-item-info {
+          flex: 1;
+          min-width: 0;
+        }
+        .member-item-actions {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+          align-items: center;
+        }
+        
+        @media (max-width: 991px) {
+          .join-request-card {
+            flex-direction: column;
+            text-align: center;
+          }
+          .join-request-actions {
+            width: 100%;
+          }
+          .join-request-actions button {
+            flex: 1;
+            text-align: center;
+          }
+          .member-item-card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 16px;
+            gap: 14px;
+          }
+          .member-item-info-name-row {
+            justify-content: center;
+          }
+          .member-item-actions {
+            width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+          }
+          .member-item-actions button, .member-item-actions span {
+            flex: 1 1 calc(50% - 4px) !important;
+            min-width: 110px;
+            text-align: center;
+            box-sizing: border-box;
+            justify-content: center;
+            display: inline-flex;
+          }
+        }
+      `}</style>
     </div>
   );
 }
