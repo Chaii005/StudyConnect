@@ -92,7 +92,13 @@ export default function ConversationView({
   const [renameVal, setRenameVal] = useState('');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showMenuDropdown, setShowMenuDropdown] = useState(false);
-  const [bgTheme, setBgTheme] = useState('default');
+  const [bgInfo, setBgInfo] = useState({
+    isAnalyzed: false,
+    r: 0,
+    g: 0,
+    b: 0,
+    luminance: 128
+  });
   const [showBgModal, setShowBgModal] = useState(false);
   const [bgFilePreview, setBgFilePreview] = useState('');
   const [bgPos, setBgPos] = useState('center');
@@ -103,12 +109,12 @@ export default function ConversationView({
 
   useEffect(() => {
     if (!chatBg) {
-      setBgTheme('default');
+      setBgInfo({ isAnalyzed: false, r: 0, g: 0, b: 0, luminance: 128 });
       return;
     }
     const imgUrl = chatBg.split('|')[0];
     if (!imgUrl) {
-      setBgTheme('default');
+      setBgInfo({ isAnalyzed: false, r: 0, g: 0, b: 0, luminance: 128 });
       return;
     }
 
@@ -121,7 +127,7 @@ export default function ConversationView({
         canvas.height = 10;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          setBgTheme('dark');
+          setBgInfo({ isAnalyzed: true, r: 20, g: 20, b: 20, luminance: 20 });
           return;
         }
         ctx.drawImage(img, 0, 0, 10, 10);
@@ -138,51 +144,35 @@ export default function ConversationView({
         }
         
         if (count === 0) {
-          setBgTheme('dark');
+          setBgInfo({ isAnalyzed: true, r: 20, g: 20, b: 20, luminance: 20 });
           return;
         }
         
-        const rAvg = rSum / count;
-        const gAvg = gSum / count;
-        const bAvg = bSum / count;
+        const rAvg = Math.round(rSum / count);
+        const gAvg = Math.round(gSum / count);
+        const bAvg = Math.round(bSum / count);
         const luminance = 0.299 * rAvg + 0.587 * gAvg + 0.114 * bAvg;
         
-        if (luminance > 135) {
-          setBgTheme('light');
-        } else {
-          setBgTheme('dark');
-        }
+        setBgInfo({
+          isAnalyzed: true,
+          r: rAvg,
+          g: gAvg,
+          b: bAvg,
+          luminance
+        });
       } catch (err) {
         if (import.meta.env.DEV) console.warn('[Chat] Failed to analyze bg color:', err);
-        setBgTheme('dark');
+        setBgInfo({ isAnalyzed: true, r: 20, g: 20, b: 20, luminance: 20 });
       }
     };
     img.onerror = () => {
-      setBgTheme('dark');
+      setBgInfo({ isAnalyzed: true, r: 20, g: 20, b: 20, luminance: 20 });
     };
     img.src = imgUrl;
   }, [chatBg]);
 
   const getChatStyleVariables = () => {
-    if (bgTheme === 'light') {
-      return {
-        '--text-primary-chat': '#111827',
-        '--text-secondary-chat': '#374151',
-        '--text-muted-chat': '#4b5563',
-        '--bg-input-chat': 'rgba(17, 24, 39, 0.08)',
-        '--border-chat': 'rgba(17, 24, 39, 0.15)',
-        '--bg-overlay-chat': 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45))',
-      };
-    } else if (bgTheme === 'dark') {
-      return {
-        '--text-primary-chat': '#ffffff',
-        '--text-secondary-chat': '#e5e7eb',
-        '--text-muted-chat': '#9ca3af',
-        '--bg-input-chat': 'rgba(255, 255, 255, 0.12)',
-        '--border-chat': 'rgba(255, 255, 255, 0.18)',
-        '--bg-overlay-chat': 'linear-gradient(rgba(11, 15, 25, 0.7), rgba(11, 15, 25, 0.7))',
-      };
-    } else {
+    if (!chatBg || !bgInfo.isAnalyzed) {
       return {
         '--text-primary-chat': 'var(--text-primary)',
         '--text-secondary-chat': 'var(--text-secondary)',
@@ -190,6 +180,69 @@ export default function ConversationView({
         '--bg-input-chat': 'var(--bg-input)',
         '--border-chat': 'var(--border)',
         '--bg-overlay-chat': 'none',
+      };
+    }
+
+    const { r, g, b, luminance } = bgInfo;
+    const isLight = luminance > 135;
+
+    if (isLight) {
+      const textR = Math.round(r * 0.12 + 10 * 0.88);
+      const textG = Math.round(g * 0.12 + 10 * 0.88);
+      const textB = Math.round(b * 0.12 + 10 * 0.88);
+
+      const secR = Math.round(r * 0.18 + 50 * 0.82);
+      const secG = Math.round(g * 0.18 + 50 * 0.82);
+      const secB = Math.round(b * 0.18 + 50 * 0.82);
+
+      const mutR = Math.round(r * 0.22 + 90 * 0.78);
+      const mutG = Math.round(g * 0.22 + 90 * 0.78);
+      const mutB = Math.round(b * 0.22 + 90 * 0.78);
+
+      const bgR = Math.round(r * 0.35 + 245 * 0.65);
+      const bgG = Math.round(g * 0.35 + 245 * 0.65);
+      const bgB = Math.round(b * 0.35 + 245 * 0.65);
+
+      const borderR = Math.round(r * 0.35 + 210 * 0.65);
+      const borderG = Math.round(g * 0.35 + 210 * 0.65);
+      const borderB = Math.round(b * 0.35 + 210 * 0.65);
+
+      return {
+        '--text-primary-chat': `rgb(${textR}, ${textG}, ${textB})`,
+        '--text-secondary-chat': `rgb(${secR}, ${secG}, ${secB})`,
+        '--text-muted-chat': `rgb(${mutR}, ${mutG}, ${mutB})`,
+        '--bg-input-chat': `rgba(${bgR}, ${bgG}, ${bgB}, 0.75)`,
+        '--border-chat': `rgba(${borderR}, ${borderG}, ${borderB}, 0.85)`,
+        '--bg-overlay-chat': 'linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18))',
+      };
+    } else {
+      const textR = Math.round(r * 0.12 + 250 * 0.88);
+      const textG = Math.round(g * 0.12 + 250 * 0.88);
+      const textB = Math.round(b * 0.12 + 250 * 0.88);
+
+      const secR = Math.round(r * 0.18 + 210 * 0.82);
+      const secG = Math.round(g * 0.18 + 210 * 0.82);
+      const secB = Math.round(b * 0.18 + 210 * 0.82);
+
+      const mutR = Math.round(r * 0.22 + 160 * 0.78);
+      const mutG = Math.round(g * 0.22 + 160 * 0.78);
+      const mutB = Math.round(b * 0.22 + 160 * 0.78);
+
+      const bgR = Math.round(r * 0.35 + 15 * 0.65);
+      const bgG = Math.round(g * 0.35 + 23 * 0.65);
+      const bgB = Math.round(b * 0.35 + 42 * 0.65);
+
+      const borderR = Math.round(r * 0.35 + 30 * 0.65);
+      const borderG = Math.round(g * 0.35 + 38 * 0.65);
+      const borderB = Math.round(b * 0.35 + 57 * 0.65);
+
+      return {
+        '--text-primary-chat': `rgb(${textR}, ${textG}, ${textB})`,
+        '--text-secondary-chat': `rgb(${secR}, ${secG}, ${secB})`,
+        '--text-muted-chat': `rgb(${mutR}, ${mutG}, ${mutB})`,
+        '--bg-input-chat': `rgba(${bgR}, ${bgG}, ${bgB}, 0.55)`,
+        '--border-chat': `rgba(${borderR}, ${borderG}, ${borderB}, 0.65)`,
+        '--bg-overlay-chat': 'linear-gradient(rgba(10, 15, 30, 0.22), rgba(10, 15, 30, 0.22))',
       };
     }
   };
@@ -1087,11 +1140,12 @@ export default function ConversationView({
                       width: '28px', 
                       height: '28px', 
                       borderRadius: '50%', 
-                      background: 'var(--bg-card)',
+                      background: bgInfo.luminance > 135 ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.12)',
                       display: 'inline-flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
                       border: '1.5px solid var(--border-chat)',
+                      color: 'var(--text-primary-chat)',
                     }}
                   >
                     {isMissed ? (
@@ -1108,7 +1162,7 @@ export default function ConversationView({
                   </span>
                   {labelText}
                 </span>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '6px', fontFamily: 'var(--font-mono, monospace)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted-chat)', marginTop: '6px', fontFamily: 'var(--font-mono, monospace)' }}>
                   {fmtFull(m.createdAt)}
                 </div>
               </div>
@@ -1230,7 +1284,7 @@ export default function ConversationView({
                             <div 
                               style={{ 
                                 fontSize: '11px', 
-                                color: isMine ? 'rgba(255,255,255,0.7)' : 'var(--text-secondary)',
+                                color: isMine ? 'rgba(255,255,255,0.7)' : 'var(--text-secondary-chat)',
                                 fontFamily: 'var(--font-mono, monospace)',
                                 marginTop: '2px',
                               }}
