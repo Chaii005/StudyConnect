@@ -1,51 +1,86 @@
 // src/utils/geocoding.js
-// ── ENGINE: Nominatim (OpenStreetMap) — Miễn phí, không cần API key ──────────
-// Docs: https://nominatim.org/release-docs/latest/api/Search/
-// Rate limit: max 1 req/s, User-Agent bắt buộc (đã set)
+// ── ENGINE: Photon (OSM search by Komoot) — Free, extremely fast, correct Vietnam hierarchy ──
+// Docs: https://photon.komoot.io/
+// Tốc độ phản hồi cực nhanh, chịu tải tốt, không bị lỗi gộp địa phận thành phố như Nominatim
 
-const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
-const APP_UA = 'StudyConnect/1.0 (studyconect.vercel.app)';
+const PHOTON_BASE = 'https://photon.komoot.io';
 
-// ── Google (legacy — chỉ dùng nếu có API key hợp lệ) ────────────────────────
+// ── Google (legacy — only if valid API key is set) ────────────────────────
 const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const hasGoogle = GOOGLE_KEY && GOOGLE_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY_HERE';
 
+// Helper to construct a beautiful, clean Vietnamese display name from Photon properties
+function getPhotonDisplayName(p) {
+  const parts = [];
+  
+  // 1. Tên địa danh (POI)
+  if (p.name) parts.push(p.name);
+  
+  // 2. Số nhà & Đường
+  let streetPart = '';
+  if (p.housenumber) streetPart += p.housenumber + ' ';
+  if (p.street) streetPart += p.street;
+  if (streetPart.trim()) parts.push(streetPart.trim());
+  
+  // 3. Phường / Xã / Khu vực nhỏ
+  if (p.locality) {
+    parts.push(p.locality);
+  } else if (p.district && p.district.toLowerCase().includes('phường')) {
+    parts.push(p.district);
+  }
+  
+  // 4. Quận / Huyện
+  // Nếu district không trùng với locality và không trùng với name
+  if (p.district && p.district !== p.locality && p.district !== p.name) {
+    // Chỉ thêm nếu không phải là phường (đã lấy ở bước trước)
+    if (!p.district.toLowerCase().includes('phường') && !p.district.toLowerCase().includes('xã')) {
+      parts.push(p.district);
+    }
+  }
+  
+  // 5. Tỉnh / Thành phố
+  if (p.city) {
+    parts.push(p.city);
+  } else if (p.state) {
+    parts.push(p.state);
+  }
+  
+  // 6. Quốc gia
+  if (p.country) parts.push(p.country);
+  
+  return parts.filter(Boolean).join(', ');
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. Geocode địa chỉ text → { lat, lng, formattedAddress }
-//    Ưu tiên: Nominatim (free) → Google fallback (nếu có key)
+// 1. Geocode text address → { lat, lng, formattedAddress }
 // ─────────────────────────────────────────────────────────────────────────────
 export async function geocodeAddress(address) {
   if (!address?.trim()) return null;
 
-  // --- Nominatim (primary) ---
+  // --- Photon (Primary) ---
   try {
-    const url =
-      `${NOMINATIM_BASE}/search` +
-      `?q=${encodeURIComponent(address)}` +
-      `&format=jsonv2` +
-      `&addressdetails=1` +
-      `&limit=1` +
-      `&countrycodes=vn` +         // ưu tiên Việt Nam
-      `&accept-language=vi`;
-    const res = await fetch(url, {
-      headers: { 'User-Agent': APP_UA, 'Accept-Language': 'vi' },
-    });
+    let query = address.trim();
+    if (!query.toLowerCase().includes('việt nam') && !query.toLowerCase().includes('vietnam')) {
+      query += ', Việt Nam';
+    }
+    const url = `${PHOTON_BASE}/api/?q=${encodeURIComponent(query)}&limit=1`;
+    const res = await fetch(url);
     if (res.ok) {
       const json = await res.json();
-      if (json?.length > 0) {
-        const place = json[0];
+      if (json?.features?.length > 0) {
+        const feature = json.features[0];
         return {
-          lat: parseFloat(place.lat),
-          lng: parseFloat(place.lon),
-          formattedAddress: place.display_name,
+          lat: feature.geometry.coordinates[1],
+          lng: feature.geometry.coordinates[0],
+          formattedAddress: getPhotonDisplayName(feature.properties),
         };
       }
     }
   } catch {
-    // silent — thử Google fallback
+    // silent fallback
   }
 
-  // --- Google fallback (chỉ nếu có key) ---
+  // --- Google Fallback ---
   if (hasGoogle) {
     try {
       const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&language=vi&key=${GOOGLE_KEY}`;
@@ -56,7 +91,7 @@ export async function geocodeAddress(address) {
         return { lat: loc.lat, lng: loc.lng, formattedAddress: json.results[0].formatted_address };
       }
     } catch {
-      // silent fail
+      // silent
     }
   }
 
@@ -64,43 +99,38 @@ export async function geocodeAddress(address) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. Autocomplete địa điểm (gợi ý khi gõ)
-//    Nominatim /search với partial query — hoàn toàn miễn phí
+// 2. Autocomplete Suggestions (suggestions list)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function autocompletePlaces(input) {
   if (!input?.trim() || input.trim().length < 2) return [];
 
-  // --- Nominatim autocomplete ---
+  // --- Photon (Primary) ---
   try {
-    const url =
-      `${NOMINATIM_BASE}/search` +
-      `?q=${encodeURIComponent(input.trim())}` +
-      `&format=jsonv2` +
-      `&addressdetails=1` +
-      `&limit=6` +
-      `&countrycodes=vn` +
-      `&accept-language=vi`;
-    const res = await fetch(url, {
-      headers: { 'User-Agent': APP_UA, 'Accept-Language': 'vi' },
-    });
+    let query = input.trim();
+    // Bổ sung Việt Nam để tăng độ chính xác tìm kiếm tại VN
+    if (!query.toLowerCase().includes('việt nam') && !query.toLowerCase().includes('vietnam')) {
+      query += ', Việt Nam';
+    }
+    const url = `${PHOTON_BASE}/api/?q=${encodeURIComponent(query)}&limit=6`;
+    const res = await fetch(url);
     if (res.ok) {
       const json = await res.json();
-      if (Array.isArray(json) && json.length > 0) {
-        return json.map((p) => ({
-          placeId: p.place_id?.toString(),
-          text: p.display_name,
-          lat: parseFloat(p.lat),
-          lng: parseFloat(p.lon),
+      if (json?.features) {
+        return json.features.map((f) => ({
+          placeId: f.properties.osm_id?.toString() || Math.random().toString(),
+          text: getPhotonDisplayName(f.properties),
+          lat: f.geometry.coordinates[1],
+          lng: f.geometry.coordinates[0]
         }));
       }
     }
   } catch (err) {
     if (import.meta.env.DEV) {
-      console.error('autocompletePlaces (Nominatim) error:', err);
+      console.error('autocompletePlaces (Photon) error:', err);
     }
   }
 
-  // --- Google Places fallback ---
+  // --- Google Fallback ---
   if (hasGoogle) {
     try {
       const res = await fetch('https://places.googleapis.com/v1/places:autocomplete', {
@@ -127,32 +157,12 @@ export async function autocompletePlaces(input) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. Lấy lat/lng từ placeId (dùng sau khi chọn autocomplete suggestion)
-//    Nominatim: placeId = OSM place_id → dùng /details hoặc tái geocode
+// 3. Get Details from suggestion selection (chỉ cần khi dùng Google Fallback)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function getPlaceDetails(placeId) {
   if (!placeId) return null;
 
-  // Nếu placeId là số → Nominatim place_id
-  if (/^\d+$/.test(String(placeId))) {
-    try {
-      const url = `${NOMINATIM_BASE}/details?place_id=${placeId}&format=json&addressdetails=1`;
-      const res = await fetch(url, { headers: { 'User-Agent': APP_UA } });
-      if (res.ok) {
-        const json = await res.json();
-        const lat = json.geometry?.coordinates?.[1];
-        const lng = json.geometry?.coordinates?.[0];
-        if (lat && lng) {
-          return { lat, lng, formattedAddress: json.localname || json.names?.name || '' };
-        }
-      }
-    } catch {
-      // silent
-    }
-  }
-
-  // Google fallback (nếu placeId là Google place_id)
-  if (hasGoogle) {
+  if (hasGoogle && !/^\d+$/.test(String(placeId))) {
     try {
       const res = await fetch(
         `https://places.googleapis.com/v1/places/${placeId}?fields=location,formattedAddress&key=${GOOGLE_KEY}`
@@ -171,15 +181,10 @@ export async function getPlaceDetails(placeId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 4. Static map image URL (OpenStreetMap tile — miễn phí, không cần key)
+// 4. Static Map API (Legacy)
 // ─────────────────────────────────────────────────────────────────────────────
 export function staticMapUrl({ lat, lng, zoom = 15, width = 480, height = 180 }) {
   if (!lat || !lng) return null;
-
-  // Dùng Static Map API của OpenStreetMap-compatible (Geoapify free tier 3000/day)
-  // Hoàn toàn không cần key — embed OpenStreetMap iframe thay thế
-  // Return null → component tự hiện link "Mở Maps" thay bản đồ ảnh
-  // (Google Static Maps API cần billing enabled nên thường bị lỗi)
   if (hasGoogle) {
     return (
       `https://maps.googleapis.com/maps/api/staticmap` +
@@ -194,26 +199,22 @@ export function staticMapUrl({ lat, lng, zoom = 15, width = 480, height = 180 })
       `&key=${GOOGLE_KEY}`
     );
   }
-
-  // Fallback: OpenStreetMap tile preview (link iframe — không phải ảnh tĩnh)
   return null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. Tạo link mở bản đồ từ địa chỉ text (Google Maps — không cần key)
+// 5. Open Google Maps search link
 // ─────────────────────────────────────────────────────────────────────────────
 export function googleMapsSearchUrl(address) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 6. Tạo link embed bản đồ OpenStreetMap (miễn phí, thay thế Static Maps)
+// 6. OSM Embed Url
 // ─────────────────────────────────────────────────────────────────────────────
 export function osmEmbedUrl({ lat, lng, zoom = 15 }) {
   if (!lat || !lng) return null;
   return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01},${lat - 0.007},${lng + 0.01},${lat + 0.007}&layer=mapnik&marker=${lat},${lng}`;
 }
 
-// Alias giữ tương thích ngược với Groups.jsx (sessionToken không cần nữa)
-// eslint-disable-next-line no-unused-vars
 export { autocompletePlaces as autocompletePlacesWithToken };

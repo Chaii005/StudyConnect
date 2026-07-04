@@ -246,13 +246,22 @@ export default function GroupSchedule({
                   )}
                   {!geoLoading && activeGeoPreview && (
                     <div style={{ marginTop: 10, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.05)' }}>
-                      {activeGeoPreview.imgUrl && (
+                      {activeGeoPreview.imgUrl ? (
                         <img
                           src={activeGeoPreview.imgUrl}
                           alt="Bản đồ địa điểm"
                           style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
                           onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
+                      ) : (
+                        activeGeoPreview.lat && activeGeoPreview.lng && (
+                          <iframe
+                            title="Bản đồ địa điểm"
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${activeGeoPreview.lng - 0.01},${activeGeoPreview.lat - 0.007},${activeGeoPreview.lng + 0.01},${activeGeoPreview.lat + 0.007}&layer=mapnik&marker=${activeGeoPreview.lat},${activeGeoPreview.lng}`}
+                            style={{ width: '100%', height: 160, border: 'none', display: 'block' }}
+                            loading="lazy"
+                          />
+                        )
                       )}
                       <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                         <div>
@@ -771,8 +780,17 @@ export default function GroupSchedule({
                 )}
                 {!editGeoLoading && editGeoPreview && (
                   <div style={{ marginTop: 8, borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(16,185,129,0.3)' }}>
-                    {editGeoPreview.imgUrl && (
+                    {editGeoPreview.imgUrl ? (
                       <img src={editGeoPreview.imgUrl} alt="map" style={{ width: '100%', height: 130, objectFit: 'cover', display: 'block' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                    ) : (
+                      editGeoPreview.lat && editGeoPreview.lng && (
+                        <iframe
+                          title="Bản đồ địa điểm"
+                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${editGeoPreview.lng - 0.01},${editGeoPreview.lat - 0.007},${editGeoPreview.lng + 0.01},${editGeoPreview.lat + 0.007}&layer=mapnik&marker=${editGeoPreview.lat},${editGeoPreview.lng}`}
+                          style={{ width: '100%', height: 130, border: 'none', display: 'block' }}
+                          loading="lazy"
+                        />
+                      )
                     )}
                     <div style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, background: 'rgba(16,185,129,0.05)' }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
