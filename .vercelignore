@@ -22,7 +22,10 @@ stitch-skills/
 taste-skill/
 supabase/
 backend/
-*.png
+offline_form.png
+online_form.png
+frontend/offline_form.png
+frontend/online_form.png
 *.txt
 *.ps1
 
