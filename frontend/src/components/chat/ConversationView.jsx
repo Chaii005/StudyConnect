@@ -740,7 +740,7 @@ export default function ConversationView({
           display: 'flex', 
           alignItems: 'center', 
           gap: '14px',
-          padding: '10px 20px', 
+          padding: '5px 20px', 
           borderBottom: '1.5px solid var(--border)',
           background: 'var(--bg-card)', 
           flexShrink: 0,
