@@ -819,12 +819,28 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                             Chưa có lịch học nào
                           </div>
                         ) : (
-                          schedules.map((s) => (
+                          schedules.map((s, index) => (
                             <Link key={s.id} to={`/groups/${s.groupId}?tab=schedule`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
                               <div
-                                style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '8px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s ease' }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(26, 26, 26, 0.05)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                style={{ 
+                                  display: 'flex', 
+                                  gap: '10px', 
+                                  alignItems: 'flex-start', 
+                                  padding: '8px 8px', 
+                                  margin: '2px 0',
+                                  borderRadius: '8px', 
+                                  borderBottom: index === schedules.length - 1 ? 'none' : '1px solid var(--border)', 
+                                  cursor: 'pointer', 
+                                  transition: 'all 0.2s ease' 
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'rgba(26, 26, 26, 0.05)';
+                                  e.currentTarget.style.borderBottomColor = 'transparent';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'transparent';
+                                  e.currentTarget.style.borderBottomColor = index === schedules.length - 1 ? 'transparent' : 'var(--border)';
+                                }}
                               >
                                 <div style={{ width: '30px', height: '30px', borderRadius: '7px', flexShrink: 0, background: 'rgba(26, 26, 26, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -866,7 +882,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                             </svg>
                           </div>
                         ) : (
-                          deadlines.map((d) => (
+                          deadlines.map((d, index) => (
                             <Link key={d.id} to={`/groups/${d.groupId}?tab=deadlines`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
                               <div
                                 style={{
@@ -876,13 +892,19 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                                   padding: '8px 8px',
                                   margin: '2px 0',
                                   borderRadius: '8px',
-                                  borderBottom: '1px solid var(--border)',
+                                  borderBottom: index === deadlines.length - 1 ? 'none' : '1px solid var(--border)',
                                   background: d.dueSoon ? 'rgba(255, 77, 77, 0.05)' : 'none',
                                   transition: 'all 0.2s ease',
                                   cursor: 'pointer'
                                 }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(26, 26, 26, 0.05)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = d.dueSoon ? 'rgba(255, 77, 77, 0.05)' : 'transparent'}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'rgba(26, 26, 26, 0.05)';
+                                  e.currentTarget.style.borderBottomColor = 'transparent';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = d.dueSoon ? 'rgba(255, 77, 77, 0.05)' : 'transparent';
+                                  e.currentTarget.style.borderBottomColor = index === deadlines.length - 1 ? 'transparent' : 'var(--border)';
+                                }}
                               >
                                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0, background: d.overdue ? 'var(--text-muted)' : d.dueSoon ? '#ff4d4d' : '#2ecc71' }} />
                                 <div style={{ flex: 1, minWidth: 0 }}>
