@@ -84,10 +84,10 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
 
   // ── pick suggestion ────────────────────────────────────────────
   const pickSuggestion = (sug) => {
-    // Replace the @query in textarea
+    // Replace the @query in textarea (remove the @ symbol)
     const before = text.slice(0, mentionStart);
     const after = text.slice(textareaRef.current.selectionStart);
-    const newText = `${before}@${sug.name} ${after}`;
+    const newText = `${before}${sug.name} ${after}`;
     if (textareaRef.current) {
       textareaRef.current.value = newText;
     }
@@ -103,7 +103,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
 
     setTimeout(() => {
       if (textareaRef.current) {
-        const newCursorPos = before.length + sug.name.length + 2; // +1 for @, +1 for space
+        const newCursorPos = before.length + sug.name.length + 1; // +1 for space (no @ symbol)
         textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
         textareaRef.current.focus();
       }
@@ -124,10 +124,10 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
   // ── remove a tag chip ──────────────────────────────────────────
   const removeTag = (type, id) => {
     setTags(prev => prev.filter(t => !(t.type === type && t.id === id)));
-    // Also remove @name from text
+    // Also remove name from text (with or without @ prefix)
     const removed = tags.find(t => t.type === type && t.id === id);
     if (removed) {
-      setText(prev => prev.replace(new RegExp(`@${removed.name}\\s?`, 'g'), ''));
+      setText(prev => prev.replace(new RegExp(`@?${removed.name}\\s?`, 'g'), ''));
     }
   };
 
@@ -157,6 +157,10 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
   };
 
   const sugs = suggestions();
+
+  const textBeforeMention = mentionStart >= 0 ? text.slice(0, mentionStart) : '';
+  const lineCount = (textBeforeMention.match(/\n/g) || []).length;
+  const dropdownTop = Math.min(45 + lineCount * 25, 180);
 
   return (
     <div className="create-post-modal-overlay" onClick={onClose}>
@@ -192,15 +196,19 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
                 ref={dropdownRef}
                 style={{
                   position: 'absolute',
+                  top: `${dropdownTop}px`,
                   left: '20px', right: '20px',
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '14px',
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+                  background: 'color-mix(in srgb, var(--bg-card) 80%, transparent)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1.5px solid var(--border)',
+                  borderRadius: '16px',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
                   zIndex: 1000,
                   overflow: 'hidden',
                   maxHeight: '220px',
                   overflowY: 'auto',
+                  transition: 'top 0.2s ease',
                 }}
               >
                 {/* Section header friends */}
@@ -218,7 +226,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
                       style={{
                         display: 'flex', alignItems: 'center', gap: '10px',
                         padding: '8px 14px', cursor: 'pointer',
-                        background: realIdx === suggestIdx ? 'rgba(0,0,0,0.06)' : 'transparent',
+                        background: realIdx === suggestIdx ? 'rgba(128, 128, 128, 0.15)' : 'transparent',
                         transition: 'background 0.15s',
                       }}
                       onMouseEnter={() => setSuggestIdx(realIdx)}
@@ -250,7 +258,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
                       style={{
                         display: 'flex', alignItems: 'center', gap: '10px',
                         padding: '8px 14px', cursor: 'pointer',
-                        background: realIdx === suggestIdx ? 'rgba(17, 24, 39, 0.06)' : 'transparent',
+                        background: realIdx === suggestIdx ? 'rgba(128, 128, 128, 0.15)' : 'transparent',
                         transition: 'background 0.15s',
                       }}
                       onMouseEnter={() => setSuggestIdx(realIdx)}
