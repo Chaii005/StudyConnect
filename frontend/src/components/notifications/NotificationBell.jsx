@@ -262,26 +262,15 @@ export default function NotificationBell({ style }) {
                   onClick={toggleToast}
                   title={toastEnabled ? 'Tắt popup' : 'Bật popup'}
                   style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    fontSize: 15, padding: '2px',
+                    background: 'rgba(0,0,0,0.05)', border: '1px solid var(--border)', cursor: 'pointer',
+                    fontSize: 10, padding: '2px 6px', borderRadius: '4px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    opacity: toastEnabled ? 1 : 0.5,
-                    filter: toastEnabled ? 'none' : 'grayscale(100%)',
+                    color: 'var(--text-secondary)',
+                    fontWeight: 600,
                     transition: 'all 0.2s',
                   }}
                 >
-                  {toastEnabled ? (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                  ) : (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                      <path d="M18.63 13A17.89 17.89 0 0 1 18 8" />
-                      <path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  )}
+                  {toastEnabled ? 'Popup: Bật' : 'Popup: Tắt'}
                 </button>
               </div>
               {notifs.length > 0 && (

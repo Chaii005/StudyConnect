@@ -2,10 +2,14 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/config/supabaseClient';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import studyconectLogo from '@/assets/studyconect_logo.png';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
+  const { addToast } = useToast();
 
   useEffect(() => {
     let isSyncing = false;
@@ -67,8 +71,10 @@ export default function AuthCallback() {
         }
 
         let finalUser;
+        let isNewUser = false;
 
         if (!existingUser) {
+          isNewUser = true;
           // 3. Nếu là người dùng Google OAuth mới, đăng ký họ vào public.users
           const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
           const avatarUrl = authUser.user_metadata?.avatar_url || '';
@@ -127,8 +133,18 @@ export default function AuthCallback() {
 
         localStorage.setItem('sc_session', JSON.stringify(safeUser));
 
+        // Cập nhật state user để React cập nhật giao diện ngay lập tức
+        setUser(safeUser);
+
+        // Hiển thị thông báo tương ứng
+        if (isNewUser) {
+          addToast('Đăng ký bằng Google thành công! Chào mừng thành viên mới.', 'success');
+        } else {
+          addToast('Đăng nhập bằng Google thành công! Chào mừng quay trở lại.', 'success');
+        }
+
         // Chuyển hướng về trang chủ
-        window.location.href = '/';
+        navigate('/');
       } catch (err) {
         if (import.meta.env.DEV) console.error('Error in AuthCallback:', err);
         navigate(`/login?error=sync_failed&message=${encodeURIComponent(err.message || 'Sync failed')}`);
@@ -136,7 +152,7 @@ export default function AuthCallback() {
     };
 
     handleAuth();
-  }, [navigate]);
+  }, [navigate, setUser, addToast]);
 
   return (
     <div style={{

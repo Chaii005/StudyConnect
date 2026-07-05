@@ -1,5 +1,5 @@
 // src/pages/ForgotPassword.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { forgotPassword, verifyOtpAndResetPassword } from '../services/authService';
 import studyconectLogo from '@/assets/studyconect_logo.png';
@@ -14,7 +14,22 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let interval = null;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0 && interval) {
+      clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [resendTimer]);
 
   const handleForgot = async (e) => {
     e.preventDefault();
@@ -28,8 +43,24 @@ export default function ForgotPassword() {
       await forgotPassword(email);
       setMessage('Mã xác nhận (OTP) đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư (bao gồm cả thư rác/spam).');
       setMode('verify');
+      setResendTimer(120); // 2 minutes countdown
     } catch (err) {
       setError(err.message || 'Gửi yêu cầu thất bại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0 || loading) return;
+    setError('');
+    setLoading(true);
+    try {
+      await forgotPassword(email);
+      setMessage('Mã xác nhận (OTP) mới đã được gửi đến email của bạn.');
+      setResendTimer(120); // Restart 2 minutes countdown
+    } catch (err) {
+      setError(err.message || 'Gửi lại mã thất bại.');
     } finally {
       setLoading(false);
     }
@@ -233,6 +264,39 @@ export default function ForgotPassword() {
                     onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; }}
                   />
                 </div>
+              </div>
+
+              {/* Resend OTP Timer & Button */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-8px', marginBottom: '20px', padding: '0 4px' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  Không nhận được mã?
+                </span>
+                {resendTimer > 0 ? (
+                  <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                    Gửi lại sau {Math.floor(resendTimer / 60)}:{(resendTimer % 60).toString().padStart(2, '0')}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={loading}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      color: 'var(--primary-light)',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      transition: 'color 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.color = 'var(--secondary)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'var(--primary-light)'}
+                  >
+                    Gửi lại mã
+                  </button>
+                )}
               </div>
 
               {/* Password Input */}

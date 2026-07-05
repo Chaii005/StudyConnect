@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { login, signInWithGoogle } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import studyconectLogo from '@/assets/studyconect_logo.png';
 
 export default function Login() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const { addToast } = useToast();
   const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({ email: '', password: '' });
@@ -48,6 +50,7 @@ export default function Login() {
         return;
       }
       setUser(user);
+      addToast('Đăng nhập thành công! Chào mừng bạn quay trở lại.', 'success');
       navigate('/');
     } catch (err) {
       setError(err.message);

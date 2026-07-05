@@ -274,7 +274,7 @@ export default function useNotifications(userId) {
                 key: `deadline:${d.id}`,
                 type: 'deadline',
                 title: `Deadline mới: "${d.title}"`,
-                body: `${isPersonal ? '👤 Giao cho bạn' : '👥 Cả nhóm'} • Nhóm ${d.study_groups?.name || 'học'} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
+                body: `${isPersonal ? 'Giao cho bạn' : 'Cả nhóm'} • Nhóm ${d.study_groups?.name || 'học'} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
                 createdAt: d.created_at,
                 groupId: d.group_id.toString(),
               });
@@ -302,7 +302,7 @@ export default function useNotifications(userId) {
                 key: `deadline-urgent:${d.id}`,
                 type: 'deadline-urgent',
                 title: `${isPersonal ? 'Deadline của bạn' : 'Deadline nhóm'} sắp đến: "${d.title}"`,
-                body: `${isPersonal ? '👤 Giao cho bạn' : '👥 Cả nhóm'} • Nhóm ${d.study_groups?.name || 'học'} • Còn ${timeStr} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
+                body: `${isPersonal ? 'Giao cho bạn' : 'Cả nhóm'} • Nhóm ${d.study_groups?.name || 'học'} • Còn ${timeStr} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
                 createdAt: new Date(new Date(d.due_date).getTime() - ONE_DAY_MS).toISOString(),
                 groupId: d.group_id.toString(),
                 deadlineId: d.id.toString(),
@@ -541,7 +541,7 @@ export default function useNotifications(userId) {
 
             const senderName = m.users?.full_name || 'Người dùng';
             const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-              ? '📷 Đã gửi một ảnh'
+              ? 'Đã gửi một ảnh'
               : m.content || '';
             notifsList.push({
               key: `privatemsg:${m.id}`,
@@ -964,7 +964,7 @@ export default function useNotifications(userId) {
               key: `deadline:${d.id}`,
               type: 'deadline',
               title: `Deadline mới: "${d.title}"`,
-              body: `${isPersonal ? '👤 Giao cho bạn' : '👥 Cả nhóm'} • Nhóm ${groupName} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
+              body: `${isPersonal ? 'Giao cho bạn' : 'Cả nhóm'} • Nhóm ${groupName} • Hạn: ${new Date(d.due_date).toLocaleString('vi-VN')}`,
               createdAt: d.created_at,
               groupId: d.group_id.toString(),
             });
@@ -1002,7 +1002,7 @@ export default function useNotifications(userId) {
               });
             } else {
               const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-                ? '📷 Đã gửi một ảnh'
+                ? 'Đã gửi một ảnh'
                 : m.content || '';
               addIncrementalNotif({
                 key: `privatemsg:${m.id}`,

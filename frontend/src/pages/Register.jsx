@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register, signInWithGoogle } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { HCM_UNIVERSITIES, MAJORS } from '../constants/educationData';
 import { VIETNAM_LOCATIONS } from '../constants/locationData';
 import studyconectLogo from '@/assets/studyconect_logo.png';
@@ -165,6 +166,7 @@ function LocationModal({ isOpen, onClose, title, options, value, onSelect }) {
 export default function Register() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const { addToast } = useToast();
 
   const [form, setForm] = useState({
     fullName: '', email: '', password: '', confirmPassword: '',
@@ -233,6 +235,7 @@ export default function Register() {
       setUser(user);
       setRegisteredName(form.fullName.trim().split(' ').pop()); // Lấy tên (từ cuối)
       setSuccess(true);
+      addToast('Đăng ký tài khoản thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.', 'success');
       
       // Tự navigate về login sau 10 giây để user đăng nhập sau khi xác thực email
       setTimeout(() => navigate('/login'), 10000);
