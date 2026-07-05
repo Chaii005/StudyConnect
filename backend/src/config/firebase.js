@@ -12,6 +12,10 @@ try {
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
   if (projectId && clientEmail && privateKey) {
+    // Strip surrounding quotes if present (often happens when pasting .env on Render)
+    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+      privateKey = privateKey.slice(1, -1);
+    }
     // Handle formatting of private key (newline characters)
     privateKey = privateKey.replace(/\\n/g, '\n');
 
