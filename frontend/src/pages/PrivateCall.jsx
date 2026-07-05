@@ -153,6 +153,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
 
         const rs = new MediaStream();
         pc.ontrack = (e) => {
+          if (import.meta.env.DEV) console.log('[PrivateCall] Remote track added:', e.track.kind);
           rs.getTracks().forEach(t => { if (t.kind === e.track.kind) rs.removeTrack(t); });
           rs.addTrack(e.track);
           setRemoteStream(rs);
@@ -160,8 +161,8 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         };
 
         pc.onicecandidate = (e) => {
-          if (e.candidate && ch) {
-            ch.send({
+          if (e.candidate && channelRef.current) {
+            channelRef.current.send({
               type: 'broadcast', event: 'pc_signal',
               payload: { type: 'ice', from: myId, candidate: e.candidate }
             });
@@ -175,9 +176,13 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           if (pc.connectionState === 'connected') {
             setConnected(true);
           }
-          if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
+          if (['failed', 'closed'].includes(pc.connectionState)) {
             setConnected(false);
             setRemoteStream(null);
+            if (pcRef.current === pc) {
+              try { pcRef.current.close(); } catch (e) {}
+              pcRef.current = null;
+            }
           }
         };
 
@@ -188,9 +193,13 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           if (pc.iceConnectionState === 'connected') {
             setConnected(true);
           }
-          if (['disconnected', 'failed', 'closed'].includes(pc.iceConnectionState)) {
+          if (['failed', 'closed'].includes(pc.iceConnectionState)) {
             setConnected(false);
             setRemoteStream(null);
+            if (pcRef.current === pc) {
+              try { pcRef.current.close(); } catch (e) {}
+              pcRef.current = null;
+            }
           }
         };
 
@@ -208,32 +217,34 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         ch.on('broadcast', { event: 'pc_signal' }, async ({ payload: msg }) => {
           if (!msg || msg.from === myId || cancelled) return;
 
-          if (msg.type === 'ready') {
+          if (msg.type === 'join' || msg.type === 'ready') {
             if (msg.camOn !== undefined) setRemoteCamOn(msg.camOn);
             if (msg.micOn !== undefined) setRemoteMicOn(msg.micOn);
 
-            if (mode === 'caller') {
-              if (pcRef.current) {
-                const state = pcRef.current.connectionState;
-                if (state !== 'failed' && state !== 'closed') {
-                  if (import.meta.env.DEV) console.log('[PrivateCall] Peer connection already active, skipping offer recreation.');
-                  return;
+            const isConnected = pcRef.current && (
+              pcRef.current.connectionState === 'connected' ||
+              pcRef.current.iceConnectionState === 'connected'
+            );
+            if (!isConnected) {
+              // Tie-breaker: lexicographically smaller ID initiates the offer
+              if (myId < msg.from) {
+                if (import.meta.env.DEV) console.log('[PrivateCall] My ID is smaller, initiating offer...');
+                if (pcRef.current) {
+                  try { pcRef.current.close(); } catch (e) {}
+                  pcRef.current = null;
                 }
+                iceCandidateQueue.current = [];
+                const currentStream = localRef.current;
+                const pc = createPC(currentStream);
+                const offer = await pc.createOffer({ iceRestart: true });
+                await pc.setLocalDescription(offer);
+                channelRef.current?.send({
+                  type: 'broadcast', event: 'pc_signal',
+                  payload: { type: 'offer', from: myId, offer, camOn: camOnRef.current, micOn: micOnRef.current }
+                });
+              } else {
+                if (import.meta.env.DEV) console.log('[PrivateCall] My ID is larger, waiting for remote offer...');
               }
-              if (import.meta.env.DEV) console.log('[PrivateCall] Creating new RTCPeerConnection for offer...');
-              if (pcRef.current) {
-                try { pcRef.current.close(); } catch (e) {}
-                pcRef.current = null;
-              }
-              iceCandidateQueue.current = []; // Clear old queue
-              const currentStream = localRef.current;
-              const pc = createPC(currentStream);
-              const offer = await pc.createOffer({ iceRestart: true });
-              await pc.setLocalDescription(offer);
-              ch.send({
-                type: 'broadcast', event: 'pc_signal',
-                payload: { type: 'offer', from: myId, offer, camOn: camOnRef.current, micOn: micOnRef.current }
-              });
             }
           }
 
@@ -266,7 +277,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
             }
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
-            ch.send({
+            channelRef.current?.send({
               type: 'broadcast', event: 'pc_signal',
               payload: { type: 'answer', from: myId, answer, camOn: camOnRef.current, micOn: micOnRef.current }
             });
@@ -322,10 +333,10 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           }
 
           if (status === 'SUBSCRIBED') {
-            // Send ready immediately
-            ch.send({
+            // Send join immediately
+            channelRef.current?.send({
               type: 'broadcast', event: 'pc_signal',
-              payload: { type: 'ready', from: myId, camOn: camOnRef.current, micOn: micOnRef.current }
+              payload: { type: 'join', from: myId, camOn: camOnRef.current, micOn: micOnRef.current }
             });
 
             // Start interval if not running
@@ -337,11 +348,12 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
                 );
                 if (isConnected) return;
 
-                ch.send({
+                if (import.meta.env.DEV) console.log('[PrivateCall] Retrying join broadcast...');
+                channelRef.current?.send({
                   type: 'broadcast', event: 'pc_signal',
-                  payload: { type: 'ready', from: myId, camOn: camOnRef.current, micOn: micOnRef.current }
+                  payload: { type: 'join', from: myId, camOn: camOnRef.current, micOn: micOnRef.current }
                 });
-              }, 3000);
+              }, 4000);
             }
           }
 
@@ -478,7 +490,6 @@ function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirror
             width: '100%', height: '100%',
             objectFit: 'cover',
             transform: mirrored ? 'scaleX(-1)' : 'none',
-            display: camOff ? 'none' : 'block',
           }}
         />
       )}
