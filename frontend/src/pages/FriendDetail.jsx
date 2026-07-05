@@ -305,7 +305,7 @@ export default function FriendDetail() {
           const req = await sendFriendRequest(user.id, id);
           setFriendship(req);
           addToast('Đã gửi lời mời kết bạn!', 'success');
-        } else if (friendship.status === 'pending' && friendship.toUserId === user.id) {
+        } else if (friendship.status === 'pending' && String(friendship.toUserId) === String(user.id)) {
           const accepted = await acceptFriendRequest(friendship.id);
           setFriendship(accepted);
           setIsFriend(true);
@@ -467,7 +467,7 @@ export default function FriendDetail() {
 
         {/* Action Button */}
         <div>
-          {friendship && friendship.status === 'pending' && friendship.fromUserId === user.id ? (
+          {friendship && friendship.status === 'pending' && String(friendship.fromUserId) === String(user.id) ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
               <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 600 }}>
                 ⌛ Lời mời kết bạn đang chờ phản hồi
@@ -514,7 +514,7 @@ export default function FriendDetail() {
               }}
             >
               {actionLoading ? 'Đang xử lý...' : (
-                friendship && friendship.status === 'pending' && friendship.toUserId === user.id ? 'Chấp nhận kết bạn' : '+ Thêm bạn bè'
+                friendship && friendship.status === 'pending' && String(friendship.toUserId) === String(user.id) ? 'Chấp nhận kết bạn' : '+ Thêm bạn bè'
               )}
             </button>
           )}
