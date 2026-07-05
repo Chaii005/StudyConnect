@@ -1855,4 +1855,39 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
     max-height: 100vh !important;
     box-shadow: none !important;
   }
-}
+}
+
+/* ═══════════════════════════════════════════
+   WEB BROWSER LAYOUT LOCK (DESKTOP MODE LOCK)
+   ═══════════════════════════════════════════ */
+.is-web-browser .desktop-only {
+  display: block !important;
+}
+.is-web-browser .inline-desktop-only {
+  display: inline !important;
+}
+.is-web-browser .flex-desktop-only {
+  display: flex !important;
+}
+.is-web-browser .mobile-only,
+.is-web-browser .flex-mobile-only,
+.is-web-browser .mobile-bottom-nav,
+.is-web-browser .mobile-nav-bell {
+  display: none !important;
+}
+.is-web-browser .app-layout-wrapper {
+  padding-bottom: 0px !important;
+}
+.is-web-browser .layout-3col-custom {
+  grid-template-columns: 260px 1fr 300px !important;
+}
+.is-web-browser .layout-2col-custom {
+  grid-template-columns: 260px 1fr !important;
+}
+.is-web-browser .layout-2col-right-only {
+  grid-template-columns: 1fr 300px !important;
+}
+.is-web-browser .layout-1col-custom {
+  grid-template-columns: 1fr !important;
+}
+
