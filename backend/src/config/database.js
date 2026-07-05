@@ -40,7 +40,6 @@ const sequelize = new Sequelize(
 
 const connectDB = async () => {
   try {
-    console.log(`[DIAGNOSTIC] Attempting database connection to Host: ${dbHost}, Port: ${dbPort}, User: ${dbUser}, DB Name: ${dbName}`);
     await sequelize.authenticate();
     logger.info('Database connected successfully');
     if (process.env.DB_SYNC === 'true' && process.env.NODE_ENV !== 'production') {
