@@ -153,7 +153,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         pc.ontrack = (e) => {
           rs.getTracks().forEach(t => { if (t.kind === e.track.kind) rs.removeTrack(t); });
           rs.addTrack(e.track);
-          setRemoteStream(new MediaStream(rs.getTracks()));
+          setRemoteStream(rs);
           setConnected(true);
         };
 
@@ -250,7 +250,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
               while (iceCandidateQueue.current.length > 0) {
                 const c = iceCandidateQueue.current.shift();
                 try {
-                  await pc.addIceCandidate(new RTCIceCandidate(c));
+                  await pc.addIceCandidate(c);
                 } catch (e) {}
               }
               const answer = await pc.createAnswer();
@@ -272,7 +272,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
                 while (iceCandidateQueue.current.length > 0) {
                   const c = iceCandidateQueue.current.shift();
                   try {
-                    await pcRef.current.addIceCandidate(new RTCIceCandidate(c));
+                    await pcRef.current.addIceCandidate(c);
                   } catch (e) {}
                 }
               }
@@ -283,7 +283,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
             const pc = pcRef.current;
             if (pc && pc.remoteDescription) {
               try {
-                await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+                await pc.addIceCandidate(msg.candidate);
               } catch (e) {}
             } else {
               iceCandidateQueue.current.push(msg.candidate);
@@ -367,6 +367,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
       pcRef.current = null;
       localRef.current?.getTracks().forEach(t => t.stop());
       localRef.current = null;
+      setRemoteStream(null);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callId]);
