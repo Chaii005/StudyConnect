@@ -194,6 +194,17 @@ export const CallProvider = ({ children }) => {
       payload,
     });
 
+    // Send database call signal to trigger Push Notification for background devices
+    supabase.from('call_signals').insert({
+      call_id: callId,
+      caller_id: parseInt(user.id, 10),
+      receiver_id: parseInt(friend.userId, 10),
+    }).then(({ error }) => {
+      if (error && import.meta.env.DEV) {
+        console.error('[Call] Failed to insert database call signal:', error.message);
+      }
+    });
+
     // Timeout 10s không ai bắt máy → no_answer
     clearTimeout(ringTimerRef.current);
     const receiverId = friend.userId;

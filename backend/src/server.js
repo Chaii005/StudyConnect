@@ -8,6 +8,10 @@ const PORT = parseInt(process.env.PORT || '5000', 10);
 
 const start = async () => {
   try {
+    // Load and register models for sync
+    require('./models/User');
+    require('./models/UserPushToken');
+
     await connectDB();
 
     const server = app.listen(PORT, () => {

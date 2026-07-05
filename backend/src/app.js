@@ -33,6 +33,7 @@ app.get('/api/health', (_req, res) => {
 // Uncomment as controllers are implemented:
 app.use('/api/auth',          require('./controllers/authController'));
 app.use('/api/users',         require('./controllers/userController'));
+app.use('/api/notifications', require('./controllers/notificationController'));
 // app.use('/api/groups',        require('./controllers/groupController'));
 // app.use('/api/posts',         require('./controllers/postController'));
 // app.use('/api/chat',          require('./controllers/chatController'));

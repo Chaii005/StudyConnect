@@ -222,6 +222,15 @@ export const signInWithGoogle = async () => {
 
 // ─── ĐĂNG XUẤT ──────────────────────────────────────
 export const logout = async () => {
+  const fcmToken = localStorage.getItem('sc_fcm_token');
+  if (fcmToken) {
+    try {
+      await supabase.from('user_push_tokens').delete().eq('device_token', fcmToken);
+      localStorage.removeItem('sc_fcm_token');
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('Failed to delete push token on logout:', err);
+    }
+  }
   await supabase.auth.signOut();
   clearSession();
 };

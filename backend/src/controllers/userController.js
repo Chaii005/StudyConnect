@@ -95,6 +95,8 @@ router.put('/change-password', protect, async (req, res) => {
   }
 });
 
+const UserPushToken = require('../models/UserPushToken');
+
 // GET /search?q=&limit=&offset=
 router.get('/search', protect, async (req, res) => {
   try {
@@ -123,6 +125,61 @@ router.get('/search', protect, async (req, res) => {
     return res.status(200).json(apiPaginated(rows, count, page, limit));
   } catch (error) {
     logger.error('[User Search] Lỗi tìm kiếm:', { message: error.message, query: req.query.q });
+    return res.status(500).json(apiError('Lỗi hệ thống', 500));
+  }
+});
+
+// POST /push-token
+router.post('/push-token', protect, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { deviceToken, platform } = req.body;
+
+    if (!deviceToken) {
+      return res.status(400).json(apiError('Device token là bắt buộc', 400));
+    }
+
+    // Upsert push token
+    const [tokenRecord, created] = await UserPushToken.findOrCreate({
+      where: { device_token: deviceToken },
+      defaults: {
+        user_id: userId,
+        platform: platform || 'android'
+      }
+    });
+
+    if (!created && tokenRecord.user_id !== userId) {
+      // Token belongs to another user now, update user_id
+      tokenRecord.user_id = userId;
+      tokenRecord.platform = platform || 'android';
+      await tokenRecord.save();
+    }
+
+    return res.status(200).json(apiSuccess(tokenRecord, 'Đăng ký push token thành công'));
+  } catch (error) {
+    logger.error('[User Register Push Token] Lỗi đăng ký:', { message: error.message, userId: req.user?.id });
+    return res.status(500).json(apiError('Lỗi hệ thống', 500));
+  }
+});
+
+// DELETE /push-token
+router.delete('/push-token', protect, async (req, res) => {
+  try {
+    const { deviceToken } = req.body;
+    if (!deviceToken) {
+      return res.status(400).json(apiError('Device token là bắt buộc', 400));
+    }
+
+    await UserPushToken.destroy({
+      where: {
+        device_token: deviceToken,
+        user_id: req.user.id
+      }
+    });
+
+    return res.status(200).json(apiSuccess(null, 'Hủy đăng ký push token thành công'));
+  } catch (error) {
+    logger.error('[User De-register Push Token] Lỗi hủy đăng ký:', { message: error.message, userId: req.user?.id });
     return res.status(500).json(apiError('Lỗi hệ thống', 500));
   }
 });

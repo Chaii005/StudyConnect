@@ -3,9 +3,11 @@ import { useLocation } from 'react-router-dom';
 import { supabase } from '../config/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import usePushNotifications from '../hooks/usePushNotifications';
 
 export default function GlobalMessageListener() {
   const { user } = useAuth();
+  usePushNotifications(user);
   const { addToast: originalAddToast } = useToast();
   const location = useLocation();
 
