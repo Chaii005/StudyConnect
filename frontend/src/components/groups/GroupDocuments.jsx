@@ -68,7 +68,7 @@ export default function GroupDocuments({
     : files.filter(file => parseFileSubject(file.fileName).subject === selectedFilterSubject);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '24px', width: '100%', overflow: 'hidden' }}>
       <div className="document-share-card">
         <h3 style={{ marginBottom: '16px', fontSize: '18px', color: 'var(--text-primary)' }}>
           Chia sẻ tài liệu học tập mới
@@ -213,7 +213,7 @@ export default function GroupDocuments({
             <p style={{ color: 'var(--text-muted)' }}>Không tìm thấy tài liệu phù hợp.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', minWidth: 0 }}>
             {filteredFiles.map((file) => {
               const canDelete = file.userId === user.id || group.creatorId === user.id;
               const { subject, displayName } = parseFileSubject(file.fileName);
@@ -258,7 +258,8 @@ export default function GroupDocuments({
                               borderRadius: '4px',
                               border: '1px solid var(--border)',
                               display: 'inline-block',
-                              whiteSpace: 'nowrap'
+                              whiteSpace: 'normal',
+                              wordBreak: 'break-word'
                             }}
                           >
                             {subject}
@@ -342,6 +343,10 @@ export default function GroupDocuments({
           align-items: center;
           justify-content: space-between;
           gap: 16px;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          overflow: hidden;
         }
         .document-file-info {
           display: flex;
@@ -350,6 +355,7 @@ export default function GroupDocuments({
           overflow: hidden;
           min-width: 0;
           flex: 1;
+          width: 100%;
         }
         .document-file-actions {
           display: flex;

@@ -1753,12 +1753,6 @@ export default function Groups() {
             </Link>
           ))}
         </nav>
-
-        <div style={{ padding: '16px 12px', borderTop: '1px solid var(--border)' }}>
-          <button onClick={handleLogout} className="btn-logout" style={{ width: '100%', justifyContent: 'center' }}>
-            Đăng xuất
-          </button>
-        </div>
       </aside>
 
       {/* Button to open sidebar drawer (Mobile Only) */}

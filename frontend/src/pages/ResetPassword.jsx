@@ -23,6 +23,10 @@ export default function ResetPassword() {
       setError('Mật khẩu phải có ít nhất 6 ký tự.');
       return;
     }
+    if (!/[a-zA-Z]/.test(password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 chữ cái.');
+      return;
+    }
     if (!/\d/.test(password)) {
       setError('Mật khẩu phải chứa ít nhất 1 chữ số.');
       return;
@@ -182,13 +186,16 @@ export default function ResetPassword() {
                     id="new-pass"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"
-                    placeholder="Tối thiểu 6 ký tự (cần số & ký tự đặc biệt)"
+                    placeholder="Nhập mật khẩu mới"
                     value={password}
                     onChange={e => { setPassword(e.target.value); setError(''); }}
-                    style={{ width: '100%', padding: '12px 42px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
+                    style={{ width: '100%', padding: '12px 48px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
                     onFocus={e => { e.target.style.borderColor = 'var(--primary)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,0,0,0.08)'; }}
                     onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; }}
                   />
+                  <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', textAlign: 'left', lineHeight: 1.4 }}>
+                    Yêu cầu: tối thiểu 6 ký tự, có chữ, số & ký tự đặc biệt
+                  </p>
                   <button
                     type="button"
                     className="password-toggle"
@@ -229,10 +236,10 @@ export default function ResetPassword() {
                     id="confirm-new-pass"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"
-                    placeholder="Nhập lại mật khẩu mới"
+                    placeholder="Xác nhận mật khẩu mới"
                     value={confirmPassword}
                     onChange={e => { setConfirmPassword(e.target.value); setError(''); }}
-                    style={{ width: '100%', padding: '12px 16px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
+                    style={{ width: '100%', padding: '12px 48px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
                     onFocus={e => { e.target.style.borderColor = 'var(--primary)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,0,0,0.08)'; }}
                     onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; }}
                   />

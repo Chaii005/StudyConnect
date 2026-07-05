@@ -464,7 +464,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
 
 
       {!hideNavbar && (
-        <nav className={displayUser ? "navbar has-user" : "navbar"} style={{ 
+        <nav className={displayUser && location.pathname === '/profile' ? "navbar has-user" : "navbar"} style={{ 
           position: 'sticky', 
           top: 0, 
           zIndex: 100,
@@ -497,7 +497,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
               </div>
             )}
             {(location.pathname.startsWith('/groups') || location.pathname === '/schedule') && (
-              <div className="flex-desktop-only" style={{ alignItems: 'center', gap: '12px' }}>
+              <div className="flex-desktop-only" style={{ alignItems: 'center', gap: '5px' }}>
                 <Link to="/" style={{
                   textDecoration: 'none',
                   fontSize: '13px',
@@ -595,7 +595,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
 
 
           </div>
-          {displayUser && (
+          {displayUser && location.pathname === '/profile' && (
             <button onClick={handleLogout} className="navbar-logout-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -665,11 +665,13 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
             </Link>
           </div>
 
-          <div style={{ padding: '16px', borderTop: '1px solid var(--border)', display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <button onClick={handleLogout} className="btn-logout" style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
-              Đăng xuất
-            </button>
-          </div>
+          {location.pathname === '/profile' && (
+            <div style={{ padding: '16px', borderTop: '1px solid var(--border)', display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <button onClick={handleLogout} className="btn-logout" style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '10px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+                Đăng xuất
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

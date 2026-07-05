@@ -621,6 +621,7 @@ export default function Admin() {
     if (!currentEditUser && !userForm.password) return showToast('Vui lòng điền mật khẩu khởi tạo!', 'error');
     if (userForm.password) {
       if (userForm.password.length < 6) return showToast('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+      if (!/[a-zA-Z]/.test(userForm.password)) return showToast('Mật khẩu phải chứa ít nhất 1 chữ cái!', 'error');
       if (!/\d/.test(userForm.password)) return showToast('Mật khẩu phải chứa ít nhất 1 chữ số!', 'error');
       if (!/[!@#$%^&*(),.?":{}|<>]/.test(userForm.password)) return showToast('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt!', 'error');
     }

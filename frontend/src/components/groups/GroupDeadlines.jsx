@@ -68,7 +68,7 @@ export default function GroupDeadlines({
   });
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '24px', width: '100%', overflow: 'hidden' }}>
       {isLeader && (
         <div
           style={{
@@ -189,7 +189,7 @@ export default function GroupDeadlines({
         </div>
       )}
 
-      <div id="group-deadline-list" ref={deadlineListRef} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div id="group-deadline-list" ref={deadlineListRef} style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', minWidth: 0 }}>
         <h3 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
@@ -210,7 +210,7 @@ export default function GroupDeadlines({
             <p style={{ color: 'var(--text-muted)' }}>Chưa có deadline hay công việc nào được giao.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', minWidth: 0 }}>
             {visibleDeadlines.map((d) => {
               const canDelete = d.creatorId === user.id || group.creatorId === user.id;
               const dueSoon = d.dueSoon;
@@ -238,9 +238,12 @@ export default function GroupDeadlines({
                     gap: '16px',
                     opacity: d.completed ? 0.7 : 1,
                     boxShadow: dueSoon ? '0 0 10px rgba(239, 68, 68, 0.1)' : 'none',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    overflow: 'hidden'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', overflow: 'hidden', width: '100%', minWidth: 0, flex: 1 }}>
                     <input
                       type="checkbox"
                       checked={hasSubmitted}
@@ -255,7 +258,7 @@ export default function GroupDeadlines({
                         opacity: overdue && !hasSubmitted ? 0.5 : 1,
                       }}
                     />
-                    <div style={{ overflow: 'hidden' }}>
+                    <div style={{ overflow: 'hidden', minWidth: 0, flex: 1 }}>
                       <h4
                         style={{
                           fontSize: '15px',
