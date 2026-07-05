@@ -308,39 +308,6 @@ export default function Profile() {
           <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, fontFamily: "'Inter', sans-serif" }}>Hồ sơ cá nhân</h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 0', fontFamily: "'Inter', sans-serif" }}>Quản lý thông tin tài khoản và cấu hình riêng tư</p>
         </div>
-        <button
-          onClick={handleLogout}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            background: 'transparent',
-            border: '1.5px solid #ef4444',
-            borderRadius: '12px',
-            color: '#ef4444',
-            fontSize: '13.5px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            fontFamily: 'inherit'
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.transform = 'none';
-          }}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Đăng xuất
-        </button>
       </div>
 
       {/* Content */}
