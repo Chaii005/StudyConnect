@@ -325,6 +325,9 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
   // ── Start local media ────────────────────────────────────────
   const startMedia = useCallback(async () => {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('SecureContextError');
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
         audio: true,
@@ -335,8 +338,15 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
       stream.getVideoTracks().forEach(t => { t.enabled = camOnRef.current; });
       return stream;
     } catch (err) {
+      if (err.message === 'SecureContextError') {
+        setError('Trình duyệt yêu cầu kết nối HTTPS bảo mật để sử dụng camera/microphone.');
+        return null;
+      }
       if (import.meta.env.DEV) console.warn('Full media request failed in Meetroom, trying audio only...', err);
       try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('SecureContextError');
+        }
         const stream = await navigator.mediaDevices.getUserMedia({
           video: false,
           audio: true,
@@ -349,7 +359,7 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
         if (import.meta.env.DEV) console.error('Audio-only media request failed too in Meetroom', err2);
         setError(err.name === 'NotAllowedError' || err2.name === 'NotAllowedError'
           ? 'Vui lòng cấp quyền camera/mic.'
-          : 'Không thể truy cập camera/mic.');
+          : 'Không thể truy cập camera/mic hoặc thiết bị yêu cầu HTTPS.');
         return null;
       }
     }
@@ -384,18 +394,26 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
 
     if (stream) stream.getTracks().forEach(t => pc.addTrack(t, stream));
 
-    // Dùng một MediaStream cố định cho mỗi peer để tránh mất stream khi replaceTrack
-    const remoteStream = new MediaStream();
     pc.ontrack = (e) => {
-      // Xoá track cũ cùng loại trước khi thêm track mới
-      remoteStream.getTracks().forEach(t => {
-        if (t.kind === e.track.kind) remoteStream.removeTrack(t);
+      if (import.meta.env.DEV) console.log(`[Meetroom] Remote track added from peer ${peerId}:`, e.track.kind);
+      setRemoteFeeds(prev => {
+        const prevFeed = prev[peerId];
+        const oldStream = prevFeed?.stream || new MediaStream();
+        // Remove track of the same kind if already exists
+        oldStream.getTracks().forEach(t => {
+          if (t.kind === e.track.kind) oldStream.removeTrack(t);
+        });
+        oldStream.addTrack(e.track);
+        return {
+          ...prev,
+          [peerId]: {
+            ...prevFeed,
+            stream: new MediaStream(oldStream.getTracks()),
+            name: peerName,
+            avatar: peerAvatar
+          }
+        };
       });
-      remoteStream.addTrack(e.track);
-      setRemoteFeeds(prev => ({
-        ...prev,
-        [peerId]: { ...prev[peerId], stream: remoteStream, name: peerName, avatar: peerAvatar }
-      }));
     };
 
     pc.onicecandidate = (e) => {
@@ -531,7 +549,11 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
           // Flush ICE candidates đã queue trước khi setRemoteDescription
           const queuedOffer = iceCandidateQueues.current[msg.from] || [];
           iceCandidateQueues.current[msg.from] = [];
-          for (const c of queuedOffer) await pc.addIceCandidate(c).catch(() => {});
+          for (const c of queuedOffer) {
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(c));
+            } catch (e) {}
+          }
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           ch.send({
@@ -561,7 +583,11 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
             // Flush ICE candidates đã queue trước khi setRemoteDescription
             const queuedAnswer = iceCandidateQueues.current[msg.from] || [];
             iceCandidateQueues.current[msg.from] = [];
-            for (const c of queuedAnswer) await pc.addIceCandidate(c).catch(() => {});
+            for (const c of queuedAnswer) {
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(c));
+              } catch (e) {}
+            }
           }
         }
 
@@ -569,7 +595,9 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
           const pc = peersRef.current[msg.from];
           if (pc && pc.remoteDescription) {
             // remoteDescription đã set → thêm ngay
-            pc.addIceCandidate(msg.candidate).catch(() => {});
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+            } catch (e) {}
           } else {
             // Chưa có remoteDescription → queue lại theo peerId
             if (!iceCandidateQueues.current[msg.from]) {

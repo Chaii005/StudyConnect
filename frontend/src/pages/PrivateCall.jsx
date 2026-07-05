@@ -81,6 +81,9 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
   // Bắt đầu media
   const startMedia = useCallback(async () => {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('SecureContextError');
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
         audio: true,
@@ -91,8 +94,15 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
       stream.getVideoTracks().forEach(t => { t.enabled = camOnRef.current; });
       return stream;
     } catch (err) {
+      if (err.message === 'SecureContextError') {
+        setError('Trình duyệt yêu cầu kết nối HTTPS để truy cập Camera/Microphone.');
+        return null;
+      }
       if (import.meta.env.DEV) console.warn('[PrivateCall] Full media failed, trying audio only:', err);
       try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('SecureContextError');
+        }
         const stream = await navigator.mediaDevices.getUserMedia({
           video: false,
           audio: true,
@@ -105,7 +115,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         if (import.meta.env.DEV) console.error('[PrivateCall] Audio-only also failed:', err2);
         setError(err.name === 'NotAllowedError' || err2.name === 'NotAllowedError'
           ? 'Vui lòng cấp quyền camera và microphone để gọi video.'
-          : 'Không thể truy cập camera/microphone.');
+          : 'Không thể truy cập camera/microphone hoặc thiết bị yêu cầu HTTPS.');
         return null;
       }
     }
@@ -278,7 +288,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
             while (iceCandidateQueue.current.length > 0) {
               const c = iceCandidateQueue.current.shift();
               try {
-                await pc.addIceCandidate(c);
+                await pc.addIceCandidate(new RTCIceCandidate(c));
               } catch (e) {}
             }
             const answer = await pc.createAnswer();
@@ -302,7 +312,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
                 while (iceCandidateQueue.current.length > 0) {
                   const c = iceCandidateQueue.current.shift();
                   try {
-                    await pcRef.current.addIceCandidate(c);
+                    await pcRef.current.addIceCandidate(new RTCIceCandidate(c));
                   } catch (e) {}
                 }
               }
@@ -318,7 +328,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
             const pc = pcRef.current;
             if (pc && pc.remoteDescription) {
               try {
-                await pc.addIceCandidate(msg.candidate);
+                await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
               } catch (e) {}
             } else {
               iceCandidateQueue.current.push(msg.candidate);
