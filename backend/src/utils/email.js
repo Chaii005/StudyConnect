@@ -2,31 +2,34 @@ const nodemailer = require('nodemailer');
 const logger = require('./logger');
 
 const sendEmail = async ({ to, subject, html }) => {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  const host = process.env.SMTP_HOST || process.env.EMAIL_HOST;
+  const port = process.env.SMTP_PORT || process.env.EMAIL_PORT;
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
-    logger.warn('[Email] Thiếu cấu hình SMTP trong env. Không thể gửi email.', {
-      host: !!SMTP_HOST,
-      port: !!SMTP_PORT,
-      user: !!SMTP_USER,
-      pass: !!SMTP_PASS
+  if (!host || !port || !user || !pass) {
+    logger.warn('[Email] Thiếu cấu hình SMTP/EMAIL trong env. Không thể gửi email.', {
+      host: !!host,
+      port: !!port,
+      user: !!user,
+      pass: !!pass
     });
     return false;
   }
 
   try {
     const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: parseInt(SMTP_PORT, 10),
-      secure: parseInt(SMTP_PORT, 10) === 465,
+      host,
+      port: parseInt(port, 10),
+      secure: parseInt(port, 10) === 465,
       auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS
+        user,
+        pass
       }
     });
 
     const info = await transporter.sendMail({
-      from: `"StudyConnect" <${SMTP_USER}>`,
+      from: `"StudyConnect" <${user}>`,
       to,
       subject,
       html
