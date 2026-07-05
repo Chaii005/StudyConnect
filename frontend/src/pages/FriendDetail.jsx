@@ -323,6 +323,20 @@ export default function FriendDetail() {
       }
     };
 
+    const handleCancelRequestAction = async () => {
+      if (!friendship?.id) return;
+      setActionLoading(true);
+      try {
+        await removeFriend(friendship.id);
+        setFriendship(null);
+        addToast('Đã thu hồi lời mời kết bạn.', 'success');
+      } catch (err) {
+        addToast(err.message || 'Lỗi thu hồi lời mời kết bạn.', 'error');
+      } finally {
+        setActionLoading(false);
+      }
+    };
+
     return (
       <div style={{
         maxWidth: '540px',
@@ -454,21 +468,34 @@ export default function FriendDetail() {
         {/* Action Button */}
         <div>
           {friendship && friendship.status === 'pending' && friendship.fromUserId === user.id ? (
-            <button
-              disabled
-              style={{
-                background: 'rgba(0,0,0,0.06)',
-                color: 'var(--text-muted)',
-                border: '1.5px solid var(--border)',
-                borderRadius: '24px',
-                padding: '12px 32px',
-                fontWeight: 800,
-                fontSize: '15px',
-                cursor: 'not-allowed'
-              }}
-            >
-              ⌛ Lời mời kết bạn đang chờ phản hồi
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                ⌛ Lời mời kết bạn đang chờ phản hồi
+              </span>
+              <button
+                onClick={handleCancelRequestAction}
+                disabled={actionLoading}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                  border: '1.5px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '24px',
+                  padding: '8px 24px',
+                  fontWeight: 800,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                }}
+              >
+                {actionLoading ? 'Đang hủy...' : 'Thu hồi lời mời'}
+              </button>
+            </div>
           ) : (
             <button
               onClick={handleAddFriendAction}
