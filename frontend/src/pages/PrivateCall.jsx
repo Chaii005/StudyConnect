@@ -57,6 +57,8 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
   const [remoteStream, setRemoteStream] = useState(null);
   const [connected, setConnected]       = useState(false);
   const [error, setError]               = useState(null);
+  const [remoteCamOn, setRemoteCamOn]   = useState(true);
+  const [remoteMicOn, setRemoteMicOn]   = useState(true);
 
   const pcRef             = useRef(null);
   const localRef          = useRef(null);
@@ -207,37 +209,18 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           if (!msg || msg.from === myId || cancelled) return;
 
           if (msg.type === 'ready') {
-            if (mode === 'caller') {
-              const isConnected = pcRef.current && (
-                pcRef.current.connectionState === 'connected' ||
-                pcRef.current.iceConnectionState === 'connected'
-              );
-              if (!isConnected) {
-                if (import.meta.env.DEV) console.log('[PrivateCall] Peer not connected, recreating RTCPeerConnection for offer...');
-                if (pcRef.current) {
-                  try { pcRef.current.close(); } catch (e) {}
-                  pcRef.current = null;
-                }
-                iceCandidateQueue.current = []; // Clear old queue
-                const currentStream = localRef.current;
-                const pc = createPC(currentStream);
-                const offer = await pc.createOffer({ iceRestart: true });
-                await pc.setLocalDescription(offer);
-                ch.send({
-                  type: 'broadcast', event: 'pc_signal',
-                  payload: { type: 'offer', from: myId, offer }
-                });
-              }
-            }
-          }
+            if (msg.camOn !== undefined) setRemoteCamOn(msg.camOn);
+            if (msg.micOn !== undefined) setRemoteMicOn(msg.micOn);
 
-          if (msg.type === 'offer') {
-            const isConnected = pcRef.current && (
-              pcRef.current.connectionState === 'connected' ||
-              pcRef.current.iceConnectionState === 'connected'
-            );
-            if (!isConnected) {
-              if (import.meta.env.DEV) console.log('[PrivateCall] Received new offer, resetting peer connection...');
+            if (mode === 'caller') {
+              if (pcRef.current) {
+                const state = pcRef.current.connectionState;
+                if (state !== 'failed' && state !== 'closed') {
+                  if (import.meta.env.DEV) console.log('[PrivateCall] Peer connection already active, skipping offer recreation.');
+                  return;
+                }
+              }
+              if (import.meta.env.DEV) console.log('[PrivateCall] Creating new RTCPeerConnection for offer...');
               if (pcRef.current) {
                 try { pcRef.current.close(); } catch (e) {}
                 pcRef.current = null;
@@ -245,24 +228,54 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
               iceCandidateQueue.current = []; // Clear old queue
               const currentStream = localRef.current;
               const pc = createPC(currentStream);
-              await pc.setRemoteDescription(msg.offer);
-              // Flush ICE candidates
-              while (iceCandidateQueue.current.length > 0) {
-                const c = iceCandidateQueue.current.shift();
-                try {
-                  await pc.addIceCandidate(c);
-                } catch (e) {}
-              }
-              const answer = await pc.createAnswer();
-              await pc.setLocalDescription(answer);
+              const offer = await pc.createOffer({ iceRestart: true });
+              await pc.setLocalDescription(offer);
               ch.send({
                 type: 'broadcast', event: 'pc_signal',
-                payload: { type: 'answer', from: myId, answer }
+                payload: { type: 'offer', from: myId, offer, camOn: camOnRef.current, micOn: micOnRef.current }
               });
             }
           }
 
+          if (msg.type === 'offer') {
+            if (msg.camOn !== undefined) setRemoteCamOn(msg.camOn);
+            if (msg.micOn !== undefined) setRemoteMicOn(msg.micOn);
+
+            if (pcRef.current) {
+              const state = pcRef.current.connectionState;
+              if (state !== 'failed' && state !== 'closed') {
+                if (import.meta.env.DEV) console.log('[PrivateCall] Peer connection already active, skipping offer processing.');
+                return;
+              }
+            }
+            if (import.meta.env.DEV) console.log('[PrivateCall] Received new offer, setting peer connection...');
+            if (pcRef.current) {
+              try { pcRef.current.close(); } catch (e) {}
+              pcRef.current = null;
+            }
+            iceCandidateQueue.current = []; // Clear old queue
+            const currentStream = localRef.current;
+            const pc = createPC(currentStream);
+            await pc.setRemoteDescription(msg.offer);
+            // Flush ICE candidates
+            while (iceCandidateQueue.current.length > 0) {
+              const c = iceCandidateQueue.current.shift();
+              try {
+                await pc.addIceCandidate(c);
+              } catch (e) {}
+            }
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            ch.send({
+              type: 'broadcast', event: 'pc_signal',
+              payload: { type: 'answer', from: myId, answer, camOn: camOnRef.current, micOn: micOnRef.current }
+            });
+          }
+
           if (msg.type === 'answer') {
+            if (msg.camOn !== undefined) setRemoteCamOn(msg.camOn);
+            if (msg.micOn !== undefined) setRemoteMicOn(msg.micOn);
+
             if (pcRef.current) {
               const isConnected = pcRef.current.connectionState === 'connected' || pcRef.current.iceConnectionState === 'connected';
               if (!isConnected) {
@@ -277,6 +290,11 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
                 }
               }
             }
+          }
+
+          if (msg.type === 'state') {
+            if (msg.camOn !== undefined) setRemoteCamOn(msg.camOn);
+            if (msg.micOn !== undefined) setRemoteMicOn(msg.micOn);
           }
 
           if (msg.type === 'ice') {
@@ -307,7 +325,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
             // Send ready immediately
             ch.send({
               type: 'broadcast', event: 'pc_signal',
-              payload: { type: 'ready', from: myId }
+              payload: { type: 'ready', from: myId, camOn: camOnRef.current, micOn: micOnRef.current }
             });
 
             // Start interval if not running
@@ -321,7 +339,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
 
                 ch.send({
                   type: 'broadcast', event: 'pc_signal',
-                  payload: { type: 'ready', from: myId }
+                  payload: { type: 'ready', from: myId, camOn: camOnRef.current, micOn: micOnRef.current }
                 });
               }, 3000);
             }
@@ -381,7 +399,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
     }
   }, [myId]);
 
-  return { localStream, remoteStream, connected, error, hangup };
+  return { localStream, remoteStream, connected, error, hangup, remoteCamOn, remoteMicOn };
 }
 
 /* ─── Nút điều khiển ─────────────────────────────────────── */
@@ -424,10 +442,19 @@ function CtrlBtn({ onClick, title, active = true, danger = false, children }) {
 function VideoTile({ stream, name, avatar, muted = false, camOff = false, mirrored = false, style = {} }) {
   const ref = useRef(null);
   useEffect(() => {
-    if (ref.current && stream) {
-      ref.current.srcObject = stream;
-      ref.current.play().catch(() => {});
-    }
+    if (!ref.current || !stream) return;
+    ref.current.srcObject = stream;
+    ref.current.play().catch(() => {});
+
+    const handleTrackAdded = () => {
+      if (ref.current) {
+        ref.current.play().catch(() => {});
+      }
+    };
+    stream.addEventListener('addtrack', handleTrackAdded);
+    return () => {
+      stream.removeEventListener('addtrack', handleTrackAdded);
+    };
   }, [stream]);
 
   const isConnecting = !stream;
@@ -565,7 +592,7 @@ export default function PrivateCall() {
     }
   }, [callStatus, navigate]);
 
-  const { localStream, remoteStream, connected, error, hangup } = usePrivateWebRTC({
+  const { localStream, remoteStream, connected, error, hangup, remoteCamOn, remoteMicOn } = usePrivateWebRTC({
     callId, user, mode, micOn, camOn,
     onHangup: () => {
       setPartnerHungUp(true);
@@ -731,7 +758,7 @@ export default function PrivateCall() {
             name={pipSwapped ? (user?.fullName || 'Bạn') : friendName}
             avatar={pipSwapped ? user?.avatar : friendAvatar}
             muted={pipSwapped ? true : false}
-            camOff={pipSwapped ? !camOn : !remoteStream}
+            camOff={pipSwapped ? !camOn : (!remoteStream || !remoteCamOn)}
             mirrored={pipSwapped ? localMirrored : false}
             style={{ position: 'absolute', inset: 0, borderRadius: 0, border: 'none' }}
           />
@@ -760,7 +787,7 @@ export default function PrivateCall() {
               name={pipSwapped ? friendName : (user?.fullName || 'Bạn')}
               avatar={pipSwapped ? friendAvatar : user?.avatar}
               muted={pipSwapped ? false : true}
-              camOff={pipSwapped ? !remoteStream : !camOn}
+              camOff={pipSwapped ? (!remoteStream || !remoteCamOn) : !camOn}
               mirrored={pipSwapped ? false : localMirrored}
               style={{ borderRadius: 0, width: '100%', height: '100%' }}
             />

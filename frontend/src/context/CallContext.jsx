@@ -89,7 +89,7 @@ export const CallProvider = ({ children }) => {
             if (locationRef.current.startsWith('/call/')) {
               navigate('/chat');
             }
-          }, 10000);
+          }, 30000);
         }
 
         // Đối phương chấp nhận (người gọi nhận)
@@ -205,7 +205,7 @@ export const CallProvider = ({ children }) => {
       }
     });
 
-    // Timeout 10s không ai bắt máy → no_answer
+    // Timeout 30s không ai bắt máy → no_answer
     clearTimeout(ringTimerRef.current);
     const receiverId = friend.userId;
     ringTimerRef.current = setTimeout(() => {
@@ -222,7 +222,7 @@ export const CallProvider = ({ children }) => {
       if (user?.id && receiverId) {
         sendMessage(user.id, receiverId, '📵 Cuộc gọi nhỡ').catch(() => {});
       }
-    }, 10000);
+    }, 30000);
 
     // Navigate người gọi đến trang chờ
     navigate(`/call/${callId}?mode=caller&friendName=${encodeURIComponent(friend.fullName)}&friendAvatar=${encodeURIComponent(friend.avatar || '')}&friendId=${friend.userId}`);
