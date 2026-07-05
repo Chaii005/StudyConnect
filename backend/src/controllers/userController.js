@@ -68,8 +68,8 @@ router.put('/change-password', protect, async (req, res) => {
     if (!currentPassword || !newPassword) {
       return res.status(400).json(apiError('Mật khẩu hiện tại và mật khẩu mới là bắt buộc', 400));
     }
-    if (newPassword.length < 8) {
-      return res.status(400).json(apiError('Mật khẩu mới phải chứa tối thiểu 8 ký tự', 400));
+    if (newPassword.length < 6 || !/\d/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+      return res.status(400).json(apiError('Mật khẩu mới phải chứa tối thiểu 6 ký tự, bao gồm ít nhất 1 chữ số và 1 ký tự đặc biệt', 400));
     }
 
     // Query user including password hash using scope

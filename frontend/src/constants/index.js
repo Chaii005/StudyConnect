@@ -54,7 +54,7 @@ export const TIME_MS = {
 
 // ─── FILE LIMITS ───────────────────────────────────────────────────
 export const FILE_LIMITS = {
-  MAX_UPLOAD_SIZE: 20 * 1024 * 1024, // 20MB
+  MAX_UPLOAD_SIZE: 25 * 1024 * 1024, // 25MB
 };
 
 // ─── AVATAR COLORS ─────────────────────────────────────────────────

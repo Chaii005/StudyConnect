@@ -597,9 +597,9 @@ export default function ConversationView({
       if (items[i].type.indexOf('image') !== -1) {
         const file = items[i].getAsFile();
         if (file) {
-          const MAX_FILE_SIZE = 20 * 1024 * 1024;
+          const MAX_FILE_SIZE = 25 * 1024 * 1024;
           if (file.size > MAX_FILE_SIZE) {
-            alert('File đính kèm quá lớn! Vui lòng chọn file nhỏ hơn 20MB.');
+            alert('File đính kèm quá lớn! Vui lòng chọn file nhỏ hơn hoặc bằng 25MB.');
             return;
           }
           setAttachedFile(file);
@@ -619,9 +619,9 @@ export default function ConversationView({
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const MAX_FILE_SIZE = 20 * 1024 * 1024;
+    const MAX_FILE_SIZE = 25 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
-      alert('File đính kèm quá lớn! Vui lòng chọn file nhỏ hơn 20MB.');
+      alert('File đính kèm quá lớn! Vui lòng chọn file nhỏ hơn hoặc bằng 25MB.');
       return;
     }
     setAttachedFile(file);

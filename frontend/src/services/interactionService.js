@@ -662,9 +662,9 @@ export const approveFile = async (fileId) => {
 };
 
 export const uploadFile = async (groupId, { fileName, fileSize, fileType, fileData, userId }) => {
-  const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+  const MAX_SIZE = 25 * 1024 * 1024; // 25MB
   if (fileSize && fileSize > MAX_SIZE) {
-    throw new Error('File quá lớn! Vui lòng chọn file nhỏ hơn 20MB.');
+    throw new Error('File quá lớn! Vui lòng chọn file nhỏ hơn hoặc bằng 25MB.');
   }
 
   const { data: file, error } = await supabase

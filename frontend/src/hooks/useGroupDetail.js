@@ -1081,6 +1081,11 @@ export default function useGroupDetail(groupId, user, addToast) {
       return addToast('Vui lòng chọn một tài liệu để upload!', 'error');
     }
 
+    const MAX_DOC_SIZE = 25 * 1024 * 1024; // 25MB
+    if (selectedFile.size > MAX_DOC_SIZE) {
+      return addToast('Tài liệu quá lớn! Vui lòng chọn tài liệu nhỏ hơn hoặc bằng 25MB.', 'error');
+    }
+
     try {
       setIsUploadingFile(true);
 
@@ -1315,6 +1320,12 @@ export default function useGroupDetail(groupId, user, addToast) {
     try {
       let fileData = null, fileName = null;
       if (submitFile) {
+        const MAX_SUBMIT_SIZE = 25 * 1024 * 1024; // 25MB
+        if (submitFile.size > MAX_SUBMIT_SIZE) {
+          addToast('File bài nộp quá lớn! Vui lòng chọn file nhỏ hơn hoặc bằng 25MB.', 'error');
+          setIsSubmitting(false);
+          return;
+        }
         let fileToUpload = submitFile;
         if (submitFile.type?.startsWith('image/')) {
           try {
@@ -1418,9 +1429,9 @@ export default function useGroupDetail(groupId, user, addToast) {
     try {
       let fileAttachment = null;
       if (chatAttachedFile) {
-        const MAX_CHAT_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+        const MAX_CHAT_FILE_SIZE = 25 * 1024 * 1024; // 25MB
         if (chatAttachedFile.size > MAX_CHAT_FILE_SIZE) {
-          addToast('File đính kèm chat quá lớn! Vui lòng chọn file nhỏ hơn 20MB.', 'error');
+          addToast('File đính kèm chat quá lớn! Vui lòng chọn file nhỏ hơn hoặc bằng 25MB.', 'error');
           setIsSendingChatMessage(false);
           return;
         }

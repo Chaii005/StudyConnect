@@ -536,6 +536,16 @@ export const changePassword = async ({ id, currentPassword, newPassword }) => {
 
   const hashedNew = await hashPassword(newPassword, user.email);
 
+  // 1. Đồng bộ mật khẩu mới với Supabase Auth nếu có session hoạt động
+  const { data: { session: authSession } } = await supabase.auth.getSession();
+  if (authSession) {
+    const { error: authError } = await supabase.auth.updateUser({ password: newPassword });
+    if (authError) {
+      throw new Error(`Cập nhật mật khẩu xác thực thất bại: ${authError.message}`);
+    }
+  }
+
+  // 2. Cập nhật mật khẩu hash trong bảng users
   const { error: updateError } = await supabase
     .from('users')
     .update({ password: hashedNew })

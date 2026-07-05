@@ -29,8 +29,8 @@ router.post('/register', async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json(apiError('Email không đúng định dạng', 400));
     }
-    if (password.length < 8) {
-      return res.status(400).json(apiError('Mật khẩu phải chứa tối thiểu 8 ký tự', 400));
+    if (password.length < 6 || !/\d/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return res.status(400).json(apiError('Mật khẩu phải chứa tối thiểu 6 ký tự, bao gồm ít nhất 1 chữ số và 1 ký tự đặc biệt', 400));
     }
 
     // Check existing email
@@ -227,8 +227,8 @@ router.post('/reset-password', async (req, res) => {
     if (!token || !newPassword) {
       return res.status(400).json(apiError('Token và mật khẩu mới là bắt buộc', 400));
     }
-    if (newPassword.length < 8) {
-      return res.status(400).json(apiError('Mật khẩu mới phải chứa tối thiểu 8 ký tự', 400));
+    if (newPassword.length < 6 || !/\d/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+      return res.status(400).json(apiError('Mật khẩu mới phải chứa tối thiểu 6 ký tự, bao gồm ít nhất 1 chữ số và 1 ký tự đặc biệt', 400));
     }
 
     // Query user by reset token
