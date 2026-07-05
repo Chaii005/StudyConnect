@@ -183,6 +183,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
           <div style={{ padding: '16px 20px', position: 'relative' }}>
             <SafeTextarea
               ref={textareaRef}
+              value={text}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               placeholder={`${user?.fullName || 'Bạn'} đang nghĩ gì? Gõ @ để tag bạn bè hoặc nhóm...`}
