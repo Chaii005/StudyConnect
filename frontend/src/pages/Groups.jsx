@@ -1137,7 +1137,7 @@ function PromptModal({ isOpen, title, message, defaultValue, placeholder, onConf
         )}
 
         <div>
-          <input
+          <SafeInput
             type="number"
             value={value}
             onChange={(e) => setValue(e.target.value)}
