@@ -1,5 +1,6 @@
 // backend/src/config/firebase.js
-const admin = require('firebase-admin');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getMessaging } = require('firebase-admin/messaging');
 const logger = require('../utils/logger');
 require('dotenv').config();
 
@@ -14,15 +15,15 @@ try {
     // Handle formatting of private key (newline characters)
     privateKey = privateKey.replace(/\\n/g, '\n');
 
-    admin.initializeApp({
-      credential: admin.credential.cert({
+    const app = initializeApp({
+      credential: cert({
         projectId,
         clientEmail,
         privateKey,
       }),
     });
     
-    firebaseMessaging = admin.messaging();
+    firebaseMessaging = getMessaging(app);
     logger.info('Firebase Admin SDK initialized successfully 🔔');
   } else {
     logger.warn('Firebase Admin SDK credentials missing. Push notifications are disabled in this environment.');
@@ -31,4 +32,4 @@ try {
   logger.error('Firebase Admin SDK initialization failed:', { message: error.message });
 }
 
-module.exports = { admin, firebaseMessaging };
+module.exports = { firebaseMessaging };
