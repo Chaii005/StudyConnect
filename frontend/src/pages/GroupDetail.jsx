@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import useGroupDetail from '@/hooks/useGroupDetail';
@@ -17,6 +17,7 @@ export default function GroupDetail() {
   const { user } = useAuth();
   const location = useLocation();
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   useEffect(() => {
@@ -152,7 +153,6 @@ export default function GroupDetail() {
       <div style={{
         maxWidth: '600px',
         margin: '60px auto',
-        padding: '36px 32px',
         background: 'var(--bg-card)',
         border: '1.5px solid var(--border)',
         borderRadius: '24px',
@@ -161,20 +161,72 @@ export default function GroupDetail() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '24px'
+        gap: '24px',
+        padding: '36px 32px',
+        overflow: 'hidden'
       }}>
+        {/* Cover Header */}
         <div style={{
-          background: 'rgba(42, 117, 118, 0.1)',
+          width: 'calc(100% + 64px)',
+          height: '110px',
+          background: 'linear-gradient(135deg, rgba(42, 117, 118, 0.15), rgba(88, 189, 191, 0.15))',
+          margin: '-36px -32px 0 -32px',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 20px',
+          borderBottom: '1.5px solid var(--border)'
+        }}>
+          <button
+            onClick={() => navigate('/groups')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--primary)',
+              fontSize: '13px',
+              fontWeight: 800,
+              cursor: 'pointer',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Quay lại
+          </button>
+        </div>
+
+        {/* Group Icon Offset */}
+        <div style={{
+          position: 'relative',
+          marginTop: '-58px',
+          zIndex: 2,
+          background: 'var(--bg-card)',
           color: 'var(--primary)',
-          width: '60px',
-          height: '60px',
+          width: '80px',
+          height: '80px',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: '8px'
+          border: '4px solid var(--bg-card)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
         }}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />

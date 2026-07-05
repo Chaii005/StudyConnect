@@ -327,7 +327,6 @@ export default function FriendDetail() {
       <div style={{
         maxWidth: '540px',
         margin: '60px auto',
-        padding: '36px 32px',
         background: 'var(--bg-card)',
         border: '1.5px solid var(--border)',
         borderRadius: '24px',
@@ -336,27 +335,75 @@ export default function FriendDetail() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '24px'
+        gap: '24px',
+        padding: '36px 32px',
+        overflow: 'hidden'
       }}>
-        {/* Avatar */}
-        <div style={{ position: 'relative' }}>
+        {/* Cover Header */}
+        <div style={{
+          width: 'calc(100% + 64px)',
+          height: '110px',
+          background: 'linear-gradient(135deg, rgba(42, 117, 118, 0.15), rgba(88, 189, 191, 0.15))',
+          margin: '-36px -32px 0 -32px',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 20px',
+          borderBottom: '1.5px solid var(--border)'
+        }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--primary)',
+              fontSize: '13px',
+              fontWeight: 800,
+              cursor: 'pointer',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Quay lại
+          </button>
+        </div>
+
+        {/* Avatar Offset */}
+        <div style={{ position: 'relative', marginTop: '-58px', zIndex: 2 }}>
           {friendData?.avatar ? (
             <img
               src={friendData.avatar}
               alt={friendData.full_name}
               style={{
-                width: '100px',
-                height: '100px',
+                width: '96px',
+                height: '96px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: '3px solid var(--border)'
+                border: '4px solid var(--bg-card)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
               }}
             />
           ) : (
             <div
               style={{
-                width: '100px',
-                height: '100px',
+                width: '96px',
+                height: '96px',
                 borderRadius: '50%',
                 background: colorOf(friendData?.full_name),
                 color: 'white',
@@ -365,7 +412,8 @@ export default function FriendDetail() {
                 justifyContent: 'center',
                 fontSize: '36px',
                 fontWeight: 800,
-                border: '3px solid var(--border)'
+                border: '4px solid var(--bg-card)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
               }}
             >
               {initials}
@@ -444,10 +492,6 @@ export default function FriendDetail() {
             </button>
           )}
         </div>
-
-        <Link to="/friends" style={{ fontSize: '14px', color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 600 }}>
-          ← Quay lại trang Kết bạn
-        </Link>
       </div>
     );
   }
