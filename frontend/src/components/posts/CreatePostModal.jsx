@@ -84,10 +84,10 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
 
   // ── pick suggestion ────────────────────────────────────────────
   const pickSuggestion = (sug) => {
-    // Replace the @query in textarea (remove the @ symbol)
+    // Completely remove the @query in textarea (no need to insert name as it goes to tag chips)
     const before = text.slice(0, mentionStart);
     const after = text.slice(textareaRef.current.selectionStart);
-    const newText = `${before}${sug.name} ${after}`;
+    const newText = `${before}${after}`;
     if (textareaRef.current) {
       textareaRef.current.value = newText;
     }
@@ -103,7 +103,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
 
     setTimeout(() => {
       if (textareaRef.current) {
-        const newCursorPos = before.length + sug.name.length + 1; // +1 for space (no @ symbol)
+        const newCursorPos = before.length;
         textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
         textareaRef.current.focus();
       }
