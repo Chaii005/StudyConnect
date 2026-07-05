@@ -87,6 +87,9 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
     const before = text.slice(0, mentionStart);
     const after = text.slice(textareaRef.current.selectionStart);
     const newText = `${before}@${sug.name} ${after}`;
+    if (textareaRef.current) {
+      textareaRef.current.value = newText;
+    }
     setText(newText);
     setMentionQuery(null);
     setMentionStart(-1);
@@ -97,7 +100,13 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
       return [...prev, sug];
     });
 
-    textareaRef.current?.focus();
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const newCursorPos = before.length + sug.name.length + 2; // +1 for @, +1 for space
+        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+        textareaRef.current.focus();
+      }
+    }, 0);
   };
 
   // ── keyboard nav in dropdown ───────────────────────────────────
@@ -169,7 +178,6 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
           <div style={{ padding: '16px 20px', position: 'relative' }}>
             <textarea
               ref={textareaRef}
-              value={text}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               placeholder={`${user?.fullName || 'Bạn'} đang nghĩ gì? Gõ @ để tag bạn bè hoặc nhóm...`}
