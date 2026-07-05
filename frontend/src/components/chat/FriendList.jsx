@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from '../common/Avatar';
 import { getUnreadCount } from '../../services/chatServiceTEMP';
+import { SafeInput } from '@/components/common/SafeInput';
 
 function fmtTime(iso) {
   if (!iso) return '';
@@ -50,7 +51,7 @@ export default function FriendList({ user, friends, onSelect, lastMessages, onli
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.3-4.3"/>
           </svg>
-          <input
+          <SafeInput
             placeholder="Tìm kiếm cuộc trò chuyện..."
             value={search}
             onChange={e => setSearch(e.target.value)}

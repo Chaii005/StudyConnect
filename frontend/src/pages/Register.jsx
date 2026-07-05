@@ -1,6 +1,7 @@
 // src/pages/Register.jsx
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { SafeInput } from '@/components/common/SafeInput';
 import { register, signInWithGoogle } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -90,7 +91,7 @@ function LocationModal({ isOpen, onClose, title, options, value, onSelect }) {
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.3-4.3"/>
           </svg>
-          <input
+          <SafeInput
             placeholder="Tìm kiếm nhanh..."
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -203,6 +204,12 @@ export default function Register() {
     }
     if (!form.password || form.password.length < 6) {
       setError('Mật khẩu phải có ít nhất 6 ký tự.'); return false;
+    }
+    if (!/\d/.test(form.password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 chữ số.'); return false;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.'); return false;
     }
     if (form.password !== form.confirmPassword) {
       setError('Mật khẩu xác nhận không khớp.'); return false;
@@ -384,7 +391,7 @@ export default function Register() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-name">Họ và tên</label>
               <div className="form-input-wrap">
-                <input id="reg-name" name="fullName" type="text" className="form-input"
+                <SafeInput id="reg-name" name="fullName" type="text" className="form-input"
                   placeholder="Họ và tên đầy đủ của bạn" value={form.fullName} onChange={handleChange} />
                 <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -398,7 +405,7 @@ export default function Register() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-email">Email</label>
               <div className="form-input-wrap">
-                <input id="reg-email" name="email" type="email" className="form-input"
+                <SafeInput id="reg-email" name="email" type="email" className="form-input"
                   placeholder="Email dùng để đăng nhập" value={form.email} onChange={handleChange} />
                 <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -413,8 +420,8 @@ export default function Register() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-pass">Mật khẩu</label>
               <div className="form-input-wrap">
-                <input id="reg-pass" name="password" type={showPass ? 'text' : 'password'}
-                  className="form-input" placeholder="Tối thiểu 6 ký tự"
+                <SafeInput id="reg-pass" name="password" type={showPass ? 'text' : 'password'}
+                  className="form-input" placeholder="Tối thiểu 6 ký tự (cần số & ký tự đặc biệt)"
                   value={form.password} onChange={handleChange} />
                 <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -443,7 +450,7 @@ export default function Register() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-confirm">Xác nhận mật khẩu</label>
               <div className="form-input-wrap">
-                <input id="reg-confirm" name="confirmPassword" type={showConfirm ? 'text' : 'password'}
+                <SafeInput id="reg-confirm" name="confirmPassword" type={showConfirm ? 'text' : 'password'}
                   className="form-input" placeholder="Nhập lại mật khẩu"
                   value={form.confirmPassword} onChange={handleChange} />
                 <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -545,7 +552,7 @@ export default function Register() {
               <div className="form-group" style={{ marginTop: '12px' }}>
                 <label className="form-label" htmlFor="reg-uni-custom">Tên trường đại học khác</label>
                 <div className="form-input-wrap">
-                  <input id="reg-uni-custom" name="customUniversity" type="text" className="form-input"
+                  <SafeInput id="reg-uni-custom" name="customUniversity" type="text" className="form-input"
                     placeholder="Nhập tên trường đại học của bạn" value={form.customUniversity} onChange={handleChange} />
                   <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -584,7 +591,7 @@ export default function Register() {
               <div className="form-group" style={{ marginTop: '12px' }}>
                 <label className="form-label" htmlFor="reg-major-custom">Tên ngành học khác</label>
                 <div className="form-input-wrap">
-                  <input id="reg-major-custom" name="customMajor" type="text" className="form-input"
+                  <SafeInput id="reg-major-custom" name="customMajor" type="text" className="form-input"
                     placeholder="Nhập ngành học của bạn" value={form.customMajor} onChange={handleChange} />
                   <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { HCM_UNIVERSITIES, MAJORS } from '@/constants/educationData';
+import { SafeInput, SafeTextarea } from '@/components/common/SafeInput';
 
 const IS = { // inputStyle shorthand
   width: '100%', boxSizing: 'border-box',
@@ -74,7 +75,7 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
         >
           {/* Ô tìm kiếm nhanh */}
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 10 }}>
-            <input
+            <SafeInput
               type="text"
               placeholder="Tìm kiếm..."
               value={search}
@@ -175,7 +176,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Họ và tên *</label>
-              <input type="text" style={IS} placeholder="Nhập họ và tên đầy đủ" value={userForm.fullName} onChange={(e) => setUserForm({ ...userForm, fullName: e.target.value })} required />
+              <SafeInput type="text" style={IS} placeholder="Nhập họ và tên đầy đủ" value={userForm.fullName} onChange={(e) => setUserForm({ ...userForm, fullName: e.target.value })} required />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Vai trò</label>
@@ -192,13 +193,13 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Email *</label>
-              <input type="email" style={IS} placeholder="Nhập địa chỉ email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} required disabled={!!currentEditUser} />
+              <SafeInput type="email" style={IS} placeholder="Nhập địa chỉ email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} required disabled={!!currentEditUser} />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
                 {currentEditUser ? 'Mật khẩu mới (tùy chọn)' : 'Mật khẩu *'}
               </label>
-              <input type="text" style={IS} placeholder={currentEditUser ? 'Để trống nếu không đổi' : 'Tối thiểu 6 ký tự'}
+              <SafeInput type="text" style={IS} placeholder={currentEditUser ? 'Để trống nếu không đổi' : 'Tối thiểu 6 ký tự'}
                 value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} required={!currentEditUser} />
             </div>
           </div>
@@ -213,7 +214,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
               placeholder="-- Chọn ngành học --"
             />
             {userForm.major === 'Ngành khác...' && (
-              <input type="text" style={{ ...IS, marginTop: '8px' }} placeholder="Nhập ngành học của bạn"
+              <SafeInput type="text" style={{ ...IS, marginTop: '8px' }} placeholder="Nhập ngành học của bạn"
                 value={userForm.majorCustom || ''} onChange={(e) => setUserForm({ ...userForm, majorCustom: e.target.value })} />
             )}
           </div>
@@ -228,7 +229,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
               placeholder="-- Chọn trường đại học --"
             />
             {userForm.university === 'Trường khác...' && (
-              <input type="text" style={{ ...IS, marginTop: '8px' }} placeholder="Nhập tên trường đại học"
+              <SafeInput type="text" style={{ ...IS, marginTop: '8px' }} placeholder="Nhập tên trường đại học"
                 value={userForm.universityCustom || ''} onChange={(e) => setUserForm({ ...userForm, universityCustom: e.target.value })} />
             )}
           </div>
@@ -236,7 +237,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
           {/* Bio */}
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Giới thiệu ngắn</label>
-            <textarea style={{ ...IS, height: '72px', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }}
+            <SafeTextarea style={{ ...IS, height: '72px', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }}
               placeholder="Viết giới thiệu về người dùng..." value={userForm.bio}
               onChange={(e) => setUserForm({ ...userForm, bio: e.target.value })} />
           </div>

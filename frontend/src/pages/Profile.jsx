@@ -5,6 +5,7 @@ import { useToast } from '../components/Toast';
 import { updateProfile, changePassword } from '../services/authService';
 import { HCM_UNIVERSITIES, MAJORS } from '../constants/educationData';
 import { VIETNAM_LOCATIONS } from '../constants/locationData';
+import { SafeInput, SafeTextarea } from '../components/common/SafeInput';
 
 
 function CustomSelect({ value, onChange, options, placeholder = "Chọn...", disabled = false }) {
@@ -73,7 +74,7 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
         >
           {/* Ô tìm kiếm nhanh */}
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', background: 'var(--bg-card)', zIndex: 10 }}>
-            <input
+            <SafeInput
               type="text"
               placeholder="Tìm kiếm..."
               value={search}
@@ -276,6 +277,8 @@ export default function Profile() {
     e.preventDefault();
     if (!pwd.current) { addToast('Nhập mật khẩu hiện tại', 'error'); return; }
     if (!pwd.newPass || pwd.newPass.length < 6) { addToast('Mật khẩu mới phải ít nhất 6 ký tự', 'error'); return; }
+    if (!/\d/.test(pwd.newPass)) { addToast('Mật khẩu mới phải chứa ít nhất 1 chữ số', 'error'); return; }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd.newPass)) { addToast('Mật khẩu mới phải chứa ít nhất 1 ký tự đặc biệt', 'error'); return; }
     if (pwd.newPass !== pwd.confirm) { addToast('Mật khẩu xác nhận không khớp', 'error'); return; }
     setSavingPwd(true);
     try {
@@ -478,7 +481,7 @@ export default function Profile() {
                   <div className="form-group">
                     <label className="form-label" htmlFor="p-name">Họ và tên *</label>
                     <div className="form-input-wrap">
-                      <input id="p-name" name="fullName" type="text" className="form-input no-icon"
+                      <SafeInput id="p-name" name="fullName" type="text" className="form-input no-icon"
                         placeholder="Họ và tên đầy đủ" value={info.fullName} onChange={handleInfoChange} />
                     </div>
                   </div>
@@ -497,7 +500,7 @@ export default function Profile() {
                     <div className="form-group" style={{ marginTop: '6px', marginBottom: '6px' }}>
                       <label className="form-label" htmlFor="p-uni-custom">Tên trường đại học khác</label>
                       <div className="form-input-wrap">
-                        <input id="p-uni-custom" name="customUniversity" type="text" className="form-input no-icon"
+                        <SafeInput id="p-uni-custom" name="customUniversity" type="text" className="form-input no-icon"
                           placeholder="Nhập tên trường đại học của bạn" value={info.customUniversity} onChange={handleInfoChange} />
                       </div>
                     </div>
@@ -517,7 +520,7 @@ export default function Profile() {
                     <div className="form-group" style={{ marginTop: '6px', marginBottom: '6px' }}>
                       <label className="form-label" htmlFor="p-major-custom">Tên ngành học khác</label>
                       <div className="form-input-wrap">
-                        <input id="p-major-custom" name="customMajor" type="text" className="form-input no-icon"
+                        <SafeInput id="p-major-custom" name="customMajor" type="text" className="form-input no-icon"
                           placeholder="Nhập ngành học của bạn" value={info.customMajor} onChange={handleInfoChange} />
                       </div>
                     </div>
@@ -556,7 +559,7 @@ export default function Profile() {
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="p-bio">Giới thiệu bản thân</label>
-                    <textarea id="p-bio" name="bio" className="form-textarea"
+                    <SafeTextarea id="p-bio" name="bio" className="form-textarea"
                       placeholder="Viết vài dòng giới thiệu về bạn..."
                       value={info.bio} onChange={handleInfoChange} maxLength={300} style={{ minHeight: '64px' }} />
                     <div className="char-count" style={{ display: 'none' }}>{info.bio.length}/300</div>
@@ -622,7 +625,7 @@ export default function Profile() {
                   <div className="form-group">
                     <label className="form-label" htmlFor="p-curpwd">Mật khẩu hiện tại</label>
                     <div className="form-input-wrap">
-                      <input id="p-curpwd" name="current" type={showPwd ? 'text' : 'password'}
+                      <SafeInput id="p-curpwd" name="current" type={showPwd ? 'text' : 'password'}
                         className="form-input" placeholder="Nhập mật khẩu hiện tại"
                         value={pwd.current} onChange={handlePwdChange} style={{ paddingLeft: '42px' }} />
                       <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -651,8 +654,8 @@ export default function Profile() {
                   <div className="form-group">
                     <label className="form-label" htmlFor="p-newpwd">Mật khẩu mới</label>
                     <div className="form-input-wrap">
-                      <input id="p-newpwd" name="newPass" type={showPwd ? 'text' : 'password'}
-                        className="form-input" placeholder="Tối thiểu 6 ký tự"
+                      <SafeInput id="p-newpwd" name="newPass" type={showPwd ? 'text' : 'password'}
+                        className="form-input" placeholder="Tối thiểu 6 ký tự (cần số & ký tự đặc biệt)"
                         value={pwd.newPass} onChange={handlePwdChange} style={{ paddingLeft: '42px' }} />
                       <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -665,7 +668,7 @@ export default function Profile() {
                   <div className="form-group">
                     <label className="form-label" htmlFor="p-confpwd">Xác nhận mật khẩu mới</label>
                     <div className="form-input-wrap">
-                      <input id="p-confpwd" name="confirm" type={showPwd ? 'text' : 'password'}
+                      <SafeInput id="p-confpwd" name="confirm" type={showPwd ? 'text' : 'password'}
                         className="form-input" placeholder="Nhập lại mật khẩu mới"
                         value={pwd.confirm} onChange={handlePwdChange} style={{ paddingLeft: '42px' }} />
                       <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

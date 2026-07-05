@@ -1,3 +1,5 @@
+import { SafeInput } from '@/components/common/SafeInput';
+
 // User management table for Admin panel
 export default function UserTable({ filteredUsers, admin, userSearch, setUserSearch, onEdit, onDelete, onCreateNew }) {
   return (
@@ -5,7 +7,7 @@ export default function UserTable({ filteredUsers, admin, userSearch, setUserSea
       {/* Search & Actions */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
         <div style={{ width: '100%', maxWidth: '380px' }} className="form-input-wrap">
-          <input
+          <SafeInput
             type="text"
             className="form-input"
             placeholder=" Tìm kiếm user (Tên, Email)..."

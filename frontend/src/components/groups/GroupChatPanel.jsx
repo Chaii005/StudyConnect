@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { formatBytes } from '../../utils';
 import MessageMenu from './MessageMenu';
+import { SafeInput } from '../common/SafeInput';
 
 const EMOJI_LIST = [
   '😊','😂','🥰','😎','🤔','😅','🙏','👍','❤️','🔥','✨','🎉',
@@ -988,7 +989,7 @@ export default function GroupChatPanel({
           )}
 
           {/* Text input */}
-          <input
+          <SafeInput
             ref={chatInputRef}
             type="text"
             placeholder="Nhập tin nhắn... (@ để tag thành viên)"

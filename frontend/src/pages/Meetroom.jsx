@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { SafeInput } from '@/components/common/SafeInput';
 import AppLayout from '../layouts/AppLayout';
 import { supabase } from '../config/supabaseClient';
 
@@ -1564,7 +1565,7 @@ export default function MeetRoom() {
                         <div ref={msgEndRef} />
                       </div>
                       <div style={{ padding: '10px', borderTop: '1px solid #262626', display: 'flex', gap: '6px', flexShrink: 0 }}>
-                        <input
+                        <SafeInput
                           value={input} onChange={e => setInput(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                           placeholder="Nhắn tin..."
@@ -1891,7 +1892,7 @@ export default function MeetRoom() {
                       <div ref={msgEndRef} />
                     </div>
                     <div style={{ padding: '12px', borderTop: '1.5px solid var(--border)', display: 'flex', gap: '8px', flexShrink: 0 }}>
-                      <input
+                      <SafeInput
                         value={input} onChange={e => setInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                         placeholder="Nhắn tin..."

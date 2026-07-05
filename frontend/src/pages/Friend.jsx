@@ -14,6 +14,7 @@ import {
 } from '../services/friendService';
 import { useToast } from '../components/Toast';
 import { supabase } from '../config/supabaseClient';
+import { SafeInput } from '@/components/common/SafeInput';
 
 //  Avatar 
 function Avatar({ src, initial, color = '#3A3A3A', size = 40 }) {
@@ -446,7 +447,7 @@ export default function Friends() {
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.3-4.3"/>
               </svg>
-              <input
+              <SafeInput
                 className="search-input"
                 placeholder="Tìm kiếm theo tên, trường..."
                 value={search}

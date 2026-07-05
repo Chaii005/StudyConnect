@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { SafeInput, SafeTextarea } from '../common/SafeInput';
 
 const format24h = (dateStr) => {
   if (!dateStr) return '';
@@ -90,7 +91,7 @@ export default function GroupDeadlines({
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Deadline *</label>
                 <div className="form-input-wrap">
-                  <input
+                  <SafeInput
                     type="text"
                     className="form-input no-icon"
                     style={{ padding: '7px 12px', fontSize: '13px' }}
@@ -120,7 +121,7 @@ export default function GroupDeadlines({
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Yêu cầu cụ thể</label>
-              <textarea
+              <SafeTextarea
                 className="form-textarea"
                 style={{ height: '52px', resize: 'none', fontSize: '13px', padding: '7px 12px' }}
                 placeholder="Mô tả chi tiết yêu cầu, định dạng nộp bài..."
@@ -538,7 +539,7 @@ export default function GroupDeadlines({
                 <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Tên deadline *
                 </label>
-                <input
+                <SafeInput
                   value={editDeadlineTitle}
                   onChange={(e) => setEditDeadlineTitle(e.target.value)}
                   placeholder="Nộp bài tập lớn"
@@ -585,7 +586,7 @@ export default function GroupDeadlines({
                 <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Mô tả
                 </label>
-                <textarea
+                <SafeTextarea
                   value={editDeadlineDesc}
                   onChange={(e) => setEditDeadlineDesc(e.target.value)}
                   rows={2}
@@ -786,7 +787,7 @@ export default function GroupDeadlines({
               <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
                 Ghi chú
               </label>
-              <textarea
+              <SafeTextarea
                 value={submitNote}
                 onChange={(e) => setSubmitNote(e.target.value)}
                 placeholder="Thêm ghi chú cho trưởng nhóm..."

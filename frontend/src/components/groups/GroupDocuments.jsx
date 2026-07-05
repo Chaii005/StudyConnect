@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { formatBytes } from '@/utils';
+import { SafeInput } from '../common/SafeInput';
 
 // Helper parse subject và tên hiển thị của tài liệu
 // eslint-disable-next-line react-refresh/only-export-components
@@ -143,7 +144,7 @@ export default function GroupDocuments({
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Tên tài liệu hiển thị</label>
               <div className="form-input-wrap">
-                <input
+                <SafeInput
                   type="text"
                   className="form-input no-icon"
                   placeholder="Đặt tên cho tài liệu dễ nhận biết..."

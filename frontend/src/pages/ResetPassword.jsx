@@ -1,6 +1,7 @@
 // src/pages/ResetPassword.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { SafeInput } from '@/components/common/SafeInput';
 import { supabase } from '../config/supabaseClient';
 import { hashPassword } from '../services/authService';
 import studyconectLogo from '@/assets/studyconect_logo.png';
@@ -22,7 +23,14 @@ export default function ResetPassword() {
       setError('Mật khẩu phải có ít nhất 6 ký tự.');
       return;
     }
-
+    if (!/\d/.test(password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 chữ số.');
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.');
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Mật khẩu xác nhận không trùng khớp.');
       return;
@@ -170,11 +178,11 @@ export default function ResetPassword() {
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                     </svg>
                   </span>
-                  <input
+                  <SafeInput
                     id="new-pass"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"
-                    placeholder="Mật khẩu từ 6 ký tự"
+                    placeholder="Tối thiểu 6 ký tự (cần số & ký tự đặc biệt)"
                     value={password}
                     onChange={e => { setPassword(e.target.value); setError(''); }}
                     style={{ width: '100%', padding: '12px 42px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
@@ -217,7 +225,7 @@ export default function ResetPassword() {
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                     </svg>
                   </span>
-                  <input
+                  <SafeInput
                     id="confirm-new-pass"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"

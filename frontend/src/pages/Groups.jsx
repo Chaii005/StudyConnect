@@ -10,6 +10,7 @@ import { supabase } from '../config/supabaseClient';
 import { formatBytes } from '../utils';
 
 import { geocodeAddress, staticMapUrl, googleMapsSearchUrl, autocompletePlaces, getPlaceDetails } from '../utils/geocoding';
+import { SafeInput, SafeTextarea } from '../components/common/SafeInput';
 
 const SIDEBAR_ITEMS = [
   { label: 'Chat', to: '/chat' },
@@ -277,7 +278,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Tên nhóm *</label>
                 <div className="form-input-wrap">
-                  <input className="form-input" style={{ padding: '9px 13px', fontSize: 13 }} placeholder={meetingMode === 'online' ? 'Nhập tên nhóm của bạn ' : 'Nhập tên nhóm học của bạn'} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+                  <SafeInput className="form-input" style={{ padding: '9px 13px', fontSize: 13 }} placeholder={meetingMode === 'online' ? 'Nhập tên nhóm của bạn ' : 'Nhập tên nhóm học của bạn'} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                 </div>
               </div>
 
@@ -431,7 +432,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                     )}
                   </div>
                   {subjectMode === 'custom' && (
-                    <input
+                    <SafeInput
                       className="form-input"
                       style={{ padding: '9px 13px', fontSize: 13, borderColor: 'var(--primary-light)', boxShadow: '0 0 0 2px rgba(0,0,0,0.08)' }}
                       placeholder="Nhập tên môn học mới..."
@@ -450,7 +451,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
               {!isPrivate && (
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Mô tả nhóm</label>
-                  <textarea className="form-textarea" placeholder="Mô tả ngắn gọn về nhóm để thành viên hiểu mục tiêu học" style={{ height: '72px', resize: 'none', padding: '9px 13px', fontSize: 13 }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                  <SafeTextarea className="form-textarea" placeholder="Mô tả ngắn gọn về nhóm để thành viên hiểu mục tiêu học" style={{ height: '72px', resize: 'none', padding: '9px 13px', fontSize: 13 }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                 </div>
               )}
 
@@ -460,7 +461,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Tên địa điểm học tập *</label>
                     <div className="form-input-wrap" style={{ position: 'relative' }}>
-                      <input
+                      <SafeInput
                         className="form-input"
                         style={{ padding: '9px 13px', fontSize: 13 }}
                         placeholder="Nhập tên quán cà phê, thư viện..."
@@ -1401,7 +1402,7 @@ function SubjectSelectModal({ isOpen, title, userMajor, defaultValue, onConfirm,
           )}
 
           {subjectMode === 'custom' && (
-            <input
+            <SafeInput
               type="text"
               value={customSubject}
               onChange={e => setCustomSubject(e.target.value)}
@@ -1904,7 +1905,7 @@ export default function Groups() {
                   <path d="m21 21-4.3-4.3"/>
                 </svg>
               </span>
-              <input 
+              <SafeInput 
                 type="text" 
                 className="search-input" 
                 placeholder="Nhập ID phòng học để tìm kiếm..." 

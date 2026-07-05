@@ -5,6 +5,7 @@ import { timeAgo } from '@/utils';
 import LikeCommentBar from './LikeCommentBar';
 import CommentRow from './CommentRow';
 import { sendFriendRequest } from '@/services/friendService';
+import { SafeInput, SafeTextarea } from '@/components/common/SafeInput';
 
 const ReplyIcon = () => (
   <svg
@@ -251,7 +252,7 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
       <div style={{ padding: '12px 18px 14px' }}>
         {isEditing ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <textarea
+            <SafeTextarea
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               style={{
@@ -656,7 +657,7 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
                     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 >
-                  <input
+                  <SafeInput
                     id={`comment-input-${post.id}`}
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}

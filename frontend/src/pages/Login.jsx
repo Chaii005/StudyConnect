@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { login, signInWithGoogle } from '../services/authService';
+import { SafeInput } from '@/components/common/SafeInput';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import studyconectLogo from '@/assets/studyconect_logo.png';
@@ -107,7 +108,7 @@ export default function Login() {
           <div className="form-group">
             <label className="form-label" htmlFor="login-email">Email</label>
             <div className="form-input-wrap">
-              <input
+              <SafeInput
                 id="login-email"
                 name="email"
                 type="email"
@@ -129,7 +130,7 @@ export default function Login() {
           <div className="form-group">
             <label className="form-label" htmlFor="login-password">Mật khẩu</label>
             <div className="form-input-wrap">
-              <input
+              <SafeInput
                 id="login-password"
                 name="password"
                 type={showPass ? 'text' : 'password'}

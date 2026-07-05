@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { SafeInput } from '../components/common/SafeInput';
 
 
 import { supabase } from '@/config/supabaseClient';
@@ -297,7 +298,7 @@ export default function MyDocuments() {
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.3-4.3"/>
               </svg>
-              <input
+              <SafeInput
                 className="search-input"
                 placeholder="Tìm tên tài liệu hoặc tên nhóm..."
                 value={search}

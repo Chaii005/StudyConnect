@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { forgotPassword, verifyOtpAndResetPassword } from '../services/authService';
 import studyconectLogo from '@/assets/studyconect_logo.png';
+import { SafeInput } from '@/components/common/SafeInput';
 
 export default function ForgotPassword() {
   const [mode, setMode] = useState('forgot'); // 'forgot' | 'verify' | 'success'
@@ -76,6 +77,14 @@ export default function ForgotPassword() {
     }
     if (password.length < 6) {
       setError('Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
+    if (!/\d/.test(password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 chữ số.');
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.');
       return;
     }
     if (password !== confirmPassword) {
@@ -201,7 +210,7 @@ export default function ForgotPassword() {
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                     </svg>
                   </span>
-                  <input
+                  <SafeInput
                     id="forgot-email"
                     type="email"
                     className="form-input"
@@ -250,7 +259,7 @@ export default function ForgotPassword() {
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
                   </span>
-                  <input
+                  <SafeInput
                     id="otp-code"
                     type="text"
                     pattern="[0-9]*"
@@ -309,11 +318,11 @@ export default function ForgotPassword() {
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                     </svg>
                   </span>
-                  <input
+                  <SafeInput
                     id="new-pass"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"
-                    placeholder="Mật khẩu từ 6 ký tự"
+                    placeholder="Tối thiểu 6 ký tự (cần số & ký tự đặc biệt)"
                     value={password}
                     onChange={e => { setPassword(e.target.value); setError(''); }}
                     style={{ width: '100%', padding: '12px 42px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
@@ -356,7 +365,7 @@ export default function ForgotPassword() {
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                     </svg>
                   </span>
-                  <input
+                  <SafeInput
                     id="confirm-new-pass"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"

@@ -17,6 +17,7 @@ import EmojiPicker from './EmojiPicker';
 import CameraModal from './CameraModal';
 import ShareModal from './ShareModal';
 import MessageMenu from './MessageMenu';
+import { SafeInput, SafeTextarea } from '../common/SafeInput';
 
 // ── Time & File Format Utilities ───────────────────────────────────
 function fmtFull(iso) {
@@ -1421,7 +1422,7 @@ export default function ConversationView({
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingBottom: '4px' }}>
-            <input
+            <SafeInput
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleSendAttachment(imgPreview, input); }}
@@ -1710,7 +1711,7 @@ export default function ConversationView({
               </svg>
             </button>
 
-            <textarea
+            <SafeTextarea
               ref={textareaRef}
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -2002,7 +2003,7 @@ export default function ConversationView({
               Đặt biệt danh cho <strong>{friend.fullName}</strong>. Tên này chỉ hiển thị trong các cuộc trò chuyện riêng giữa hai bạn.
             </p>
             
-            <input
+            <SafeInput
               type="text"
               value={renameVal}
               onChange={e => setRenameVal(e.target.value)}

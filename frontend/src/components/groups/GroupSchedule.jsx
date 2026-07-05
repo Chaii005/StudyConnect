@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { geocodeAddress, staticMapUrl, googleMapsSearchUrl } from '../../utils/geocoding';
+import { SafeInput, SafeTextarea } from '../common/SafeInput';
 
 const format24h = (dateStr) => {
   if (!dateStr) return '';
@@ -139,7 +140,7 @@ export default function GroupSchedule({
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Chủ đề học *</label>
                 <div className="form-input-wrap">
-                  <input
+                  <SafeInput
                     type="text"
                     className="form-input no-icon"
                     style={{ height: '38px', boxSizing: 'border-box', padding: '0 12px', fontSize: '13px' }}
@@ -184,7 +185,7 @@ export default function GroupSchedule({
                     </div>
                   )}
                   <div className="form-input-wrap" style={{ position: 'relative' }}>
-                    <input
+                    <SafeInput
                       type="text"
                       className="form-input no-icon"
                       placeholder="Nhập tên nơi gặp mặt"
@@ -292,7 +293,7 @@ export default function GroupSchedule({
               ) : (
                 <div className="flex-wrap-responsive" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <div className="form-input-wrap" style={{ flex: 1 }}>
-                    <input
+                    <SafeInput
                       type="text"
                       className="form-input no-icon"
                       placeholder="Dán link Google Meet, Zoom... hoặc nhấn 'Tạo phòng học'"
@@ -395,7 +396,7 @@ export default function GroupSchedule({
 
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Mô tả chi tiết</label>
-              <textarea
+              <SafeTextarea
                 className="form-textarea"
                 style={{ height: '52px', resize: 'none', fontSize: '13px', padding: '7px 12px' }}
                 placeholder="Mô tả nội dung buổi học, tài liệu cần chuẩn bị..."
@@ -695,7 +696,7 @@ export default function GroupSchedule({
                 <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Chủ đề buổi học *
                 </label>
-                <input
+                <SafeInput
                   value={editScheduleTopic}
                   onChange={(e) => setEditScheduleTopic(e.target.value)}
                   placeholder="Ôn tập Giải tích chương 3"
@@ -744,7 +745,7 @@ export default function GroupSchedule({
                 <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Địa điểm / Link
                 </label>
-                <input
+                <SafeInput
                   value={editScheduleLocation}
                   onChange={(e) => { setEditScheduleLocation(e.target.value); setEditGeoPreview(null); }}
                   onBlur={(e) => handleEditLocationBlur(e.target.value)}
@@ -800,7 +801,7 @@ export default function GroupSchedule({
                 <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Ghi chú
                 </label>
-                <textarea
+                <SafeTextarea
                   value={editScheduleDesc}
                   onChange={(e) => setEditScheduleDesc(e.target.value)}
                   rows={2}

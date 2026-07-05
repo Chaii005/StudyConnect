@@ -11,6 +11,7 @@ import GroupTable    from '@/components/admin/GroupTable';
 import UserFormModal from '@/components/admin/UserFormModal';
 import GroupFormModal from '@/components/admin/GroupFormModal';
 import ConfirmModal from '@/components/ConfirmModal';
+import { SafeInput } from '@/components/common/SafeInput';
 
 // ── Inline toast (Admin is outside AppLayout) ──────────────────────
 function AdminToast({ toasts, remove }) {
@@ -618,6 +619,11 @@ export default function Admin() {
   const handleUserSubmit = async () => {
     if (!userForm.fullName || !userForm.email) return showToast('Vui lòng điền họ tên và email!', 'error');
     if (!currentEditUser && !userForm.password) return showToast('Vui lòng điền mật khẩu khởi tạo!', 'error');
+    if (userForm.password) {
+      if (userForm.password.length < 6) return showToast('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+      if (!/\d/.test(userForm.password)) return showToast('Mật khẩu phải chứa ít nhất 1 chữ số!', 'error');
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(userForm.password)) return showToast('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt!', 'error');
+    }
     const finalForm = { ...userForm, university: userForm.university === 'Trường khác...' ? (userForm.universityCustom || '') : userForm.university, major: userForm.major === 'Ngành khác...' ? (userForm.majorCustom || '') : userForm.major };
     try {
       setSubmittingUser(true);
@@ -732,13 +738,13 @@ export default function Admin() {
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">EMAIL ADMIN *</label>
               <div className="form-input-wrap">
-                <input type="email" className="form-input no-icon" placeholder="Nhập email Admin của bạn" value={loginForm.email} onChange={(e) => { setLoginForm({ ...loginForm, email: e.target.value }); setLoginError(''); }} required style={{ borderRadius: '10px' }} />
+                <SafeInput type="email" className="form-input no-icon" placeholder="Nhập email Admin của bạn" value={loginForm.email} onChange={(e) => { setLoginForm({ ...loginForm, email: e.target.value }); setLoginError(''); }} required style={{ borderRadius: '10px' }} />
               </div>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">MẬT KHẨU *</label>
               <div className="form-input-wrap">
-                <input type="password" className="form-input no-icon" placeholder="••••••••" value={loginForm.password} onChange={(e) => { setLoginForm({ ...loginForm, password: e.target.value }); setLoginError(''); }} required style={{ borderRadius: '10px' }} />
+                <SafeInput type="password" className="form-input no-icon" placeholder="••••••••" value={loginForm.password} onChange={(e) => { setLoginForm({ ...loginForm, password: e.target.value }); setLoginError(''); }} required style={{ borderRadius: '10px' }} />
               </div>
             </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', marginTop: '8px', borderRadius: '10px' }} disabled={loginLoading}>

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import Avatar from '@/components/common/Avatar';
 import { createPost } from '@/services/interactionService';
 import { useToast } from '@/context/ToastContext';
+import { SafeTextarea } from '@/components/common/SafeInput';
 
 // ── tiny avatar for suggestion rows ───────────────────────────────
 function SuggestAvatar({ src, initial }) {
@@ -176,7 +177,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
           {/* Body */}
           <div style={{ padding: '16px 20px', position: 'relative' }}>
-            <textarea
+            <SafeTextarea
               ref={textareaRef}
               onChange={handleChange}
               onKeyDown={handleKeyDown}

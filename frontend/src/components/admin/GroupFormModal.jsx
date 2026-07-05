@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { MAJORS } from '@/constants/educationData';
 import { getSubjectsByMajor } from '@/services/groupService';
 import { geocodeAddress, googleMapsSearchUrl, autocompletePlaces, getPlaceDetails } from '@/utils/geocoding';
+import { SafeInput, SafeTextarea } from '@/components/common/SafeInput';
 
 function CustomSelect({ value, onChange, options, placeholder = "Chọn...", disabled = false }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,7 +69,7 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
         >
           {/* Ô tìm kiếm nhanh */}
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-            <input
+            <SafeInput
               type="text"
               placeholder="Tìm kiếm..."
               value={search}
@@ -334,7 +335,7 @@ export default function GroupFormModal({
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', display: 'block', fontWeight: 700, color: 'var(--text-secondary)' }}>Tên phòng học *</label>
             <div className="form-input-wrap">
-              <input 
+              <SafeInput 
                 type="text" 
                 className="form-input no-icon" 
                 placeholder="Nhập tên phòng học của bạn..."
@@ -494,7 +495,7 @@ export default function GroupFormModal({
 
               {subjectMode === 'custom' && (
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
+                  <SafeInput
                     className="form-input"
                     style={{ flex: 1, padding: '10px 14px', fontSize: '13.5px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                     placeholder="Nhập tên môn học mới..."
@@ -599,7 +600,7 @@ export default function GroupFormModal({
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', display: 'block', fontWeight: 700, color: 'var(--text-secondary)', textAlign: 'left' }}>Tên địa điểm học tập *</label>
                 <div className="form-input-wrap" style={{ position: 'relative' }}>
-                  <input 
+                  <SafeInput 
                     type="text" 
                     className="form-input no-icon" 
                     placeholder="Nhập tên quán cà phê, thư viện..."
@@ -708,7 +709,7 @@ export default function GroupFormModal({
           {/* Mô tả chi tiết */}
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', display: 'block', fontWeight: 700, color: 'var(--text-secondary)' }}>Mô tả chi tiết</label>
-            <textarea 
+            <SafeTextarea 
               className="form-textarea" 
               placeholder="Giới thiệu mục tiêu của phòng học..." 
               style={{ height: '60px', resize: 'vertical', borderRadius: '10px', fontSize: '13.5px', background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)', padding: '10px 14px', width: '100%', boxSizing: 'border-box' }}
