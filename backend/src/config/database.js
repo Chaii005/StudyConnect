@@ -3,13 +3,29 @@ const { Sequelize } = require('sequelize');
 const logger = require('../utils/logger');
 require('dotenv').config();
 
+const cleanEnvVar = (val) => {
+  if (!val) return val;
+  let cleaned = val.trim();
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || 
+      (cleaned.startsWith('\'') && cleaned.endsWith('\''))) {
+    cleaned = cleaned.slice(1, -1);
+  }
+  return cleaned.trim();
+};
+
+const dbName = cleanEnvVar(process.env.DB_NAME) || 'postgres';
+const dbUser = cleanEnvVar(process.env.DB_USER) || 'postgres';
+const dbPassword = cleanEnvVar(process.env.DB_PASSWORD || process.env.DB_PASS) || '';
+const dbHost = cleanEnvVar(process.env.DB_HOST) || 'localhost';
+const dbPort = parseInt(cleanEnvVar(process.env.DB_PORT) || '6543', 10);
+
 const sequelize = new Sequelize(
-  process.env.DB_NAME     || 'postgres',
-  process.env.DB_USER     || 'postgres',
-  process.env.DB_PASSWORD || process.env.DB_PASS || '',
+  dbName,
+  dbUser,
+  dbPassword,
   {
-    host:    process.env.DB_HOST || 'localhost',
-    port:    parseInt(process.env.DB_PORT || '6543', 10),
+    host:    dbHost,
+    port:    dbPort,
     dialect: 'postgres',
     dialectOptions: {
       ssl: {

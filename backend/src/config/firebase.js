@@ -7,15 +7,21 @@ require('dotenv').config();
 let firebaseMessaging = null;
 
 try {
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  const cleanEnvVar = (val) => {
+    if (!val) return val;
+    let cleaned = val.trim();
+    if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || 
+        (cleaned.startsWith('\'') && cleaned.endsWith('\''))) {
+      cleaned = cleaned.slice(1, -1);
+    }
+    return cleaned.trim();
+  };
+
+  let projectId = cleanEnvVar(process.env.FIREBASE_PROJECT_ID);
+  let clientEmail = cleanEnvVar(process.env.FIREBASE_CLIENT_EMAIL);
+  let privateKey = cleanEnvVar(process.env.FIREBASE_PRIVATE_KEY);
 
   if (projectId && clientEmail && privateKey) {
-    // Strip surrounding quotes if present (often happens when pasting .env on Render)
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      privateKey = privateKey.slice(1, -1);
-    }
     // Handle formatting of private key (newline characters)
     privateKey = privateKey.replace(/\\n/g, '\n');
 
