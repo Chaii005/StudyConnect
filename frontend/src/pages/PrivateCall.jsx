@@ -151,12 +151,18 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
           localStreamObj.getTracks().forEach(t => pc.addTrack(t, localStreamObj));
         }
 
-        const rs = new MediaStream();
         pc.ontrack = (e) => {
           if (import.meta.env.DEV) console.log('[PrivateCall] Remote track added:', e.track.kind);
-          rs.getTracks().forEach(t => { if (t.kind === e.track.kind) rs.removeTrack(t); });
-          rs.addTrack(e.track);
-          setRemoteStream(rs);
+          setRemoteStream(prevStream => {
+            const stream = prevStream || new MediaStream();
+            stream.getTracks().forEach(t => {
+              if (t.kind === e.track.kind) {
+                stream.removeTrack(t);
+              }
+            });
+            stream.addTrack(e.track);
+            return new MediaStream(stream.getTracks());
+          });
           setConnected(true);
         };
 
