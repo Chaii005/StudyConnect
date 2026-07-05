@@ -18,8 +18,8 @@ export default function ResetPassword() {
     e.preventDefault();
     setError('');
 
-    if (password.length < 8) {
-      setError('Mật khẩu phải có ít nhất 8 ký tự.');
+    if (password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự.');
       return;
     }
 
@@ -174,7 +174,7 @@ export default function ResetPassword() {
                     id="new-pass"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"
-                    placeholder="Mật khẩu từ 8 ký tự"
+                    placeholder="Mật khẩu từ 6 ký tự"
                     value={password}
                     onChange={e => { setPassword(e.target.value); setError(''); }}
                     style={{ width: '100%', padding: '12px 42px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
