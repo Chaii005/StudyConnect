@@ -16,6 +16,12 @@ import {
   togglePinPost,
   getUserPosts
 } from '../services/interactionService';
+import {
+  getFriendshipStatus,
+  sendFriendRequest,
+  acceptFriendRequest,
+  removeFriend
+} from '../services/friendService';
 
 const AVATAR_COLORS = ['#1A1A1A', '#3A3A3A', '#2E2E2E', '#4A4A4A', '#222222'];
 const colorOf = (str) => AVATAR_COLORS[(str || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length];
@@ -31,6 +37,8 @@ export default function FriendDetail() {
   const [loadingFriend, setLoadingFriend] = useState(true);
   const [isFriend, setIsFriend] = useState(false);
   const [checkingFriendship, setCheckingFriendship] = useState(true);
+  const [friendship, setFriendship] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
@@ -93,18 +101,10 @@ export default function FriendDetail() {
     const checkFriendship = async () => {
       if (!user?.id || !id) return;
       try {
-        const uid = parseInt(user.id, 10);
-        const fid = parseInt(id, 10);
-        
-        const { data, error } = await supabase
-          .from('friendships')
-          .select('status')
-          .eq('status', 'accepted')
-          .or(`and(from_user_id.eq.${uid},to_user_id.eq.${fid}),and(from_user_id.eq.${fid},to_user_id.eq.${uid})`)
-          .maybeSingle();
-
-        if (error) throw error;
-        setIsFriend(!!data);
+        setCheckingFriendship(true);
+        const status = await getFriendshipStatus(user.id, id);
+        setFriendship(status);
+        setIsFriend(status?.status === 'accepted');
       } catch (err) {
         if (import.meta.env.DEV) console.error('Error checking friendship:', err);
       } finally {
@@ -290,24 +290,165 @@ export default function FriendDetail() {
 
   // Handle Unauthorized (Not Friends)
   if (!isFriend) {
+    const initials = friendData?.full_name
+      ?.split(' ')
+      .map((w) => w[0])
+      .slice(-2)
+      .join('')
+      .toUpperCase() || '?';
+
+    const handleAddFriendAction = async () => {
+      if (!user?.id || !id) return;
+      setActionLoading(true);
+      try {
+        if (!friendship) {
+          const req = await sendFriendRequest(user.id, id);
+          setFriendship(req);
+          addToast('Đã gửi lời mời kết bạn!', 'success');
+        } else if (friendship.status === 'pending' && friendship.toUserId === user.id) {
+          const accepted = await acceptFriendRequest(friendship.id);
+          setFriendship(accepted);
+          setIsFriend(true);
+          addToast('Hai bạn đã trở thành bạn bè!', 'success');
+        } else if (friendship.status === 'rejected') {
+          await removeFriend(friendship.id);
+          const req = await sendFriendRequest(user.id, id);
+          setFriendship(req);
+          addToast('Đã gửi lại lời mời kết bạn!', 'success');
+        }
+      } catch (err) {
+        addToast(err.message || 'Lỗi thực hiện thao tác bạn bè.', 'error');
+      } finally {
+        setActionLoading(false);
+      }
+    };
+
     return (
-      <>
-        <div style={{ textAlign: 'center', padding: '80px 24px', color: 'var(--text-muted)' }}>
-          <div style={{ color: 'var(--text-muted)', display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </div>
-          <h2 style={{ color: 'var(--text-primary)', marginBottom: '12px', fontWeight: 800 }}>Quyền riêng tư</h2>
-          <p style={{ maxWidth: '420px', margin: '0 auto 24px', lineHeight: 1.6 }}>
-            Bạn chỉ có thể xem hồ sơ cá nhân và lịch sử đăng bài của những người dùng đã nằm trong danh sách bạn bè chính thức.
-          </p>
-          <Link to="/friends" className="btn btn-secondary" style={{ borderRadius: '24px', display: 'inline-flex', padding: '10px 24px' }}>
-            ← Quay lại trang Kết bạn
-          </Link>
+      <div style={{
+        maxWidth: '540px',
+        margin: '60px auto',
+        padding: '36px 32px',
+        background: 'var(--bg-card)',
+        border: '1.5px solid var(--border)',
+        borderRadius: '24px',
+        boxShadow: 'var(--shadow-lg)',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '24px'
+      }}>
+        {/* Avatar */}
+        <div style={{ position: 'relative' }}>
+          {friendData?.avatar ? (
+            <img
+              src={friendData.avatar}
+              alt={friendData.full_name}
+              style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '3px solid var(--border)'
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                background: colorOf(friendData?.full_name),
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '36px',
+                fontWeight: 800,
+                border: '3px solid var(--border)'
+              }}
+            >
+              {initials}
+            </div>
+          )}
         </div>
-      </>
+
+        {/* User Info */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            {friendData?.full_name}
+          </h2>
+          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>@{friendData?.email?.split('@')[0]}</span>
+          
+          {(friendData?.university || friendData?.major) && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '8px' }}>
+              {friendData.university && (
+                <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', background: 'rgba(0,0,0,0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+                  🏫 {friendData.university}
+                </span>
+              )}
+              {friendData.major && (
+                <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', background: 'rgba(0,0,0,0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+                  🎓 {friendData.major}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div style={{ width: '100%', borderTop: '1px solid var(--border)', margin: '4px 0' }} />
+
+        {/* Privacy Note */}
+        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6, maxWidth: '420px', margin: 0 }}>
+          Hồ sơ của người dùng này đang được thiết lập ở chế độ riêng tư. Hãy kết bạn để có thể trò chuyện, chia sẻ tài liệu và cùng học tập.
+        </p>
+
+        {/* Action Button */}
+        <div>
+          {friendship && friendship.status === 'pending' && friendship.fromUserId === user.id ? (
+            <button
+              disabled
+              style={{
+                background: 'rgba(0,0,0,0.06)',
+                color: 'var(--text-muted)',
+                border: '1.5px solid var(--border)',
+                borderRadius: '24px',
+                padding: '12px 32px',
+                fontWeight: 800,
+                fontSize: '15px',
+                cursor: 'not-allowed'
+              }}
+            >
+              ⌛ Lời mời kết bạn đang chờ phản hồi
+            </button>
+          ) : (
+            <button
+              onClick={handleAddFriendAction}
+              disabled={actionLoading}
+              style={{
+                background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
+                color: 'white',
+                border: 'none',
+                borderRadius: '24px',
+                padding: '12px 36px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontSize: '15px',
+                boxShadow: '0 4px 16px rgba(42, 117, 118, 0.25)',
+                opacity: actionLoading ? 0.7 : 1
+              }}
+            >
+              {actionLoading ? 'Đang xử lý...' : (
+                friendship && friendship.status === 'pending' && friendship.toUserId === user.id ? 'Chấp nhận kết bạn' : '+ Thêm bạn bè'
+              )}
+            </button>
+          )}
+        </div>
+
+        <Link to="/friends" style={{ fontSize: '14px', color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 600 }}>
+          ← Quay lại trang Kết bạn
+        </Link>
+      </div>
     );
   }
 

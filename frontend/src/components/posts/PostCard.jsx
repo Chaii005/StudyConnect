@@ -6,6 +6,7 @@ import LikeCommentBar from './LikeCommentBar';
 import CommentRow from './CommentRow';
 import { sendFriendRequest } from '@/services/friendService';
 import { SafeInput, SafeTextarea } from '@/components/common/SafeInput';
+import { supabase } from '@/config/supabaseClient';
 
 const ReplyIcon = () => (
   <svg
@@ -38,24 +39,80 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(post?.content || '');
   const commentsEndRef = useRef(null);
-  // Tag popover state: { name, userId } | null
-  const [tagPopover, setTagPopover] = useState(null);
-  const [addFriendLoading, setAddFriendLoading] = useState(false);
-  const [addFriendDone, setAddFriendDone] = useState(false);
-  const popoverRef = useRef(null);
+  const [hoveredItem, setHoveredItem] = useState(null);
 
-  // Close popover on outside click
-  useEffect(() => {
-    if (!tagPopover) return;
-    const handler = (e) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target)) {
-        setTagPopover(null);
-        setAddFriendDone(false);
+  const handleUserMouseEnter = async (uid, name, isFriend) => {
+    if (!uid) return;
+    setHoveredItem({ type: 'user', id: uid, name, loading: true, isFriend });
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('avatar, university, major, full_name')
+        .eq('id', parseInt(uid, 10))
+        .single();
+      if (!error && data) {
+        setHoveredItem(prev => {
+          if (prev && prev.type === 'user' && prev.id === uid) {
+            return {
+              ...prev,
+              loading: false,
+              avatar: data.avatar,
+              university: data.university,
+              major: data.major,
+              fullName: data.full_name
+            };
+          }
+          return prev;
+        });
+      } else {
+        setHoveredItem(prev => (prev && prev.id === uid ? { ...prev, loading: false } : prev));
       }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [tagPopover]);
+    } catch {
+      setHoveredItem(prev => (prev && prev.id === uid ? { ...prev, loading: false } : prev));
+    }
+  };
+
+  const handleGroupMouseEnter = async (gid, name) => {
+    if (!gid) return;
+    setHoveredItem({ type: 'group', id: gid, name, loading: true });
+    try {
+      const { data, error } = await supabase
+        .from('study_groups')
+        .select(`
+          id, name, subject, meeting_mode, max_members,
+          group_members (user_id)
+        `)
+        .eq('id', parseInt(gid, 10))
+        .single();
+
+      if (!error && data) {
+        const membersList = (data.group_members || []).map(m => m.user_id);
+        const isMem = membersList.some(m => Number(m) === Number(currentUser?.id));
+        setHoveredItem(prev => {
+          if (prev && prev.type === 'group' && prev.id === gid) {
+            return {
+              ...prev,
+              loading: false,
+              subject: data.subject,
+              meetingMode: data.meeting_mode,
+              maxMembers: data.max_members,
+              memberCount: membersList.length,
+              isMember: isMem
+            };
+          }
+          return prev;
+        });
+      } else {
+        setHoveredItem(prev => (prev && prev.id === gid ? { ...prev, loading: false } : prev));
+      }
+    } catch {
+      setHoveredItem(prev => (prev && prev.id === gid ? { ...prev, loading: false } : prev));
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredItem(null);
+  };
 
   // Build a Set of friend user IDs for O(1) lookup
   const friendIdSet = new Set((friends || []).map(f => String(f.userId)));
@@ -65,6 +122,11 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
   // post.taggedUserNames = [name1, name2, ...]
   const getTaggedUserId = (index) => {
     const ids = post.taggedUsers || [];
+    return ids[index] ? String(ids[index]) : null;
+  };
+
+  const getTaggedGroupId = (index) => {
+    const ids = post.taggedGroups || [];
     return ids[index] ? String(ids[index]) : null;
   };
 
@@ -149,7 +211,7 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
         border: '1.5px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
         marginBottom: '14px',
-        overflow: 'hidden',
+        overflow: 'visible',
         transition: 'border-color 0.25s, box-shadow 0.25s',
       }}
       onMouseEnter={(e) => {
@@ -372,18 +434,26 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
             const uid = getTaggedUserId(i);
             const isFriend = uid && (friendIdSet.has(uid) || String(currentUser?.id) === uid);
             const isOwn = String(currentUser?.id) === uid;
-            const isPopoverOpen = tagPopover?.uid === uid;
+            const isHovered = hoveredItem && hoveredItem.type === 'user' && hoveredItem.id === uid;
 
             return (
-              <span key={`tu:${i}`} style={{ position: 'relative', display: 'inline-block' }}>
+              <span
+                key={`tu:${i}`}
+                style={{ position: 'relative', display: 'inline-block' }}
+                onMouseLeave={handleMouseLeave}
+              >
                 <span
                   onClick={() => {
-                    if (isOwn || isFriend) {
+                    if (uid) {
                       navigate(isOwn ? '/profile' : `/friends/${uid}`);
-                    } else {
-                      setTagPopover(isPopoverOpen ? null : { name, uid });
-                      setAddFriendDone(false);
                     }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.85';
+                    handleUserMouseEnter(uid, name, isFriend);
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '1';
                   }}
                   style={{
                     display: 'inline-flex', alignItems: 'center',
@@ -393,77 +463,215 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
                     fontSize: '12px', fontWeight: 700,
                     cursor: 'pointer',
                     border: isFriend ? '1px solid #BAE6FD' : '1px solid var(--border)',
-                    transition: 'opacity 0.15s',
+                    transition: 'all 0.15s',
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
-                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
                 >
                   @{name}
                 </span>
 
-                {/* Popover for non-friends */}
-                {isPopoverOpen && (
+                {isHovered && (
                   <div
-                    ref={popoverRef}
                     style={{
-                      position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      paddingTop: '6px',
                       zIndex: 9999,
-                      background: 'var(--bg-card)',
-                      border: '1.5px solid var(--border)',
-                      borderRadius: '14px',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-                      padding: '14px 16px',
-                      minWidth: '200px',
-                      display: 'flex', flexDirection: 'column', gap: '10px',
+                      minWidth: '240px'
                     }}
                   >
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>@{name}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Bạn chưa kết bạn với người này.</span>
-                    <button
-                      disabled={addFriendLoading || addFriendDone}
-                      onClick={async () => {
-                        if (!uid || !currentUser?.id) return;
-                        setAddFriendLoading(true);
-                        try {
-                          await sendFriendRequest(currentUser.id, uid);
-                          setAddFriendDone(true);
-                        } catch (err) {
-                          if (import.meta.env.DEV) console.warn('Friend request error:', err);
-                          setAddFriendDone(true); // show done even if already sent
-                        } finally {
-                          setAddFriendLoading(false);
+                    <div style={{
+                      position: 'absolute',
+                      top: '1px',
+                      left: '20px',
+                      width: '10px',
+                      height: '10px',
+                      background: 'var(--bg-card)',
+                      borderLeft: '1.5px solid var(--border)',
+                      borderTop: '1.5px solid var(--border)',
+                      transform: 'rotate(45deg)',
+                      zIndex: 10000
+                    }} />
+
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (uid) {
+                          navigate(isOwn ? '/profile' : `/friends/${uid}`);
                         }
                       }}
                       style={{
-                        padding: '7px 14px',
-                        borderRadius: '20px',
-                        border: 'none',
-                        background: addFriendDone ? 'rgba(0,0,0,0.08)' : '#1A1A1A',
-                        color: addFriendDone ? 'var(--text-muted)' : '#fff',
-                        fontSize: '13px', fontWeight: 700,
-                        cursor: addFriendLoading || addFriendDone ? 'default' : 'pointer',
-                        fontFamily: 'inherit',
-                        transition: 'all 0.2s',
+                        background: 'var(--bg-card)',
+                        border: '1.5px solid var(--border)',
+                        borderRadius: '14px',
+                        boxShadow: '0 12px 40px rgba(0,0,0,0.16)',
+                        padding: '14px 16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        cursor: 'pointer',
+                        textAlign: 'left'
                       }}
                     >
-                      {addFriendDone ? '✓ Đã gửi lời mời' : addFriendLoading ? 'Đang gửi...' : '+ Kết bạn'}
-                    </button>
+                      {hoveredItem.loading ? (
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Đang tải...</span>
+                      ) : (hoveredItem.isFriend || isOwn) ? (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            {hoveredItem.avatar ? (
+                              <img src={hoveredItem.avatar} alt="avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 800 }}>
+                                {(hoveredItem.fullName || name)[0].toUpperCase()}
+                              </div>
+                            )}
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>{hoveredItem.fullName}</span>
+                              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>@{name}</span>
+                            </div>
+                          </div>
+                          {(hoveredItem.university || hoveredItem.major) && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', borderTop: '1px solid var(--border)', paddingTop: '6px', marginTop: '2px' }}>
+                              {hoveredItem.university && <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>🏫 {hoveredItem.university}</span>}
+                              {hoveredItem.major && <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>🎓 {hoveredItem.major}</span>}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)' }}>@{name}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Bạn chưa kết bạn với người này. Nhấp để kết bạn.</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
               </span>
             );
           })}
 
-          {(post.taggedGroupNames || []).map((name, i) => (
-            <span key={`tg:${i}`} style={{
-              display: 'inline-flex', alignItems: 'center',
-              padding: '3px 10px', borderRadius: '20px',
-              background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)',
-              color: 'var(--text-primary)', fontSize: '12px', fontWeight: 700,
-            }}>
-              @{name}
-            </span>
-          ))}
+          {(post.taggedGroupNames || []).map((name, i) => {
+            const gid = getTaggedGroupId(i);
+            const isHovered = hoveredItem && hoveredItem.type === 'group' && hoveredItem.id === gid;
+
+            return (
+              <span
+                key={`tg:${i}`}
+                style={{ position: 'relative', display: 'inline-block' }}
+                onMouseLeave={handleMouseLeave}
+              >
+                <span
+                  onClick={() => {
+                    if (gid) {
+                      navigate(`/groups/${gid}`);
+                    }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(42, 117, 118, 0.12)';
+                    handleGroupMouseEnter(gid, name);
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(42, 117, 118, 0.06)';
+                  }}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    padding: '3px 10px', borderRadius: '20px',
+                    background: 'rgba(42, 117, 118, 0.06)',
+                    border: '1px solid rgba(42, 117, 118, 0.18)',
+                    color: 'var(--primary)',
+                    fontSize: '12px', fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  Nhóm: @{name}
+                </span>
+
+                {isHovered && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      paddingTop: '6px',
+                      zIndex: 9999,
+                      minWidth: '240px'
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute',
+                      top: '1px',
+                      left: '20px',
+                      width: '10px',
+                      height: '10px',
+                      background: 'var(--bg-card)',
+                      borderLeft: '1.5px solid var(--border)',
+                      borderTop: '1.5px solid var(--border)',
+                      transform: 'rotate(45deg)',
+                      zIndex: 10000
+                    }} />
+
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (gid) {
+                          navigate(`/groups/${gid}`);
+                        }
+                      }}
+                      style={{
+                        background: 'var(--bg-card)',
+                        border: '1.5px solid var(--border)',
+                        borderRadius: '14px',
+                        boxShadow: '0 12px 40px rgba(0,0,0,0.16)',
+                        padding: '14px 16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        cursor: 'pointer',
+                        textAlign: 'left'
+                      }}
+                    >
+                      {hoveredItem.loading ? (
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Đang tải...</span>
+                      ) : hoveredItem.isMember ? (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(42, 117, 118, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                              </svg>
+                            </div>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>{name}</span>
+                          </div>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Môn học: {hoveredItem.subject}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid var(--border)', paddingTop: '8px', marginTop: '2px' }}>
+                            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>👥 Sĩ số: {hoveredItem.memberCount}/{hoveredItem.maxMembers} thành viên</span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>🌐 Hình thức: {hoveredItem.meetingMode === 'offline' ? 'Offline' : 'Online'}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(42, 117, 118, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                              </svg>
+                            </div>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>{name}</span>
+                          </div>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Bạn chưa tham gia nhóm này. Nhấp để gửi yêu cầu tham gia.</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </span>
+            );
+          })}
         </div>
       )}
 

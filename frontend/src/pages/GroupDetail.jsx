@@ -147,6 +147,94 @@ export default function GroupDetail() {
 
   if (!h.group) return null;
 
+  if (!h.isMember) {
+    return (
+      <div style={{
+        maxWidth: '600px',
+        margin: '60px auto',
+        padding: '36px 32px',
+        background: 'var(--bg-card)',
+        border: '1.5px solid var(--border)',
+        borderRadius: '24px',
+        boxShadow: 'var(--shadow-lg)',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '24px'
+      }}>
+        <div style={{
+          background: 'rgba(42, 117, 118, 0.1)',
+          color: 'var(--primary)',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '8px'
+        }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        </div>
+
+        <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+          {h.group.name}
+        </h1>
+
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', background: 'rgba(0,0,0,0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+            Môn học: {h.group.subject}
+          </span>
+          <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', background: 'rgba(0,0,0,0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+            Hình thức: {h.group.meetingMode === 'offline' ? 'Offline' : 'Online'}
+          </span>
+          <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', background: 'rgba(0,0,0,0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+            Sĩ số: {h.group.members.length}/{h.group.maxMembers} thành viên
+          </span>
+          <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', background: h.group.isPrivate ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', border: h.group.isPrivate ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)', color: h.group.isPrivate ? '#ef4444' : '#10b981' }}>
+            {h.group.isPrivate ? 'Nhóm riêng tư' : 'Nhóm công khai'}
+          </span>
+        </div>
+
+        <p style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: 1.6, maxWidth: '480px', margin: 0 }}>
+          {h.group.description || 'Chưa có mô tả cho nhóm này.'}
+        </p>
+
+        <div style={{ width: '100%', borderTop: '1px solid var(--border)', margin: '12px 0' }} />
+
+        {h.joinRequestStatus === 'pending' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 600 }}>⌛ Đang chờ duyệt tham gia...</span>
+          </div>
+        ) : (
+          <button
+            onClick={h.handleJoinGroup}
+            disabled={h.joining}
+            style={{
+              background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
+              color: 'white',
+              border: 'none',
+              borderRadius: '24px',
+              padding: '12px 36px',
+              fontWeight: 800,
+              cursor: 'pointer',
+              fontSize: '15px',
+              boxShadow: '0 4px 16px rgba(42, 117, 118, 0.25)',
+              opacity: h.joining ? 0.7 : 1
+            }}
+          >
+            {h.joining ? 'Đang gửi...' : (h.group.isPrivate ? 'Yêu cầu tham gia nhóm học ngay' : 'Tham gia nhóm học ngay')}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   // Urgent deadline count for tab badge
   const isLeaderOrDeputy = String(user.id) === String(h.group.creatorId) || String(user.id) === String(h.group.deputyId);
   const urgentCount = h.deadlines.filter((d) => {

@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { formatBytes } from '@/utils';
 import { compressImage } from '@/utils/imageCompress';
-import { getGroupById, assignDeputy, removeDeputy, kickMember } from '@/services/groupService';
+import { getGroupById, assignDeputy, removeDeputy, kickMember, joinGroup, requestJoinGroup } from '@/services/groupService';
 import { sendFriendRequest } from '@/services/friendService';
 import { supabase } from '@/config/supabaseClient';
 import { useOnlineUsers } from '@/context/OnlineUsersContext';
@@ -57,6 +57,9 @@ export default function useGroupDetail(groupId, user, addToast) {
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('documents');
+  const [isMember, setIsMember] = useState(true);
+  const [joinRequestStatus, setJoinRequestStatus] = useState(null);
+  const [joining, setJoining] = useState(false);
 
   // Members management state
   const [isAssigningDeputy, setIsAssigningDeputy] = useState(false);
@@ -281,28 +284,59 @@ export default function useGroupDetail(groupId, user, addToast) {
         navigate('/groups');
         return;
       }
-      if (!groupData.members.some(m => Number(m) === Number(user?.id))) {
-        addToast('Bạn phải tham gia nhóm này để xem nội dung!', 'error');
-        navigate('/groups');
-        return;
-      }
+      
+      const isMem = groupData.members.some(m => Number(m) === Number(user?.id));
+      setIsMember(isMem);
       setGroup(groupData);
       setLoading(false); // Render the group layout/tab structure immediately!
 
-      // Concurrently execute secondary fetches in the background
-      Promise.all([
-        fetchGroupMembersDetails(groupData.members),
-        fetchGroupFriendships(),
-        fetchGroupDeadlines()
-      ]).catch(err => {
-        if (import.meta.env.DEV) console.warn('[useGroupDetail] Background fetches encountered errors:', err);
-      });
+      if (isMem) {
+        // Concurrently execute secondary fetches in the background
+        Promise.all([
+          fetchGroupMembersDetails(groupData.members),
+          fetchGroupFriendships(),
+          fetchGroupDeadlines()
+        ]).catch(err => {
+          if (import.meta.env.DEV) console.warn('[useGroupDetail] Background fetches encountered errors:', err);
+        });
+      } else {
+        // Fetch join request status if not a member
+        const { data: req } = await supabase
+          .from('group_join_requests')
+          .select('status')
+          .eq('group_id', parseInt(groupId, 10))
+          .eq('user_id', parseInt(user?.id, 10))
+          .eq('status', 'pending')
+          .maybeSingle();
+        setJoinRequestStatus(req?.status || null);
+      }
     } catch (err) {
       addToast(err.message || 'Lỗi tải thông tin nhóm', 'error');
       navigate('/groups');
       setLoading(false);
     }
   }, [groupId, user?.id, navigate, addToast, fetchGroupDeadlines, fetchGroupMembersDetails, fetchGroupFriendships]);
+
+  const handleJoinGroup = async () => {
+    if (!user?.id || !groupId) return;
+    setJoining(true);
+    try {
+      if (group.isPrivate) {
+        await requestJoinGroup(user.id, groupId);
+        setJoinRequestStatus('pending');
+        addToast('Đã gửi yêu cầu tham gia nhóm!', 'success');
+      } else {
+        await joinGroup(user.id, groupId);
+        setIsMember(true);
+        addToast('Đã tham gia nhóm thành công!', 'success');
+        fetchGroupDetails();
+      }
+    } catch (err) {
+      addToast(err.message, 'error');
+    } finally {
+      setJoining(false);
+    }
+  };
 
   useEffect(() => {
     fetchGroupDetails();
@@ -1613,5 +1647,9 @@ export default function useGroupDetail(groupId, user, addToast) {
     confirmConfig,
     setConfirmConfig,
     onlineUserIds,
+    isMember,
+    joinRequestStatus,
+    joining,
+    handleJoinGroup,
   };
 }
