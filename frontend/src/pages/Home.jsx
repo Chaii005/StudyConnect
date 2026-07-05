@@ -51,19 +51,35 @@ export default function Home() {
         if (import.meta.env.DEV) console.warn('Error fetching friends:', err);
       }
       try {
-        // Query trực tiếp theo creator_id thay vì tải toàn bộ rồi filter client-side
-        const { data: leaderData } = await supabase
-          .from('study_groups')
-          .select('id, name, creator_id, group_members(user_id, role)')
-          .eq('creator_id', uid)
-          .limit(10);
-        if (leaderData) {
-          const mapped = leaderData.map(g => ({
-            id: g.id.toString(),
-            name: g.name,
-            creatorId: g.creator_id,
-            members: (g.group_members || []).map(m => m.user_id)
-          }));
+        const { data: memberGroupsData } = await supabase
+          .from('group_members')
+          .select(`
+            group_id,
+            study_groups (
+              id,
+              name,
+              creator_id,
+              group_members (
+                user_id,
+                role
+              )
+            )
+          `)
+          .eq('user_id', uid)
+          .limit(30);
+
+        if (memberGroupsData) {
+          const mapped = memberGroupsData
+            .filter(m => m.study_groups)
+            .map(m => {
+              const g = m.study_groups;
+              return {
+                id: g.id.toString(),
+                name: g.name,
+                creatorId: g.creator_id,
+                members: (g.group_members || []).map(gm => gm.user_id)
+              };
+            });
           setMyLeaderGroups(mapped);
         }
       } catch (err) {

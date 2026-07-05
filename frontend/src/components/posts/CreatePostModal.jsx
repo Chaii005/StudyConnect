@@ -246,7 +246,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
                       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                    <span>Nhóm học (trưởng nhóm)</span>
+                    <span>Nhóm học tập</span>
                   </div>
                 )}
                 {sugs.filter(s => s.type === 'group').map((sug) => {
@@ -326,7 +326,7 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
               <line x1="9" y1="18" x2="15" y2="18" />
               <line x1="10" y1="22" x2="14" y2="22" />
             </svg>
-            <span>Gõ <strong style={{ color: 'var(--text-primary)' }}>@</strong> để tag bạn bè hoặc nhóm học bạn đang làm trưởng nhóm</span>
+            <span>Gõ <strong style={{ color: 'var(--text-primary)' }}>@</strong> để tag bạn bè hoặc nhóm học tập của bạn</span>
           </div>
         </div>
 
