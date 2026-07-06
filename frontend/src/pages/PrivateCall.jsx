@@ -52,7 +52,7 @@ const ICE_SERVERS = {
 };
 
 /* ─── Hook WebRTC cho cuộc gọi 1-1 ─────────────────────── */
-function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
+function usePrivateWebRTC({ callId, user, mode, micOn, camOn, setMicOn, setCamOn, onHangup }) {
   const [localStream, setLocalStream]   = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
   const [connected, setConnected]       = useState(false);
@@ -92,6 +92,10 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
       setLocalStream(stream);
       stream.getAudioTracks().forEach(t => { t.enabled = micOnRef.current; });
       stream.getVideoTracks().forEach(t => { t.enabled = camOnRef.current; });
+      const hasVideo = stream.getVideoTracks().length > 0;
+      const hasAudio = stream.getAudioTracks().length > 0;
+      if (setCamOn) setCamOn(hasVideo);
+      if (setMicOn) setMicOn(hasAudio);
       return stream;
     } catch (err) {
       if (err.message === 'SecureContextError') {
@@ -99,6 +103,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         return null;
       }
       if (import.meta.env.DEV) console.warn('[PrivateCall] Full media failed, trying audio only:', err);
+      if (setCamOn) setCamOn(false);
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           throw new Error('SecureContextError');
@@ -110,16 +115,19 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, onHangup }) {
         localRef.current = stream;
         setLocalStream(stream);
         stream.getAudioTracks().forEach(t => { t.enabled = micOnRef.current; });
+        const hasAudio = stream.getAudioTracks().length > 0;
+        if (setMicOn) setMicOn(hasAudio);
         return stream;
       } catch (err2) {
         if (import.meta.env.DEV) console.error('[PrivateCall] Audio-only also failed:', err2);
+        if (setMicOn) setMicOn(false);
         setError(err.name === 'NotAllowedError' || err2.name === 'NotAllowedError'
           ? 'Vui lòng cấp quyền camera và microphone để gọi video.'
           : 'Không thể truy cập camera/microphone hoặc thiết bị yêu cầu HTTPS.');
         return null;
       }
     }
-  }, []);
+  }, [setCamOn, setMicOn]);
 
   // Toggle mic/cam
   useEffect(() => {

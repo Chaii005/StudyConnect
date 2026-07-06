@@ -72,6 +72,46 @@ export default function ConversationView({
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimerRef = useRef(null);
+
+  // Setup presence for typing indicator
+  useEffect(() => {
+    if (!friend || !friend.userId) return;
+
+    const channelName = `typing_${Math.min(user.id, friend.userId)}_${Math.max(user.id, friend.userId)}`;
+    const channel = supabase.channel(channelName);
+
+    channel
+      .on('broadcast', { event: 'typing' }, (payload) => {
+        if (payload.payload.userId === friend.userId) {
+          setIsTyping(payload.payload.isTyping);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user.id, friend]);
+
+  const sendTypingStatus = (isTyping) => {
+    const channelName = `typing_${Math.min(user.id, friend.userId)}_${Math.max(user.id, friend.userId)}`;
+    supabase.channel(channelName).send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { userId: user.id, isTyping }
+    });
+  };
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+    
+    // Typing indicator logic
+    sendTypingStatus(true);
+    clearTimeout(typingTimerRef.current);
+    typingTimerRef.current = setTimeout(() => sendTypingStatus(false), 2000);
+  };
   const [showCamera, setShowCamera] = useState(false);
   const [imgPreview, setImgPreview] = useState(null);
   const [contextMenu, setContextMenu] = useState(null); // { x, y, msg }
@@ -480,28 +520,26 @@ export default function ConversationView({
     const container = msgsContainerRef.current;
     if (!container) return;
     const newCount = messages.length;
-    if (newCount > prevMsgCount.current) {
-      const { scrollTop } = container;
-      const isNearTop = scrollTop < 120;
-      if (isNearTop) {
-        container.scrollTo({ top: 0, behavior: 'smooth' });
-        setShowScrollBtn(false);
-      } else {
-        setShowScrollBtn(true);
-      }
-    }
+    
+    // In column-reverse, container starts scrolled to bottom (scrollTop = 0)
+    // New messages appear at the bottom.
+    // If user is at bottom (scrollTop === 0), it will auto-scroll naturally if we append.
+    // If user is scrolled up, they stay scrolled up.
+    
     prevMsgCount.current = newCount;
   }, [messages]);
 
   const handleScroll = () => {
     const container = msgsContainerRef.current;
     if (!container) return;
+    // In column-reverse, container starts scrolled to bottom (scrollTop = 0)
+    // Positive scrollTop means we are scrolled UP (towards older messages)
     const { scrollTop } = container;
-    const isNearTop = scrollTop < 80;
-    setShowScrollBtn(!isNearTop);
+    const isNearBottom = scrollTop < 100; // Near "bottom" (newest)
+    setShowScrollBtn(!isNearBottom);
   };
 
-  const scrollToTop = () => {
+  const scrollToBottom = () => {
     const container = msgsContainerRef.current;
     if (container) {
       container.scrollTo({ top: 0, behavior: 'smooth' });
@@ -749,251 +787,262 @@ export default function ConversationView({
           borderBottom: '1.5px solid var(--border)',
           background: 'var(--bg-card)', 
           flexShrink: 0,
+          flexDirection: 'column',
+          alignItems: 'stretch',
         }}
       >
-        <button 
-          onClick={onBack} 
-          style={{
-            background: 'none', 
-            border: 'none', 
-            cursor: 'pointer',
-            color: 'var(--text-secondary)', 
-            fontSize: '20px', 
-            padding: '6px 10px',
-            borderRadius: '10px', 
-            transition: 'all 0.2s', 
-            lineHeight: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'none'}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="20" y1="12" x2="4" y2="12"/>
-            <polyline points="10 18 4 12 10 6"/>
-          </svg>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <button 
+            onClick={onBack} 
+            style={{
+              background: 'none', 
+              border: 'none', 
+              cursor: 'pointer',
+              color: 'var(--text-secondary)', 
+              fontSize: '20px', 
+              padding: '6px 10px',
+              borderRadius: '10px', 
+              transition: 'all 0.2s', 
+              lineHeight: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="20" y1="12" x2="4" y2="12"/>
+              <polyline points="10 18 4 12 10 6"/>
+            </svg>
+          </button>
 
-        <Avatar src={friend.avatar} initial={friend.initial} size={42} />
-        
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: '15.5px', color: 'var(--text-primary)' }}>
-            {nickname || friend.fullName}
+          <Avatar src={friend.avatar} initial={friend.initial} size={42} />
+          
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: '15.5px', color: 'var(--text-primary)' }}>
+              {nickname || friend.fullName}
+            </div>
+            {(() => {
+              const isOnline = onlineUserIds.includes(String(friend.userId));
+              return (
+                <div 
+                  style={{ 
+                    fontSize: '12px', 
+                    color: isOnline ? '#0D9488' : '#ef4444', 
+                    fontWeight: 700, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '5px',
+                    marginTop: '2px',
+                  }}
+                >
+                  <span 
+                    style={{ 
+                      display: 'inline-block', 
+                      width: '6px', 
+                      height: '6px', 
+                      borderRadius: '50%', 
+                      background: isOnline ? '#0D9488' : '#ef4444' 
+                    }} 
+                  />
+                  {isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}
+                </div>
+              );
+            })()}
           </div>
-          {(() => {
-            const isOnline = onlineUserIds.includes(String(friend.userId));
-            return (
-              <div 
-                style={{ 
-                  fontSize: '12px', 
-                  color: isOnline ? '#0D9488' : '#ef4444', 
-                  fontWeight: 700, 
+
+          {/* Action Controls Group */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
+            {(!friend.status || friend.status === 'accepted') && (
+              <button
+                onClick={() => initiateCall(friend)}
+                title="Gọi video"
+                style={{
+                  width: 40, 
+                  height: 40, 
+                  borderRadius: '50%', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '5px',
-                  marginTop: '2px',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.15)', 
+                  transition: 'all 0.2s', 
+                  flexShrink: 0,
                 }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               >
-                <span 
-                  style={{ 
-                    display: 'inline-block', 
-                    width: '6px', 
-                    height: '6px', 
-                    borderRadius: '50%', 
-                    background: isOnline ? '#0D9488' : '#ef4444' 
-                  }} 
-                />
-                {isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}
-              </div>
-            );
-          })()}
-        </div>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m21 8-4 3.5V9a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5l4 3.5V8Z" />
+                </svg>
+              </button>
+            )}
 
-        {/* Action Controls Group */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
-          {(!friend.status || friend.status === 'accepted') && (
-            <button
-              onClick={() => initiateCall(friend)}
-              title="Gọi video"
-              style={{
-                width: 40, 
-                height: 40, 
-                borderRadius: '50%', 
-                border: 'none', 
-                cursor: 'pointer',
-                background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.15)', 
-                transition: 'all 0.2s', 
-                flexShrink: 0,
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m21 8-4 3.5V9a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5l4 3.5V8Z" />
-              </svg>
-            </button>
-          )}
-
-          {(!friend.status || friend.status === 'accepted') && (
-            <button
-              onClick={() => setShowMenuDropdown(prev => !prev)}
-              title="Tùy chọn"
-              style={{
-                width: 40, 
-                height: 40, 
-                borderRadius: '50%', 
-                border: '1.5px solid var(--border)', 
-                cursor: 'pointer',
-                background: 'var(--bg-card)',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                transition: 'all 0.2s', 
-                flexShrink: 0,
-                color: 'var(--text-primary)',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
-                <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
-              </svg>
-            </button>
-          )}
-
-          {/* Option Settings Dropdown Menu */}
-          {showMenuDropdown && (
-            <>
-              <div 
-                onClick={() => setShowMenuDropdown(false)}
-                style={{ position: 'fixed', inset: 0, zIndex: 999 }}
-              />
-              <div 
+            {(!friend.status || friend.status === 'accepted') && (
+              <button
+                onClick={() => setShowMenuDropdown(prev => !prev)}
+                title="Tùy chọn"
                 style={{
-                  position: 'absolute',
-                  top: '48px',
-                  right: '0',
+                  width: 40, 
+                  height: 40, 
+                  borderRadius: '50%', 
+                  border: '1.5px solid var(--border)', 
+                  cursor: 'pointer',
                   background: 'var(--bg-card)',
-                  border: '1.5px solid var(--border)',
-                  borderRadius: '16px',
-                  width: '180px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                  zIndex: 1000,
-                  overflow: 'hidden',
-                  animation: 'fadeIn 0.15s ease-out'
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  transition: 'all 0.2s', 
+                  flexShrink: 0,
+                  color: 'var(--text-primary)',
                 }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
               >
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    navigate(`/friends/${friend.userId}`);
-                  }}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                  <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                  <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                </svg>
+              </button>
+            )}
+
+            {/* Option Settings Dropdown Menu */}
+            {showMenuDropdown && (
+              <>
+                <div 
+                  onClick={() => setShowMenuDropdown(false)}
+                  style={{ position: 'fixed', inset: 0, zIndex: 999 }}
+                />
+                <div 
                   style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: 'var(--text-primary)',
-                    fontSize: '13.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit'
+                    position: 'absolute',
+                    top: '48px',
+                    right: '0',
+                    background: 'var(--bg-card)',
+                    border: '1.5px solid var(--border)',
+                    borderRadius: '16px',
+                    width: '180px',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    zIndex: 1000,
+                    overflow: 'hidden',
+                    animation: 'fadeIn 0.15s ease-out'
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  Trang cá nhân
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    handleRenameClick();
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: 'var(--text-primary)',
-                    fontSize: '13.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit',
-                    borderTop: '1px solid var(--border)'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Đổi biệt danh
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    const savedUrl = chatBg ? chatBg.split('|')[0] : '';
-                    const savedPos = chatBg && chatBg.includes('|') ? chatBg.split('|')[1] : 'center';
-                    setBgFilePreview(savedUrl.startsWith('data:') ? savedUrl : '');
-                    setBgPos(savedPos);
-                    setShowBgModal(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: 'var(--text-primary)',
-                    fontSize: '13.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit',
-                    borderTop: '1px solid var(--border)'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Đổi hình nền
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMenuDropdown(false);
-                    setShowClearConfirm(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    color: '#ff4d4d',
-                    fontSize: '13.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    fontFamily: 'inherit',
-                    borderTop: '1px solid var(--border)'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,77,0.08)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Xóa lịch sử trò chuyện
-                </button>
-              </div>
-            </>
-          )}
+                  <button
+                    onClick={() => {
+                      setShowMenuDropdown(false);
+                      navigate(`/friends/${friend.userId}`);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      color: 'var(--text-primary)',
+                      fontSize: '13.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      fontFamily: 'inherit'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >
+                    Trang cá nhân
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMenuDropdown(false);
+                      handleRenameClick();
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      color: 'var(--text-primary)',
+                      fontSize: '13.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      fontFamily: 'inherit',
+                      borderTop: '1px solid var(--border)'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >
+                    Đổi biệt danh
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMenuDropdown(false);
+                      const savedUrl = chatBg ? chatBg.split('|')[0] : '';
+                      const savedPos = chatBg && chatBg.includes('|') ? chatBg.split('|')[1] : 'center';
+                      setBgFilePreview(savedUrl.startsWith('data:') ? savedUrl : '');
+                      setBgPos(savedPos);
+                      setShowBgModal(true);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      color: 'var(--text-primary)',
+                      fontSize: '13.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      fontFamily: 'inherit',
+                      borderTop: '1px solid var(--border)'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >
+                    Đổi hình nền
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMenuDropdown(false);
+                      setShowClearConfirm(true);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      color: '#ff4d4d',
+                      fontSize: '13.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      fontFamily: 'inherit',
+                      borderTop: '1px solid var(--border)'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,77,0.08)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >
+                    Xóa lịch sử trò chuyện
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Typing indicator */}
+        {isTyping && (
+          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', padding: '2px 20px', fontWeight: 600 }}>
+            {nickname || friend.fullName} đang nhập...
+          </div>
+        )}
       </div>
 
       {/* Call notification overlay */}
@@ -1042,7 +1091,7 @@ export default function ConversationView({
           overflowX: 'hidden', 
           padding: '24px 20px',
           display: 'flex', 
-          flexDirection: 'column', 
+          flexDirection: 'column-reverse', // Reversed direction
           gap: '6px',
           position: 'relative',
           overscrollBehavior: 'contain',
@@ -1053,6 +1102,7 @@ export default function ConversationView({
           ...chatStyles,
         }}
       >
+        {/* Note: groupedMsgs needs to be reversed because of column-reverse */}
         {groupedMsgs.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted-chat)', fontSize: '14px' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
@@ -1071,6 +1121,7 @@ export default function ConversationView({
         )}
 
         {groupedMsgs.map((item, idx) => {
+          // Since column-reverse reverses the display, no extra logic needed here for mapping order
           if (item.type === 'date') {
             return (
               <div key={`date-${idx}`} style={{ textAlign: 'center', margin: '18px 0 10px' }}>
@@ -1094,7 +1145,7 @@ export default function ConversationView({
 
           const m = item.data;
           const isMine = String(m.fromUserId) === String(user.id);
-          
+
           if (m.content?.startsWith('[chat_background]')) {
             return (
               <div key={m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
@@ -1110,7 +1161,7 @@ export default function ConversationView({
             const msgText = isMine 
               ? (cleanNick ? `Bạn đã đặt biệt danh thành "${cleanNick}"` : 'Bạn đã xóa biệt danh')
               : (cleanNick ? `${friend.fullName} đã thay đổi biệt danh của bạn thành "${cleanNick}"` : `${friend.fullName} đã xóa biệt danh`);
-            
+
             return (
               <div key={m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
                 <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'var(--bg-input-chat)', border: '1px solid var(--border-chat)', color: 'var(--text-secondary-chat)' }}>
@@ -1192,7 +1243,7 @@ export default function ConversationView({
                   <Avatar src={friend.avatar} initial={friend.initial} size={28} />
                 </div>
               )}
-              
+
               <div 
                 className="msg-container" 
                 style={{
