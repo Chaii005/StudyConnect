@@ -308,18 +308,40 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
 
   const getIceConfig = () => ({
     iceServers: [
+      // Google STUN (primary)
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      // Open Relay (Metered) — TURN fallback #1
       {
         urls: [
           'turn:openrelay.metered.ca:80',
+          'turn:openrelay.metered.ca:80?transport=tcp',
           'turn:openrelay.metered.ca:443',
           'turn:openrelay.metered.ca:443?transport=tcp',
         ],
         username: 'openrelayproject',
         credential: 'openrelayproject',
       },
-    ]
+      // Numb STUN (backup)
+      { urls: 'stun:numb.viagenie.ca' },
+      // FreeSTUN
+      { urls: 'stun:freestun.net:3478' },
+      {
+        urls: [
+          'turn:freestun.net:3478',
+          'turns:freestun.net:5349',
+        ],
+        username: 'free',
+        credential: 'free',
+      },
+      // Cloudflare STUN
+      { urls: 'stun:stun.cloudflare.com:3478' },
+    ],
+    iceCandidatePoolSize: 10,
+    bundlePolicy: 'max-bundle',
+    rtcpMuxPolicy: 'require',
   });
 
   // ── Start local media ────────────────────────────────────────

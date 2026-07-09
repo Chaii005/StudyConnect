@@ -1039,7 +1039,39 @@ export default function ConversationView({
 
         {/* Typing indicator */}
         {isTyping && (
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', padding: '2px 20px', fontWeight: 600 }}>
+          <div style={{
+            fontSize: '11.5px',
+            color: 'var(--text-secondary)',
+            padding: '4px 20px 4px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            animation: 'fadeIn 0.2s ease',
+          }}>
+            <span style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+              <span style={{
+                width: 5, height: 5, borderRadius: '50%',
+                background: 'var(--primary)',
+                display: 'inline-block',
+                animation: 'typingBounce 1.2s ease-in-out infinite',
+                animationDelay: '0ms',
+              }} />
+              <span style={{
+                width: 5, height: 5, borderRadius: '50%',
+                background: 'var(--primary)',
+                display: 'inline-block',
+                animation: 'typingBounce 1.2s ease-in-out infinite',
+                animationDelay: '200ms',
+              }} />
+              <span style={{
+                width: 5, height: 5, borderRadius: '50%',
+                background: 'var(--primary)',
+                display: 'inline-block',
+                animation: 'typingBounce 1.2s ease-in-out infinite',
+                animationDelay: '400ms',
+              }} />
+            </span>
             {nickname || friend.fullName} đang nhập...
           </div>
         )}
@@ -1765,7 +1797,7 @@ export default function ConversationView({
             <SafeTextarea
               ref={textareaRef}
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={handleInputChange}
               onKeyDown={handleKey}
               onPaste={handlePaste}
               placeholder="Nhập tin nhắn..."
@@ -2491,6 +2523,10 @@ export default function ConversationView({
         @keyframes msgFadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes typingBounce {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+          30% { transform: translateY(-5px); opacity: 1; }
         }
         .msgs-no-scrollbar::-webkit-scrollbar { display: none; }
         
