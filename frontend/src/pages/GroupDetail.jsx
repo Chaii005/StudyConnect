@@ -97,6 +97,39 @@ export default function GroupDetail() {
     };
   }, [h.activeTab, h.group, groupId, user?.id]);
 
+  // ── Realtime kick-out: nếu user bị xóa khỏi nhóm khi đang xem → về trang /groups ──
+  useEffect(() => {
+    if (!user?.id || !groupId) return;
+    const uid = parseInt(user.id, 10);
+    const gid = parseInt(groupId, 10);
+
+    const kickChannel = supabase
+      .channel(`kick-detect-${gid}-${uid}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'group_members',
+          filter: `group_id=eq.${gid}`,
+        },
+        (payload) => {
+          const deleted = payload.old;
+          if (deleted && Number(deleted.user_id) === uid) {
+            // Không set leaving_group vì đây là kick (không phải tự rời)
+            addToast('Bạn đã bị xóa khỏi nhóm học này.', 'error');
+            navigate('/groups');
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(kickChannel);
+    };
+  }, [user?.id, groupId, navigate, addToast]);
+
+
   // Scroll to target list when activeTab changes
   useEffect(() => {
     if (h.loading || !h.group) return;

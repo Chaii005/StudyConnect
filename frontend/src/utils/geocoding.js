@@ -1,53 +1,56 @@
 // src/utils/geocoding.js
-// ── ENGINE: Photon (OSM search by Komoot) — Free, extremely fast, correct Vietnam hierarchy ──
-// Docs: https://photon.komoot.io/
-// Tốc độ phản hồi cực nhanh, chịu tải tốt, không bị lỗi gộp địa phận thành phố như Nominatim
+// ── ENGINE: Nominatim (OSM official) — Free, accurate Vietnamese addresses ──
+// Docs: https://nominatim.org/release-docs/develop/api/Search/
+// Policy: max 1 req/sec, User-Agent required. countrycodes=vn ensures VN-only results.
+// Photon was replaced because it concatenates ", Việt Nam" to queries causing mismatches.
 
-const PHOTON_BASE = 'https://photon.komoot.io';
+const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
+const NOMINATIM_HEADERS = {
+  'Accept-Language': 'vi',
+  'User-Agent': 'StudyConect/1.0 (studyconect.vercel.app)',
+};
 
 // ── Google (legacy — only if valid API key is set) ────────────────────────
 const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const hasGoogle = GOOGLE_KEY && GOOGLE_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY_HERE';
 
-// Helper to construct a beautiful, clean Vietnamese display name from Photon properties
-function getPhotonDisplayName(p) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper: Build clean Vietnamese display name from Nominatim address object
+// ─────────────────────────────────────────────────────────────────────────────
+function getNominatimDisplayName(item) {
+  // Nominatim trả sẵn display_name đúng thứ tự VN, nhưng đôi khi dư "Vietnam"
+  // → Ưu tiên address components để build đẹp hơn
+  const a = item.address || {};
   const parts = [];
-  
-  // 1. Tên địa danh (POI)
-  if (p.name) parts.push(p.name);
-  
-  // 2. Số nhà & Đường
+
+  // Tên địa điểm chính (POI, café, trường, v.v.)
+  const poiName = item.name || a.amenity || a.shop || a.tourism || a.leisure || '';
+  if (poiName) parts.push(poiName);
+
+  // Số nhà + đường
   let streetPart = '';
-  if (p.housenumber) streetPart += p.housenumber + ' ';
-  if (p.street) streetPart += p.street;
+  if (a.house_number) streetPart += a.house_number + ' ';
+  if (a.road || a.pedestrian || a.footway) streetPart += (a.road || a.pedestrian || a.footway);
   if (streetPart.trim()) parts.push(streetPart.trim());
-  
-  // 3. Phường / Xã / Khu vực nhỏ
-  if (p.locality) {
-    parts.push(p.locality);
-  } else if (p.district && p.district.toLowerCase().includes('phường')) {
-    parts.push(p.district);
+
+  // Phường / Xã
+  const ward = a.quarter || a.suburb || a.village || a.hamlet || '';
+  if (ward) parts.push(ward);
+
+  // Quận / Huyện
+  const district = a.city_district || a.district || a.town || a.county || '';
+  if (district && district !== ward) parts.push(district);
+
+  // Thành phố / Tỉnh
+  const city = a.city || a.municipality || a.state || '';
+  if (city && city !== district) parts.push(city);
+
+  // Nếu parts trống, dùng display_name bỏ "Vietnam" ở cuối
+  if (parts.length === 0) {
+    const dn = (item.display_name || '').replace(/,\s*Vietnam\s*$/i, '').trim();
+    return dn;
   }
-  
-  // 4. Quận / Huyện
-  // Nếu district không trùng với locality và không trùng với name
-  if (p.district && p.district !== p.locality && p.district !== p.name) {
-    // Chỉ thêm nếu không phải là phường (đã lấy ở bước trước)
-    if (!p.district.toLowerCase().includes('phường') && !p.district.toLowerCase().includes('xã')) {
-      parts.push(p.district);
-    }
-  }
-  
-  // 5. Tỉnh / Thành phố
-  if (p.city) {
-    parts.push(p.city);
-  } else if (p.state) {
-    parts.push(p.state);
-  }
-  
-  // 6. Quốc gia
-  if (p.country) parts.push(p.country);
-  
+
   return parts.filter(Boolean).join(', ');
 }
 
@@ -57,22 +60,18 @@ function getPhotonDisplayName(p) {
 export async function geocodeAddress(address) {
   if (!address?.trim()) return null;
 
-  // --- Photon (Primary) ---
+  // --- Nominatim (Primary) ---
   try {
-    let query = address.trim();
-    if (!query.toLowerCase().includes('việt nam') && !query.toLowerCase().includes('vietnam')) {
-      query += ', Việt Nam';
-    }
-    const url = `${PHOTON_BASE}/api/?q=${encodeURIComponent(query)}&limit=1`;
-    const res = await fetch(url);
+    const url = `${NOMINATIM_BASE}/search?q=${encodeURIComponent(address.trim())}&countrycodes=vn&limit=1&format=jsonv2&addressdetails=1`;
+    const res = await fetch(url, { headers: NOMINATIM_HEADERS });
     if (res.ok) {
       const json = await res.json();
-      if (json?.features?.length > 0) {
-        const feature = json.features[0];
+      if (json?.length > 0) {
+        const item = json[0];
         return {
-          lat: feature.geometry.coordinates[1],
-          lng: feature.geometry.coordinates[0],
-          formattedAddress: getPhotonDisplayName(feature.properties),
+          lat: parseFloat(item.lat),
+          lng: parseFloat(item.lon),
+          formattedAddress: getNominatimDisplayName(item),
         };
       }
     }
@@ -100,33 +99,29 @@ export async function geocodeAddress(address) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. Autocomplete Suggestions (suggestions list)
+// Nominatim rate limit: 1 req/sec — caller must debounce ≥ 400ms
 // ─────────────────────────────────────────────────────────────────────────────
 export async function autocompletePlaces(input) {
   if (!input?.trim() || input.trim().length < 2) return [];
 
-  // --- Photon (Primary) ---
+  // --- Nominatim (Primary) ---
   try {
-    let query = input.trim();
-    // Bổ sung Việt Nam để tăng độ chính xác tìm kiếm tại VN
-    if (!query.toLowerCase().includes('việt nam') && !query.toLowerCase().includes('vietnam')) {
-      query += ', Việt Nam';
-    }
-    const url = `${PHOTON_BASE}/api/?q=${encodeURIComponent(query)}&limit=6`;
-    const res = await fetch(url);
+    const url = `${NOMINATIM_BASE}/search?q=${encodeURIComponent(input.trim())}&countrycodes=vn&limit=6&format=jsonv2&addressdetails=1`;
+    const res = await fetch(url, { headers: NOMINATIM_HEADERS });
     if (res.ok) {
       const json = await res.json();
-      if (json?.features) {
-        return json.features.map((f) => ({
-          placeId: f.properties.osm_id?.toString() || Math.random().toString(),
-          text: getPhotonDisplayName(f.properties),
-          lat: f.geometry.coordinates[1],
-          lng: f.geometry.coordinates[0]
+      if (Array.isArray(json) && json.length > 0) {
+        return json.map((item) => ({
+          placeId: item.place_id?.toString() || Math.random().toString(),
+          text: getNominatimDisplayName(item),
+          lat: parseFloat(item.lat),
+          lng: parseFloat(item.lon),
         }));
       }
     }
   } catch (err) {
     if (import.meta.env.DEV) {
-      console.error('autocompletePlaces (Photon) error:', err);
+      console.error('autocompletePlaces (Nominatim) error:', err);
     }
   }
 
