@@ -16,10 +16,11 @@ const hasGoogle = GOOGLE_KEY && GOOGLE_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY_HERE';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper: Build clean Vietnamese display name from Nominatim address object
+// Chỉ hiện: Tên địa điểm + Đường + Phường/Quận — KHÔNG hiện Thành phố
+// Lý do: Thành phố thường quá dài (varchar 255) và OSM hay nhầm ranh giới
+// (vd: Quận 10 bị gán thành "Thành phố Thủ Đức" do dữ liệu OSM sai)
 // ─────────────────────────────────────────────────────────────────────────────
 function getNominatimDisplayName(item) {
-  // Nominatim trả sẵn display_name đúng thứ tự VN, nhưng đôi khi dư "Vietnam"
-  // → Ưu tiên address components để build đẹp hơn
   const a = item.address || {};
   const parts = [];
 
@@ -33,25 +34,32 @@ function getNominatimDisplayName(item) {
   if (a.road || a.pedestrian || a.footway) streetPart += (a.road || a.pedestrian || a.footway);
   if (streetPart.trim()) parts.push(streetPart.trim());
 
-  // Phường / Xã
+  // Phường / Xã (chỉ lấy 1 cấp)
   const ward = a.quarter || a.suburb || a.village || a.hamlet || '';
   if (ward) parts.push(ward);
 
-  // Quận / Huyện
+  // Quận / Huyện — chỉ thêm nếu chưa có phường trùng tên
   const district = a.city_district || a.district || a.town || a.county || '';
   if (district && district !== ward) parts.push(district);
 
-  // Thành phố / Tỉnh
-  const city = a.city || a.municipality || a.state || '';
-  if (city && city !== district) parts.push(city);
+  // ⚠️ KHÔNG thêm city/state — tránh sai thành phố (OSM hay nhầm) và tránh quá dài
 
-  // Nếu parts trống, dùng display_name bỏ "Vietnam" ở cuối
+  let result;
   if (parts.length === 0) {
-    const dn = (item.display_name || '').replace(/,\s*Vietnam\s*$/i, '').trim();
-    return dn;
+    // Fallback: lấy display_name, bỏ quốc gia, giữ tối đa 3 thành phần đầu
+    const dn = (item.display_name || '')
+      .replace(/,\s*(Việt Nam|Vietnam)\s*$/i, '')
+      .split(',')
+      .slice(0, 4)
+      .join(',')
+      .trim();
+    result = dn;
+  } else {
+    result = parts.filter(Boolean).join(', ');
   }
 
-  return parts.filter(Boolean).join(', ');
+  // Truncate an toàn — DB field là varchar(255), giữ 200 để có đệm
+  return result.length > 200 ? result.substring(0, 197) + '...' : result;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
