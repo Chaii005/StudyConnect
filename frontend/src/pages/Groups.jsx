@@ -1724,7 +1724,10 @@ export default function Groups() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 16px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, var(--text-primary), var(--text-primary))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px' }}>
-              📚
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
             </div>
             <span style={{ fontSize: 18, fontWeight: 900, fontFamily: "'Fraunces', serif", fontStyle: 'italic', background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--text-primary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.3px' }}>StudyConnect</span>
           </div>
@@ -2337,7 +2340,15 @@ export default function Groups() {
                             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
                           }}
                         >
-                          {group.isPrivate ? '🔒 Gửi yêu cầu tham gia' : 'Tham gia nhóm'}
+                          {group.isPrivate ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                              </svg>
+                              Gửi yêu cầu tham gia
+                            </span>
+                          ) : 'Tham gia nhóm'}
                         </button>
                       );
                     })()}

@@ -500,7 +500,10 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
                   overflowY: 'auto',
                 }}>
                   {editSuggestions().some(s => s.type === 'friend') && (
-                    <div style={{ padding: '5px 12px 3px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.04)' }}>👤 Bạn bè</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px 3px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.04)' }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      Bạn bè
+                    </div>
                   )}
                   {editSuggestions().filter(s => s.type === 'friend').map((sug) => {
                     const idx = editSuggestions().indexOf(sug);
@@ -516,7 +519,10 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
                     );
                   })}
                   {editSuggestions().some(s => s.type === 'group') && (
-                    <div style={{ padding: '5px 12px 3px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.04)', borderTop: editSuggestions().some(s => s.type === 'friend') ? '1px solid var(--border)' : 'none' }}>🏫 Nhóm học</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px 3px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.04)', borderTop: editSuggestions().some(s => s.type === 'friend') ? '1px solid var(--border)' : 'none' }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      Nhóm học
+                    </div>
                   )}
                   {editSuggestions().filter(s => s.type === 'group').map((sug) => {
                     const idx = editSuggestions().indexOf(sug);

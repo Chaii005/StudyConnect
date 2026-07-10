@@ -85,7 +85,13 @@ export default function FriendList({ user, friends, onSelect, lastMessages, onli
           <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--text-muted)', fontSize: '14px' }}>
             {friends.length === 0 ? (
               <>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+                <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--bg-input)', border: '1.5px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                  </div>
+                </div>
                 <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>Chưa có cuộc trò chuyện nào</div>
                 <Link to="/friends" style={{ color: 'var(--primary)', textDecoration: 'underline', fontSize: '13px', fontWeight: 700 }}>
                   Tìm kiếm bạn bè ngay

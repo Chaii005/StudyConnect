@@ -1137,7 +1137,13 @@ export default function ConversationView({
         {/* Note: groupedMsgs needs to be reversed because of column-reverse */}
         {groupedMsgs.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted-chat)', fontSize: '14px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1.5px solid var(--border-chat)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted-chat)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+            </div>
             {friend.status === 'pending' ? (
               friend.fromUserId === String(user.id) ? (
                 <>Đang chờ lời mời kết bạn từ bạn được chấp nhận...</>
@@ -1356,7 +1362,11 @@ export default function ConversationView({
                             minWidth: '220px' 
                           }}
                         >
-                          <span style={{ fontSize: '20px' }}>📎</span>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                            </svg>
+                          </div>
                           <div style={{ flex: 1, overflow: 'hidden' }}>
                             <div 
                               style={{ 
@@ -1472,8 +1482,10 @@ export default function ConversationView({
                   style={{ height: '56px', width: '56px', borderRadius: '8px', objectFit: 'cover', display: 'block' }} 
                 />
               ) : (
-                <div style={{ height: '56px', width: '56px', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>
-                  📎
+                <div style={{ height: '56px', width: '56px', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                  </svg>
                 </div>
               )}
               <button 
