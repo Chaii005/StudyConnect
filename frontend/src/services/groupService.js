@@ -112,7 +112,25 @@ export const createGroup = async (userId, { name, subject, description, meetingM
         max_members: maxMembers ? parseInt(maxMembers, 10) : 10,
         meeting_mode: meetingMode || 'online',
         is_private: isPrivate || false,
-        location: location || null
+        location: location
+          ? (() => {
+              // Sanitize: chỉ giữ các field cần thiết, truncate string để JSON ≤ 255 ký tự
+              const trunc = (s, n = 80) => typeof s === 'string' && s.length > n ? s.substring(0, n) : (s || '');
+              const safe = {
+                name: trunc(location.name || location.address, 80),
+                address: trunc(location.address || location.name, 80),
+                lat: location.lat || null,
+                lng: location.lng || null,
+              };
+              const json = JSON.stringify(safe);
+              // Nếu vẫn > 250, rút ngắn name/address thêm
+              if (json.length > 250) {
+                safe.name = trunc(safe.name, 40);
+                safe.address = trunc(safe.address, 40);
+              }
+              return safe;
+            })()
+          : null
       }
     ])
     .select('id')
