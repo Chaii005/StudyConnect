@@ -1,6 +1,6 @@
 import PostCard from './PostCard';
 
-export default function PostList({ posts, currentUser, friends = [], onLike, onDelete, onComment, onPin, onEdit }) {
+export default function PostList({ posts, currentUser, friends = [], myLeaderGroups = [], onLike, onDelete, onComment, onPin, onEdit }) {
   if (!posts || posts.length === 0) {
     return (
       <div
@@ -32,6 +32,7 @@ export default function PostList({ posts, currentUser, friends = [], onLike, onD
           post={post}
           currentUser={currentUser}
           friends={friends}
+          myLeaderGroups={myLeaderGroups}
           onLike={onLike}
           onDelete={onDelete}
           onComment={onComment}

@@ -258,20 +258,6 @@ export default function NotificationBell({ style }) {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontWeight: 700, fontSize: 14 }}>Thông báo</span>
-                <button
-                  onClick={toggleToast}
-                  title={toastEnabled ? 'Tắt popup' : 'Bật popup'}
-                  style={{
-                    background: 'rgba(0,0,0,0.05)', border: '1px solid var(--border)', cursor: 'pointer',
-                    fontSize: 10, padding: '2px 6px', borderRadius: '4px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--text-secondary)',
-                    fontWeight: 600,
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {toastEnabled ? 'Popup: Bật' : 'Popup: Tắt'}
-                </button>
               </div>
               {notifs.length > 0 && (
                 <button

@@ -342,10 +342,17 @@ export const deletePost = async (postId) => {
   }
 };
 
-export const updatePost = async (postId, content) => {
+export const updatePost = async (postId, content, tagData = {}) => {
+  const updateFields = { content };
+  // Cập nhật tagged_users / tagged_groups nếu được truyền vào
+  if (tagData.taggedUsers !== undefined) updateFields.tagged_users = tagData.taggedUsers;
+  if (tagData.taggedGroups !== undefined) updateFields.tagged_groups = tagData.taggedGroups;
+  if (tagData.taggedUserNames !== undefined) updateFields.tagged_user_names = tagData.taggedUserNames;
+  if (tagData.taggedGroupNames !== undefined) updateFields.tagged_group_names = tagData.taggedGroupNames;
+
   const { error } = await supabase
     .from('posts')
-    .update({ content })
+    .update(updateFields)
     .eq('id', parseInt(postId, 10));
 
   if (error) {

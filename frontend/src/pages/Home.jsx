@@ -209,12 +209,19 @@ export default function Home() {
     }
   };
 
-  const handleEditPost = async (postId, newContent) => {
+  const handleEditPost = async (postId, newContent, tagData = {}) => {
     try {
-      await updatePost(postId, newContent);
+      await updatePost(postId, newContent, tagData);
       setPosts(posts.map((p) => {
         if (p.id !== postId) return p;
-        return { ...p, content: newContent };
+        return {
+          ...p,
+          content: newContent,
+          taggedUsers: tagData.taggedUsers ?? p.taggedUsers,
+          taggedGroups: tagData.taggedGroups ?? p.taggedGroups,
+          taggedUserNames: tagData.taggedUserNames ?? p.taggedUserNames,
+          taggedGroupNames: tagData.taggedGroupNames ?? p.taggedGroupNames,
+        };
       }));
     } catch (err) {
       if (import.meta.env.DEV) console.error('Error updating post:', err);
@@ -331,6 +338,7 @@ export default function Home() {
               posts={sortedPosts}
               currentUser={user}
               friends={friends}
+              myLeaderGroups={myLeaderGroups}
               onLike={handleLikePost}
               onDelete={handleDeletePost}
               onComment={handleCommentPost}

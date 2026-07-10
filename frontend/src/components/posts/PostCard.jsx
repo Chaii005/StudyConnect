@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Avatar from '@/components/common/Avatar';
 import { timeAgo } from '@/utils';
@@ -7,6 +7,19 @@ import CommentRow from './CommentRow';
 import { sendFriendRequest } from '@/services/friendService';
 import { SafeInput, SafeTextarea } from '@/components/common/SafeInput';
 import { supabase } from '@/config/supabaseClient';
+
+// Tiny avatar for @mention suggestions
+function SuggestAvatar({ src, initial }) {
+  if (src) return <img src={src} alt="" style={{ width: 26, height: 26, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />;
+  const firstChar = (initial || '?')[0];
+  const colors = ['#1a1a1a', '#ff6b9d', '#3ecfcf', '#f59e0b', '#22c55e'];
+  const color = colors[(firstChar.charCodeAt(0) || 0) % colors.length];
+  return (
+    <div style={{ width: 26, height: 26, borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+      {firstChar.toUpperCase()}
+    </div>
+  );
+}
 
 const ReplyIcon = () => (
   <svg
@@ -29,7 +42,7 @@ const ReplyIcon = () => (
   </svg>
 );
 
-export default function PostCard({ post, currentUser, friends = [], onLike, onDelete, onComment, onEdit }) {
+export default function PostCard({ post, currentUser, friends = [], myLeaderGroups = [], onLike, onDelete, onComment, onEdit }) {
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -39,7 +52,103 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(post?.content || '');
   const commentsEndRef = useRef(null);
+  const editTextareaRef = useRef(null);
   const [hoveredItem, setHoveredItem] = useState(null);
+
+  // ── Edit @mention state ──────────────────────────────────────────
+  const [editTags, setEditTags] = useState([]);
+  const [mentionQuery, setMentionQuery] = useState(null);
+  const [mentionStart, setMentionStart] = useState(-1);
+  const [suggestIdx, setSuggestIdx] = useState(0);
+
+  // Populate editTags from existing post data when entering edit mode
+  const handleStartEdit = () => {
+    const initialTags = [];
+    if (Array.isArray(post?.taggedUsers) && Array.isArray(post?.taggedUserNames)) {
+      post.taggedUsers.forEach((uid, i) => {
+        const name = post.taggedUserNames[i];
+        if (uid && name) initialTags.push({ id: uid, name, type: 'friend' });
+      });
+    }
+    if (Array.isArray(post?.taggedGroups) && Array.isArray(post?.taggedGroupNames)) {
+      post.taggedGroups.forEach((gid, i) => {
+        const name = post.taggedGroupNames[i];
+        if (gid && name) initialTags.push({ id: gid, name, type: 'group' });
+      });
+    }
+    setEditTags(initialTags);
+    setIsEditing(true);
+  };
+
+  // Build mention suggestions
+  const editSuggestions = useCallback(() => {
+    const q = (mentionQuery || '').toLowerCase();
+    const taggedIds = new Set(editTags.map(t => `${t.type}:${t.id}`));
+    const friendSugs = friends
+      .filter(f => f.status === 'accepted' || !f.status)
+      .filter(f => !taggedIds.has(`friend:${f.userId}`))
+      .filter(f => !q || (f.fullName || '').toLowerCase().includes(q))
+      .slice(0, 5)
+      .map(f => ({ id: f.userId, name: f.fullName, type: 'friend', avatar: f.avatar }));
+    const groupSugs = myLeaderGroups
+      .filter(g => !taggedIds.has(`group:${g.id}`))
+      .filter(g => !q || (g.name || '').toLowerCase().includes(q))
+      .slice(0, 3)
+      .map(g => ({ id: g.id, name: g.name, type: 'group', members: g.members }));
+    return [...friendSugs, ...groupSugs];
+  }, [mentionQuery, friends, myLeaderGroups, editTags]);
+
+  const handleEditChange = (e) => {
+    const val = e.target.value;
+    setEditText(val);
+    const cursor = e.target.selectionStart;
+    const textBefore = val.slice(0, cursor);
+    const atMatch = textBefore.match(/@(\S*)$/);
+    if (atMatch) {
+      setMentionQuery(atMatch[1]);
+      setMentionStart(cursor - atMatch[0].length);
+      setSuggestIdx(0);
+    } else {
+      setMentionQuery(null);
+      setMentionStart(-1);
+    }
+  };
+
+  const pickEditSuggestion = (sug) => {
+    const before = editText.slice(0, mentionStart);
+    const after = editText.slice(editTextareaRef.current?.selectionStart || mentionStart);
+    const newText = `${before}${after}`;
+    setEditText(newText);
+    if (editTextareaRef.current) editTextareaRef.current.value = newText;
+    setMentionQuery(null);
+    setMentionStart(-1);
+    setEditTags(prev => {
+      if (prev.some(t => t.type === sug.type && t.id === sug.id)) return prev;
+      return [...prev, sug];
+    });
+    setTimeout(() => {
+      if (editTextareaRef.current) {
+        editTextareaRef.current.setSelectionRange(before.length, before.length);
+        editTextareaRef.current.focus();
+      }
+    }, 0);
+  };
+
+  const handleEditKeyDown = (e) => {
+    const sugs = editSuggestions();
+    if (mentionQuery !== null && sugs.length > 0) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setSuggestIdx(i => Math.min(i + 1, sugs.length - 1)); return; }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); setSuggestIdx(i => Math.max(i - 1, 0)); return; }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); pickEditSuggestion(sugs[suggestIdx]); return; }
+      if (e.key === 'Escape') { setMentionQuery(null); return; }
+    }
+  };
+
+  const removeEditTag = (type, id) => {
+    const removed = editTags.find(t => t.type === type && t.id === id);
+    setEditTags(prev => prev.filter(t => !(t.type === type && t.id === id)));
+    if (removed) setEditText(prev => prev.replace(new RegExp(`@?${removed.name}\\s?`, 'g'), ''));
+  };
 
   const handleUserMouseEnter = async (uid, name, isFriend) => {
     if (!uid) return;
@@ -189,9 +298,16 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
     if (!editText.trim()) return;
     try {
       if (onEdit) {
-        await onEdit(post.id, editText.trim());
+        await onEdit(post.id, editText.trim(), {
+          taggedUsers: editTags.filter(t => t.type === 'friend').map(t => t.id),
+          taggedGroups: editTags.filter(t => t.type === 'group').map(t => t.id),
+          taggedUserNames: editTags.filter(t => t.type === 'friend').map(t => t.name),
+          taggedGroupNames: editTags.filter(t => t.type === 'group').map(t => t.name),
+        });
       }
       setIsEditing(false);
+      setEditTags([]);
+      setMentionQuery(null);
     } catch (err) {
       if (import.meta.env.DEV) console.error('Lỗi khi sửa bài viết:', err);
     }
@@ -199,6 +315,8 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
 
   const handleCancel = () => {
     setEditText(post?.content || '');
+    setEditTags([]);
+    setMentionQuery(null);
     setIsEditing(false);
   };
 
@@ -260,7 +378,7 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
           {isOwner && !isEditing && (
             <>
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={handleStartEdit}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -314,34 +432,119 @@ export default function PostCard({ post, currentUser, friends = [], onLike, onDe
       <div style={{ padding: '12px 18px 14px' }}>
         {isEditing ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <SafeTextarea
-              value={editText}
-              onChange={(e) => setEditText(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '100px',
-                padding: '12px 16px',
-                background: 'var(--bg-input)',
-                border: '1.5px solid var(--border)',
-                borderRadius: '12px',
-                color: 'var(--text-primary)',
-                fontFamily: 'inherit',
-                fontSize: '15px',
-                lineHeight: 1.6,
-                outline: 'none',
-                resize: 'vertical',
-                transition: 'border-color 0.25s, box-shadow 0.25s',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary)';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(42, 117, 118, 0.15)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-              placeholder="Nhập nội dung bài viết..."
-            />
+            {/* Textarea với @mention */}
+            <div style={{ position: 'relative' }}>
+              <SafeTextarea
+                ref={editTextareaRef}
+                value={editText}
+                onChange={handleEditChange}
+                onKeyDown={handleEditKeyDown}
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  padding: '12px 16px',
+                  background: 'var(--bg-input)',
+                  border: '1.5px solid var(--border)',
+                  borderRadius: '12px',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'inherit',
+                  fontSize: '15px',
+                  lineHeight: 1.6,
+                  outline: 'none',
+                  resize: 'vertical',
+                  transition: 'border-color 0.25s, box-shadow 0.25s',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--primary)';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(42, 117, 118, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+                placeholder="Nhập nội dung bài viết... Gõ @ để tag bạn bè hoặc nhóm"
+              />
+
+              {/* @Mention Dropdown */}
+              {mentionQuery !== null && editSuggestions().length > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%', left: 0, right: 0,
+                  marginTop: 4,
+                  background: 'var(--bg-card)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1.5px solid var(--border)',
+                  borderRadius: '12px',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
+                  zIndex: 1000,
+                  overflow: 'hidden',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                }}>
+                  {editSuggestions().some(s => s.type === 'friend') && (
+                    <div style={{ padding: '5px 12px 3px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.04)' }}>👤 Bạn bè</div>
+                  )}
+                  {editSuggestions().filter(s => s.type === 'friend').map((sug) => {
+                    const idx = editSuggestions().indexOf(sug);
+                    return (
+                      <div key={`f:${sug.id}`}
+                        onMouseDown={(e) => { e.preventDefault(); pickEditSuggestion(sug); }}
+                        onMouseEnter={() => setSuggestIdx(idx)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', cursor: 'pointer', background: idx === suggestIdx ? 'rgba(0,0,0,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                      >
+                        <SuggestAvatar src={sug.avatar} initial={sug.name} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{sug.name}</span>
+                      </div>
+                    );
+                  })}
+                  {editSuggestions().some(s => s.type === 'group') && (
+                    <div style={{ padding: '5px 12px 3px', fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.04)', borderTop: editSuggestions().some(s => s.type === 'friend') ? '1px solid var(--border)' : 'none' }}>🏫 Nhóm học</div>
+                  )}
+                  {editSuggestions().filter(s => s.type === 'group').map((sug) => {
+                    const idx = editSuggestions().indexOf(sug);
+                    return (
+                      <div key={`g:${sug.id}`}
+                        onMouseDown={(e) => { e.preventDefault(); pickEditSuggestion(sug); }}
+                        onMouseEnter={() => setSuggestIdx(idx)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', cursor: 'pointer', background: idx === suggestIdx ? 'rgba(0,0,0,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                      >
+                        <div style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{sug.name}</div>
+                          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{sug.members?.length || 0} thành viên</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Tag chips khi đang edit */}
+            {editTags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {editTags.map(t => (
+                  <span key={`${t.type}:${t.id}`} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    padding: '3px 8px 3px 6px', borderRadius: 20,
+                    background: t.type === 'friend' ? '#E0F2FE' : 'rgba(17,24,39,0.06)',
+                    border: t.type === 'friend' ? '1px solid #BAE6FD' : '1px solid var(--border)',
+                    color: t.type === 'friend' ? '#0369A1' : 'var(--text-primary)',
+                    fontSize: 11, fontWeight: 700,
+                  }}>
+                    {t.type === 'friend'
+                      ? <SuggestAvatar src={t.avatar} initial={t.name} />
+                      : <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                    }
+                    @{t.name}
+                    <button onClick={() => removeEditTag(t.type, t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontSize: 13, lineHeight: 1, padding: '0 0 0 2px', display: 'flex', alignItems: 'center' }}>×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
               <button
                 onClick={handleCancel}
