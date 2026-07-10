@@ -419,44 +419,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <button
-            onClick={handleLogout}
-            style={{
-              marginTop: '24px',
-              width: '100%',
-              padding: '11px 16px',
-              borderRadius: '12px',
-              background: 'transparent',
-              border: '1.5px solid var(--error, #ff4d4d)',
-              color: 'var(--error, #ff4d4d)',
-              fontWeight: 700,
-              fontSize: '13.5px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              transition: 'all 0.2s ease-in-out',
-              fontFamily: 'inherit'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--error, #ff4d4d)';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 77, 77, 0.2)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--error, #ff4d4d)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            Đăng xuất tài khoản
-          </button>
+
         </aside>
 
         {/* RIGHT: Edit forms */}
