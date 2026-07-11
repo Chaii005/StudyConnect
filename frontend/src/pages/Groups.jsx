@@ -2272,84 +2272,85 @@ export default function Groups() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', height: '48px', gap: '12px' }}>
-          <div 
-            className={isSearchExpanded ? "premium-panel search-panel" : ""}
-            onMouseEnter={() => setIsSearchExpanded(true)}
-            onMouseLeave={() => { if (!searchQuery.trim()) setIsSearchExpanded(false); }}
-            style={{
-              width: isSearchExpanded ? '300px' : '48px',
-              height: '48px',
-              borderRadius: isSearchExpanded ? '24px' : '50%',
-              background: 'var(--bg-card)',
-              border: isSearchExpanded ? '1.5px solid var(--text-primary)' : '1.5px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              padding: isSearchExpanded ? '0 16px' : '0',
-              justifyContent: isSearchExpanded ? 'flex-start' : 'center',
-              cursor: isSearchExpanded ? 'default' : 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxSizing: 'border-box',
-              overflow: 'hidden',
-              boxShadow: 'var(--shadow)',
-              gap: isSearchExpanded ? '10px' : '0',
-              flexShrink: 0
-            }}
-          >
-            <span 
-              onClick={(e) => {
-                if (isSearchExpanded) {
-                  e.stopPropagation();
-                }
-              }}
-              style={{ 
-                fontSize: '18px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                flexShrink: 0,
-                width: '20px',
-                height: '20px',
-                color: isSearchExpanded ? 'var(--text-primary)' : 'var(--text-muted)'
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.3-4.3"/>
-              </svg>
-            </span>
-            {isSearchExpanded && (
-              <SafeInput 
-                type="text" 
-                className="search-input" 
-                placeholder="Nhập ID phòng học..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                autoFocus
+          <div style={{ display: 'flex', alignItems: 'center', height: '48px' }}>
+            {!isSearchExpanded ? (
+              <button
+                onMouseEnter={() => setIsSearchExpanded(true)}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  outline: 'none',
-                  flex: 1,
-                  color: 'var(--text-primary)',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  minWidth: '100px'
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: 'var(--bg-card)',
+                  border: '1.5px solid var(--border)',
+                  color: 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 'var(--shadow)',
+                  padding: 0
                 }}
-              />
-            )}
-            {isSearchExpanded && (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSearchQuery('');
-                  setIsSearchExpanded(false);
+                onMouseEnter={e => { 
+                  e.currentTarget.style.color = 'var(--text-primary)'; 
+                  e.currentTarget.style.borderColor = 'var(--border-hover)'; 
+                  setIsSearchExpanded(true);
                 }}
-                style={{
-                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
               >
-                ✕
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.3-4.3"/>
+                </svg>
               </button>
+            ) : (
+              <div 
+                className="premium-panel search-panel" 
+                style={{ 
+                  width: '300px', 
+                  margin: 0, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '10px', 
+                  height: '100%', 
+                  boxSizing: 'border-box',
+                  borderRadius: '24px',
+                  padding: '0 16px'
+                }}
+                onMouseLeave={() => { if (!searchQuery.trim()) setIsSearchExpanded(false); }}
+              >
+                <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                  </svg>
+                </span>
+                <SafeInput 
+                  type="text" 
+                  className="search-input" 
+                  placeholder="Nhập ID phòng..." 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  autoFocus
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    outline: 'none',
+                    flex: 1,
+                    color: 'var(--text-primary)',
+                    fontSize: '14px',
+                    fontFamily: 'inherit'
+                  }}
+                />
+                <button 
+                  onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
+                  style={{
+                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
             )}
           </div>
 
