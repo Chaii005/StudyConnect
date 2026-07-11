@@ -529,12 +529,12 @@ export const kickMember = async (groupId, requesterId, targetUserId) => {
   const isDeputy = reqMem?.role === 'admin';
 
   if (!isLeader && !isDeputy) {
-    throw new Error('Chỉ trưởng nhóm hoặc phó nhóm mới có thể kick thành viên!');
+    throw new Error('Chỉ trưởng nhóm hoặc phó nhóm mới có thể xóa thành viên khỏi nhóm!');
   }
 
   const targetMem = members.find(m => Number(m.user_id) === Number(targetUserId));
-  if (targetMem?.role === 'creator') throw new Error('Không thể kick trưởng nhóm!');
-  if (isDeputy && Number(targetUserId) === Number(requesterId)) throw new Error('Phó nhóm không thể kick chính mình!');
+  if (targetMem?.role === 'creator') throw new Error('Không thể xóa trưởng nhóm khỏi nhóm!');
+  if (isDeputy && Number(targetUserId) === Number(requesterId)) throw new Error('Phó nhóm không thể tự xóa chính mình!');
   if (!targetMem) throw new Error('Người dùng không phải thành viên!');
 
   // Delete member
@@ -545,7 +545,7 @@ export const kickMember = async (groupId, requesterId, targetUserId) => {
     .eq('user_id', parseInt(targetUserId, 10));
 
   if (deleteError) {
-    throw new Error(`Kick thành viên thất bại: ${deleteError.message}`);
+    throw new Error(`Xóa thành viên thất bại: ${deleteError.message}`);
   }
 
   // Auto-delete group if no members remain

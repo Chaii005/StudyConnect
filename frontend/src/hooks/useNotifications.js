@@ -611,11 +611,14 @@ export default function useNotifications(userId) {
         localKicks
           .filter(k => (now - new Date(k.createdAt)) < ONE_DAY_MS)
           .forEach(k => {
+            const isDisbanded = !!k.isDisbanded;
             notifsList.push({
               key: `kick:${k.id}`,
               type: 'groupkick',
-              title: 'Đã rời khỏi nhóm',
-              body: `Bạn không còn là thành viên của "${k.groupName}".`,
+              title: isDisbanded ? 'Giải tán nhóm' : 'Thay đổi thành viên',
+              body: isDisbanded 
+                ? `Nhóm học "${k.groupName}" đã bị giải tán.`
+                : `Bạn đã bị mời ra khỏi nhóm "${k.groupName}".`,
               createdAt: k.createdAt,
             });
           });

@@ -104,16 +104,30 @@ export default function GroupDetail() {
     const gid = parseInt(groupId, 10);
 
     const checkMembership = async () => {
+      if (sessionStorage.getItem('leaving_group') === 'true') {
+        return;
+      }
       try {
-        const { data, error } = await supabase
+        const { data: memberData, error: memberErr } = await supabase
           .from('group_members')
           .select('role')
           .eq('group_id', gid)
           .eq('user_id', uid)
           .maybeSingle();
 
-        if (error || !data) {
-          addToast('Bạn đã bị mời ra khỏi nhóm học này.', 'error');
+        if (memberErr || !memberData) {
+          // Check if group itself still exists
+          const { data: groupData } = await supabase
+            .from('study_groups')
+            .select('id')
+            .eq('id', gid)
+            .maybeSingle();
+
+          if (!groupData) {
+            addToast('Nhóm học này đã bị giải tán.', 'error');
+          } else {
+            addToast('Bạn không còn là thành viên của nhóm học này.', 'error');
+          }
           navigate('/groups');
         }
       } catch (err) {

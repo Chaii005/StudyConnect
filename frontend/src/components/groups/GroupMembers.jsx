@@ -359,7 +359,7 @@ export default function GroupMembers({
                   onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                 >
-                  {kickingIds[String(memberId)] ? '...' : 'Kick'}
+                  {kickingIds[String(memberId)] ? '...' : 'Xóa khỏi nhóm'}
                 </button>
               )}
             </div>

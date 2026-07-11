@@ -1632,33 +1632,55 @@ export default function Groups() {
       const isOnlyMember = (group.members?.length || 0) <= 1;
 
       if (isOnlyMember) {
-        // Chỉ còn 1 mình → chỉ cho phép xóa nhóm
+        // Chỉ còn 1 mình → chỉ cho phép giải tán nhóm
         setConfirmConfig({
-          title: 'Xóa nhóm học',
-          message: 'Bạn là thành viên duy nhất trong nhóm. Nếu rời, nhóm sẽ bị xóa hoàn toàn. Bạn có muốn tiếp tục không?',
-          confirmText: 'Xóa nhóm',
+          title: 'Giải tán nhóm học',
+          message: 'Bạn là thành viên duy nhất trong nhóm. Nếu rời, nhóm sẽ bị giải tán hoàn toàn. Bạn có muốn tiếp tục không?',
+          confirmText: 'Giải tán nhóm',
           cancelText: 'Giữ lại',
           variant: 'danger',
           onConfirm: async () => {
             setConfirmConfig(null);
-            try { await deleteGroup(group.id); addToast('Đã xóa nhóm học!', 'success'); fetchGroups(); }
-            catch (err) { addToast(err.message, 'error'); }
+            try {
+              sessionStorage.setItem('leaving_group', 'true');
+              await deleteGroup(group.id);
+              addToast('Đã giải tán nhóm học!', 'success');
+              fetchGroups();
+              setTimeout(() => {
+                sessionStorage.removeItem('leaving_group');
+              }, 1000);
+            }
+            catch (err) {
+              sessionStorage.removeItem('leaving_group');
+              addToast(err.message, 'error');
+            }
           },
           onCancel: () => setConfirmConfig(null),
         });
       } else {
-        // Còn nhiều thành viên → hỏi xóa hay nhường quyền
+        // Còn nhiều thành viên → hỏi giải tán hay nhường quyền
         setConfirmConfig({
           title: 'Bạn là Trưởng nhóm',
-          message: 'Bạn muốn làm gì với nhóm này? Chọn "Xóa nhóm" để xóa hoàn toàn nhóm, hoặc "Để lại nhóm" để nhường quyền trưởng nhóm cho người khác rồi rời.',
-          confirmText: 'Xóa nhóm',
+          message: 'Bạn muốn làm gì với nhóm này? Chọn "Giải tán nhóm" để giải tán hoàn toàn nhóm, hoặc "Để lại nhóm" để nhường quyền trưởng nhóm cho người khác rồi rời.',
+          confirmText: 'Giải tán nhóm',
           thirdText: 'Để lại nhóm',
           cancelText: 'Quay lại',
           variant: 'danger',
           onConfirm: async () => {
             setConfirmConfig(null);
-            try { await deleteGroup(group.id); addToast('Đã xóa nhóm học!', 'success'); fetchGroups(); }
-            catch (err) { addToast(err.message, 'error'); }
+            try {
+              sessionStorage.setItem('leaving_group', 'true');
+              await deleteGroup(group.id);
+              addToast('Đã giải tán nhóm học!', 'success');
+              fetchGroups();
+              setTimeout(() => {
+                sessionStorage.removeItem('leaving_group');
+              }, 1000);
+            }
+            catch (err) {
+              sessionStorage.removeItem('leaving_group');
+              addToast(err.message, 'error');
+            }
           },
           onThird: async () => {
             setConfirmConfig(null);
@@ -1667,6 +1689,9 @@ export default function Groups() {
               await transferAdminAndLeave(user.id, group.id);
               addToast('Đã rời nhóm và chuyển quyền trưởng nhóm!', 'success');
               fetchGroups();
+              setTimeout(() => {
+                sessionStorage.removeItem('leaving_group');
+              }, 1000);
             }
             catch (err) {
               sessionStorage.removeItem('leaving_group');
@@ -1690,6 +1715,9 @@ export default function Groups() {
             await leaveGroup(user.id, group.id);
             addToast('Đã rời nhóm!', 'success');
             fetchGroups();
+            setTimeout(() => {
+              sessionStorage.removeItem('leaving_group');
+            }, 1000);
           }
           catch (err) {
             sessionStorage.removeItem('leaving_group');

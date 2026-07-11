@@ -223,7 +223,7 @@ export default function GlobalMessageListener() {
           } else if (m.role === 'member' && (old?.role === 'admin' || !old || old.role === undefined)) {
             try {
               const groupName = await getGroupName(m.group_id);
-              addToast(`Bạn đã bị tước quyền phó nhóm của "${groupName}"`, 'error', 7000, `/groups/${m.group_id}`);
+              addToast(`Đã thu hồi quyền phó nhóm của bạn tại nhóm "${groupName}"`, 'error', 7000, `/groups/${m.group_id}`);
               try {
                 const demotions = JSON.parse(localStorage.getItem('studyconect_demoted_notifications') || '[]');
                 demotions.push({ id: Date.now().toString(), groupName, createdAt: new Date().toISOString() });
@@ -234,18 +234,41 @@ export default function GlobalMessageListener() {
         } else if (payload.eventType === 'DELETE') {
           const m = payload.old;
           if (sessionStorage.getItem('leaving_group') === 'true') {
-            sessionStorage.removeItem('leaving_group');
             return;
           }
           try {
-            const groupName = await getGroupName(m.group_id);
-            addToast(`Bạn đã bị rời khỏi nhóm "${groupName}"`, 'error', 8000, '/groups');
+            const cachedName = groupNameCache.current[String(m.group_id)] || 'Nhóm';
+            
+            // Check if the group still exists
+            const { data: groupData } = await supabase
+              .from('study_groups')
+              .select('id, name')
+              .eq('id', m.group_id)
+              .maybeSingle();
+
+            if (!groupData) {
+              // Group disbanded
+              addToast(`Nhóm học "${cachedName}" đã bị giải tán`, 'error', 8000, '/groups');
+            } else {
+              // Group still exists, user was kicked
+              const realName = groupData.name || cachedName;
+              addToast(`Bạn đã bị mời ra khỏi nhóm "${realName}"`, 'error', 8000, '/groups');
+            }
+            
             try {
               const kicks = JSON.parse(localStorage.getItem('studyconect_kicked_notifications') || '[]');
-              kicks.push({ id: Date.now().toString(), groupName, createdAt: new Date().toISOString() });
+              kicks.push({ 
+                id: Date.now().toString(), 
+                groupName: groupData ? (groupData.name || cachedName) : cachedName, 
+                isDisbanded: !groupData,
+                createdAt: new Date().toISOString() 
+              });
               localStorage.setItem('studyconect_kicked_notifications', JSON.stringify(kicks));
             } catch { /* ignore */ }
-          } catch { /* ignore */ }
+          } catch {
+            const fallbackName = groupNameCache.current[String(m.group_id)] || 'Nhóm';
+            addToast(`Bạn không còn ở trong nhóm "${fallbackName}"`, 'error', 8000, '/groups');
+          }
         }
       })
       // ⑪ Tag trong bài viết (mentions cá nhân)
@@ -497,7 +520,7 @@ export default function GlobalMessageListener() {
       const { userId } = payload;
       if (String(userId) === String(uid)) {
         addToast(
-          'Bài viết của bạn đã được Admin phê duyệt! 🎉',
+          'Bài viết của bạn đã được phê duyệt thành công! 🎉',
           'success', 7000, '/'
         );
       }
@@ -508,7 +531,7 @@ export default function GlobalMessageListener() {
       const { userId } = payload;
       if (String(userId) === String(uid)) {
         addToast(
-          'Bài viết của bạn đã bị Admin từ chối phê duyệt và xóa bỏ. ❌',
+          'Bài viết của bạn không được phê duyệt và đã được gỡ bỏ.',
           'error', 8000, null
         );
       }

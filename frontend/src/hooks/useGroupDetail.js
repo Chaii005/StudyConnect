@@ -459,7 +459,25 @@ export default function useGroupDetail(groupId, user, addToast) {
           if (payload.eventType === 'DELETE') {
             const oldMember = payload.old;
             if (oldMember && oldMember.user_id && String(oldMember.user_id) === String(user?.id)) {
-              addToast('Bạn đã bị xóa khỏi nhóm học tập này!', 'warning');
+              if (sessionStorage.getItem('leaving_group') === 'true') {
+                return;
+              }
+              // Check if group itself still exists
+              try {
+                const { data: grpData } = await supabase
+                  .from('study_groups')
+                  .select('id')
+                  .eq('id', parseInt(groupId, 10))
+                  .maybeSingle();
+                
+                if (!grpData) {
+                  addToast('Nhóm học tập này đã bị giải tán!', 'warning');
+                } else {
+                  addToast('Bạn đã bị xóa khỏi nhóm học tập này!', 'warning');
+                }
+              } catch {
+                addToast('Bạn không còn ở trong nhóm học tập này!', 'warning');
+              }
               navigate('/groups');
               return;
             }
@@ -471,6 +489,9 @@ export default function useGroupDetail(groupId, user, addToast) {
             if (updatedGroup) {
               const isStillMember = updatedGroup.members.some(m => String(m) === String(user?.id));
               if (!isStillMember) {
+                if (sessionStorage.getItem('leaving_group') === 'true') {
+                  return;
+                }
                 addToast('Bạn đã bị mời ra khỏi nhóm học tập này!', 'warning');
                 navigate('/groups');
                 return;
@@ -479,6 +500,9 @@ export default function useGroupDetail(groupId, user, addToast) {
               fetchGroupMembersDetails(updatedGroup.members);
             } else {
               // Group was deleted
+              if (sessionStorage.getItem('leaving_group') === 'true') {
+                return;
+              }
               addToast('Nhóm học tập này đã bị giải tán!', 'warning');
               navigate('/groups');
             }
@@ -893,9 +917,9 @@ export default function useGroupDetail(groupId, user, addToast) {
   const handleKickMember = (targetUserId) => {
     const tid = String(targetUserId);
     setConfirmConfig({
-      title: 'Kick thành viên',
-      message: 'Bạn có chắc muốn kick thành viên này ra khỏi nhóm?',
-      confirmText: 'Kick ra khỏi nhóm',
+      title: 'Mời thành viên rời nhóm',
+      message: 'Bạn có chắc chắn muốn mời thành viên này rời khỏi nhóm học tập không?',
+      confirmText: 'Mời rời nhóm',
       cancelText: 'Giữ lại',
       variant: 'danger',
       onConfirm: async () => {
@@ -905,9 +929,9 @@ export default function useGroupDetail(groupId, user, addToast) {
           const updated = await kickMember(groupId, user.id, tid);
           setGroup(updated);
           await fetchGroupMembersDetails(updated.members);
-          addToast('Đã kick thành viên khỏi nhóm.', 'success');
+          addToast('Đã mời thành viên ra khỏi nhóm thành công!', 'success');
         } catch (err) {
-          addToast(err.message || 'Lỗi kick thành viên', 'error');
+          addToast(err.message || 'Lỗi khi mời thành viên rời nhóm', 'error');
         } finally { setKickingIds(prev => ({ ...prev, [tid]: false })); }
       },
       onCancel: () => setConfirmConfig(null),
@@ -1099,7 +1123,7 @@ export default function useGroupDetail(groupId, user, addToast) {
           .update({ warn_count: newWarnCount, is_banned: true })
           .eq('id', userId);
         
-        addToast('Tài khoản của bạn đã bị khóa vĩnh viễn do cố ý đăng tải nội dung khiêu dâm 3 lần!', 'error');
+        addToast('Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm chính sách cộng đồng (đăng tải nội dung không lành mạnh 3 lần).', 'error');
         
         setTimeout(() => {
           localStorage.removeItem('sc_session');
@@ -1112,7 +1136,7 @@ export default function useGroupDetail(groupId, user, addToast) {
           .update({ warn_count: newWarnCount })
           .eq('id', userId);
         
-        addToast(`Cảnh báo: Bạn đã cố gắng tải lên tài liệu chứa nội dung người lớn/khiêu dâm (${newWarnCount}/3 lần vi phạm). Vi phạm 3 lần tài khoản sẽ bị khóa vĩnh viễn khỏi hệ thống!`, 'error');
+        addToast(`Cảnh báo: Tài liệu bạn tải lên chứa hình ảnh hoặc nội dung không phù hợp với thuần phong mỹ tục (${newWarnCount}/3 lần vi phạm). Tài khoản của bạn sẽ bị khóa vĩnh viễn nếu tiếp tục vi phạm chính sách cộng đồng!`, 'error');
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('Lỗi cập nhật vi phạm NSFW:', err);
@@ -1138,7 +1162,7 @@ export default function useGroupDetail(groupId, user, addToast) {
       const isNsfwImage = await checkImageNsfw(selectedFile);
       
       if (isNsfwKey || isNsfwImage) {
-        addToast('Tài liệu chứa hình ảnh không lành mạnh hoặc nội dung khiêu dâm. Bạn không thể tải lên tài liệu này!', 'error');
+        addToast('Tài liệu chứa hình ảnh không lành mạnh hoặc nội dung không phù hợp với thuần phong mỹ tục. Thao tác tải lên đã bị từ chối.', 'error');
         await handleNsfwViolation(user.id);
         setIsUploadingFile(false);
         return;
