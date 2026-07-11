@@ -2273,27 +2273,78 @@ export default function Groups() {
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', height: '48px', gap: '12px' }}>
           <div 
-            className="premium-panel search-panel" 
-            style={{ flex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px', height: '100%', boxSizing: 'border-box', maxWidth: '360px' }}
+            className={isSearchExpanded ? "premium-panel search-panel" : ""}
+            onClick={() => { if (!isSearchExpanded) setIsSearchExpanded(true); }}
+            style={{
+              width: isSearchExpanded ? '300px' : '48px',
+              height: '48px',
+              borderRadius: isSearchExpanded ? '24px' : '50%',
+              background: 'var(--bg-card)',
+              border: isSearchExpanded ? '1.5px solid var(--text-primary)' : '1.5px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              padding: isSearchExpanded ? '0 16px' : '0',
+              justifyContent: isSearchExpanded ? 'flex-start' : 'center',
+              cursor: isSearchExpanded ? 'default' : 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxSizing: 'border-box',
+              overflow: 'hidden',
+              boxShadow: 'var(--shadow)',
+              gap: isSearchExpanded ? '10px' : '0',
+              flexShrink: 0
+            }}
           >
-            <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+            <span 
+              onClick={(e) => {
+                if (isSearchExpanded) {
+                  e.stopPropagation();
+                }
+              }}
+              style={{ 
+                fontSize: '18px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexShrink: 0,
+                width: '20px',
+                height: '20px',
+                color: isSearchExpanded ? 'var(--text-primary)' : 'var(--text-muted)'
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.3-4.3"/>
               </svg>
             </span>
-            <SafeInput 
-              type="text" 
-              className="search-input" 
-              placeholder="Nhập ID phòng học..." 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)} 
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
+            {isSearchExpanded && (
+              <SafeInput 
+                type="text" 
+                className="search-input" 
+                placeholder="Nhập ID phòng học..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                autoFocus
                 style={{
-                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  flex: 1,
+                  color: 'var(--text-primary)',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minWidth: '100px'
+                }}
+              />
+            )}
+            {isSearchExpanded && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchQuery('');
+                  setIsSearchExpanded(false);
+                }}
+                style={{
+                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                 }}
               >
                 ✕
@@ -2306,8 +2357,8 @@ export default function Groups() {
             <button
               onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
               style={{
+                width: '120px',
                 height: '48px',
-                padding: '0 14px',
                 borderRadius: '24px',
                 background: showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'var(--bg-card)',
                 color: showOnlyMyMajor ? '#fff' : 'var(--text-primary)',
@@ -2316,7 +2367,7 @@ export default function Groups() {
                 fontSize: '12.5px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                justifyContent: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                 boxShadow: showOnlyMyMajor ? '0 4px 12px rgba(42, 117, 118, 0.3)' : 'var(--shadow)',
