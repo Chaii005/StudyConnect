@@ -1696,28 +1696,441 @@ export default function Groups() {
   const handleLogout = () => { logout(); navigate('/login'); };
   const initials = user?.fullName?.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase() || '?';
 
-  const filteredGroups = (() => {
-    const q = searchQuery.trim();
-    let list = groups;
-    if (q !== '') {
-      if (q.length < 6) {
-        list = [];
-      } else {
-        list = groups.filter(g => g.id.toString() === q);
-      }
-    }
-    
-    // Prioritize groups with the same major as the user's major
-    if (user?.major) {
-      const uMajor = user.major.toLowerCase().trim();
-      return [...list].sort((a, b) => {
-        const aMatch = a.major && a.major.toLowerCase().trim() === uMajor ? 1 : 0;
-        const bMatch = b.major && b.major.toLowerCase().trim() === uMajor ? 1 : 0;
-        return bMatch - aMatch;
-      });
-    }
-    return list;
+  const _searchQ = searchQuery.trim();
+  const _uMajor = (user?.major || '').toLowerCase().trim();
+  const _baseList = (() => {
+    if (!_searchQ) return groups;
+    if (_searchQ.length < 6) return [];
+    return groups.filter(g => g.id.toString() === _searchQ);
   })();
+  const myMajorGroups = _uMajor && !_searchQ ? _baseList.filter(g => g.major && g.major.toLowerCase().trim() === _uMajor) : [];
+  const otherGroups   = _uMajor && !_searchQ ? _baseList.filter(g => !g.major || g.major.toLowerCase().trim() !== _uMajor) : _baseList;
+  const filteredGroups = _uMajor && !_searchQ ? [...myMajorGroups, ...otherGroups] : _baseList;
+
+  const renderGroupCard = (group) => {
+    const isMember = group?.members?.some(m => Number(m) === Number(user?.id));
+    const isCreator = Number(group.creatorId) === Number(user?.id);
+    const isDeputy = group.deputyId ? Number(group.deputyId) === Number(user?.id) : false;
+    const isSameMajor = _uMajor && group.major && group.major.toLowerCase().trim() === _uMajor;
+    return (
+      <div key={group.id} className="group-card">
+        <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 10px 0', lineHeight: 1.3, letterSpacing: '-0.01em' }}>{group.name}</h3>
+        
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', marginBottom: '14px' }}>
+          {/* ID Badge */}
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border)', background: 'var(--bg-input)', padding: '4px 10px', borderRadius: 10, fontWeight: 600 }}>
+            ID: <strong style={{ color: 'var(--text-primary)' }}>{group.id}</strong>
+          </span>
+
+          {/* Same Major Badge */}
+          {isSameMajor && (
+            <span style={{
+              fontSize: 11,
+              fontWeight: 800,
+              padding: '4px 10px',
+              borderRadius: 10,
+              background: 'rgba(42, 117, 118, 0.1)',
+              color: 'var(--primary)',
+              border: '1.5px solid rgba(42, 117, 118, 0.35)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              whiteSpace: 'nowrap',
+            }}>
+              ✨ Cùng ngành
+            </span>
+          )}
+
+          {/* Member Count Badge */}
+          <span 
+            className="badge-outline" 
+            onClick={() => {
+              if (!isCreator) return;
+              const currentMax = group.maxMembers || 10;
+              setPromptConfig({
+                title: 'Sửa số lượng thành viên',
+                message: `Nhập số lượng thành viên tối đa mới cho nhóm "${group.name}":`,
+                defaultValue: currentMax,
+                placeholder: 'Nhập số lượng (ví dụ: 10)',
+                onConfirm: async (val) => {
+                  const num = parseInt(val, 10);
+                  if (isNaN(num) || num < (group.members?.length || 1)) {
+                    addToast(`Số lượng thành viên tối đa phải là số hợp lệ và không nhỏ hơn số thành viên hiện tại (${group.members?.length || 1})!`, 'error');
+                    return;
+                  }
+                  setPromptConfig(null);
+                  try {
+                    const { error } = await supabase
+                      .from('study_groups')
+                      .update({ max_members: num })
+                      .eq('id', parseInt(group.id, 10));
+                    if (error) throw error;
+                    addToast(`Đã thay đổi số lượng thành viên tối đa thành ${num}!`, 'success');
+                    fetchGroups();
+                  } catch (err) {
+                    addToast(`Lỗi: ${err.message}`, 'error');
+                  }
+                }
+              });
+            }}
+            style={{ 
+              borderColor: 'var(--text-primary)', 
+              color: 'var(--text-primary)', 
+              background: 'rgba(0,0,0,0.04)', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '5px', 
+              borderRadius: '10px', 
+              padding: '4px 10px', 
+              fontSize: '11px', 
+              fontWeight: 800, 
+              border: '1.5px solid var(--text-primary)',
+              cursor: isCreator ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            {group?.members?.length || 0}/{group.maxMembers || 10}
+          </span>
+
+          {/* Meeting Mode Badge */}
+          <span 
+            onClick={async () => {
+              if (!isCreator) return;
+              try {
+                const newMode = group.meetingMode === 'offline' ? 'online' : 'offline';
+                const { error } = await supabase
+                  .from('study_groups')
+                  .update({ meeting_mode: newMode })
+                  .eq('id', parseInt(group.id, 10));
+                if (error) throw error;
+                addToast(`Đã chuyển nhóm sang chế độ học ${newMode === 'offline' ? 'Offline' : 'Online'}!`, 'success');
+                fetchGroups();
+              } catch (err) {
+                addToast(`Lỗi: ${err.message}`, 'error');
+              }
+            }}
+            style={{ 
+              fontSize: 11, 
+              fontWeight: 800, 
+              padding: '4px 10px', 
+              borderRadius: 10, 
+              whiteSpace: 'nowrap', 
+              background: 'rgba(0,0,0,0.04)', 
+              color: 'var(--text-primary)', 
+              border: '1.5px solid var(--text-primary)', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '5px',
+              cursor: isCreator ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {group.meetingMode === 'offline' ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                Offline
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7" />
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                </svg>
+                Online
+              </>
+            )}
+          </span>
+
+          {/* Privacy Status Badge */}
+          <span 
+            onClick={async () => {
+              if (!isCreator) return;
+              try {
+                const newPrivateStatus = !group.isPrivate;
+                const { error } = await supabase
+                  .from('study_groups')
+                  .update({ is_private: newPrivateStatus })
+                  .eq('id', parseInt(group.id, 10));
+                if (error) throw error;
+                addToast(`Đã chuyển nhóm sang chế độ ${newPrivateStatus ? 'Riêng tư' : 'Công khai'}!`, 'success');
+                fetchGroups();
+              } catch (err) {
+                addToast(`Lỗi: ${err.message}`, 'error');
+              }
+            }}
+            style={{ 
+              fontSize: 11, 
+              fontWeight: 800, 
+              padding: '4px 10px', 
+              borderRadius: 10, 
+              whiteSpace: 'nowrap', 
+              background: 'rgba(0,0,0,0.04)', 
+              color: 'var(--text-primary)', 
+              border: '1.5px solid var(--text-primary)', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '5px',
+              cursor: isCreator ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {group.isPrivate ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                Riêng tư
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                </svg>
+                Công khai
+              </>
+            )}
+          </span>
+
+          {/* Role Badges */}
+          {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Trưởng nhóm</span>}
+          {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Phó nhóm</span>}
+        </div>
+
+        <div 
+          onClick={async () => {
+            if (!isCreator) return;
+            const userMajor = user?.major || null;
+            setSubjectSelectConfig({
+              title: 'Thay đổi môn học',
+              defaultValue: group.subject,
+              userMajor,
+              onConfirm: async (newSubject) => {
+                setSubjectSelectConfig(null);
+                try {
+                  const { error } = await supabase
+                    .from('study_groups')
+                    .update({ subject: newSubject })
+                    .eq('id', parseInt(group.id, 10));
+                  if (error) throw error;
+                  
+                  if (userMajor && newSubject) {
+                    await saveSubjectForMajor(userMajor, newSubject);
+                  }
+                  addToast(`Đã thay đổi môn học thành "${newSubject}"!`, 'success');
+                  fetchGroups();
+                } catch (err) {
+                  addToast(`Lỗi: ${err.message}`, 'error');
+                }
+              }
+            });
+          }}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            background: 'var(--bg-input)', 
+            border: '1px solid var(--border)', 
+            marginBottom: '8px', 
+            marginTop: '4px', 
+            padding: '6px 12px', 
+            borderRadius: '10px',
+            cursor: isCreator ? 'pointer' : 'default',
+            userSelect: 'none'
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)', flexShrink: 0 }}>
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+            <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Môn học:</strong> {group.subject}
+          </span>
+        </div>
+
+        {group.meetingMode === 'offline' && !group.isPrivate && group.location && group.location.name && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', background: 'var(--bg-input)', padding: '8px 12px', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '8px' }}>
+            <span style={{ fontSize: 13, flexShrink: 0, display: 'inline-flex', alignItems: 'center', color: 'var(--text-muted)', marginTop: '2px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
+            <div style={{ minWidth: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.name}</span>
+              {group.location.address && <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.address}</span>}
+            </div>
+          </div>
+        )}
+
+        {group.description && (
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', flex: 1, marginBottom: 0, marginTop: '4px', lineHeight: 1.4, fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            "{group.description}"
+          </p>
+        )}
+
+        <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+          {isMember ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <Link 
+                  to={`/groups/${group.id}`} 
+                  style={{ 
+                    flex: 1, 
+                    height: '38px',
+                    boxSizing: 'border-box',
+                    textAlign: 'center', 
+                    textDecoration: 'none', 
+                    fontSize: '13px', 
+                    fontWeight: 700, 
+                    borderRadius: '8px', 
+                    color: '#fff', 
+                    background: 'var(--text-primary)', 
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', 
+                    transition: 'all 0.2s ease',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.35)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                  }}
+                >
+                  Vào nhóm
+                </Link>
+                <button 
+                  style={{ 
+                    height: '38px',
+                    padding: '0 18px',
+                    boxSizing: 'border-box',
+                    fontSize: '13px', 
+                    fontWeight: 600, 
+                    borderRadius: '8px', 
+                    background: 'var(--bg-card)', 
+                    color: 'var(--text-primary)', 
+                    border: '1px solid var(--border)', 
+                    cursor: 'pointer', 
+                    transition: 'all 0.2s ease',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }} 
+                  onClick={() => handleLeave(group)}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'var(--bg-input)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'var(--bg-card)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Rời
+                </button>
+              </div>
+              <button onClick={() => setInviteGroup(group)}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px', 
+                  fontSize: '12px', 
+                  fontWeight: 600, 
+                  borderRadius: '8px', 
+                  border: '1px solid var(--text-primary)', 
+                  background: 'rgba(0, 0, 0, 0.06)', 
+                  color: 'var(--text-primary)', 
+                  cursor: 'pointer', 
+                  fontFamily: 'inherit', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '6px', 
+                  transition: 'all 0.2s ease' 
+                }}
+                onMouseEnter={e => { 
+                  e.currentTarget.style.background = 'rgba(0, 0, 0, 0.15)'; 
+                  e.currentTarget.style.borderColor = 'var(--text-primary)'; 
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={e => { 
+                  e.currentTarget.style.background = 'rgba(0, 0, 0, 0.06)'; 
+                  e.currentTarget.style.borderColor = 'var(--text-primary)'; 
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" y1="8" x2="19" y2="14" />
+                  <line x1="16" y1="11" x2="22" y2="11" />
+                </svg>
+                Mời bạn bè vào nhóm
+              </button>
+            </div>
+          ) : (() => {
+            const reqStatus = joinRequestStatus[group.id];
+            if (group.isPrivate && reqStatus === 'pending') {
+              return (
+                <div style={{ width: '100%', padding: '9px', borderRadius: '8px', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 700, textAlign: 'center' }}>
+                  ⏳ Đang chờ trưởng nhóm duyệt...
+                </div>
+              );
+            }
+            return (
+              <button 
+                style={{ 
+                  width: '100%', 
+                  padding: '9px', 
+                  fontSize: '13px', 
+                  fontWeight: 700, 
+                  borderRadius: '8px', 
+                  border: 'none', 
+                  background: 'var(--text-primary)', 
+                  color: '#fff', 
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', 
+                  cursor: 'pointer', 
+                  transition: 'all 0.2s ease' 
+                }} 
+                onClick={() => handleJoin(group)}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.35)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                }}
+              >
+                {group.isPrivate ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Gửi yêu cầu tham gia
+                  </span>
+                ) : 'Tham gia nhóm'}
+              </button>
+            );
+          })()}
+        </div>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -1938,461 +2351,75 @@ export default function Groups() {
           )}
         </div>
 
-        {filteredGroups.length === 0 ? (
-          <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-              <svg width="72" height="56" viewBox="0 0 72 56">
-                {/* Left Person */}
-                <circle cx="23" cy="25" r="5.5" fill="var(--bg-input)" stroke="var(--border)" strokeWidth="1.5" />
-                <path d="M15 44c0-5 4-8 9-8" fill="none" stroke="var(--border)" strokeWidth="1.5" strokeLinecap="round" />
-                
-                {/* Right Person */}
-                <circle cx="49" cy="25" r="5.5" fill="var(--bg-input)" stroke="var(--border)" strokeWidth="1.5" />
-                <path d="M48 36c5 0 9 3 9 8" fill="none" stroke="var(--border)" strokeWidth="1.5" strokeLinecap="round" />
-                
-                {/* Center Person */}
-                <circle cx="36" cy="20" r="7" fill="var(--bg-input)" stroke="var(--primary)" strokeWidth="1.5" />
-                <path d="M24 44c0-6 5-10 12-10s12 4 12 10" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
+        {/* Search Mode */}
+        {_searchQ && (
+          filteredGroups.length === 0 ? (
+            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, marginBottom: '6px' }}>
+                {_searchQ.length < 6 ? 'Vui lòng nhập đủ 6 chữ số ID phòng học...' : 'Không tìm thấy nhóm nào với ID này!'}
+              </p>
             </div>
-            <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, marginBottom: '6px', marginTop: '4px' }}>
-              {searchQuery.trim().length > 0 && searchQuery.trim().length < 6
-                ? 'Vui lòng nhập chính xác 6 chữ số ID phòng học...'
-                : searchQuery.trim().length >= 6
-                  ? 'Không tìm thấy nhóm nào phù hợp với ID này!'
-                  : 'Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!'}
-            </p>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>
-              {searchQuery.trim().length === 0 && 'Tạo nhóm để kết nối và học tập cùng bạn bè ngay.'}
-            </p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-            {filteredGroups.map(group => {
-              const isMember = group?.members?.some(m => Number(m) === Number(user?.id));
-              const isCreator = Number(group.creatorId) === Number(user?.id);
-              const isDeputy = group.deputyId ? Number(group.deputyId) === Number(user?.id) : false;
-              const isSameMajor = user?.major && group.major && group.major.toLowerCase().trim() === user.major.toLowerCase().trim();
-              return (
-                <div key={group.id} className="group-card">
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 10px 0', lineHeight: 1.3, letterSpacing: '-0.01em' }}>{group.name}</h3>
-                  
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', marginBottom: '14px' }}>
-                    {/* ID Badge */}
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border)', background: 'var(--bg-input)', padding: '4px 10px', borderRadius: 10, fontWeight: 600 }}>
-                      ID: <strong style={{ color: 'var(--text-primary)' }}>{group.id}</strong>
-                    </span>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+              {filteredGroups.map(g => renderGroupCard(g))}
+            </div>
+          )
+        )}
 
-                    {/* Same Major Badge */}
-                    {isSameMajor && (
-                      <span style={{
-                        fontSize: 11,
-                        fontWeight: 800,
-                        padding: '4px 10px',
-                        borderRadius: 10,
-                        background: 'rgba(42, 117, 118, 0.1)',
-                        color: 'var(--primary)',
-                        border: '1.5px solid rgba(42, 117, 118, 0.35)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        whiteSpace: 'nowrap',
-                      }}>
-                        ✨ Cùng ngành
-                      </span>
-                    )}
-
-                    {/* Member Count Badge */}
-                    <span 
-                      className="badge-outline" 
-                      onClick={() => {
-                        if (!isCreator) return;
-                        const currentMax = group.maxMembers || 10;
-                        setPromptConfig({
-                          title: 'Sửa số lượng thành viên',
-                          message: `Nhập số lượng thành viên tối đa mới cho nhóm "${group.name}":`,
-                          defaultValue: currentMax,
-                          placeholder: 'Nhập số lượng (ví dụ: 10)',
-                          onConfirm: async (val) => {
-                            const num = parseInt(val, 10);
-                            if (isNaN(num) || num < (group.members?.length || 1)) {
-                              addToast(`Số lượng thành viên tối đa phải là số hợp lệ và không nhỏ hơn số thành viên hiện tại (${group.members?.length || 1})!`, 'error');
-                              return;
-                            }
-                            setPromptConfig(null);
-                            try {
-                              const { error } = await supabase
-                                .from('study_groups')
-                                .update({ max_members: num })
-                                .eq('id', parseInt(group.id, 10));
-                              if (error) throw error;
-                              addToast(`Đã thay đổi số lượng thành viên tối đa thành ${num}!`, 'success');
-                              fetchGroups();
-                            } catch (err) {
-                              addToast(`Lỗi: ${err.message}`, 'error');
-                            }
-                          }
-                        });
-                      }}
-                      style={{ 
-                        borderColor: 'var(--text-primary)', 
-                        color: 'var(--text-primary)', 
-                        background: 'rgba(0,0,0,0.04)', 
-                        display: 'inline-flex', 
-                        alignItems: 'center', 
-                        gap: '5px', 
-                        borderRadius: '10px', 
-                        padding: '4px 10px', 
-                        fontSize: '11px', 
-                        fontWeight: 800, 
-                        border: '1.5px solid var(--text-primary)',
-                        cursor: isCreator ? 'pointer' : 'default',
-                        userSelect: 'none'
-                      }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                      {group?.members?.length || 0}/{group.maxMembers || 10}
-                    </span>
-
-                    {/* Meeting Mode Badge */}
-                    <span 
-                      onClick={async () => {
-                        if (!isCreator) return;
-                        try {
-                          const newMode = group.meetingMode === 'offline' ? 'online' : 'offline';
-                          const { error } = await supabase
-                            .from('study_groups')
-                            .update({ meeting_mode: newMode })
-                            .eq('id', parseInt(group.id, 10));
-                          if (error) throw error;
-                          addToast(`Đã chuyển nhóm sang chế độ học ${newMode === 'offline' ? 'Offline' : 'Online'}!`, 'success');
-                          fetchGroups();
-                        } catch (err) {
-                          addToast(`Lỗi: ${err.message}`, 'error');
-                        }
-                      }}
-                      style={{ 
-                        fontSize: 11, 
-                        fontWeight: 800, 
-                        padding: '4px 10px', 
-                        borderRadius: 10, 
-                        whiteSpace: 'nowrap', 
-                        background: 'rgba(0,0,0,0.04)', 
-                        color: 'var(--text-primary)', 
-                        border: '1.5px solid var(--text-primary)', 
-                        display: 'inline-flex', 
-                        alignItems: 'center', 
-                        gap: '5px',
-                        cursor: isCreator ? 'pointer' : 'default',
-                        userSelect: 'none'
-                      }}
-                    >
-                      {group.meetingMode === 'offline' ? (
-                        <>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                          </svg>
-                          Offline
-                        </>
-                      ) : (
-                        <>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polygon points="23 7 16 12 23 17 23 7" />
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                          </svg>
-                          Online
-                        </>
-                      )}
-                    </span>
-
-                    {/* Privacy Status Badge */}
-                    <span 
-                      onClick={async () => {
-                        if (!isCreator) return;
-                        try {
-                          const newPrivateStatus = !group.isPrivate;
-                          const { error } = await supabase
-                            .from('study_groups')
-                            .update({ is_private: newPrivateStatus })
-                            .eq('id', parseInt(group.id, 10));
-                          if (error) throw error;
-                          addToast(`Đã chuyển nhóm sang chế độ ${newPrivateStatus ? 'Riêng tư' : 'Công khai'}!`, 'success');
-                          fetchGroups();
-                        } catch (err) {
-                          addToast(`Lỗi: ${err.message}`, 'error');
-                        }
-                      }}
-                      style={{ 
-                        fontSize: 11, 
-                        fontWeight: 800, 
-                        padding: '4px 10px', 
-                        borderRadius: 10, 
-                        whiteSpace: 'nowrap', 
-                        background: 'rgba(0,0,0,0.04)', 
-                        color: 'var(--text-primary)', 
-                        border: '1.5px solid var(--text-primary)', 
-                        display: 'inline-flex', 
-                        alignItems: 'center', 
-                        gap: '5px',
-                        cursor: isCreator ? 'pointer' : 'default',
-                        userSelect: 'none'
-                      }}
-                    >
-                      {group.isPrivate ? (
-                        <>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
-                          Riêng tư
-                        </>
-                      ) : (
-                        <>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                          </svg>
-                          Công khai
-                        </>
-                      )}
-                    </span>
-
-                    {/* Role Badges */}
-                    {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Trưởng nhóm</span>}
-                    {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Phó nhóm</span>}
-                  </div>
-
-                  <div 
-                    onClick={async () => {
-                      if (!isCreator) return;
-                      const userMajor = user?.major || null;
-                      setSubjectSelectConfig({
-                        title: 'Thay đổi môn học',
-                        defaultValue: group.subject,
-                        userMajor,
-                        onConfirm: async (newSubject) => {
-                          setSubjectSelectConfig(null);
-                          try {
-                            const { error } = await supabase
-                              .from('study_groups')
-                              .update({ subject: newSubject })
-                              .eq('id', parseInt(group.id, 10));
-                            if (error) throw error;
-                            
-                            if (userMajor && newSubject) {
-                              await saveSubjectForMajor(userMajor, newSubject);
-                            }
-                            addToast(`Đã thay đổi môn học thành "${newSubject}"!`, 'success');
-                            fetchGroups();
-                          } catch (err) {
-                            addToast(`Lỗi: ${err.message}`, 'error');
-                          }
-                        }
-                      });
-                    }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      background: 'var(--bg-input)', 
-                      border: '1px solid var(--border)', 
-                      marginBottom: '8px', 
-                      marginTop: '4px', 
-                      padding: '6px 12px', 
-                      borderRadius: '10px',
-                      cursor: isCreator ? 'pointer' : 'default',
-                      userSelect: 'none'
-                    }}
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)', flexShrink: 0 }}>
-                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                    </svg>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
-                      <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Môn học:</strong> {group.subject}
-                    </span>
-                  </div>
-
-                  {group.meetingMode === 'offline' && !group.isPrivate && group.location && group.location.name && (
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', background: 'var(--bg-input)', padding: '8px 12px', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '8px' }}>
-                      <span style={{ fontSize: 13, flexShrink: 0, display: 'inline-flex', alignItems: 'center', color: 'var(--text-muted)', marginTop: '2px' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                      </span>
-                      <div style={{ minWidth: 0 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.name}</span>
-                        {group.location.address && <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location.address}</span>}
-                      </div>
-                    </div>
-                  )}
-
-                  {group.description && (
-                    <p style={{ color: 'var(--text-muted)', fontSize: '13px', flex: 1, marginBottom: 0, marginTop: '4px', lineHeight: 1.4, fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      "{group.description}"
-                    </p>
-                  )}
-
-                  <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
-                    {isMember ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                          <Link 
-                            to={`/groups/${group.id}`} 
-                            style={{ 
-                              flex: 1, 
-                              height: '38px',
-                              boxSizing: 'border-box',
-                              textAlign: 'center', 
-                              textDecoration: 'none', 
-                              fontSize: '13px', 
-                              fontWeight: 700, 
-                              borderRadius: '8px', 
-                              color: '#fff', 
-                              background: 'var(--text-primary)', 
-                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', 
-                              transition: 'all 0.2s ease',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                            onMouseEnter={e => {
-                              e.currentTarget.style.transform = 'translateY(-1px)';
-                              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.35)';
-                            }}
-                            onMouseLeave={e => {
-                              e.currentTarget.style.transform = 'translateY(0)';
-                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
-                            }}
-                          >
-                            Vào nhóm
-                          </Link>
-                          <button 
-                            style={{ 
-                              height: '38px',
-                              padding: '0 18px',
-                              boxSizing: 'border-box',
-                              fontSize: '13px', 
-                              fontWeight: 600, 
-                              borderRadius: '8px', 
-                              background: 'var(--bg-card)', 
-                              color: 'var(--text-primary)', 
-                              border: '1px solid var(--border)', 
-                              cursor: 'pointer', 
-                              transition: 'all 0.2s ease',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }} 
-                            onClick={() => handleLeave(group)}
-                            onMouseEnter={e => {
-                              e.currentTarget.style.background = 'var(--bg-input)';
-                              e.currentTarget.style.transform = 'translateY(-1px)';
-                            }}
-                            onMouseLeave={e => {
-                              e.currentTarget.style.background = 'var(--bg-card)';
-                              e.currentTarget.style.transform = 'translateY(0)';
-                            }}
-                          >
-                            Rời
-                          </button>
-                        </div>
-                        <button onClick={() => setInviteGroup(group)}
-                          style={{ 
-                            width: '100%', 
-                            padding: '8px', 
-                            fontSize: '12px', 
-                            fontWeight: 600, 
-                            borderRadius: '8px', 
-                            border: '1px solid var(--text-primary)', 
-                            background: 'rgba(0, 0, 0, 0.06)', 
-                            color: 'var(--text-primary)', 
-                            cursor: 'pointer', 
-                            fontFamily: 'inherit', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            gap: '6px', 
-                            transition: 'all 0.2s ease' 
-                          }}
-                          onMouseEnter={e => { 
-                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.15)'; 
-                            e.currentTarget.style.borderColor = 'var(--text-primary)'; 
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                          }}
-                          onMouseLeave={e => { 
-                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.06)'; 
-                            e.currentTarget.style.borderColor = 'var(--text-primary)'; 
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}
-                        >
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <line x1="19" y1="8" x2="19" y2="14" />
-                            <line x1="16" y1="11" x2="22" y2="11" />
-                          </svg>
-                          Mời bạn bè vào nhóm
-                        </button>
-                      </div>
-                    ) : (() => {
-                      const reqStatus = joinRequestStatus[group.id];
-                      if (group.isPrivate && reqStatus === 'pending') {
-                        return (
-                          <div style={{ width: '100%', padding: '9px', borderRadius: '8px', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 700, textAlign: 'center' }}>
-                            ⏳ Đang chờ trưởng nhóm duyệt...
-                          </div>
-                        );
-                      }
-                      return (
-                        <button 
-                          style={{ 
-                            width: '100%', 
-                            padding: '9px', 
-                            fontSize: '13px', 
-                            fontWeight: 700, 
-                            borderRadius: '8px', 
-                            border: 'none', 
-                            background: 'var(--text-primary)', 
-                            color: '#fff', 
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', 
-                            cursor: 'pointer', 
-                            transition: 'all 0.2s ease' 
-                          }} 
-                          onClick={() => handleJoin(group)}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.35)';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
-                          }}
-                        >
-                          {group.isPrivate ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                              </svg>
-                              Gửi yêu cầu tham gia
-                            </span>
-                          ) : 'Tham gia nhóm'}
-                        </button>
-                      );
-                    })()}
-                  </div>
+        {/* Browse Mode */}
+        {!_searchQ && (
+          <>
+            {/* Section 1: Dành cho bạn (Cùng ngành) */}
+            {_uMajor && (
+              <div style={{ marginBottom: '36px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <div style={{ width: 4, height: 20, background: 'var(--primary, #2A7576)', borderRadius: 4, flexShrink: 0 }} />
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>Dành cho bạn</h3>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary, #2A7576)', background: 'rgba(42,117,118,0.09)', border: '1.5px solid rgba(42,117,118,0.25)', borderRadius: 20, padding: '2px 9px', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.major}
+                  </span>
+                  {myMajorGroups.length > 0 && <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{myMajorGroups.length} nhóm</span>}
                 </div>
-              );
-            })}
-          </div>
+
+                {myMajorGroups.length === 0 ? (
+                  <div style={{ background: 'rgba(42,117,118,0.04)', border: '1.5px dashed rgba(42,117,118,0.3)', borderRadius: '14px', padding: '28px 20px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>📚</div>
+                    <p style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 700, margin: '0 0 6px' }}>Chưa có nhóm ngành {user.major}</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '12.5px', margin: '0 0 16px' }}>Hãy là người đầu tiên tạo nhóm học cho ngành của bạn!</p>
+                    <button onClick={() => setShowModal(true)} style={{ fontSize: 12, fontWeight: 700, padding: '8px 20px', borderRadius: 20, background: 'var(--primary, #2A7576)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                      onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                    >+ Tạo nhóm ngay</button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                    {myMajorGroups.map(g => renderGroupCard(g))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Section 2: Nhóm học khác */}
+            <div>
+              {_uMajor && otherGroups.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <div style={{ width: 4, height: 20, background: 'var(--border)', borderRadius: 4, flexShrink: 0 }} />
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Nhóm học khác</h3>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{otherGroups.length} nhóm</span>
+                </div>
+              )}
+              {otherGroups.length === 0 && myMajorGroups.length === 0 ? (
+                <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
+                  <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, margin: '4px 0 6px' }}>Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!</p>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>Tạo nhóm để kết nối và học tập cùng bạn bè ngay.</p>
+                </div>
+              ) : otherGroups.length > 0 ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  {otherGroups.map(g => renderGroupCard(g))}
+                </div>
+              ) : null}
+            </div>
+          </>
         )}
       </div>
       <style>{`
