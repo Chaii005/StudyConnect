@@ -1478,6 +1478,7 @@ export default function Groups() {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inviteGroup, setInviteGroup] = useState(null);
+  const [showOnlyMyMajor, setShowOnlyMyMajor] = useState(false);
 
   const [reviewGroup, setReviewGroup] = useState(null);
   const [reviewGroupFiles, setReviewGroupFiles] = useState([]);
@@ -1721,25 +1722,6 @@ export default function Groups() {
           <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border)', background: 'var(--bg-input)', padding: '4px 10px', borderRadius: 10, fontWeight: 600 }}>
             ID: <strong style={{ color: 'var(--text-primary)' }}>{group.id}</strong>
           </span>
-
-          {/* Same Major Badge */}
-          {isSameMajor && (
-            <span style={{
-              fontSize: 11,
-              fontWeight: 800,
-              padding: '4px 10px',
-              borderRadius: 10,
-              background: 'rgba(42, 117, 118, 0.1)',
-              color: 'var(--primary)',
-              border: '1.5px solid rgba(42, 117, 118, 0.35)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              whiteSpace: 'nowrap',
-            }}>
-              ✨ Cùng ngành
-            </span>
-          )}
 
           {/* Member Count Badge */}
           <span 
@@ -2289,81 +2271,144 @@ export default function Groups() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px', height: '48px' }}>
-          {!isSearchExpanded ? (
-            <button
-              onClick={() => setIsSearchExpanded(true)}
-              style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'var(--bg-card)',
-                border: '1.5px solid var(--border)',
-                color: 'var(--text-muted)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: 'var(--shadow)',
-              }}
-              onMouseEnter={e => { 
-                e.currentTarget.style.color = 'var(--text-primary)'; 
-                e.currentTarget.style.borderColor = 'var(--border-hover)'; 
-                setIsSearchExpanded(true);
-              }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.3-4.3"/>
-              </svg>
-            </button>
-          ) : (
-            <div 
-              className="premium-panel search-panel" 
-              style={{ flex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px', height: '100%', boxSizing: 'border-box' }}
-              onMouseLeave={() => { if (!searchQuery.trim()) setIsSearchExpanded(false); }}
-            >
-              <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', height: '48px', gap: '16px' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', height: '48px' }}>
+            {!isSearchExpanded ? (
+              <button
+                onClick={() => setIsSearchExpanded(true)}
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: 'var(--bg-card)',
+                  border: '1.5px solid var(--border)',
+                  color: 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: 'var(--shadow)',
+                }}
+                onMouseEnter={e => { 
+                  e.currentTarget.style.color = 'var(--text-primary)'; 
+                  e.currentTarget.style.borderColor = 'var(--border-hover)'; 
+                  setIsSearchExpanded(true);
+                }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"/>
                   <path d="m21 21-4.3-4.3"/>
                 </svg>
-              </span>
-              <SafeInput 
-                type="text" 
-                className="search-input" 
-                placeholder="Nhập ID phòng học để tìm kiếm..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                autoFocus
-              />
-              <button 
-                onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
-                style={{
-                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}
-              >
-                ✕
               </button>
-            </div>
+            ) : (
+              <div 
+                className="premium-panel search-panel" 
+                style={{ flex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px', height: '100%', boxSizing: 'border-box' }}
+                onMouseLeave={() => { if (!searchQuery.trim()) setIsSearchExpanded(false); }}
+              >
+                <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                  </svg>
+                </span>
+                <SafeInput 
+                  type="text" 
+                  className="search-input" 
+                  placeholder="Nhập ID phòng học để tìm kiếm..." 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  autoFocus
+                />
+                <button 
+                  onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
+                  style={{
+                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Toggle Button: Hiện nhóm cùng ngành học */}
+          {user?.major && (
+            <button
+              onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
+              style={{
+                height: '48px',
+                padding: '0 18px',
+                borderRadius: '24px',
+                background: showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'var(--bg-card)',
+                color: showOnlyMyMajor ? '#fff' : 'var(--text-primary)',
+                border: showOnlyMyMajor ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
+                fontWeight: 700,
+                fontSize: '13.5px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: showOnlyMyMajor ? '0 4px 12px rgba(42, 117, 118, 0.3)' : 'var(--shadow)',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={e => {
+                if (!showOnlyMyMajor) {
+                  e.currentTarget.style.borderColor = 'var(--border-hover)';
+                  e.currentTarget.style.background = 'var(--bg-input)';
+                } else {
+                  e.currentTarget.style.opacity = '0.9';
+                }
+              }}
+              onMouseLeave={e => {
+                if (!showOnlyMyMajor) {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.background = 'var(--bg-card)';
+                } else {
+                  e.currentTarget.style.opacity = '1';
+                }
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                {showOnlyMyMajor ? (
+                  <>
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                    <path d="m9 12 2 2 4-4" />
+                  </>
+                ) : (
+                  <>
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </>
+                )}
+              </svg>
+              {showOnlyMyMajor ? 'Hiện tất cả nhóm' : 'Chỉ hiện ngành của tôi'}
+            </button>
           )}
         </div>
 
         {/* Search Mode */}
         {_searchQ && (
-          filteredGroups.length === 0 ? (
-            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, marginBottom: '6px' }}>
-                {_searchQ.length < 6 ? 'Vui lòng nhập đủ 6 chữ số ID phòng học...' : 'Không tìm thấy nhóm nào với ID này!'}
-              </p>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-              {filteredGroups.map(g => renderGroupCard(g))}
-            </div>
-          )
+          (() => {
+            const results = showOnlyMyMajor 
+              ? filteredGroups.filter(g => g.major && g.major.toLowerCase().trim() === _uMajor)
+              : filteredGroups;
+            return results.length === 0 ? (
+              <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
+                <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, marginBottom: '6px' }}>
+                  {_searchQ.length < 6 ? 'Vui lòng nhập đủ 6 chữ số ID phòng học...' : 'Không tìm thấy nhóm nào phù hợp với bộ lọc!'}
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                {results.map(g => renderGroupCard(g))}
+              </div>
+            );
+          })()
         )}
 
         {/* Browse Mode */}
@@ -2400,25 +2445,27 @@ export default function Groups() {
             )}
 
             {/* Section 2: Nhóm học khác */}
-            <div>
-              {_uMajor && otherGroups.length > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <div style={{ width: 4, height: 20, background: 'var(--border)', borderRadius: 4, flexShrink: 0 }} />
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Nhóm học khác</h3>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{otherGroups.length} nhóm</span>
-                </div>
-              )}
-              {otherGroups.length === 0 && myMajorGroups.length === 0 ? (
-                <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
-                  <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, margin: '4px 0 6px' }}>Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!</p>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>Tạo nhóm để kết nối và học tập cùng bạn bè ngay.</p>
-                </div>
-              ) : otherGroups.length > 0 ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-                  {otherGroups.map(g => renderGroupCard(g))}
-                </div>
-              ) : null}
-            </div>
+            {!showOnlyMyMajor && (
+              <div>
+                {_uMajor && otherGroups.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                    <div style={{ width: 4, height: 20, background: 'var(--border)', borderRadius: 4, flexShrink: 0 }} />
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Nhóm học khác</h3>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{otherGroups.length} nhóm</span>
+                  </div>
+                )}
+                {otherGroups.length === 0 && myMajorGroups.length === 0 ? (
+                  <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, margin: '4px 0 6px' }}>Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>Tạo nhóm để kết nối và học tập cùng bạn bè ngay.</p>
+                  </div>
+                ) : otherGroups.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                    {otherGroups.map(g => renderGroupCard(g))}
+                  </div>
+                ) : null}
+              </div>
+            )}
           </>
         )}
       </div>
