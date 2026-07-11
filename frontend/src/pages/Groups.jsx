@@ -2184,7 +2184,6 @@ export default function Groups() {
         <div className="groups-header-row">
           <div>
             <h2 className="page-title">Nhóm Học Tập</h2>
-            <p className="page-subtitle">Khám phá và tham gia các nhóm học phù hợp với bạn</p>
           </div>
           <div className="groups-action-buttons">
             <button
@@ -2473,8 +2472,8 @@ export default function Groups() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 28px;
-          gap: 16px;
+          margin-bottom: 16px;
+          gap: 12px;
           flex-wrap: wrap;
         }
         .groups-action-buttons {
@@ -2499,7 +2498,7 @@ export default function Groups() {
           }
         }
         .groups-page-container {
-          padding: 24px 16px;
+          padding: 12px 16px;
           max-width: 1100px;
           margin: 0 auto;
           font-family: 'Inter', sans-serif;
@@ -2507,16 +2506,11 @@ export default function Groups() {
         }
         .page-title {
           font-family: 'Fraunces', serif;
-          font-size: 24px;
+          font-size: 22px;
           font-weight: 900;
           color: var(--text-primary);
-          margin: 0 0 6px 0;
-          line-height: 1.2;
-        }
-        .page-subtitle {
-          color: var(--text-secondary);
-          font-size: 14px;
           margin: 0;
+          line-height: 1.2;
         }
         .premium-panel {
           background: var(--bg-card);
