@@ -1473,7 +1473,7 @@ export default function Groups() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [showNearbyModal, setShowNearbyModal] = useState(false);
+  const [showNearbyModal, setShowNearbyModal] = useState(false); // deprecated, kept for safety
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -2235,45 +2235,48 @@ export default function Groups() {
               </svg>
               Tạo nhóm mới
             </button>
-            <button
-              className="btn"
-              onClick={() => setShowNearbyModal(true)}
-              style={{
-                padding: '0 22px',
-                height: '42px',
-                boxSizing: 'border-box',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                width: 'auto',
-                minWidth: 0,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                background: 'transparent',
-                border: '1.5px solid #1A1A1A',
-                color: '#1A1A1A',
-                fontWeight: 700,
-                borderRadius: '24px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontFamily: 'inherit',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.background = '#FAFAFA';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              Nhóm học lân cận
-            </button>
+            {user?.major && (
+              <button
+                onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
+                style={{
+                  padding: '0 22px',
+                  height: '42px',
+                  boxSizing: 'border-box',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  width: 'auto',
+                  minWidth: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  background: showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'transparent',
+                  border: showOnlyMyMajor ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
+                  color: showOnlyMyMajor ? '#fff' : 'var(--text-primary)',
+                  fontWeight: 700,
+                  borderRadius: '24px',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  fontFamily: 'inherit',
+                  boxShadow: showOnlyMyMajor ? '0 4px 12px rgba(42,117,118,0.3)' : 'none',
+                }}
+                onMouseEnter={e => {
+                  if (!showOnlyMyMajor) {
+                    e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  } else {
+                    e.currentTarget.style.opacity = '0.9';
+                  }
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'transparent';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.opacity = '1';
+                }}
+              >
+                {showOnlyMyMajor ? 'Tất cả ngành' : 'Chỉ ngành tôi'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -2360,48 +2363,7 @@ export default function Groups() {
             )}
           </div>
 
-          {/* Toggle Button: Hiện nhóm cùng ngành học */}
-          {user?.major && (
-            <button
-              onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
-              style={{
-                width: '120px',
-                height: '48px',
-                borderRadius: '24px',
-                background: showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'var(--bg-card)',
-                color: showOnlyMyMajor ? '#fff' : 'var(--text-primary)',
-                border: showOnlyMyMajor ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
-                fontWeight: 700,
-                fontSize: '12.5px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: showOnlyMyMajor ? '0 4px 12px rgba(42, 117, 118, 0.3)' : 'var(--shadow)',
-                whiteSpace: 'nowrap',
-                flexShrink: 0
-              }}
-              onMouseEnter={e => {
-                if (!showOnlyMyMajor) {
-                  e.currentTarget.style.borderColor = 'var(--border-hover)';
-                  e.currentTarget.style.background = 'var(--bg-input)';
-                } else {
-                  e.currentTarget.style.opacity = '0.9';
-                }
-              }}
-              onMouseLeave={e => {
-                if (!showOnlyMyMajor) {
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.background = 'var(--bg-card)';
-                } else {
-                  e.currentTarget.style.opacity = '1';
-                }
-              }}
-            >
-              {showOnlyMyMajor ? 'Tất cả' : 'Chỉ ngành tôi'}
-            </button>
-          )}
+          {/* Toggle button moved to header row */}
         </div>
 
         {/* Search Mode */}
@@ -2631,16 +2593,6 @@ export default function Groups() {
       />
     )}
 
-    {showNearbyModal && (
-      <NearbyGroupsModal
-        groups={groups}
-        user={user}
-        onClose={() => setShowNearbyModal(false)}
-        addToast={addToast}
-        joinRequestStatus={joinRequestStatus}
-        handleJoin={handleJoin}
-      />
-    )}
 
     {reviewGroup && (
       <div onClick={() => setReviewGroup(null)} style={{
