@@ -14,7 +14,7 @@ export default function NotificationItem({
 }) {
   const isInvite = n.type === 'groupinvite';
   const isUrgentDeadline = n.type === 'deadline-urgent';
-  const isActionable = n.type !== 'groupinvite' && n.type !== 'friendreq' && n.type !== 'joinrequest';
+  const isActionable = true;
 
   return (
     <div
@@ -53,7 +53,7 @@ export default function NotificationItem({
 
       {isUrgentDeadline && (
         <button
-          onClick={() => onActionClick(n)}
+          onClick={(e) => { e.stopPropagation(); onActionClick(n); }}
           style={{
             marginTop: 8,
             padding: '5px 14px',
@@ -74,7 +74,7 @@ export default function NotificationItem({
       {isInvite && (
         <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
           <button
-            onClick={() => onAccept(n)}
+            onClick={(e) => { e.stopPropagation(); onAccept(n); }}
             disabled={!!isProcessing}
             style={{
               padding: '5px 14px', borderRadius: 8, border: 'none',
@@ -87,7 +87,7 @@ export default function NotificationItem({
             {isProcessing === 'accepting' ? '...' : 'Chấp nhận'}
           </button>
           <button
-            onClick={() => onDecline(n)}
+            onClick={(e) => { e.stopPropagation(); onDecline(n); }}
             disabled={!!isProcessing}
             style={{
               padding: '5px 14px', borderRadius: 8, border: '1px solid var(--border)',
@@ -104,7 +104,7 @@ export default function NotificationItem({
       {n.type === 'friendreq' && (
         <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
           <button
-            onClick={() => onAcceptFriend(n)}
+            onClick={(e) => { e.stopPropagation(); onAcceptFriend(n); }}
             disabled={!!isProcessing}
             style={{
               padding: '5px 14px', borderRadius: 8, border: 'none',
@@ -117,7 +117,7 @@ export default function NotificationItem({
             {isProcessing === 'accepting' ? '...' : 'Chấp nhận'}
           </button>
           <button
-            onClick={() => onDeclineFriend(n)}
+            onClick={(e) => { e.stopPropagation(); onDeclineFriend(n); }}
             disabled={!!isProcessing}
             style={{
               padding: '5px 14px', borderRadius: 8, border: '1px solid var(--border)',
@@ -134,7 +134,7 @@ export default function NotificationItem({
       {n.type === 'joinrequest' && (
         <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
           <button
-            onClick={() => onAcceptJoinRequest(n)}
+            onClick={(e) => { e.stopPropagation(); onAcceptJoinRequest(n); }}
             disabled={!!isProcessing}
             style={{
               padding: '5px 14px', borderRadius: 8, border: 'none',
@@ -147,7 +147,7 @@ export default function NotificationItem({
             {isProcessing === 'accepting' ? '...' : 'Duyệt'}
           </button>
           <button
-            onClick={() => onDeclineJoinRequest(n)}
+            onClick={(e) => { e.stopPropagation(); onDeclineJoinRequest(n); }}
             disabled={!!isProcessing}
             style={{
               padding: '5px 14px', borderRadius: 8, border: '1px solid var(--border)',

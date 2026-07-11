@@ -491,7 +491,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
           </Link>
 
           <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            {user && (
+            {user && (!Capacitor.isNativePlatform() || location.pathname === '/') && (
               <div className="mobile-nav-bell" style={{ display: 'flex', alignItems: 'center', marginRight: '6px' }}>
                 <NotificationBell />
               </div>

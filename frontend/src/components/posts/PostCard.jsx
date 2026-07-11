@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Avatar from '@/components/common/Avatar';
 import { timeAgo } from '@/utils';
 import LikeCommentBar from './LikeCommentBar';
@@ -44,7 +44,11 @@ const ReplyIcon = () => (
 
 export default function PostCard({ post, currentUser, friends = [], myLeaderGroups = [], onLike, onDelete, onComment, onEdit }) {
   const navigate = useNavigate();
-  const [showComments, setShowComments] = useState(false);
+  const [searchParams] = useSearchParams();
+  const targetPostId = searchParams.get('postId');
+  const isTargetPost = targetPostId && String(post.id) === String(targetPostId);
+
+  const [showComments, setShowComments] = useState(isTargetPost ? true : false);
   const [commentText, setCommentText] = useState('');
   const [replyTo, setReplyTo] = useState(null); // { id, name }
   const [expanded, setExpanded] = useState(false);
@@ -53,7 +57,31 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
   const [editText, setEditText] = useState(post?.content || '');
   const commentsEndRef = useRef(null);
   const editTextareaRef = useRef(null);
+  const cardRef = useRef(null);
   const [hoveredItem, setHoveredItem] = useState(null);
+
+  useEffect(() => {
+    if (isTargetPost) {
+      setShowComments(true);
+      if (cardRef.current) {
+        setTimeout(() => {
+          if (cardRef.current) {
+            cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            cardRef.current.style.borderColor = 'var(--primary)';
+            cardRef.current.style.boxShadow = '0 0 0 4px rgba(42, 117, 118, 0.25)';
+            
+            const el = cardRef.current;
+            setTimeout(() => {
+              if (el) {
+                el.style.borderColor = 'var(--border)';
+                el.style.boxShadow = 'none';
+              }
+            }, 3000);
+          }
+        }, 300);
+      }
+    }
+  }, [isTargetPost]);
 
   // ── Edit @mention state ──────────────────────────────────────────
   const [editTags, setEditTags] = useState([]);
@@ -324,6 +352,7 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
 
   return (
     <article
+      ref={cardRef}
       style={{
         background: 'var(--bg-card)',
         border: '1.5px solid var(--border)',

@@ -132,11 +132,11 @@ export default function NotificationBell({ style }) {
     setOpen(false);
     if (n.type === 'groupmsg' || n.type === 'groupcall') navigate(`/groups/${n.groupId}?tab=chat`);
     else if (n.type === 'fileupload') navigate(`/groups/${n.groupId}?tab=documents`);
-    else if (['groupjoin','groupdeputy','othergroupjoin'].includes(n.type)) navigate(`/groups/${n.groupId}`);
+    else if (['groupjoin','groupdeputy','othergroupjoin','groupinvite'].includes(n.type)) navigate(`/groups/${n.groupId}`);
     else if (n.type === 'schedule') navigate(`/groups/${n.groupId}?tab=schedule`);
     else if (n.type === 'deadline' || n.type === 'deadline-urgent') navigate(`/groups/${n.groupId}?tab=deadlines`);
-    else if (n.type === 'comment' || n.type === 'like' || n.type === 'posttag_user' || n.type === 'posttag_group') navigate('/');
-    else if (n.type === 'friendaccept') navigate('/friends');
+    else if (n.type === 'comment' || n.type === 'like' || n.type === 'posttag_user' || n.type === 'posttag_group') navigate(n.postId ? `/?postId=${n.postId}` : '/');
+    else if (n.type === 'friendaccept' || n.type === 'friendreq') navigate('/friends');
     else if (n.type === 'joinrequest') navigate(`/groups/${n.groupId}`);
   };
 

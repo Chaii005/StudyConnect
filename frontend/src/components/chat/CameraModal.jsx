@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
 
 export default function CameraModal({ onCapture, onClose }) {
   const videoRef = useRef(null);
@@ -6,6 +7,17 @@ export default function CameraModal({ onCapture, onClose }) {
   const streamRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
+  
+  const isNative = Capacitor.isNativePlatform();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768 || isNative);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768 || Capacitor.isNativePlatform());
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const startCamera = async () => {
@@ -76,7 +88,7 @@ export default function CameraModal({ onCapture, onClose }) {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '20px',
+        padding: isMobile ? '12px' : '20px',
         animation: 'cameraFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
       onClick={onClose}
@@ -85,19 +97,19 @@ export default function CameraModal({ onCapture, onClose }) {
         style={{
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
-          borderRadius: '24px',
-          padding: '24px',
-          width: '560px',
-          maxWidth: '100%',
+          borderRadius: isMobile ? '16px' : '24px',
+          padding: isMobile ? '16px' : '24px',
+          width: isMobile ? '100%' : '560px',
+          maxWidth: isMobile ? '92vw' : '100%',
           boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px',
+          gap: isMobile ? '14px' : '20px',
         }}
         onClick={e => e.stopPropagation()}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>Chụp ảnh trực tiếp</h3>
+          <h3 style={{ margin: 0, fontSize: isMobile ? '16px' : '18px', fontWeight: 800, color: 'var(--text-primary)' }}>Chụp ảnh trực tiếp</h3>
           <button 
             onClick={onClose}
             style={{
@@ -105,12 +117,12 @@ export default function CameraModal({ onCapture, onClose }) {
               border: 'none',
               cursor: 'pointer',
               color: 'var(--text-muted)',
-              fontSize: '20px',
+              fontSize: '18px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: '50%',
               transition: 'background 0.2s',
             }}
@@ -125,9 +137,9 @@ export default function CameraModal({ onCapture, onClose }) {
           style={{ 
             position: 'relative', 
             background: '#000', 
-            borderRadius: '16px', 
+            borderRadius: '12px', 
             overflow: 'hidden',
-            aspectRatio: '16/9',
+            aspectRatio: isMobile ? '4/3' : '16/9',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -135,7 +147,7 @@ export default function CameraModal({ onCapture, onClose }) {
           }}
         >
           {error ? (
-            <div style={{ color: '#ef4444', textAlign: 'center', padding: '20px', fontSize: '14px', fontWeight: 600 }}>
+            <div style={{ color: '#ef4444', textAlign: 'center', padding: '20px', fontSize: '13px', fontWeight: 600 }}>
               {error}
             </div>
           ) : (
@@ -148,7 +160,7 @@ export default function CameraModal({ onCapture, onClose }) {
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
               />
               {!ready && (
-                <div style={{ position: 'absolute', color: '#fff', fontSize: '14px' }}>
+                <div style={{ position: 'absolute', color: '#fff', fontSize: '13px' }}>
                   Đang khởi động camera...
                 </div>
               )}
@@ -158,14 +170,15 @@ export default function CameraModal({ onCapture, onClose }) {
 
         <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', width: '100%' }}>
           <button
             onClick={onClose}
             style={{
-              padding: '12px 24px',
+              flex: isMobile ? 1 : 'none',
+              padding: isMobile ? '10px 16px' : '12px 24px',
               background: 'var(--bg-input)',
               border: '1px solid var(--border)',
-              borderRadius: '14px',
+              borderRadius: '12px',
               color: 'var(--text-secondary)',
               cursor: 'pointer',
               fontSize: '14px',
@@ -183,10 +196,11 @@ export default function CameraModal({ onCapture, onClose }) {
             onClick={handleCapture}
             disabled={!ready}
             style={{
-              padding: '12px 28px',
+              flex: isMobile ? 1.5 : 'none',
+              padding: isMobile ? '10px 16px' : '12px 28px',
               background: ready ? 'var(--primary)' : 'var(--bg-input)',
               border: 'none',
-              borderRadius: '14px',
+              borderRadius: '12px',
               color: ready ? 'white' : 'var(--text-muted)',
               cursor: ready ? 'pointer' : 'default',
               fontSize: '14px',
@@ -196,16 +210,17 @@ export default function CameraModal({ onCapture, onClose }) {
               opacity: ready ? 1 : 0.5,
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              justifyContent: 'center',
+              gap: '6px',
             }}
             onMouseEnter={e => { if (ready) e.currentTarget.style.opacity = '0.9'; }}
             onMouseLeave={e => { if (ready) e.currentTarget.style.opacity = '1'; }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
               <circle cx="12" cy="13" r="4"/>
             </svg>
-            Chụp ảnh
+            Chụp
           </button>
         </div>
       </div>

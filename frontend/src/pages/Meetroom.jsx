@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { SafeInput } from '@/components/common/SafeInput';
 import AppLayout from '../layouts/AppLayout';
 import { supabase } from '../config/supabaseClient';
+import { Capacitor } from '@capacitor/core';
 
 // ── Avatar ───────────────────────────────────────────────────
 const COLORS = ['#1A1A1A','#3A3A3A','#2E2E2E','#4A4A4A','#222222','#383838','#2A2A2A'];
@@ -45,7 +46,7 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
       overflow: 'hidden',
       background: '#000000',
       border: speaking ? '3px solid #ffffff' : '1.5px solid #262626',
-      aspectRatio: fullScreen ? 'auto' : '16/9',
+      aspectRatio: fullScreen ? 'auto' : ((window.innerWidth <= 768 || Capacitor.isNativePlatform()) ? '4/3' : '16/9'),
       width: fullScreen ? '100%' : '100%',
       height: fullScreen ? '100%' : '100%',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -789,6 +790,17 @@ export default function MeetRoom() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pipSwapped, setPipSwapped] = useState(false);
 
+  const isNative = Capacitor.isNativePlatform();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768 || isNative);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768 || Capacitor.isNativePlatform());
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [fsChatOpen, setFsChatOpen] = useState(false);
@@ -1131,7 +1143,9 @@ export default function MeetRoom() {
 
   // Grid layout columns
   const n = allFeeds.length;
-  const gridCols = n <= 1 ? '1fr' : n <= 2 ? '1fr 1fr' : n <= 4 ? '1fr 1fr' : 'repeat(3, 1fr)';
+  const gridCols = isMobile 
+    ? (n <= 1 ? '1fr' : n <= 2 ? '1fr' : '1fr 1fr') 
+    : (n <= 1 ? '1fr' : n <= 2 ? '1fr 1fr' : n <= 4 ? '1fr 1fr' : 'repeat(3, 1fr)');
 
   return (
     <AppLayout hideSidebar={true} hideNavbar={true}>
@@ -1292,7 +1306,7 @@ export default function MeetRoom() {
         <div className="meet-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', height: isFullscreen ? '100%' : 'calc(100vh - 64px)', position: 'relative' }}>
 
           {/* ── Video Area ── */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: isFullscreen ? '0' : '20px', position: 'relative', height: '100%' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: isFullscreen ? '0' : (isMobile ? '8px' : '20px'), position: 'relative', height: '100%' }}>
 
             {/* Error banner */}
             {error && (
@@ -1725,20 +1739,21 @@ export default function MeetRoom() {
             {/* ── Control bar (Frosted Glass Floating Pill) ── */}
             <div style={{
               position: 'absolute',
-              bottom: showControls ? '24px' : '-90px',
+              bottom: showControls ? (isMobile ? '16px' : '24px') : '-90px',
               left: '50%',
               transform: 'translateX(-50%)',
               transition: 'bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 200,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: '12px',
-              padding: '10px 20px',
+              gap: isMobile ? '8px' : '12px',
+              padding: isMobile ? '8px 12px' : '10px 20px',
               background: 'rgba(10, 10, 12, 0.92)',
               backdropFilter: 'blur(24px)',
               border: '1.5px solid #262626',
               borderRadius: '32px',
               boxShadow: 'none',
               whiteSpace: 'nowrap',
+              maxWidth: '95vw',
             }}>
               {/* Mic toggle */}
               <CtrlBtn
@@ -1746,7 +1761,8 @@ export default function MeetRoom() {
                 onClick={() => setMicOn(m => !m)}
                 danger={!micOn}
                 icon={<MicSvg active={micOn} />}
-                label={micOn ? "Tắt Mic" : "Bật Mic"}
+                label={isMobile ? "" : (micOn ? "Tắt Mic" : "Bật Mic")}
+                size={isMobile ? 38 : 46}
               />
 
               {/* Camera toggle */}
@@ -1755,37 +1771,43 @@ export default function MeetRoom() {
                 onClick={() => setCamOn(c => !c)}
                 danger={!camOn}
                 icon={<VideoSvg active={camOn} />}
-                label={camOn ? "Tắt Camera" : "Bật Camera"}
+                label={isMobile ? "" : (camOn ? "Tắt Camera" : "Bật Camera")}
+                size={isMobile ? 38 : 46}
               />
 
-              {/* Screen share toggle */}
-              <CtrlBtn
-                active={screenOn}
-                onClick={toggleScreen}
-                highlight={screenOn}
-                icon={<MonitorSvg active={screenOn} />}
-                label={screenOn ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
-              />
+              {/* Screen share toggle (hide on mobile/native) */}
+              {!isMobile && (
+                <CtrlBtn
+                  active={screenOn}
+                  onClick={toggleScreen}
+                  highlight={screenOn}
+                  icon={<MonitorSvg active={screenOn} />}
+                  label={screenOn ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
+                />
+              )}
 
               {/* Divider */}
               <div style={{ width: '1px', height: '24px', background: '#262626', flexShrink: 0 }} />
 
-              {/* Chat Toggle (only when NOT fullscreen) */}
-              {!isFullscreen && (
-                <CtrlBtn
-                  active={sidebarOpen && tab === 'chat'}
-                  onClick={() => {
-                    if (sidebarOpen && tab === 'chat') setSidebarOpen(false);
-                    else { setTab('chat'); setSidebarOpen(true); }
-                  }}
-                  icon={<ChatSvg />}
-                  label="Trò chuyện"
-                  badge={unreadChatCount > 0 ? true : null}
-                />
-              )}
+              {/* Chat Toggle */}
+              <CtrlBtn
+                active={sidebarOpen && tab === 'chat'}
+                onClick={() => {
+                  if (sidebarOpen) {
+                    setSidebarOpen(false);
+                  } else {
+                    setTab('chat');
+                    setSidebarOpen(true);
+                  }
+                }}
+                icon={<ChatSvg />}
+                label={isMobile ? "" : "Trò chuyện"}
+                badge={unreadChatCount > 0 ? true : null}
+                size={isMobile ? 38 : 46}
+              />
 
-              {/* Members Toggle (only when NOT fullscreen) */}
-              {!isFullscreen && (
+              {/* Members Toggle (only when NOT mobile) */}
+              {!isMobile && !isFullscreen && (
                 <CtrlBtn
                   active={sidebarOpen && tab === 'members'}
                   onClick={() => {
@@ -1797,8 +1819,8 @@ export default function MeetRoom() {
                 />
               )}
 
-              {/* Study clock Timer Toggle (only when NOT fullscreen) */}
-              {!isFullscreen && (
+              {/* Study clock Timer Toggle (only when NOT mobile) */}
+              {!isMobile && !isFullscreen && (
                 <CtrlBtn
                   active={sidebarOpen && tab === 'timer'}
                   onClick={() => {
@@ -1826,8 +1848,8 @@ export default function MeetRoom() {
                   background: '#ef4444',
                   border: '1.5px solid rgba(239, 68, 68, 0.4)',
                   borderRadius: '50%',
-                  width: '46px',
-                  height: '46px',
+                  width: isMobile ? '38px' : '46px',
+                  height: isMobile ? '38px' : '46px',
                   cursor: 'pointer', color: 'white',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -1843,7 +1865,7 @@ export default function MeetRoom() {
                   e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
                 }}
               >
-                <PhoneOffSvg />
+                <PhoneOffSvg size={isMobile ? 16 : 20} />
               </button>
             </div>
           </div>
@@ -1851,10 +1873,14 @@ export default function MeetRoom() {
           {/* ── Sidebar (Frosted Drawer) ── */}
           {!isFullscreen && sidebarOpen && (
             <div className="meet-sidebar" style={{
-              width: '375px', flexShrink: 0,
+              position: isMobile ? 'absolute' : 'relative',
+              top: 0, right: 0, bottom: 0,
+              width: isMobile ? '100%' : '375px',
+              flexShrink: 0,
+              zIndex: 250,
               background: '#ffffff', borderLeft: '1.5px solid var(--border)',
               display: 'flex', flexDirection: 'column', height: '100%',
-              boxShadow: 'none',
+              boxShadow: isMobile ? 'rgba(0, 0, 0, 0.24) 0px 3px 8px' : 'none',
               animation: 'slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
             }}>
               {/* Header với Segmented Control chứa 3 tab kéo giãn */}
@@ -1867,45 +1893,69 @@ export default function MeetRoom() {
                 borderBottom: '1.5px solid var(--border)',
               }}>
                 {/* Pill Segmented Swapper */}
-                <div style={{
-                  display: 'flex',
-                  background: 'var(--bg-input)',
-                  borderRadius: '12px',
-                  padding: '5px',
-                  gap: '3px',
-                  border: '1.5px solid var(--border)',
-                  boxShadow: 'none'
-                }}>
-                  {TABS.map(t => (
-                    <button
-                      key={t.key}
-                      onClick={() => setTab(t.key)}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    display: 'flex',
+                    background: 'var(--bg-input)',
+                    borderRadius: '12px',
+                    padding: '5px',
+                    gap: '3px',
+                    border: '1.5px solid var(--border)',
+                    boxShadow: 'none',
+                    flex: 1
+                  }}>
+                    {TABS.map(t => (
+                      <button
+                        key={t.key}
+                        onClick={() => setTab(t.key)}
+                        style={{
+                          flex: 1,
+                          padding: '12px 4px',
+                          border: tab === t.key ? '1.5px solid var(--border)' : '1.5px solid transparent',
+                          cursor: 'pointer',
+                          background: tab === t.key ? '#ffffff' : 'transparent',
+                          borderRadius: '8px',
+                          color: tab === t.key ? 'var(--text-primary)' : 'var(--text-secondary)',
+                          fontFamily: 'inherit',
+                          fontSize: '12.5px',
+                          fontWeight: tab === t.key ? 750 : 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          whiteSpace: 'nowrap',
+                          transition: 'all 0.2s ease',
+                          boxShadow: 'none',
+                        }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', opacity: tab === t.key ? 1 : 0.7 }}>
+                          {t.icon}
+                        </span>
+                        <span>{t.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {isMobile && (
+                    <button 
+                      onClick={() => setSidebarOpen(false)}
                       style={{
-                        flex: 1,
-                        padding: '12px 4px',
-                        border: tab === t.key ? '1.5px solid var(--border)' : '1.5px solid transparent',
-                        cursor: 'pointer',
-                        background: tab === t.key ? '#ffffff' : 'transparent',
-                        borderRadius: '8px',
-                        color: tab === t.key ? 'var(--text-primary)' : 'var(--text-secondary)',
-                        fontFamily: 'inherit',
-                        fontSize: '12.5px',
-                        fontWeight: tab === t.key ? 750 : 600,
+                        background: 'var(--bg-input)',
+                        border: '1.5px solid var(--border)',
+                        borderRadius: '12px',
+                        width: '42px',
+                        height: '42px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '4px',
-                        whiteSpace: 'nowrap',
-                        transition: 'all 0.2s ease',
-                        boxShadow: 'none',
+                        color: 'var(--text-primary)',
+                        cursor: 'pointer',
+                        fontSize: '18px',
+                        flexShrink: 0
                       }}
                     >
-                      <span style={{ display: 'flex', alignItems: 'center', opacity: tab === t.key ? 1 : 0.7 }}>
-                        {t.icon}
-                      </span>
-                      <span>{t.label}</span>
+                      ✕
                     </button>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -2222,7 +2272,7 @@ function ClockSvg({ size = 20 }) {
 }
 
 // ── Control Button helper ────────────────────────────────────
-function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null }) {
+function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null, size = 46 }) {
   const [hover, setHover] = useState(false);
 
   const bg = danger
@@ -2256,8 +2306,8 @@ function CtrlBtn({ active, onClick, danger, highlight, icon, label, badge = null
         border,
         color,
         borderRadius: '50%',
-        width: '46px',
-        height: '46px',
+        width: `${size}px`,
+        height: `${size}px`,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
