@@ -2274,7 +2274,8 @@ export default function Groups() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', height: '48px', gap: '12px' }}>
           <div 
             className={isSearchExpanded ? "premium-panel search-panel" : ""}
-            onClick={() => { if (!isSearchExpanded) setIsSearchExpanded(true); }}
+            onMouseEnter={() => setIsSearchExpanded(true)}
+            onMouseLeave={() => { if (!searchQuery.trim()) setIsSearchExpanded(false); }}
             style={{
               width: isSearchExpanded ? '300px' : '48px',
               height: '48px',
