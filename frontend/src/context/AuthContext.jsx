@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data, error } = await supabase
           .from('users')
-          .select('id, is_banned')
+          .select('id, is_banned, full_name, major, bio, university, avatar, email, role')
           .eq('id', parseInt(user.id, 10))
           .maybeSingle();
 
@@ -35,27 +35,53 @@ export const AuthProvider = ({ children }) => {
           serviceLogout();
           setUser(null);
           window.location.href = '/login';
+          return;
+        }
+
+        // Sync latest profile fields (major, bio, etc.) into session
+        // so user.major is always up-to-date for filtering/sorting
+        const needsSync = (
+          data.major !== user.major ||
+          data.bio !== user.bio ||
+          data.university !== user.university ||
+          data.full_name !== user.fullName ||
+          data.avatar !== user.avatar
+        );
+
+        if (needsSync) {
+          const updated = {
+            ...user,
+            fullName: data.full_name || user.fullName,
+            major: data.major || '',
+            bio: data.bio || '',
+            university: data.university || '',
+            avatar: data.avatar || '',
+          };
+          try {
+            localStorage.setItem('sc_session', JSON.stringify(updated));
+          } catch { /* ignore */ }
+          setUser(updated);
         }
       } catch (err) {
         if (import.meta.env.DEV) console.warn('Lỗi kiểm tra trạng thái tài khoản:', err);
       }
     };
 
-    // Verify immediately
+    // Verify immediately on mount to sync profile
     verifyUser();
 
-    // Verify periodically every 10 seconds when the app is visible
+    // Verify periodically every 30 seconds when the app is visible
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         verifyUser();
       }
-    }, 10000);
+    }, 30000);
 
     return () => {
       active = false;
       clearInterval(interval);
     };
-  }, [user?.id]);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const logout = () => {
     serviceLogout();
