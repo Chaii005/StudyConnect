@@ -2340,7 +2340,6 @@ export default function Groups() {
                 }
               }}
             >
-              <span style={{ fontSize: '14px' }}>🎯</span>
               {showOnlyMyMajor ? 'Tất cả' : 'Chỉ ngành tôi'}
             </button>
           )}
@@ -2370,7 +2369,7 @@ export default function Groups() {
         {!_searchQ && (
           <>
             {/* Section 1: Dành cho bạn (Cùng ngành) */}
-            {_uMajor && (
+            {showOnlyMyMajor && _uMajor && (
               <div style={{ marginBottom: '36px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <div style={{ width: 4, height: 20, background: 'var(--primary, #2A7576)', borderRadius: 4, flexShrink: 0 }} />
@@ -2382,15 +2381,9 @@ export default function Groups() {
                 </div>
 
                 {myMajorGroups.length === 0 ? (
-                  <div style={{ background: 'rgba(42,117,118,0.04)', border: '1.5px dashed rgba(42,117,118,0.3)', borderRadius: '14px', padding: '28px 20px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>📚</div>
-                    <p style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 700, margin: '0 0 6px' }}>Chưa có nhóm ngành {user.major}</p>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '12.5px', margin: '0 0 16px' }}>Hãy là người đầu tiên tạo nhóm học cho ngành của bạn!</p>
-                    <button onClick={() => setShowModal(true)} style={{ fontSize: 12, fontWeight: 700, padding: '8px 20px', borderRadius: 20, background: 'var(--primary, #2A7576)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.2s' }}
-                      onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-                      onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                    >+ Tạo nhóm ngay</button>
-                  </div>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: '8px 0 0 0' }}>
+                    Chưa có nhóm học nào thuộc ngành của bạn.
+                  </p>
                 ) : (
                   <div className="horizontal-scroll-container">
                     {myMajorGroups.map(g => renderGroupCard(g))}
@@ -2399,26 +2392,24 @@ export default function Groups() {
               </div>
             )}
 
-            {/* Section 2: Nhóm học khác */}
+            {/* Section 2: Tất cả nhóm học */}
             {!showOnlyMyMajor && (
               <div>
-                {_uMajor && otherGroups.length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                    <div style={{ width: 4, height: 20, background: 'var(--border)', borderRadius: 4, flexShrink: 0 }} />
-                    <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Nhóm học khác</h3>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{otherGroups.length} nhóm</span>
-                  </div>
-                )}
-                {otherGroups.length === 0 && myMajorGroups.length === 0 ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <div style={{ width: 4, height: 20, background: 'var(--border)', borderRadius: 4, flexShrink: 0 }} />
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Tất cả nhóm học</h3>
+                  {_baseList.length > 0 && <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{_baseList.length} nhóm</span>}
+                </div>
+                {_baseList.length === 0 ? (
                   <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
                     <p style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700, margin: '4px 0 6px' }}>Chưa có nhóm học nào. Hãy là người đầu tiên tạo nhóm!</p>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>Tạo nhóm để kết nối và học tập cùng bạn bè ngay.</p>
                   </div>
-                ) : otherGroups.length > 0 ? (
+                ) : (
                   <div className="horizontal-scroll-container">
-                    {otherGroups.map(g => renderGroupCard(g))}
+                    {_baseList.map(g => renderGroupCard(g))}
                   </div>
-                ) : null}
+                )}
               </div>
             )}
           </>
