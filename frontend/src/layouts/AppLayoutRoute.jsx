@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import AppLayout from './AppLayout';
+import Fireworks from '@/components/common/Fireworks';
 
 // Cấu hình hide theo từng path — thêm path mới vào đây khi cần
 const LAYOUT_CONFIG = {
@@ -29,8 +30,11 @@ export default function AppLayoutRoute() {
   const config = matchConfig(location.pathname);
 
   return (
-    <AppLayout {...config}>
-      <Outlet />
-    </AppLayout>
+    <>
+      <Fireworks />
+      <AppLayout {...config}>
+        <Outlet />
+      </AppLayout>
+    </>
   );
 }

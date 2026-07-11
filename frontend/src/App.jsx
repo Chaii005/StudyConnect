@@ -29,6 +29,7 @@ import FriendDetail from './pages/FriendDetail';
 import ResetPassword from './pages/ResetPassword';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
 import AuthCallback from './pages/AuthCallback';
+import CompleteProfile from './pages/CompleteProfile';
 
 // Global error listener to auto-reload on any remaining chunk load failures
 if (typeof window !== 'undefined') {
@@ -156,7 +157,8 @@ function AppRoutes() {
         <Route path="/register"        element={<PublicRoute><Register /></PublicRoute>} />
         <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
         <Route path="/reset-password"  element={<PublicRoute><ResetPassword /></PublicRoute>} />
-        <Route path="/auth/callback"   element={<AuthCallback />} />
+        <Route path="/auth/callback"      element={<AuthCallback />} />
+        <Route path="/complete-profile"   element={<CompleteProfile />} />
 
         {/* Private Student Routes (enclosed in CallProvider/CallNotification/GlobalMessageListener) */}
         <Route element={<StudentCallWrapper />}>

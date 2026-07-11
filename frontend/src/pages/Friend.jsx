@@ -41,6 +41,7 @@ const colorOf = (str) => AVATAR_COLORS[(str || '').split('').reduce((a, c) => a 
 //  Person Card 
 function PersonCard({ person, actions, isOnline }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleCardClick = (e) => {
     // If the click originated from within action buttons, don't navigate
@@ -50,6 +51,8 @@ function PersonCard({ person, actions, isOnline }) {
       navigate(`/friends/${person.userId}`);
     }
   };
+
+  const isSameMajor = person.major && user?.major && person.major.toLowerCase().trim() === user.major.toLowerCase().trim();
 
   return (
     <div className="person-card" style={{ cursor: person.friendSince ? 'pointer' : 'default' }}
@@ -112,8 +115,28 @@ function PersonCard({ person, actions, isOnline }) {
           </div>
         )}
         {person.major && (
-          <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+          <div style={{ 
+            fontSize: '14px', 
+            color: isSameMajor ? 'var(--primary)' : 'var(--text-secondary)',
+            fontWeight: isSameMajor ? 700 : 400,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
             {person.major}
+            {isSameMajor && (
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                color: 'var(--primary)',
+                background: 'rgba(42, 117, 118, 0.08)',
+                padding: '1px 6px',
+                borderRadius: '6px',
+                border: '1px solid rgba(42, 117, 118, 0.2)'
+              }}>
+                Cùng ngành
+              </span>
+            )}
           </div>
         )}
         {person.friendSince && (
@@ -255,41 +278,23 @@ export default function Friends() {
   const getProximityInfo = (person, myLoc) => {
     if (!myLoc.province) return null;
     
-    let city = '';
-    let dist = '';
+    // Only use real bio data — no fake deterministic fallback
     const bio = person.bio || '';
-    if (bio.startsWith('[📍 ')) {
-      const endIdx = bio.indexOf(']');
-      if (endIdx > 0) {
-        const locPart = bio.substring(4, endIdx);
-        const parts = locPart.split(', ');
-        city = parts[0] || '';
-        dist = parts[1] || '';
-      }
-    }
-    
-    // Seed deterministically to make it look alive if empty
-    if (!city) {
-      const seed = String(person.userId || person.id || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      if (seed % 3 === 0) {
-        city = myLoc.province;
-        dist = myLoc.district;
-      } else if (seed % 3 === 1) {
-        city = myLoc.province;
-        const dists = ['Quận Cầu Giấy', 'Quận Đống Đa', 'Quận Hai Bà Trưng', 'Quận Hoàn Kiếm', 'Quận 1', 'Quận 3', 'Quận Phú Nhuận', 'Quận Sơn Trà', 'Quận Hải Châu'];
-        const otherDists = dists.filter(d => d !== myLoc.district);
-        dist = otherDists[seed % otherDists.length];
-      } else {
-        city = myLoc.province === 'Hà Nội' ? 'TP. Hồ Chí Minh' : 'Hà Nội';
-        dist = city === 'Hà Nội' ? 'Quận Cầu Giấy' : 'Quận 1';
-      }
-    }
+    if (!bio.startsWith('[📍 ')) return null;
+
+    const endIdx = bio.indexOf(']');
+    if (endIdx <= 0) return null;
+
+    const locPart = bio.substring(4, endIdx);
+    const parts = locPart.split(', ');
+    const city = parts[0] || '';
+    const dist = parts[1] || '';
 
     if (city === myLoc.province) {
       if (dist === myLoc.district) {
         return { level: 1, label: `Cùng ${dist}`, city, dist };
       } else {
-        return { level: 2, label: `Lân cận (${dist})`, city, dist };
+        return { level: 2, label: `Lân cận (${city})`, city, dist };
       }
     }
     return null;

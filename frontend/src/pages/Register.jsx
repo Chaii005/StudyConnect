@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SafeInput } from '@/components/common/SafeInput';
-import { sendSignupOtp, verifySignupOtp, completeSignupProfile, signInWithGoogle } from '../services/authService';
+import { registerWithEmailConfirmation, signInWithGoogle } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { HCM_UNIVERSITIES, MAJORS } from '../constants/educationData';
@@ -181,26 +181,12 @@ export default function Register() {
   const [error, setError] = useState('');
   const [step, setStep] = useState(1);
   const [success, setSuccess] = useState(false);
-  const [registeredName, setRegisteredName] = useState('');
-
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [supabaseUid, setSupabaseUid] = useState(null);
-  const [resendTimer, setResendTimer] = useState(0);
 
   // States mở/đóng Modal chọn vị trí
   const [openProvinceModal, setOpenProvinceModal] = useState(false);
   const [openDistrictModal, setOpenDistrictModal] = useState(false);
   const [openUniversityModal, setOpenUniversityModal] = useState(false);
   const [openMajorModal, setOpenMajorModal] = useState(false);
-
-  useEffect(() => {
-    let timer;
-    if (resendTimer > 0) {
-      timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [resendTimer]);
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -232,102 +218,33 @@ export default function Register() {
     return true;
   };
 
-  const handleSendOtpInline = async () => {
-    if (!validateStep1()) return;
-    setLoading(true);
-    setError('');
-    try {
-      await sendSignupOtp({
-        fullName: form.fullName,
-        email: form.email,
-        password: form.password
-      });
-      setOtpSent(true);
-      setResendTimer(60);
-      addToast('Mã OTP xác thực đã được gửi đến email của bạn!', 'success');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleNext = async (e) => {
     e.preventDefault();
     if (!validateStep1()) return;
-
-    if (!otpSent) {
-      await handleSendOtpInline();
-      return;
-    }
-
-    if (!otpCode || otpCode.trim().length !== 6) {
-      setError('Vui lòng nhập mã xác thực OTP gồm 6 chữ số.');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    try {
-      const { user: supUser } = await verifySignupOtp({
-        email: form.email,
-        token: otpCode
-      });
-      setSupabaseUid(supUser.id);
-      setStep(2);
-      addToast('Xác thực email thành công! Hãy hoàn thiện thông tin học tập của bạn.', 'success');
-    } catch (err) {
-      setError(err.message || 'Xác thực OTP thất bại.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (resendTimer > 0) return;
-    setLoading(true);
-    setError('');
-    try {
-      await sendSignupOtp({
-        fullName: form.fullName,
-        email: form.email,
-        password: form.password
-      });
-      setResendTimer(60);
-      setOtpCode('');
-      addToast('Mã OTP mới đã được gửi đến email của bạn.', 'success');
-    } catch (err) {
-      setError(err.message);
-    }
-    setLoading(false);
+    setStep(2);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       const bio = (province && district)
         ? `[📍 ${province}, ${district}]`
         : '';
 
       const payload = {
-        fullName: form.fullName,
+        fullName: form.fullName.trim(),
         email: form.email,
         password: form.password,
         university: form.university === 'Trường khác...' ? form.customUniversity : form.university,
         major: form.major === 'Ngành khác...' ? form.customMajor : form.major,
-        bio,
-        supabaseUid
+        bio
       };
       
-      const { user } = await completeSignupProfile(payload);
-      setUser(user);
-      setRegisteredName(form.fullName.trim().split(' ').pop()); // Lấy tên (từ cuối)
+      await registerWithEmailConfirmation(payload);
       setSuccess(true);
-      addToast('Đăng ký tài khoản thành công!', 'success');
-      
-      // Tự navigate về trang chủ sau 5 giây vì user đã được tự động đăng nhập!
-      setTimeout(() => navigate('/'), 5000);
+      addToast('Email kích hoạt tài khoản đã được gửi!', 'success');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -366,7 +283,7 @@ export default function Register() {
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             padding: '20px 0 8px', animation: 'successFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both'
           }}>
-            {/* Animated check icon circle */}
+            {/* Animated mail icon circle */}
             <div style={{
               width: '80px', height: '80px', borderRadius: '50%',
               background: 'var(--primary)',
@@ -378,7 +295,8 @@ export default function Register() {
             }}>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
                 stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </svg>
             </div>
 
@@ -388,7 +306,7 @@ export default function Register() {
               color: 'var(--text-primary)',
               textAlign: 'center'
             }}>
-              Đăng ký thành công! 🎉
+              Xác thực email của bạn ✉️
             </h2>
 
             <p style={{
@@ -396,11 +314,11 @@ export default function Register() {
               fontSize: '14px', color: 'var(--text-secondary)',
               textAlign: 'center', lineHeight: 1.6, maxWidth: '320px'
             }}>
-              Chào mừng <strong>{registeredName}</strong> đến với StudyConnect! Tài khoản của bạn đã được xác thực và đăng nhập thành công.
+              Một liên kết xác thực đã được gửi tới email <strong>{form.email}</strong>. Vui lòng kiểm tra hộp thư (bao gồm cả mục thư rác/spam) và nhấp vào liên kết để kích hoạt tài khoản của bạn trước khi đăng nhập.
             </p>
 
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/login')}
               style={{
                 width: '100%',
                 padding: '12px',
@@ -415,24 +333,8 @@ export default function Register() {
                 boxShadow: 'none'
               }}
             >
-              Đi tới Trang chủ
+              Đăng nhập ngay
             </button>
-
-            {/* Progress bar auto-redirect */}
-            <div style={{
-              width: '100%', height: '4px', borderRadius: '4px',
-              background: 'var(--bg-input)', overflow: 'hidden'
-            }}>
-              <div style={{
-                height: '100%', borderRadius: '4px',
-                background: 'var(--primary)',
-                animation: 'progressFill 5s linear forwards',
-                boxShadow: 'none'
-              }} />
-            </div>
-            <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>
-              Đang chuyển hướng về Trang chủ sau vài giây...
-            </p>
           </div>
         ) : (
           <>
@@ -483,7 +385,6 @@ export default function Register() {
                       placeholder="Nhập email"
                       value={form.email}
                       onChange={handleChange}
-                      style={{ paddingRight: resendTimer > 0 ? '110px' : '85px' }}
                     />
                     <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -491,29 +392,6 @@ export default function Register() {
                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                       </svg>
                     </span>
-                    <button
-                      type="button"
-                      onClick={handleSendOtpInline}
-                      disabled={resendTimer > 0 || loading}
-                      style={{
-                        position: 'absolute',
-                        right: '8px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: resendTimer > 0 ? 'transparent' : 'var(--primary)',
-                        border: resendTimer > 0 ? 'none' : '1px solid var(--primary)',
-                        borderRadius: '8px',
-                        color: resendTimer > 0 ? 'var(--text-muted)' : '#fff',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        padding: '6px 12px',
-                        cursor: resendTimer > 0 ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.2s',
-                        zIndex: 2
-                      }}
-                    >
-                      {resendTimer > 0 ? `Gửi lại (${resendTimer}s)` : 'Gửi mã'}
-                    </button>
                   </div>
                 </div>
 
@@ -580,31 +458,6 @@ export default function Register() {
                     </button>
                   </div>
                 </div>
-
-                {otpSent && (
-                  <div className="form-group" style={{ animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
-                    <label className="form-label" htmlFor="otp-code">Mã xác thực OTP (6 chữ số)</label>
-                    <div className="form-input-wrap">
-                      <SafeInput
-                        id="otp-code"
-                        name="otp"
-                        type="text"
-                        maxLength={6}
-                        className="form-input"
-                        placeholder="Nhập 6 chữ số OTP"
-                        value={otpCode}
-                        onChange={e => { setOtpCode(e.target.value.replace(/\D/g, '')); setError(''); }}
-                        style={{ textAlign: 'center', letterSpacing: otpCode ? '8px' : 'normal', fontSize: '16px', fontWeight: 'bold' }}
-                      />
-                      <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                )}
 
                 <button type="submit" className="btn btn-primary" style={{ marginTop: '12px' }} disabled={loading}>
                   {loading ? <span className="spinner" /> : null}
@@ -741,6 +594,7 @@ export default function Register() {
                       <circle cx="12" cy="10" r="3"/>
                     </svg>
                     Khu vực sinh sống
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>(Không bắt buộc — quyền riêng tư)</span>
                   </label>
                 </div>
                 

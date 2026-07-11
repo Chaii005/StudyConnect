@@ -458,7 +458,7 @@ export default function useGroupDetail(groupId, user, addToast) {
         async (payload) => {
           if (payload.eventType === 'DELETE') {
             const oldMember = payload.old;
-            if (oldMember && String(oldMember.user_id) === String(user?.id)) {
+            if (oldMember && oldMember.user_id && String(oldMember.user_id) === String(user?.id)) {
               addToast('Bạn đã bị xóa khỏi nhóm học tập này!', 'warning');
               navigate('/groups');
               return;
@@ -469,8 +469,18 @@ export default function useGroupDetail(groupId, user, addToast) {
           try {
             const updatedGroup = await getGroupById(groupId);
             if (updatedGroup) {
+              const isStillMember = updatedGroup.members.some(m => String(m) === String(user?.id));
+              if (!isStillMember) {
+                addToast('Bạn đã bị mời ra khỏi nhóm học tập này!', 'warning');
+                navigate('/groups');
+                return;
+              }
               setGroup(updatedGroup);
               fetchGroupMembersDetails(updatedGroup.members);
+            } else {
+              // Group was deleted
+              addToast('Nhóm học tập này đã bị giải tán!', 'warning');
+              navigate('/groups');
             }
           } catch (err) {
             if (import.meta.env.DEV) console.warn('Lỗi đồng bộ thông tin nhóm Realtime:', err);

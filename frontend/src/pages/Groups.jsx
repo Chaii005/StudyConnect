@@ -1698,9 +1698,25 @@ export default function Groups() {
 
   const filteredGroups = (() => {
     const q = searchQuery.trim();
-    if (q === '') return groups;
-    if (q.length < 6) return [];
-    return groups.filter(g => g.id.toString() === q);
+    let list = groups;
+    if (q !== '') {
+      if (q.length < 6) {
+        list = [];
+      } else {
+        list = groups.filter(g => g.id.toString() === q);
+      }
+    }
+    
+    // Prioritize groups with the same major as the user's major
+    if (user?.major) {
+      const uMajor = user.major.toLowerCase().trim();
+      return [...list].sort((a, b) => {
+        const aMatch = a.major && a.major.toLowerCase().trim() === uMajor ? 1 : 0;
+        const bMatch = b.major && b.major.toLowerCase().trim() === uMajor ? 1 : 0;
+        return bMatch - aMatch;
+      });
+    }
+    return list;
   })();
 
   if (loading) {
@@ -1956,6 +1972,7 @@ export default function Groups() {
               const isMember = group?.members?.some(m => Number(m) === Number(user?.id));
               const isCreator = Number(group.creatorId) === Number(user?.id);
               const isDeputy = group.deputyId ? Number(group.deputyId) === Number(user?.id) : false;
+              const isSameMajor = user?.major && group.major && group.major.toLowerCase().trim() === user.major.toLowerCase().trim();
               return (
                 <div key={group.id} className="group-card">
                   <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 10px 0', lineHeight: 1.3, letterSpacing: '-0.01em' }}>{group.name}</h3>
@@ -1965,6 +1982,25 @@ export default function Groups() {
                     <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border)', background: 'var(--bg-input)', padding: '4px 10px', borderRadius: 10, fontWeight: 600 }}>
                       ID: <strong style={{ color: 'var(--text-primary)' }}>{group.id}</strong>
                     </span>
+
+                    {/* Same Major Badge */}
+                    {isSameMajor && (
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 800,
+                        padding: '4px 10px',
+                        borderRadius: 10,
+                        background: 'rgba(42, 117, 118, 0.1)',
+                        color: 'var(--primary)',
+                        border: '1.5px solid rgba(42, 117, 118, 0.35)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        ✨ Cùng ngành
+                      </span>
+                    )}
 
                     {/* Member Count Badge */}
                     <span 

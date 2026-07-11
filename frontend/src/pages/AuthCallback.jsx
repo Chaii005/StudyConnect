@@ -84,7 +84,7 @@ export default function AuthCallback() {
             .insert([{
               full_name: fullName,
               email: authUser.email,
-              password: '', // Đăng nhập OAuth không lưu mật khẩu trong db của ta
+              password: '', // OAuth mới — chưa có mật khẩu, sẽ đặt ở CompleteProfile
               avatar: avatarUrl,
               supabase_uid: authUser.id,
               role: 'user',
@@ -118,7 +118,7 @@ export default function AuthCallback() {
           }
         }
 
-        // 5. Lưu phiên đăng nhập vào localStorage để đăng nhập ở phía frontend
+        // 5. Lưu phiên đăng nhập vào localStorage
         const safeUser = {
           id: finalUser.id,
           fullName: finalUser.full_name,
@@ -132,19 +132,19 @@ export default function AuthCallback() {
         };
 
         localStorage.setItem('sc_session', JSON.stringify(safeUser));
-
-        // Cập nhật state user để React cập nhật giao diện ngay lập tức
         setUser(safeUser);
 
-        // Hiển thị thông báo tương ứng
         if (isNewUser) {
-          addToast('Đăng ký bằng Google thành công! Chào mừng thành viên mới.', 'success');
+          // User mới Google: chuyển sang trang hoàn thiện hồ sơ
+          localStorage.setItem('sc_pending_profile_id', String(finalUser.id));
+          addToast('Đăng ký thành công! Hãy hoàn tất hồ sơ học tập của bạn.', 'success');
+          navigate('/complete-profile', { replace: true });
         } else {
           addToast('Đăng nhập bằng Google thành công! Chào mừng quay trở lại.', 'success');
+          sessionStorage.setItem('sc_fireworks', '1');
+          sessionStorage.setItem('sc_fireworks_name', safeUser.fullName?.split(' ').pop() || '');
+          navigate('/');
         }
-
-        // Chuyển hướng về trang chủ
-        navigate('/');
       } catch (err) {
         if (import.meta.env.DEV) console.error('Error in AuthCallback:', err);
         navigate(`/login?error=sync_failed&message=${encodeURIComponent(err.message || 'Sync failed')}`);

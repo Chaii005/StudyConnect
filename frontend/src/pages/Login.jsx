@@ -52,6 +52,8 @@ export default function Login() {
       }
       setUser(user);
       addToast('Đăng nhập thành công! Chào mừng bạn quay trở lại.', 'success');
+      sessionStorage.setItem('sc_fireworks', '1');
+      sessionStorage.setItem('sc_fireworks_name', user.fullName?.split(' ').pop() || '');
       navigate('/');
     } catch (err) {
       setError(err.message);

@@ -97,37 +97,41 @@ export default function GroupDetail() {
     };
   }, [h.activeTab, h.group, groupId, user?.id]);
 
-  // ── Realtime kick-out: nếu user bị xóa khỏi nhóm khi đang xem → về trang /groups ──
+  // ── Periodic membership verification: check if user is still in the group ──
   useEffect(() => {
-    if (!user?.id || !groupId) return;
+    if (!user?.id || !groupId || !h.group || !h.isMember) return;
     const uid = parseInt(user.id, 10);
     const gid = parseInt(groupId, 10);
 
-    const kickChannel = supabase
-      .channel(`kick-detect-${gid}-${uid}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'group_members',
-          filter: `group_id=eq.${gid}`,
-        },
-        (payload) => {
-          const deleted = payload.old;
-          if (deleted && Number(deleted.user_id) === uid) {
-            // Không set leaving_group vì đây là kick (không phải tự rời)
-            addToast('Bạn đã bị xóa khỏi nhóm học này.', 'error');
-            navigate('/groups');
-          }
+    const checkMembership = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('group_members')
+          .select('role')
+          .eq('group_id', gid)
+          .eq('user_id', uid)
+          .maybeSingle();
+
+        if (error || !data) {
+          addToast('Bạn đã bị mời ra khỏi nhóm học này.', 'error');
+          navigate('/groups');
         }
-      )
-      .subscribe();
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    // Check every 5 seconds only when document is visible
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        checkMembership();
+      }
+    }, 5000);
 
     return () => {
-      supabase.removeChannel(kickChannel);
+      clearInterval(interval);
     };
-  }, [user?.id, groupId, navigate, addToast]);
+  }, [user?.id, groupId, h.group, h.isMember, navigate, addToast]);
 
 
   // Scroll to target list when activeTab changes
