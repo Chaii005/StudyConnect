@@ -2237,7 +2237,6 @@ export default function Groups() {
             {user?.major && (
               <button
                 onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
-                title={showOnlyMyMajor ? `Đang lọc: ${user.major} — Nhấn để xem tất cả` : 'Chỉ hiện nhóm cùng ngành học với bạn'}
                 style={{
                   padding: '0 18px',
                   height: '42px',
@@ -2289,7 +2288,7 @@ export default function Groups() {
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 10v6M2 10l10-8 10 8-10 8-10-8z"/>
                 </svg>
-                {showOnlyMyMajor ? 'Xem tất cả nhóm' : 'Nhóm ngành tôi'}
+                {showOnlyMyMajor ? 'Xem tất cả' : 'Nhóm cùng ngành'}
               </button>
             )}
           </div>
