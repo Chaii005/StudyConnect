@@ -1494,6 +1494,13 @@ export default function Groups() {
   const [subjectSelectConfig, setSubjectSelectConfig] = useState(null);
   const [joinRequestStatus, setJoinRequestStatus] = useState({}); // { groupId: 'pending'|'approved'|null }
 
+  // Ẩn thanh scroll dọc khi ở trang nhóm học
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   const fetchGroups = useCallback(async () => {
     try {
       setLoading(true);
