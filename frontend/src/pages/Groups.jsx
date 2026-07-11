@@ -2447,10 +2447,11 @@ export default function Groups() {
             {/* Section 2: Tất cả nhóm học */}
             {!showOnlyMyMajor && (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                   <div style={{ width: 4, height: 20, background: 'var(--border)', borderRadius: 4, flexShrink: 0 }} />
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Tất cả nhóm học</h3>
-                  {_baseList.length > 0 && <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{_baseList.length} nhóm</span>}
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>
+                    Tất cả nhóm học{_baseList.length > 0 ? <span style={{ fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>({_baseList.length} nhóm)</span> : ''}
+                  </h3>
                 </div>
                 {_baseList.length === 0 ? (
                   <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
@@ -2546,26 +2547,15 @@ export default function Groups() {
         .horizontal-scroll-container {
           display: flex;
           flex-direction: row;
-          gap: 20px;
+          gap: 16px;
           overflow-x: auto;
-          padding: 8px 4px 20px 4px;
+          padding: 8px 4px 8px 4px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
-          scrollbar-width: thin;
-          scrollbar-color: var(--primary, #2A7576) transparent;
+          scrollbar-width: none;
         }
         .horizontal-scroll-container::-webkit-scrollbar {
-          height: 6px;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar-thumb {
-          background: rgba(42, 117, 118, 0.2);
-          border-radius: 10px;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
-          background: rgba(42, 117, 118, 0.4);
+          display: none;
         }
         .group-card {
           background: var(--bg-card);
