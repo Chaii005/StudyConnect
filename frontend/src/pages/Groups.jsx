@@ -2193,88 +2193,103 @@ export default function Groups() {
             <h2 className="page-title">Nhóm Học Tập</h2>
           </div>
           <div className="groups-action-buttons">
+            {/* Nút Tạo nhóm */}
             <button
-              className="btn"
               onClick={() => setShowModal(true)}
               style={{
-                padding: '0 22px',
+                padding: '0 20px',
                 height: '42px',
                 boxSizing: 'border-box',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
-                width: 'auto',
-                minWidth: 0,
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px',
-                background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-primary) 100%)',
+                gap: '7px',
+                background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
                 border: 'none',
-                color: '#ffffff',
+                color: '#fff',
                 fontWeight: 700,
+                fontSize: '13.5px',
                 borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)',
                 cursor: 'pointer',
-                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
                 fontFamily: 'inherit',
+                letterSpacing: '-0.01em',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.5)';
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)';
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={e => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.35)';
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)';
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <line x1="19" y1="8" x2="19" y2="14" />
-                <line x1="16" y1="11" x2="22" y2="11" />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              Tạo nhóm mới
+              Lập nhóm học
             </button>
+
+            {/* Nút lọc ngành */}
             {user?.major && (
               <button
                 onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
+                title={showOnlyMyMajor ? `Đang lọc: ${user.major} — Nhấn để xem tất cả` : 'Chỉ hiện nhóm cùng ngành học với bạn'}
                 style={{
-                  padding: '0 22px',
+                  padding: '0 18px',
                   height: '42px',
                   boxSizing: 'border-box',
                   whiteSpace: 'nowrap',
                   flexShrink: 0,
-                  width: 'auto',
-                  minWidth: 0,
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  background: showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'transparent',
-                  border: showOnlyMyMajor ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
-                  color: showOnlyMyMajor ? '#fff' : 'var(--text-primary)',
+                  gap: '6px',
+                  background: showOnlyMyMajor
+                    ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
+                    : 'rgba(42,117,118,0.07)',
+                  border: showOnlyMyMajor
+                    ? '1.5px solid #2A7576'
+                    : '1.5px solid rgba(42,117,118,0.35)',
+                  color: showOnlyMyMajor ? '#fff' : '#2A7576',
                   fontWeight: 700,
-                  borderRadius: '24px',
+                  fontSize: '13px',
+                  borderRadius: '12px',
                   cursor: 'pointer',
-                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
                   fontFamily: 'inherit',
-                  boxShadow: showOnlyMyMajor ? '0 4px 12px rgba(42,117,118,0.3)' : 'none',
+                  letterSpacing: '-0.01em',
+                  boxShadow: showOnlyMyMajor
+                    ? '0 4px 14px rgba(42,117,118,0.35), inset 0 1px 0 rgba(255,255,255,0.12)'
+                    : '0 2px 8px rgba(42,117,118,0.12)',
                 }}
                 onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
                   if (!showOnlyMyMajor) {
-                    e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.background = 'rgba(42,117,118,0.14)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(42,117,118,0.2)';
                   } else {
-                    e.currentTarget.style.opacity = '0.9';
+                    e.currentTarget.style.opacity = '0.88';
                   }
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'transparent';
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.background = showOnlyMyMajor
+                    ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
+                    : 'rgba(42,117,118,0.07)';
+                  e.currentTarget.style.boxShadow = showOnlyMyMajor
+                    ? '0 4px 14px rgba(42,117,118,0.35), inset 0 1px 0 rgba(255,255,255,0.12)'
+                    : '0 2px 8px rgba(42,117,118,0.12)';
                 }}
               >
-                {showOnlyMyMajor ? 'Tất cả ngành' : 'Chỉ ngành tôi'}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 10v6M2 10l10-8 10 8-10 8-10-8z"/>
+                </svg>
+                {showOnlyMyMajor ? 'Xem tất cả nhóm' : 'Nhóm ngành tôi'}
               </button>
             )}
           </div>
