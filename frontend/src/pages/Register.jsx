@@ -2,7 +2,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SafeInput } from '@/components/common/SafeInput';
-import { registerWithEmailConfirmation, signInWithGoogle } from '../services/authService';
+import { registerWithEmailConfirmation, signInWithGoogle, signInWithGoogleNative } from '../services/authService';
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { HCM_UNIVERSITIES, MAJORS } from '../constants/educationData';
@@ -256,9 +258,42 @@ export default function Register() {
     setLoading(true);
     setError('');
     try {
-      await signInWithGoogle();
+      if (Capacitor.isNativePlatform()) {
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '439735954624-9i63k1356vj68eb9i45m1n861r4t8i26.apps.googleusercontent.com';
+        GoogleAuth.initialize({
+          clientId: clientId,
+          scopes: ['profile', 'email'],
+          grantOfflineAccess: true,
+        });
+
+        const googleUser = await GoogleAuth.signIn();
+        const idToken = googleUser?.authentication?.idToken;
+        if (!idToken) {
+          throw new Error('Không nhận được token xác thực từ Google.');
+        }
+
+        const { user: loggedInUser, isNewUser } = await signInWithGoogleNative(idToken);
+        setUser(loggedInUser);
+        addToast(isNewUser ? 'Đăng ký thành công! Hãy hoàn tất hồ sơ học tập.' : 'Đăng nhập thành công!', 'success');
+
+        if (isNewUser) {
+          localStorage.setItem('sc_pending_profile_id', String(loggedInUser.id));
+          navigate('/complete-profile', { replace: true });
+        } else {
+          sessionStorage.setItem('sc_fireworks', '1');
+          sessionStorage.setItem('sc_fireworks_name', loggedInUser.fullName?.split(' ').pop() || '');
+          navigate('/');
+        }
+      } else {
+        await signInWithGoogle();
+      }
     } catch (err) {
-      setError(err.message || 'Không thể đăng ký bằng Google.');
+      if (import.meta.env.DEV) console.error('Google Native Register Error:', err);
+      if (err.message?.includes('user cancelled') || err.message?.includes('cancelled')) {
+        setError('Đăng ký đã bị hủy.');
+      } else {
+        setError(err.message || 'Không thể đăng ký bằng Google.');
+      }
       setLoading(false);
     }
   };

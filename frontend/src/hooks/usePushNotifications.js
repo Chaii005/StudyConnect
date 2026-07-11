@@ -3,8 +3,11 @@ import { useEffect } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/config/supabaseClient';
+import { useToast } from '@/context/ToastContext';
 
 export default function usePushNotifications(user) {
+  const { addToast } = useToast();
+
   useEffect(() => {
     // Only register on native platforms (Android / iOS)
     if (!Capacitor.isNativePlatform()) {
@@ -19,12 +22,14 @@ export default function usePushNotifications(user) {
       try {
         let permStatus = await PushNotifications.checkPermissions();
 
-        if (permStatus.receive === 'prompt') {
+        // Request permission if not already granted (handles 'prompt' and 'prompt-with-rationale')
+        if (permStatus.receive !== 'granted') {
           permStatus = await PushNotifications.requestPermissions();
         }
 
         if (permStatus.receive !== 'granted') {
           if (import.meta.env.DEV) console.warn('[Push] User denied notification permission');
+          addToast('Thông báo đẩy đang bị tắt. Bạn có thể bật lại trong Cài đặt hệ thống để nhận tin nhắn mới.', 'info');
           return;
         }
 

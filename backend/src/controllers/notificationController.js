@@ -93,7 +93,7 @@ router.post('/webhook', async (req, res) => {
 
             let displayContent = record.content || 'Đã gửi một tệp đính kèm';
             if (displayContent.startsWith('data:image') || (displayContent.startsWith('http') && displayContent.match(/\.(jpeg|jpg|gif|png)/i))) {
-              displayContent = '📷 Đã gửi một ảnh';
+              displayContent = 'Đã gửi một ảnh';
             }
 
             if (record.receiver_id) {
@@ -124,7 +124,7 @@ router.post('/webhook', async (req, res) => {
             const senderName = await getUserName(record.from_user_id);
             await sendPushToUsers(record.to_user_id, {
               title: 'Lời mời kết bạn',
-              body: `${senderName} muốn kết bạn với bạn`,
+              body: `${senderName} muốn kết bạn với bạn.`,
               data: { type: 'friendreq', requestId: String(record.id) }
             });
           } else if (type === 'UPDATE' && old_record && old_record.status === 'pending' && record.status === 'accepted') {
@@ -132,7 +132,7 @@ router.post('/webhook', async (req, res) => {
             const receiverName = await getUserName(record.to_user_id);
             await sendPushToUsers(record.from_user_id, {
               title: 'Kết bạn thành công',
-              body: `${receiverName} đã đồng ý lời mời kết bạn của bạn`,
+              body: `${receiverName} đã đồng ý lời mời kết bạn.`,
               data: { type: 'friendaccept' }
             });
           }
@@ -145,7 +145,7 @@ router.post('/webhook', async (req, res) => {
             const groupName = await getGroupName(record.group_id);
             await sendPushToUsers(record.invitee_id, {
               title: 'Lời mời vào nhóm',
-              body: `${senderName} mời bạn tham gia nhóm "${groupName}"`,
+              body: `${senderName} mời bạn tham gia nhóm "${groupName}".`,
               data: { type: 'groupinvite', inviteId: String(record.id), groupId: String(record.group_id) }
             });
           }
@@ -159,8 +159,8 @@ router.post('/webhook', async (req, res) => {
             const creatorId = await getGroupCreator(record.group_id);
             if (creatorId) {
               await sendPushToUsers(creatorId, {
-                title: 'Yêu cầu tham gia nhóm',
-                body: `${requesterName} xin tham gia nhóm học tập "${groupName}"`,
+                title: 'Yêu cầu tham gia',
+                body: `${requesterName} xin gia nhập nhóm "${groupName}".`,
                 data: { type: 'joinrequest', requestId: String(record.id), groupId: String(record.group_id) }
               });
             }
@@ -174,8 +174,8 @@ router.post('/webhook', async (req, res) => {
             const members = await getGroupMembers(record.group_id, 0); // push to all members
             const formattedTime = record.date_time ? new Date(record.date_time).toLocaleString('vi-VN') : '';
             await sendPushToUsers(members, {
-              title: `Lịch học mới: "${record.topic}"`,
-              body: `Nhóm ${groupName} • ${formattedTime}`,
+              title: 'Lịch học nhóm mới',
+              body: `Nhóm "${groupName}" học: ${record.topic} · ${formattedTime}`,
               data: { type: 'schedule', groupId: String(record.group_id) }
             });
           }
@@ -189,15 +189,15 @@ router.post('/webhook', async (req, res) => {
             
             if (record.assignee_id) {
               await sendPushToUsers(record.assignee_id, {
-                title: `Deadline mới: "${record.title}"`,
-                body: `Giao cho bạn • Nhóm ${groupName} • Hạn: ${formattedTime}`,
+                title: 'Hạn nộp mới',
+                body: `Giao cho bạn · ${record.title} (Hạn: ${formattedTime})`,
                 data: { type: 'deadline', groupId: String(record.group_id) }
               });
             } else {
               const members = await getGroupMembers(record.group_id, 0);
               await sendPushToUsers(members, {
-                title: `Deadline nhóm mới: "${record.title}"`,
-                body: `Cả nhóm • Nhóm ${groupName} • Hạn: ${formattedTime}`,
+                title: 'Hạn nộp mới',
+                body: `Cả nhóm · ${record.title} (Hạn: ${formattedTime})`,
                 data: { type: 'deadline', groupId: String(record.group_id) }
               });
             }
@@ -212,7 +212,7 @@ router.post('/webhook', async (req, res) => {
             const members = await getGroupMembers(record.group_id, record.user_id);
             await sendPushToUsers(members, {
               title: 'Tài liệu nhóm mới',
-              body: `${uploaderName} đã tải lên tài liệu "${record.file_name}" trong nhóm "${groupName}"`,
+              body: `${uploaderName} đã chia sẻ "${record.file_name}" tại "${groupName}".`,
               data: { type: 'fileupload', groupId: String(record.group_id) }
             });
           }
@@ -223,8 +223,8 @@ router.post('/webhook', async (req, res) => {
           if (type === 'INSERT') {
             const callerName = await getUserName(record.caller_id);
             await sendPushToUsers(record.receiver_id, {
-              title: `Cuộc gọi đến từ ${callerName}`,
-              body: `Nhấp để tham gia cuộc gọi`,
+              title: 'Cuộc gọi đến',
+              body: `${callerName} đang gọi cho bạn. Nhấp để tham gia.`,
               data: {
                 type: 'incoming_call',
                 callId: record.call_id,

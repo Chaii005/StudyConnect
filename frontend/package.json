@@ -18,6 +18,7 @@
     "@capacitor/core": "^8.4.1",
     "@capacitor/push-notifications": "^8.1.1",
     "@capacitor/status-bar": "^8.0.2",
+    "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",
     "@supabase/supabase-js": "^2.106.2",
     "axios": "^1.16.1",
     "puppeteer": "^25.1.0",

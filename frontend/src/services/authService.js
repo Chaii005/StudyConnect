@@ -227,6 +227,95 @@ export const login = async ({ email, password }) => {
   return { user: safeUser };
 };
 
+// ─── ĐỒNG BỘ TÀI KHOẢN & PHIÊN ĐĂNG NHẬP (OAUTH NATIVE) ─
+export const syncAndGetSessionUser = async (authUser) => {
+  const { data: existingUser, error: queryError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', authUser.email)
+    .maybeSingle();
+
+  if (queryError) {
+    throw queryError;
+  }
+
+  let finalUser;
+  let isNewUser = false;
+
+  if (!existingUser) {
+    isNewUser = true;
+    const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
+    const avatarUrl = authUser.user_metadata?.avatar_url || '';
+
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert([{
+        full_name: fullName,
+        email: authUser.email,
+        password: '', // OAuth mới — chưa có mật khẩu, sẽ đặt ở CompleteProfile
+        avatar: avatarUrl,
+        supabase_uid: authUser.id,
+        role: 'user',
+        university: '',
+        major: '',
+        bio: ''
+      }])
+      .select()
+      .single();
+
+    if (insertError) {
+      throw insertError;
+    }
+    finalUser = newUser;
+  } else {
+    if (existingUser.is_banned) {
+      throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống.');
+    }
+    // Cập nhật liên kết supabase_uid nếu chưa được đặt
+    if (!existingUser.supabase_uid) {
+      const { data: updatedUser, error: updateError } = await supabase
+        .from('users')
+        .update({ supabase_uid: authUser.id })
+        .eq('id', existingUser.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        throw updateError;
+      }
+      finalUser = updatedUser;
+    } else {
+      finalUser = existingUser;
+    }
+  }
+
+  const safeUser = {
+    id: finalUser.id,
+    fullName: finalUser.full_name,
+    email: finalUser.email,
+    role: finalUser.role,
+    university: finalUser.university || '',
+    major: finalUser.major || '',
+    avatar: finalUser.avatar || '',
+    bio: finalUser.bio || '',
+    createdAt: finalUser.created_at,
+  };
+
+  saveSession(safeUser);
+  return { user: safeUser, isNewUser };
+};
+
+// ─── ĐĂNG NHẬP GOOGLE NATIVE (CAPACITOR) ───────────────
+export const signInWithGoogleNative = async (idToken) => {
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: idToken,
+  });
+  if (error) throw new Error(error.message);
+  if (!data?.user) throw new Error('Không thể đăng nhập bằng Google.');
+  return await syncAndGetSessionUser(data.user);
+};
+
 // ─── ĐĂNG NHẬP GOOGLE (OAUTH) ─────────────────────────
 export const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
