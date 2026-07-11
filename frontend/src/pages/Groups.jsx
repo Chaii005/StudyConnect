@@ -2271,66 +2271,33 @@ export default function Groups() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', height: '48px', gap: '16px' }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', height: '48px' }}>
-            {!isSearchExpanded ? (
-              <button
-                onClick={() => setIsSearchExpanded(true)}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', height: '48px', gap: '12px' }}>
+          <div 
+            className="premium-panel search-panel" 
+            style={{ flex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px', height: '100%', boxSizing: 'border-box', maxWidth: '360px' }}
+          >
+            <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
+            </span>
+            <SafeInput 
+              type="text" 
+              className="search-input" 
+              placeholder="Nhập ID phòng học..." 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
                 style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  background: 'var(--bg-card)',
-                  border: '1.5px solid var(--border)',
-                  color: 'var(--text-muted)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: 'var(--shadow)',
+                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
-                onMouseEnter={e => { 
-                  e.currentTarget.style.color = 'var(--text-primary)'; 
-                  e.currentTarget.style.borderColor = 'var(--border-hover)'; 
-                  setIsSearchExpanded(true);
-                }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.3-4.3"/>
-                </svg>
+                ✕
               </button>
-            ) : (
-              <div 
-                className="premium-panel search-panel" 
-                style={{ flex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px', height: '100%', boxSizing: 'border-box' }}
-                onMouseLeave={() => { if (!searchQuery.trim()) setIsSearchExpanded(false); }}
-              >
-                <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.3-4.3"/>
-                  </svg>
-                </span>
-                <SafeInput 
-                  type="text" 
-                  className="search-input" 
-                  placeholder="Nhập ID phòng học để tìm kiếm..." 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)} 
-                  autoFocus
-                />
-                <button 
-                  onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
-                  style={{
-                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
             )}
           </div>
 
@@ -2340,20 +2307,21 @@ export default function Groups() {
               onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
               style={{
                 height: '48px',
-                padding: '0 18px',
+                padding: '0 14px',
                 borderRadius: '24px',
                 background: showOnlyMyMajor ? 'var(--primary, #2A7576)' : 'var(--bg-card)',
                 color: showOnlyMyMajor ? '#fff' : 'var(--text-primary)',
                 border: showOnlyMyMajor ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
                 fontWeight: 700,
-                fontSize: '13.5px',
+                fontSize: '12.5px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 cursor: 'pointer',
                 transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                 boxShadow: showOnlyMyMajor ? '0 4px 12px rgba(42, 117, 118, 0.3)' : 'var(--shadow)',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
               onMouseEnter={e => {
                 if (!showOnlyMyMajor) {
@@ -2372,21 +2340,8 @@ export default function Groups() {
                 }
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                {showOnlyMyMajor ? (
-                  <>
-                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-                    <path d="m9 12 2 2 4-4" />
-                  </>
-                ) : (
-                  <>
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="16" />
-                    <line x1="8" y1="12" x2="16" y2="12" />
-                  </>
-                )}
-              </svg>
-              {showOnlyMyMajor ? 'Hiện tất cả nhóm' : 'Chỉ hiện ngành của tôi'}
+              <span style={{ fontSize: '14px' }}>🎯</span>
+              {showOnlyMyMajor ? 'Tất cả' : 'Chỉ ngành tôi'}
             </button>
           )}
         </div>
@@ -2437,7 +2392,7 @@ export default function Groups() {
                     >+ Tạo nhóm ngay</button>
                   </div>
                 ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  <div className="horizontal-scroll-container">
                     {myMajorGroups.map(g => renderGroupCard(g))}
                   </div>
                 )}
@@ -2460,7 +2415,7 @@ export default function Groups() {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>Tạo nhóm để kết nối và học tập cùng bạn bè ngay.</p>
                   </div>
                 ) : otherGroups.length > 0 ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  <div className="horizontal-scroll-container">
                     {otherGroups.map(g => renderGroupCard(g))}
                   </div>
                 ) : null}
@@ -2550,6 +2505,30 @@ export default function Groups() {
         .search-input::placeholder {
           color: var(--text-secondary);
         }
+        .horizontal-scroll-container {
+          display: flex;
+          flex-direction: row;
+          gap: 20px;
+          overflow-x: auto;
+          padding: 8px 4px 20px 4px;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          scrollbar-color: var(--primary, #2A7576) transparent;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar {
+          height: 6px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-thumb {
+          background: rgba(42, 117, 118, 0.2);
+          border-radius: 10px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
+          background: rgba(42, 117, 118, 0.4);
+        }
         .group-card {
           background: var(--bg-card);
           backdrop-filter: blur(8px);
@@ -2564,6 +2543,9 @@ export default function Groups() {
           position: relative;
           overflow: hidden;
           box-shadow: var(--shadow);
+          flex: 0 0 320px;
+          width: 320px;
+          scroll-snap-align: start;
         }
         .group-card::before {
           content: '';
