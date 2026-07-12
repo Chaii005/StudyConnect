@@ -26,18 +26,24 @@ function useRingTone(active) {
     }
 
     const playRing = () => {
+      // Rung thiết bị ở block riêng biệt, tránh bị ảnh hưởng bởi lỗi AudioContext (do chính sách autoplay của trình duyệt)
+      try {
+        if (Capacitor.isNativePlatform()) {
+          Haptics.vibrate({ duration: 1000 }).catch(() => {});
+        } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate([1000, 800]);
+        }
+      } catch (hapticsErr) {
+        if (import.meta.env.DEV) console.warn('[CallNotification] Haptics failed:', hapticsErr);
+      }
+
       try {
         if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
           audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
         }
         const ctx = audioCtxRef.current;
-        if (ctx.state === 'suspended') ctx.resume();
-
-        // Rung thiết bị liên tục theo nhịp chuông (vibrate 1000ms, pause 800ms)
-        if (Capacitor.isNativePlatform()) {
-          Haptics.vibrate({ duration: 1000 }).catch(() => {});
-        } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate([1000, 800]);
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
         }
 
         const playChimeNode = (freq, startTime, duration) => {

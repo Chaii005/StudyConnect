@@ -645,6 +645,8 @@ export default function PrivateCall() {
 
   // Khi callStatus thay đổi trong context (bên caller)
   useEffect(() => {
+    if (mode !== 'caller') return;
+
     if (callStatus === 'no_answer') {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCallEndedMsg('no_answer');
@@ -654,7 +656,7 @@ export default function PrivateCall() {
       setCallEndedMsg('rejected');
       setTimeout(() => navigate('/chat'), 2000);
     }
-  }, [callStatus, navigate]);
+  }, [callStatus, mode, navigate]);
 
   const { localStream, remoteStream, connected, error, hangup, remoteCamOn, remoteMicOn } = usePrivateWebRTC({
     callId, user, mode, micOn, camOn, setMicOn, setCamOn,

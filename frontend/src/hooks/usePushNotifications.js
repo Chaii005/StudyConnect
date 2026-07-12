@@ -60,7 +60,15 @@ export default function usePushNotifications(user) {
           let targetPath = null;
           if (data) {
             if (data.type === 'incoming_call' && data.callId) {
-              targetPath = `/call/${data.callId}?mode=callee&friendName=${encodeURIComponent(data.callerName || '')}&friendAvatar=&friendId=${data.callerId}`;
+              const callInfo = {
+                callId: data.callId,
+                callerId: data.callerId,
+                callerName: data.callerName || 'Người dùng',
+                callerAvatar: data.callerAvatar || '',
+              };
+              sessionStorage.setItem('pending_incoming_call', JSON.stringify(callInfo));
+              window.dispatchEvent(new CustomEvent('pending-call', { detail: callInfo }));
+              targetPath = '/chat';
             } else if (data.type === 'privatemsg' && data.senderId) {
               targetPath = `/chat?userId=${data.senderId}`;
             } else if (data.type === 'groupmsg' && data.groupId) {
@@ -107,7 +115,15 @@ export default function usePushNotifications(user) {
           let targetPath = null;
           if (data) {
             if (data.type === 'incoming_call' && data.callId) {
-              targetPath = `/call/${data.callId}?mode=callee&friendName=${encodeURIComponent(data.callerName || '')}&friendAvatar=&friendId=${data.callerId}`;
+              const callInfo = {
+                callId: data.callId,
+                callerId: data.callerId,
+                callerName: data.callerName || 'Người dùng',
+                callerAvatar: data.callerAvatar || '',
+              };
+              sessionStorage.setItem('pending_incoming_call', JSON.stringify(callInfo));
+              window.dispatchEvent(new CustomEvent('pending-call', { detail: callInfo }));
+              targetPath = '/chat';
             } else if (data.type === 'privatemsg' && data.senderId) {
               targetPath = `/chat?userId=${data.senderId}`;
             } else if (data.type === 'groupmsg' && data.groupId) {

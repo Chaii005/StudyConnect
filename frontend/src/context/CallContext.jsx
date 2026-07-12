@@ -49,6 +49,51 @@ export const CallProvider = ({ children }) => {
     }
   }, [location.pathname]);
 
+  // Lắng nghe và xử lý cuộc gọi đến chờ xử lý (từ push notification)
+  useEffect(() => {
+    const handlePendingCall = (e) => {
+      const payload = e.detail;
+      if (payload && payload.callId) {
+        setIncomingCall({
+          callId: payload.callId,
+          callerId: payload.callerId,
+          callerName: payload.callerName || 'Người dùng',
+          callerAvatar: payload.callerAvatar || '',
+        });
+
+        // Tự động tắt sau 30 giây (giống như nhận qua socket)
+        clearTimeout(ringTimerRef.current);
+        ringTimerRef.current = setTimeout(() => {
+          setIncomingCall(null);
+          setCallStatus('missed');
+          clearTimeout(statusTimerRef.current);
+          statusTimerRef.current = setTimeout(() => setCallStatus(null), 3000);
+          if (locationRef.current.startsWith('/call/')) {
+            navigate('/chat');
+          }
+        }, 30000);
+      }
+    };
+
+    window.addEventListener('pending-call', handlePendingCall);
+
+    // Kiểm tra xem có cuộc gọi chờ nào trong sessionStorage không (cho cold start)
+    try {
+      const pending = sessionStorage.getItem('pending_incoming_call');
+      if (pending) {
+        sessionStorage.removeItem('pending_incoming_call');
+        const parsed = JSON.parse(pending);
+        handlePendingCall({ detail: parsed });
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) console.error('[CallContext] Error reading pending call:', e);
+    }
+
+    return () => {
+      window.removeEventListener('pending-call', handlePendingCall);
+    };
+  }, [navigate]);
+
   // ── Khởi tạo channel lắng nghe toàn cục ─────────────────────────
   useEffect(() => {
     if (!user?.id) return;
@@ -243,6 +288,7 @@ export const CallProvider = ({ children }) => {
     if (!call) return;
 
     clearTimeout(ringTimerRef.current);
+    setCallStatus(null);
 
     await channelRef.current?.send({
       type: 'broadcast',
@@ -260,6 +306,7 @@ export const CallProvider = ({ children }) => {
     if (!call) return;
 
     clearTimeout(ringTimerRef.current);
+    setCallStatus(null);
 
     await channelRef.current?.send({
       type: 'broadcast',
