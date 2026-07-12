@@ -261,7 +261,7 @@ export default function Register() {
     setError('');
     try {
       if (Capacitor.isNativePlatform()) {
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '1041742440704-j966ktttu2jjp1kjl6eqtbbqr47cpciv.apps.googleusercontent.com';
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '439735954624-9i63k1356vj68eb9i45m1n861r4t8i26.apps.googleusercontent.com';
         GoogleAuth.initialize({
           clientId: clientId,
           scopes: ['profile', 'email'],
