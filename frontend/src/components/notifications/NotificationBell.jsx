@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useNotificationContext } from '@/context/NotificationContext';
 import NotificationItem from './NotificationItem';
 
 export default function NotificationBell({ style }) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     notifs,
     seen,
@@ -16,9 +17,7 @@ export default function NotificationBell({ style }) {
     acceptFriendRequest,
     declineFriendRequest,
     acceptJoinReq,
-    declineJoinReq,
-    toastEnabled,
-    toggleToast
+    declineJoinReq
   } = useNotificationContext();
 
   const [open, setOpen] = useState(false);
@@ -106,6 +105,19 @@ export default function NotificationBell({ style }) {
       });
     }
   };
+
+  useEffect(() => {
+    if (searchParams.get('openNotifications') === 'true') {
+      setOpen(true);
+      setTimeout(() => {
+        calcPos();
+      }, 100);
+      
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('openNotifications');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleOpen = () => {
     if (!open) calcPos();

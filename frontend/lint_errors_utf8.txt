@@ -1,0 +1,510 @@
+﻿
+> studyconnect@0.0.0 lint
+> eslint .
+
+
+D:\StudyConect\frontend\src\components\admin\GroupFormModal.jsx
+   23:18  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  21 |
+  22 |   useEffect(() => {
+> 23 |     if (!isOpen) setSearch('');
+     |                  ^^^^^^^^^ Avoid calling setState() directly within an effect
+  24 |   }, [isOpen]);
+  25 |
+  26 |   const filteredOptions = options.filter(opt =>                                                                                                                    react-hooks/set-state-in-effect
+  160:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  158 |     if (!show) return;
+  159 |     if (!groupForm.major) {
+> 160 |       setDbSubjects([]);
+      |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  161 |       return;
+  162 |     }
+  163 |     let cancelled = false;                                                                                                             react-hooks/set-state-in-effect
+  177:11  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  175 |       if (dbSubjects.length > 0) {
+  176 |         if (dbSubjects.includes(groupForm.subject)) {
+> 177 |           setSubjectMode('select');
+      |           ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  178 |         } else {
+  179 |           setSubjectMode('custom');
+  180 |           setCustomSubject(groupForm.subject);  react-hooks/set-state-in-effect
+  193:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  191 |   useEffect(() => {
+  192 |     if (show) {
+> 193 |       setCustomName(locationSearchVal || '');
+      |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  194 |     }
+  195 |   }, [locationSearchVal, show]);
+  196 |                                                                                                               react-hooks/set-state-in-effect
+  211:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  209 |   useEffect(() => {
+  210 |     if (groupForm.meetingMode !== 'offline' || !customName || customName.trim().length < 2) {
+> 211 |       setSuggestions([]);
+      |       ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  212 |       return;
+  213 |     }
+  214 |     if (ignoreNextAutocompleteRef.current) {                          react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\components\admin\UserFormModal.jsx
+  29:18  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  27 |
+  28 |   useEffect(() => {
+> 29 |     if (!isOpen) setSearch('');
+     |                  ^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [isOpen]);
+  31 |
+  32 |   const filteredOptions = options.filter(opt =>  react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\components\chat\ConversationView.jsx
+  153:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  151 |   useEffect(() => {
+  152 |     if (!chatBg) {
+> 153 |       setBgInfo({ isAnalyzed: false, r: 0, g: 0, b: 0, luminance: 128 });
+      |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  154 |       return;
+  155 |     }
+  156 |     const imgUrl = chatBg.split('|')[0];     react-hooks/set-state-in-effect
+  295:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  293 |   useEffect(() => {
+  294 |     const n = localStorage.getItem(`sc_nickname_${user.id}_${friend.userId}`) || '';
+> 295 |     setNickname(n);
+      |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  296 |   }, [user.id, friend.userId]);
+  297 |
+  298 |   useEffect(() => {  react-hooks/set-state-in-effect
+  300:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  298 |   useEffect(() => {
+  299 |     setChatBg('');
+> 300 |     setBgFilePreview('');
+      |     ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  301 |     setBgPos('center');
+  302 |   }, [friend.userId, setChatBg]);
+  303 |                                                   react-hooks/set-state-in-effect
+  487:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  485 |
+  486 |   useEffect(() => {
+> 487 |     load();
+      |     ^^^^ Avoid calling setState() directly within an effect
+  488 |   }, [load]);
+  489 |
+  490 |   useEffect(() => {                                                                                                                        react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\components\common\Fireworks.jsx
+  40:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  38 |       sessionStorage.removeItem('sc_fireworks');
+  39 |       sessionStorage.removeItem('sc_fireworks_name');
+> 40 |       setVisible(true);
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |     }
+  42 |   }, []);
+  43 |  react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\components\groups\GroupSchedule.jsx
+  102:3  warning  Unused eslint-disable directive (no problems were reported from 'no-undef')
+  113:3  warning  Unused eslint-disable directive (no problems were reported from 'no-undef')
+
+D:\StudyConect\frontend\src\components\posts\LikeCommentBar.jsx
+  2:51  error  'likedEmoji' is defined but never used  no-unused-vars
+
+D:\StudyConect\frontend\src\components\posts\PostCard.jsx
+    7:10  error  'sendFriendRequest' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+   65:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  63 |   useEffect(() => {
+  64 |     if (isTargetPost) {
+> 65 |       setShowComments(true);
+     |       ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  66 |       if (cardRef.current) {
+  67 |         setTimeout(() => {
+  68 |           if (cardRef.current) {  react-hooks/set-state-in-effect
+  286:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  284 |
+  285 |   useEffect(() => {
+> 286 |     setEditText(post?.content || '');
+      |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  287 |   }, [post?.content]);
+  288 |
+  289 |   // â”€â”€ Clean up tagged names from text content for rendering â”€â”€                 react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\hooks\useGroupDetail.js
+  278:41  error  Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `user`, but the source dependencies were [groupId, user?.id, navigate, addToast, fetchGroupDeadlines, fetchGroupMembersDetails, fetchGroupFriendships]. Inferred less specific property than source.
+
+  276 |   }, [user]);
+  277 |
+> 278 |   const fetchGroupDetails = useCallback(async () => {
+      |                                         ^^^^^^^^^^^^^
+> 279 |     try {
+      | ^^^^^^^^^
+> 280 |       setLoading(true);
+      â€¦
+      | ^^^^^^^^^
+> 317 |     }
+      | ^^^^^^^^^
+> 318 |   }, [groupId, user?.id, navigate, addToast, fetchGroupDeadlines, fetchGroupMembersDetails, fetchGroupFriendships]);
+      | ^^^^ Could not preserve existing manual memoization
+  319 |
+  320 |   const handleJoinGroup = async () => {
+  321 |     if (!user?.id || !groupId) return;  react-hooks/preserve-manual-memoization
+
+D:\StudyConect\frontend\src\hooks\useNotifications.js
+  790:9  error  Error: This value cannot be modified
+
+Modifying a value previously passed as an argument to a hook is not allowed. Consider moving the modification before calling the hook.
+
+  788 |       const { data } = await supabase.from('study_groups').select('name').eq('id', groupId).single();
+  789 |       if (data?.name) {
+> 790 |         groupNamesRef.current[groupId] = data.name;
+      |         ^^^^^^^^^^^^^^^^^^^^^ `groupNamesRef` cannot be modified
+  791 |       }
+  792 |       return data?.name || 'NhĂ³m há»c';
+  793 |     } catch {  react-hooks/immutability
+
+D:\StudyConect\frontend\src\layouts\AppLayout.jsx
+  112:10  error    'isCapacitorApp' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         no-unused-vars
+  116:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  114 |   useEffect(() => {
+  115 |     const isNative = Capacitor.isNativePlatform();
+> 116 |     setIsCapacitorApp(isNative);
+      |     ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  117 |     if (isNative) {
+  118 |       document.documentElement.classList.add('is-native-app');
+  119 |       document.documentElement.classList.remove('is-web-browser');                                                                                                                                                                                                                                                                                                                                                                                                                           react-hooks/set-state-in-effect
+  140:37  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `user`, but the source dependencies were [user?.id]. Inferred less specific property than source.
+
+  138 |   const onlineUserIds = useOnlineUsers();
+  139 |
+> 140 |   const fetchSideData = useCallback(async () => {
+      |                                     ^^^^^^^^^^^^^
+> 141 |     if (!user?.id) return;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 142 |     try {
+      â€¦
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |   }, [user?.id]);
+      | ^^^^ Could not preserve existing manual memoization
+  172 |
+  173 |   // Reload friends list and update sidebar (invalidates cache so fresh data is fetched)
+  174 |   const reloadFriends = useCallback(async () => {                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/preserve-manual-memoization
+  174:37  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `user`, but the source dependencies were [user?.id]. Inferred less specific property than source.
+
+  172 |
+  173 |   // Reload friends list and update sidebar (invalidates cache so fresh data is fetched)
+> 174 |   const reloadFriends = useCallback(async () => {
+      |                                     ^^^^^^^^^^^^^
+> 175 |     if (!user?.id) return;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 176 |     try {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 177 |       const list = await getFriends(user.id);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 178 |       friendsCacheRef.current[user.id] = list;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 179 |       setFriends(list);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 180 |     } catch (err) {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 181 |       if (import.meta.env.DEV) console.warn('Error reloading friends in layout:', err);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 182 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 183 |   }, [user?.id]);
+      | ^^^^ Could not preserve existing manual memoization
+  184 |
+  185 |   // Fetch sidebar data: friends, schedules & deadlines
+  186 |   useEffect(() => {  react-hooks/preserve-manual-memoization
+  189:9   error    'isMounted' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+  201:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  199 |
+  200 |     loadFriends();
+> 201 |     fetchSideData();
+      |     ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  202 |
+  203 |     // Poll schedules/deadlines má»—i 30 phĂºt (tÄƒng tá»« 15) â€” dá»¯ liá»‡u nĂ y khĂ´ng cáº§n thá»i gian thá»±c
+  204 |     const interval = setInterval(() => {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/set-state-in-effect
+  214:6   warning  React Hook useEffect has a missing dependency: 'reloadFriends'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+
+D:\StudyConect\frontend\src\pages\AuthCallback.jsx
+  15:9  error  'isSyncing' is assigned a value but never used  no-unused-vars
+
+D:\StudyConect\frontend\src\pages\Chat.jsx
+  41:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  39 |       const friend = friends.find(f => String(f.userId) === String(queryUserId));
+  40 |       if (friend) {
+> 41 |         setSelectedFriend(friend);
+     |         ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  42 |         // Clear query parameters to avoid resetting selection on unrelated state changes
+  43 |         setSearchParams({}, { replace: true });
+  44 |       }  react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\pages\CompleteProfile.jsx
+   16:33  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  14 | function PickerModal({ isOpen, onClose, title, options, value, onSelect }) {
+  15 |   const [search, setSearch] = useState('');
+> 16 |   useEffect(() => { if (isOpen) setSearch(''); }, [isOpen]);
+     |                                 ^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |   if (!isOpen) return null;
+  18 |   const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()));
+  19 |   return (  react-hooks/set-state-in-effect
+  151:10  error  'DropdownField' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+
+D:\StudyConect\frontend\src\pages\ForgotPassword.jsx
+  19:9  error  'navigate' is assigned a value but never used  no-unused-vars
+
+D:\StudyConect\frontend\src\pages\Friend.jsx
+  341:3  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+
+D:\StudyConect\frontend\src\pages\FriendDetail.jsx
+  158:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  156 |   useEffect(() => {
+  157 |     if (activeTab !== 'posts' || !id) return;
+> 158 |     loadPosts();
+      |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  159 |
+  160 |     const channelName = `friend-posts-realtime-${id}`;
+  161 |     const channel = supabase  react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\pages\GroupDetail.jsx
+   76:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  74 |   useEffect(() => {
+  75 |     if (h.activeTab !== 'members' || !h.group?.isPrivate || String(user?.id) !== String(h.group?.creatorId)) return;
+> 76 |     loadJoinRequests();
+     |     ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  77 |
+  78 |     const channelName = `group-join-requests-realtime-${groupId}`;
+  79 |     const channel = supabase  react-hooks/set-state-in-effect
+   98:6   warning  React Hook useEffect has a missing dependency: 'loadJoinRequests'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react-hooks/exhaustive-deps
+  133:16  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+
+D:\StudyConect\frontend\src\pages\Groups.jsx
+    12:26  error  'staticMapUrl' is defined but never used                 no-unused-vars
+   859:10  error  'NearbyGroupsModal' is defined but never used            no-unused-vars
+  1476:10  error  'showNearbyModal' is assigned a value but never used     no-unused-vars
+  1476:27  error  'setShowNearbyModal' is assigned a value but never used  no-unused-vars
+  1732:9   error  'handleLogout' is assigned a value but never used        no-unused-vars
+  1750:11  error  'isSameMajor' is assigned a value but never used         no-unused-vars
+
+D:\StudyConect\frontend\src\pages\Login.jsx
+  27:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  25 |     if (errType) {
+  26 |       if (errType === 'sync_failed') {
+> 27 |         setError(`Äá»“ng bá»™ tĂ i khoáº£n Google tháº¥t báº¡i: ${errMsg || 'Lá»—i khĂ´ng xĂ¡c Ä‘á»‹nh'}`);
+     |         ^^^^^^^^ Avoid calling setState() directly within an effect
+  28 |       } else if (errType === 'no_session') {
+  29 |         setError(`KhĂ´ng tĂ¬m tháº¥y phiĂªn Ä‘Äƒng nháº­p Google: ${errMsg || 'Session khĂ´ng tá»“n táº¡i'}`);
+  30 |       } else {  react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\pages\Meetroom.jsx
+   371:11  error    There is no `cause` attached to the symptom error being thrown                                                                                                                                                                                           preserve-caught-error
+   578:22  error    'e' is defined but never used                                                                                                                                                                                                                            no-unused-vars
+   578:25  error    Empty block statement                                                                                                                                                                                                                                    no-empty
+   612:24  error    'e' is defined but never used                                                                                                                                                                                                                            no-unused-vars
+   612:27  error    Empty block statement                                                                                                                                                                                                                                    no-empty
+   623:22  error    'e' is defined but never used                                                                                                                                                                                                                            no-unused-vars
+   623:25  error    Empty block statement                                                                                                                                                                                                                                    no-empty
+   728:48  warning  The ref value 'myId.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'myId.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  1059:6   warning  React Hook useEffect has missing dependencies: 'user?.avatar' and 'user?.fullName'. Either include them or remove the dependency array                                                                                                                   react-hooks/exhaustive-deps
+  1702:41  warning  Unused eslint-disable directive (no problems were reported from 'no-undef')
+  2101:41  warning  Unused eslint-disable directive (no problems were reported from 'no-undef')
+
+D:\StudyConect\frontend\src\pages\MyDocument.jsx
+  224:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  222 |   useEffect(() => {
+  223 |     if (!user?.id) return;
+> 224 |     loadFiles();
+      |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  225 |
+  226 |     const channelName = `my-documents-realtime-${user.id}`;
+  227 |     const channel = supabase  react-hooks/set-state-in-effect
+
+D:\StudyConect\frontend\src\pages\PrivateCall.jsx
+    1:1   warning  Unused eslint-disable directive (no problems were reported from 'no-undef')
+   76:43  error    'mode' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+  102:33  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  100 |   // Unique peer ID
+  101 |   const myId = useMemo(
+> 102 |     () => `${user?.id || 'u'}_${Math.random().toString(36).slice(2, 6)}`,
+      |                                 ^^^^^^^^^^^^^ Cannot call impure function
+  103 |     [user?.id]
+  104 |   );
+  105 |  react-hooks/purity
+  134:11  error    There is no `cause` attached to the symptom error being thrown                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 preserve-caught-error
+  186:13  error    'stream' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+  236:53  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  236:56  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  253:53  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  253:56  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  286:57  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  286:60  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  317:53  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  317:56  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  329:24  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  329:27  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  353:28  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  353:31  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  369:24  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  369:27  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  446:18  error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  446:21  error    Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-empty
+  455:3   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  659:77  error    'remoteMicOn' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+
+âœ– 78 problems (67 errors, 11 warnings)
+  0 errors and 7 warnings potentially fixable with the `--fix` option.
+

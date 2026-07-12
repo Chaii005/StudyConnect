@@ -1,11 +1,12 @@
-// src/App.jsx
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Suspense, useState, useEffect } from 'react';
+import { App as CapApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { ToastProvider, useToast } from './context/ToastContext';
 import { CallProvider } from './context/CallContext';
 import { OnlineUsersProvider } from './context/OnlineUsersContext';
 import CallNotification from './components/CallNotification';
-import { ToastProvider } from './context/ToastContext';
 import { NotificationProvider } from './context/NotificationContext';
 import GlobalMessageListener from './components/GlobalMessageListener';
 import usePushNotifications from './hooks/usePushNotifications';
@@ -151,7 +152,49 @@ const StudentCallWrapper = () => {
 // ── Routes ────────────────────────────────────────────────────────
 function AppRoutes() {
   const { user } = useAuth();
+  const { addToast } = useToast();
+  const navigate = useNavigate();
   usePushNotifications(user);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    let lastBackPressed = 0;
+
+    const backButtonListener = CapApp.addListener('backButton', () => {
+      // 1. Try to close active modals or drawer overlays first
+      const activeModals = document.querySelectorAll('.modal-overlay, .mobile-drawer-overlay.open, .modal-backdrop');
+      if (activeModals.length > 0) {
+        // Try clicking the overlay/close button to close it
+        const firstOverlay = activeModals[0];
+        if (firstOverlay && typeof firstOverlay.click === 'function') {
+          firstOverlay.click();
+          return;
+        }
+      }
+
+      // 2. Check current path
+      const currentPath = window.location.pathname;
+      const isRootOrAuth = currentPath === '/' || currentPath === '/login' || currentPath === '/register' || currentPath === '/complete-profile' || currentPath === '/admin-login';
+
+      if (isRootOrAuth) {
+        const now = Date.now();
+        if (now - lastBackPressed < 2000) {
+          CapApp.exitApp();
+        } else {
+          lastBackPressed = now;
+          addToast('Nhấn quay lại lần nữa để thoát ứng dụng', 'info', 2000);
+        }
+      } else {
+        // Navigate back
+        navigate(-1);
+      }
+    });
+
+    return () => {
+      backButtonListener.then(l => l.remove());
+    };
+  }, [navigate, addToast]);
 
   return (
     <Suspense fallback={<PageLoader />}>

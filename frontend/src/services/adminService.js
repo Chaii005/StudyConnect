@@ -31,7 +31,7 @@ const mapGroup = (g) => {
     } else {
       try {
         parsedLocation = JSON.parse(g.location);
-      } catch (e) {
+      } catch {
         parsedLocation = { name: g.location, address: g.location };
       }
     }

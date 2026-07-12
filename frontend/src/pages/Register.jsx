@@ -1,5 +1,5 @@
 // src/pages/Register.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SafeInput } from '@/components/common/SafeInput';
 import { registerWithEmailConfirmation, signInWithGoogle, signInWithGoogleNative } from '../services/authService';
@@ -15,10 +15,12 @@ import studyconectLogo from '@/assets/studyconect_logo.png';
 function LocationModal({ isOpen, onClose, title, options, value, onSelect }) {
   const [search, setSearch] = useState('');
 
-  // Reset search khi mở modal
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) setSearch('');
-  }, [isOpen]);
+  }
 
   if (!isOpen) return null;
 

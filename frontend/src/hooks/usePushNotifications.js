@@ -55,16 +55,10 @@ export default function usePushNotifications(user) {
           if (import.meta.env.DEV) console.log('[Push] Notification received in foreground:', notification);
           const title = notification.title || 'Thông báo';
           const body = notification.body || '';
-          addToast(`${title}: ${body}`, 'info');
-        });
-
-        // Listen for user tapping on push notifications (handles cold start launch actions)
-        await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-          if (import.meta.env.DEV) console.log('[Push] Action performed:', action);
           
-          const data = action.notification?.data;
+          const data = notification.data;
+          let targetPath = null;
           if (data) {
-            let targetPath = null;
             if (data.type === 'incoming_call' && data.callId) {
               targetPath = `/call/${data.callId}?mode=callee&friendName=${encodeURIComponent(data.callerName || '')}&friendAvatar=&friendId=${data.callerId}`;
             } else if (data.type === 'privatemsg' && data.senderId) {
@@ -83,18 +77,79 @@ export default function usePushNotifications(user) {
               targetPath = '/groups';
             } else if (data.type === 'joinrequest' && data.groupId) {
               targetPath = `/groups/${data.groupId}`;
+            } else if (data.type === 'groupcall' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=chat`;
+            } else if (['groupjoin', 'groupdeputy', 'othergroupjoin'].includes(data.type) && data.groupId) {
+              targetPath = `/groups/${data.groupId}`;
+            } else if (data.type === 'deadline-urgent' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=deadlines`;
+            } else if ((data.type === 'comment' || data.type === 'like' || data.type === 'posttag_user' || data.type === 'posttag_group') && data.postId) {
+              targetPath = `/?postId=${data.postId}`;
+            } else if (data.type === 'missedcall' && data.senderId) {
+              targetPath = `/chat?userId=${data.senderId}`;
+            } else if (['groupkick', 'groupdemote'].includes(data.type)) {
+              targetPath = `/groups`;
             }
+          }
 
-            if (targetPath) {
-              const hasSession = !!localStorage.getItem('sc_session');
-              if (hasSession) {
-                if (import.meta.env.DEV) console.log('[Push] Session active, navigating directly to:', targetPath);
-                navigate(targetPath);
-              } else {
-                if (import.meta.env.DEV) console.log('[Push] Session not loaded yet, storing pending redirect:', targetPath);
-                sessionStorage.setItem('pending_push_redirect', targetPath);
-              }
+          if (!targetPath) {
+            targetPath = '/?openNotifications=true';
+          }
+
+          addToast(`${title}: ${body}`, 'info', 6000, targetPath);
+        });
+
+        // Listen for user tapping on push notifications (handles cold start launch actions)
+        await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+          if (import.meta.env.DEV) console.log('[Push] Action performed:', action);
+          
+          const data = action.notification?.data;
+          let targetPath = null;
+          if (data) {
+            if (data.type === 'incoming_call' && data.callId) {
+              targetPath = `/call/${data.callId}?mode=callee&friendName=${encodeURIComponent(data.callerName || '')}&friendAvatar=&friendId=${data.callerId}`;
+            } else if (data.type === 'privatemsg' && data.senderId) {
+              targetPath = `/chat?userId=${data.senderId}`;
+            } else if (data.type === 'groupmsg' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=chat`;
+            } else if (data.type === 'fileupload' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=documents`;
+            } else if (data.type === 'schedule' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=schedule`;
+            } else if (data.type === 'deadline' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=deadlines`;
+            } else if (data.type === 'friendreq' || data.type === 'friendaccept') {
+              targetPath = '/friends';
+            } else if (data.type === 'groupinvite') {
+              targetPath = '/groups';
+            } else if (data.type === 'joinrequest' && data.groupId) {
+              targetPath = `/groups/${data.groupId}`;
+            } else if (data.type === 'groupcall' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=chat`;
+            } else if (['groupjoin', 'groupdeputy', 'othergroupjoin'].includes(data.type) && data.groupId) {
+              targetPath = `/groups/${data.groupId}`;
+            } else if (data.type === 'deadline-urgent' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=deadlines`;
+            } else if ((data.type === 'comment' || data.type === 'like' || data.type === 'posttag_user' || data.type === 'posttag_group') && data.postId) {
+              targetPath = `/?postId=${data.postId}`;
+            } else if (data.type === 'missedcall' && data.senderId) {
+              targetPath = `/chat?userId=${data.senderId}`;
+            } else if (['groupkick', 'groupdemote'].includes(data.type)) {
+              targetPath = `/groups`;
             }
+          }
+
+          if (!targetPath) {
+            targetPath = '/?openNotifications=true';
+          }
+
+          const hasSession = !!localStorage.getItem('sc_session');
+          if (hasSession) {
+            if (import.meta.env.DEV) console.log('[Push] Session active, navigating directly to:', targetPath);
+            navigate(targetPath);
+          } else {
+            if (import.meta.env.DEV) console.log('[Push] Session not loaded yet, storing pending redirect:', targetPath);
+            sessionStorage.setItem('pending_push_redirect', targetPath);
           }
         });
 

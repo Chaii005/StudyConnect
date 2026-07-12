@@ -302,7 +302,7 @@ export default function useNotifications(userId) {
                 key: `deadline-urgent:${d.id}`,
                 type: 'deadline-urgent',
                 title: 'Sắp tới hạn',
-                body: `Còn ${timeStr} để nộp "${d.title}" trong nhóm ${d.study_groups?.name || 'Học tập'}.`,
+                body: `Còn ${timeStr} để nộp "${d.title}" ${isPersonal ? '(giao riêng cho bạn)' : 'trong nhóm ' + (d.study_groups?.name || 'Học tập')}.`,
                 createdAt: new Date(new Date(d.due_date).getTime() - ONE_DAY_MS).toISOString(),
                 groupId: d.group_id.toString(),
                 deadlineId: d.id.toString(),

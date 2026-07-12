@@ -777,11 +777,9 @@ export default function ConversationView({
         </div>
       )}
 
-      {/* Header Panel */}
       <div 
         style={{
           display: 'flex', 
-          alignItems: 'center', 
           gap: '14px',
           padding: '5px 20px', 
           borderBottom: '1.5px solid var(--border)',
@@ -1430,10 +1428,10 @@ export default function ConversationView({
         <div ref={bottomRef} />
       </div>
 
-      {/* Floating Scroll to Top Button */}
+      {/* Floating Scroll to Bottom Button */}
       {showScrollBtn && (
         <button 
-          onClick={scrollToTop} 
+          onClick={scrollToBottom} 
           style={{
             position: 'absolute',
             bottom: imgPreview ? '170px' : '84px',
@@ -1455,10 +1453,10 @@ export default function ConversationView({
           }}
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          title="Cuộn lên trên"
+          title="Cuộn xuống tin nhắn mới nhất"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="18 15 12 9 6 15"/>
+            <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
       )}

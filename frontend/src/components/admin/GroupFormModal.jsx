@@ -19,9 +19,11 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
     return () => document.removeEventListener('mousedown', clickOutside);
   }, []);
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (!isOpen) setSearch('');
-  }, [isOpen]);
+  }
 
   const filteredOptions = options.filter(opt =>
     opt.toLowerCase().includes(search.toLowerCase())
@@ -157,7 +159,7 @@ export default function GroupFormModal({
   useEffect(() => {
     if (!show) return;
     if (!groupForm.major) {
-      setDbSubjects([]);
+      Promise.resolve().then(() => setDbSubjects([]));
       return;
     }
     let cancelled = false;
@@ -171,26 +173,29 @@ export default function GroupFormModal({
 
   useEffect(() => {
     if (!show) return;
-    if (groupForm.subject) {
-      if (dbSubjects.length > 0) {
-        if (dbSubjects.includes(groupForm.subject)) {
-          setSubjectMode('select');
+    const updateSubjectState = () => {
+      if (groupForm.subject) {
+        if (dbSubjects.length > 0) {
+          if (dbSubjects.includes(groupForm.subject)) {
+            setSubjectMode('select');
+          } else {
+            setSubjectMode('custom');
+            setCustomSubject(groupForm.subject);
+          }
         } else {
-          setSubjectMode('custom');
           setCustomSubject(groupForm.subject);
         }
       } else {
-        setCustomSubject(groupForm.subject);
+        setCustomSubject('');
       }
-    } else {
-      setCustomSubject('');
-    }
+    };
+    Promise.resolve().then(updateSubjectState);
   }, [groupForm.subject, dbSubjects, show]);
 
   // Sync location text
   useEffect(() => {
     if (show) {
-      setCustomName(locationSearchVal || '');
+      Promise.resolve().then(() => setCustomName(locationSearchVal || ''));
     }
   }, [locationSearchVal, show]);
 
@@ -208,7 +213,7 @@ export default function GroupFormModal({
   // Autocomplete Nominatim
   useEffect(() => {
     if (groupForm.meetingMode !== 'offline' || !customName || customName.trim().length < 2) {
-      setSuggestions([]);
+      Promise.resolve().then(() => setSuggestions([]));
       return;
     }
     if (ignoreNextAutocompleteRef.current) {

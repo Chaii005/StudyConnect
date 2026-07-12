@@ -184,7 +184,7 @@ export const login = async ({ email, password }) => {
         throw signUpError;
       }
     } catch (err) {
-      throw new Error(err.message || 'Lỗi hệ thống khi tự động đồng bộ tài khoản bảo mật.');
+      throw new Error(err.message || 'Lỗi hệ thống khi tự động đồng bộ tài khoản bảo mật.', { cause: err });
     }
   }
 

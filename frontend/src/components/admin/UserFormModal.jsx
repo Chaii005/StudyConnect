@@ -25,9 +25,11 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
     return () => document.removeEventListener('mousedown', clickOutside);
   }, []);
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (!isOpen) setSearch('');
-  }, [isOpen]);
+  }
 
   const filteredOptions = options.filter(opt =>
     opt.toLowerCase().includes(search.toLowerCase())

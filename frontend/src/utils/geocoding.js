@@ -215,7 +215,7 @@ export function googleMapsSearchUrl(address) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. OSM Embed Url
 // ─────────────────────────────────────────────────────────────────────────────
-export function osmEmbedUrl({ lat, lng, zoom = 15 }) {
+export function osmEmbedUrl({ lat, lng }) {
   if (!lat || !lng) return null;
   return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01},${lat - 0.007},${lng + 0.01},${lat + 0.007}&layer=mapnik&marker=${lat},${lng}`;
 }

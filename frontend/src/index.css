@@ -1774,9 +1774,16 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
    ═══════════════════════════════════════════ */
 .is-native-app .desktop-only,
 .is-native-app .inline-desktop-only,
-.is-native-app .flex-desktop-only,
-.is-native-app .mobile-only {
+.is-native-app .flex-desktop-only {
   display: none !important;
+}
+
+.is-native-app .mobile-only {
+  display: block !important;
+}
+
+.is-native-app .flex-mobile-only {
+  display: flex !important;
 }
 
 .is-native-app .mobile-bottom-nav {
