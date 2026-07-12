@@ -31,6 +31,11 @@ function useRingTone(active) {
         const ctx = audioCtxRef.current;
         if (ctx.state === 'suspended') ctx.resume();
 
+        // Rung thiết bị liên tục theo nhịp chuông (vibrate 1000ms, pause 800ms)
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate([1000, 800]);
+        }
+
         // Tạo âm thanh chuông điện thoại 2 nốt
         const notes = [880, 1100];
         notes.forEach((freq, i) => {
@@ -57,6 +62,9 @@ function useRingTone(active) {
       clearInterval(intervalRef.current);
       nodesRef.current.forEach(n => { try { n.stop(); } catch { /* empty */ } });
       nodesRef.current = [];
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(0); // Dừng rung khi tắt chuông
+      }
     };
   }, [active]);
 }

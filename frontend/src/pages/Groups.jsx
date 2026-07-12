@@ -2255,9 +2255,6 @@ export default function Groups() {
                 e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)';
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
               Lập nhóm học
             </button>
 
@@ -2275,6 +2272,7 @@ export default function Groups() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
+                  minWidth: '156px',
                   background: showOnlyMyMajor
                     ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
                     : 'rgba(42,117,118,0.07)',
@@ -2313,9 +2311,6 @@ export default function Groups() {
                     : '0 2px 8px rgba(42,117,118,0.12)';
                 }}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 10v6M2 10l10-8 10 8-10 8-10-8z"/>
-                </svg>
                 {showOnlyMyMajor ? 'Xem tất cả' : 'Nhóm cùng ngành'}
               </button>
             )}
@@ -2440,7 +2435,6 @@ export default function Groups() {
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary, #2A7576)', background: 'rgba(42,117,118,0.09)', border: '1.5px solid rgba(42,117,118,0.25)', borderRadius: 20, padding: '2px 9px', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {user.major}
                   </span>
-                  {myMajorGroups.length > 0 && <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{myMajorGroups.length} nhóm</span>}
                 </div>
 
                 {myMajorGroups.length === 0 ? (
@@ -2461,7 +2455,7 @@ export default function Groups() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                   <div style={{ width: 4, height: 20, background: 'var(--border)', borderRadius: 4, flexShrink: 0 }} />
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>
-                    Tất cả nhóm học{_baseList.length > 0 ? <span style={{ fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>({_baseList.length} nhóm)</span> : ''}
+                    Tất cả nhóm học
                   </h3>
                 </div>
                 {_baseList.length === 0 ? (

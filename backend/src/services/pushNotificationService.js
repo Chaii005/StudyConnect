@@ -30,6 +30,9 @@ const sendPushToUsers = async (userIds, { title, body, data = {} }) => {
 
     const tokens = tokensRecord.map(t => t.device_token);
 
+    const isCall = data && data.type === 'incoming_call';
+    const channelId = isCall ? 'calls' : 'default';
+
     // Build FCM multicast message
     const message = {
       notification: {
@@ -42,8 +45,16 @@ const sendPushToUsers = async (userIds, { title, body, data = {} }) => {
       },
       android: {
         notification: {
-          channelId: 'default',
+          channelId,
           sound: 'default',
+          ...(isCall ? {
+            priority: 'max',
+            visibility: 'public',
+            category: 'call',
+            sticky: true,
+            // Android vibration pattern for calls: 1s vibrate, 0.5s pause
+            vibrateTimings: ['0s', '1s', '0.5s', '1s', '0.5s', '1s', '0.5s', '1s', '0.5s', '1s']
+          } : {})
         },
         priority: 'high'
       },

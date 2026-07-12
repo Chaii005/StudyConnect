@@ -46,7 +46,25 @@ export default function usePushNotifications(user) {
           });
           if (import.meta.env.DEV) console.log('[Push] Default notification channel created/verified');
         } catch (channelErr) {
-          if (import.meta.env.DEV) console.error('[Push] Failed to create notification channel:', channelErr);
+          if (import.meta.env.DEV) console.error('[Push] Failed to create default notification channel:', channelErr);
+        }
+
+        // 2. Create calls notification channel with max importance, sound, and vibration for incoming calls
+        try {
+          await PushNotifications.createChannel({
+            id: 'calls',
+            name: 'Cuộc gọi đến',
+            description: 'Kênh thông báo cho cuộc gọi đến',
+            importance: 5, // Max importance
+            visibility: 1, // Visible on lockscreen
+            sound: 'default',
+            vibration: true,
+            lights: true,
+            lightColor: '#ef4444'
+          });
+          if (import.meta.env.DEV) console.log('[Push] Calls notification channel created/verified');
+        } catch (channelErr) {
+          if (import.meta.env.DEV) console.error('[Push] Failed to create calls notification channel:', channelErr);
         }
 
         // 2. Add listeners BEFORE calling register() to prevent race conditions
