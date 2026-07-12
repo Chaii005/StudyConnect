@@ -133,6 +133,15 @@ export const CallProvider = ({ children }) => {
             navigate('/chat');
           }
         }
+
+        // Cuộc gọi được chấp nhận hoặc bị từ chối ở thiết bị khác của người nhận (đồng bộ hóa trạng thái giữa các thiết bị)
+        if (
+          (payload.type === 'accept' || payload.type === 'reject') &&
+          incomingCallRef.current?.callId === payload.callId
+        ) {
+          clearTimeout(ringTimerRef.current);
+          setIncomingCall(null);
+        }
       });
 
       ch.subscribe((status) => {
@@ -262,7 +271,7 @@ export const CallProvider = ({ children }) => {
   }, []);
 
   // ── Hủy cuộc gọi đang đổ chuông (người gọi) ────────────────────
-  const cancelCall = useCallback(async () => {
+  const cancelCall = useCallback(async (shouldNavigate = true) => {
     const call = outgoingCallRef.current;
     if (!call) return;
 
@@ -276,7 +285,7 @@ export const CallProvider = ({ children }) => {
 
     setOutgoingCall(null);
     setCallStatus(null);
-    navigate(-1);
+    if (shouldNavigate) navigate(-1);
   }, [navigate]);
 
   return (

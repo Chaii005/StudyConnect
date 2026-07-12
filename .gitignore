@@ -36,3 +36,4 @@ backend/.env
 *.sw?
 
 .vercel
+.agents/

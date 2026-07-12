@@ -81,6 +81,11 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, setMicOn, setCamOn
   const [remoteCamOn, setRemoteCamOn]   = useState(true);
   const [remoteMicOn, setRemoteMicOn]   = useState(true);
 
+  const onHangupRef = useRef(onHangup);
+  useEffect(() => {
+    onHangupRef.current = onHangup;
+  }, [onHangup]);
+
   const pcRef             = useRef(null);
   const localRef          = useRef(null);
   const channelRef        = useRef(null);
@@ -94,9 +99,8 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, setMicOn, setCamOn
 
   // Unique peer ID
   const myId = useMemo(
-    // eslint-disable-next-line react-hooks/purity
     () => `${user?.id || 'u'}_${Math.random().toString(36).slice(2, 6)}`,
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    [user?.id]
   );
 
   // Bắt đầu media
@@ -371,7 +375,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, setMicOn, setCamOn
           if (msg.type === 'hangup') {
             setConnected(false);
             setRemoteStream(null);
-            if (onHangup) onHangup();
+            if (onHangupRef.current) onHangupRef.current();
           }
         });
 
@@ -449,7 +453,7 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, setMicOn, setCamOn
       setRemoteStream(null);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [callId]);
+  }, [callId, user?.id, startMedia, myId]);
 
   const hangup = useCallback(async () => {
     if (channelRef.current) {
@@ -615,8 +619,8 @@ export default function PrivateCall() {
   const [partnerHungUp, setPartnerHungUp] = useState(false);
   const [callEndedMsg, setCallEndedMsg] = useState(null); // 'no_answer' | 'cancelled'
 
-  // Đọc callStatus từ CallContext (hiển thị khi timeout / bị hủy)
-  const { callStatus } = useCall();
+  // Đọc callStatus và cancelCall từ CallContext (hiển thị khi timeout / bị hủy)
+  const { callStatus, cancelCall } = useCall();
 
   // Lắng nghe kênh global để bắt 'no_answer'/'cancel' khi người gọi timeout
   // QUAN TRỌNG: phải dùng đúng tên channel 'private_calls_global' — cùng channel CallContext dùng để broadcast
@@ -653,12 +657,35 @@ export default function PrivateCall() {
   }, [callStatus, navigate]);
 
   const { localStream, remoteStream, connected, error, hangup, remoteCamOn, remoteMicOn } = usePrivateWebRTC({
-    callId, user, mode, micOn, camOn,
+    callId, user, mode, micOn, camOn, setMicOn, setCamOn,
     onHangup: () => {
       setPartnerHungUp(true);
       setTimeout(() => navigate('/chat'), 1500);
     }
   });
+
+  const connectedRef = useRef(connected);
+  useEffect(() => { connectedRef.current = connected; }, [connected]);
+
+  useEffect(() => {
+    return () => {
+      if (mode === 'caller' && !connectedRef.current) {
+        cancelCall(false).catch(() => {});
+      }
+    };
+  }, [mode, cancelCall]);
+
+  // Tự động kết thúc nếu không thể kết nối WebRTC sau 15 giây (chống kẹt màn hình chờ khi đối phương đã hủy cuộc gọi)
+  useEffect(() => {
+    if (connected || partnerHungUp || callEndedMsg) return;
+
+    const connectionTimeout = setTimeout(() => {
+      setCallEndedMsg('cancelled');
+      setTimeout(() => navigate('/chat'), 1500);
+    }, 15000); // 15 giây timeout
+
+    return () => clearTimeout(connectionTimeout);
+  }, [connected, partnerHungUp, callEndedMsg, navigate]);
 
   // Đếm thời gian khi connected
   useEffect(() => {
@@ -686,7 +713,11 @@ export default function PrivateCall() {
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleEndCall = useCallback(async () => {
     try {
-      await hangup();
+      if (!connected && mode === 'caller') {
+        await cancelCall(false);
+      } else {
+        await hangup();
+      }
     } catch (err) {
       if (import.meta.env.DEV) console.warn('Failed to send hangup signal:', err);
     }
@@ -699,7 +730,7 @@ export default function PrivateCall() {
       try { await sendMessage(user.id, friendId, summary); } catch { /* ignore */ }
     }
     navigate('/chat');
-  }, [hangup, navigate, user?.id, friendId]);
+  }, [connected, mode, cancelCall, hangup, navigate, user?.id, friendId]);
 
   return (
     <>
