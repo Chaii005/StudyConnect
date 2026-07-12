@@ -118,8 +118,8 @@ export default function AuthCallback() {
           }
           finalUser = newUser;
         } else {
-          // 4. Cập nhật liên kết supabase_uid nếu chưa được đặt
-          if (!existingUser.supabase_uid) {
+          // 4. Cập nhật liên kết supabase_uid nếu chưa được đặt hoặc bị lệch
+          if (!existingUser.supabase_uid || existingUser.supabase_uid !== authUser.id) {
             if (import.meta.env.DEV) console.log('[AuthCallback] Syncing existing user supabase_uid...');
             const { data: updatedUser, error: updateError } = await supabase
               .from('users')

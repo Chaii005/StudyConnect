@@ -204,8 +204,8 @@ export const login = async ({ email, password }) => {
     throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống do vi phạm chính sách nội dung khiêu dâm.');
   }
 
-  // Đồng bộ lại supabase_uid nếu trước đó chưa được gán
-  if (!user.supabase_uid && authData.user) {
+  // Đồng bộ lại supabase_uid nếu trước đó chưa được gán hoặc bị lệch
+  if ((!user.supabase_uid || user.supabase_uid !== authData.user.id) && authData.user) {
     await supabase
       .from('users')
       .update({ supabase_uid: authData.user.id })
@@ -272,8 +272,8 @@ export const syncAndGetSessionUser = async (authUser) => {
     if (existingUser.is_banned) {
       throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống.');
     }
-    // Cập nhật liên kết supabase_uid nếu chưa được đặt
-    if (!existingUser.supabase_uid) {
+    // Cập nhật liên kết supabase_uid nếu chưa được đặt hoặc bị lệch
+    if (!existingUser.supabase_uid || existingUser.supabase_uid !== authUser.id) {
       const { data: updatedUser, error: updateError } = await supabase
         .from('users')
         .update({ supabase_uid: authUser.id })
