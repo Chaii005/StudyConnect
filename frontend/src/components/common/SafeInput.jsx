@@ -1,18 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 export function SafeInput({ value, onChange, onCompositionStart, onCompositionEnd, ...props }) {
   const [localValue, setLocalValue] = useState(value ?? '');
-  const isComposing = useRef(false);
 
   useEffect(() => {
-    if (!isComposing.current) {
-      setLocalValue(value ?? '');
-    }
+    setLocalValue(value ?? '');
   }, [value]);
 
   const handleChange = (e) => {
     setLocalValue(e.target.value);
-    if (!isComposing.current && onChange) {
+    if (onChange) {
       onChange(e);
     }
   };
@@ -22,32 +19,22 @@ export function SafeInput({ value, onChange, onCompositionStart, onCompositionEn
       {...props}
       value={localValue}
       onChange={handleChange}
-      onCompositionStart={(e) => {
-        isComposing.current = true;
-        if (onCompositionStart) onCompositionStart(e);
-      }}
-      onCompositionEnd={(e) => {
-        isComposing.current = false;
-        if (onCompositionEnd) onCompositionEnd(e);
-        if (onChange) onChange(e);
-      }}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
     />
   );
 }
 
 export function SafeTextarea({ value, onChange, onCompositionStart, onCompositionEnd, ...props }) {
   const [localValue, setLocalValue] = useState(value ?? '');
-  const isComposing = useRef(false);
 
   useEffect(() => {
-    if (!isComposing.current) {
-      setLocalValue(value ?? '');
-    }
+    setLocalValue(value ?? '');
   }, [value]);
 
   const handleChange = (e) => {
     setLocalValue(e.target.value);
-    if (!isComposing.current && onChange) {
+    if (onChange) {
       onChange(e);
     }
   };
@@ -57,15 +44,8 @@ export function SafeTextarea({ value, onChange, onCompositionStart, onCompositio
       {...props}
       value={localValue}
       onChange={handleChange}
-      onCompositionStart={(e) => {
-        isComposing.current = true;
-        if (onCompositionStart) onCompositionStart(e);
-      }}
-      onCompositionEnd={(e) => {
-        isComposing.current = false;
-        if (onCompositionEnd) onCompositionEnd(e);
-        if (onChange) onChange(e);
-      }}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
     />
   );
 }
