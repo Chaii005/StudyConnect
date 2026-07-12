@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCall } from '../context/CallContext';
 import Avatar from './common/Avatar';
+import { Capacitor } from '@capacitor/core';
+import { Haptics } from '@capacitor/haptics';
 
 // Nhạc chuông bằng Web Audio API
 function useRingTone(active) {
@@ -32,26 +34,65 @@ function useRingTone(active) {
         if (ctx.state === 'suspended') ctx.resume();
 
         // Rung thiết bị liên tục theo nhịp chuông (vibrate 1000ms, pause 800ms)
-        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        if (Capacitor.isNativePlatform()) {
+          Haptics.vibrate({ duration: 1000 }).catch(() => {});
+        } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
           navigator.vibrate([1000, 800]);
         }
 
-        // Tạo âm thanh chuông điện thoại 2 nốt
-        const notes = [880, 1100];
-        notes.forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.15);
-          gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.15 + 0.05);
-          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.15 + 0.12);
-          osc.start(ctx.currentTime + i * 0.15);
-          osc.stop(ctx.currentTime + i * 0.15 + 0.13);
-          nodesRef.current.push(osc);
-        });
+        const playChimeNode = (freq, startTime, duration) => {
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          osc1.type = 'triangle';
+          osc1.frequency.setValueAtTime(freq, startTime);
+
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(freq * 2, startTime);
+
+          // Dynamic pitch vibrato for organic analog texture
+          const lfo = ctx.createOscillator();
+          const lfoGain = ctx.createGain();
+          lfo.frequency.value = 6.5; 
+          lfoGain.gain.value = 2; 
+          lfo.connect(lfoGain);
+          lfoGain.connect(osc1.frequency);
+          lfoGain.connect(osc2.frequency);
+
+          osc1.connect(gainNode);
+          osc2.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          // Soft bell chime envelope
+          gainNode.gain.setValueAtTime(0, startTime);
+          gainNode.gain.linearRampToValueAtTime(0.08, startTime + 0.015);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+          lfo.start(startTime);
+          lfo.stop(startTime + duration);
+
+          osc1.start(startTime);
+          osc1.stop(startTime + duration);
+
+          osc2.start(startTime);
+          osc2.stop(startTime + duration);
+
+          nodesRef.current.push(osc1, osc2, lfo);
+        };
+
+        const now = ctx.currentTime;
+        // First elegant upward chord sweep (E major)
+        playChimeNode(659.25, now, 1.2);        // E5
+        playChimeNode(830.61, now + 0.12, 1.2);   // G#5
+        playChimeNode(987.77, now + 0.24, 1.2);   // B5
+        playChimeNode(1318.51, now + 0.36, 1.2);  // E6
+
+        // Second resolving upward sweep (A major)
+        playChimeNode(880.00, now + 0.8, 1.2);    // A5
+        playChimeNode(1109.73, now + 0.92, 1.2);  // C#6
+        playChimeNode(1318.51, now + 1.04, 1.2);  // E6
+        playChimeNode(1760.00, now + 1.16, 1.2);  // A6
       } catch { /* ignore */ }
     };
 
@@ -62,8 +103,10 @@ function useRingTone(active) {
       clearInterval(intervalRef.current);
       nodesRef.current.forEach(n => { try { n.stop(); } catch { /* empty */ } });
       nodesRef.current = [];
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(0); // Dừng rung khi tắt chuông
+      if (Capacitor.isNativePlatform()) {
+        Haptics.vibrate({ duration: 0 }).catch(() => {});
+      } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(0);
       }
     };
   }, [active]);

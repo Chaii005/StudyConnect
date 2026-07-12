@@ -133,7 +133,6 @@ export default function ConversationView({
   const [renameVal, setRenameVal] = useState('');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showMenuDropdown, setShowMenuDropdown] = useState(false);
-  const [showCallConfirm, setShowCallConfirm] = useState(false);
   const [bgInfo, setBgInfo] = useState({
     isAnalyzed: false,
     r: 0,
@@ -857,7 +856,7 @@ export default function ConversationView({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
             {(!friend.status || friend.status === 'accepted') && (
               <button
-                onClick={() => setShowCallConfirm(true)}
+                onClick={() => initiateCall(friend)}
                 title="Gọi video"
                 style={{
                   width: 40, 
@@ -2523,124 +2522,6 @@ export default function ConversationView({
               >
                 Áp dụng
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showCallConfirm && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: 'rgba(5, 5, 5, 0.4)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          zIndex: 11000,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '16px',
-          animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        }}>
-          {/* Double-Bezel Outer Shell */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1.5px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '28px',
-            padding: '8px',
-            boxShadow: '0 24px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)',
-            width: '340px',
-            maxWidth: '90vw',
-            animation: 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          }}>
-            {/* Inner Core */}
-            <div style={{
-              background: '#0a0a0c',
-              border: '1px solid rgba(255, 255, 255, 0.04)',
-              borderRadius: '20px',
-              padding: '28px 20px 24px',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}>
-              {/* Premium Icon Ring */}
-              <div style={{
-                width: '60px', height: '60px', borderRadius: '50%',
-                background: 'rgba(13, 148, 136, 0.1)',
-                border: '1.5px solid var(--primary)',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: '20px',
-                color: 'var(--primary)',
-                boxShadow: '0 0 20px rgba(13, 148, 136, 0.15)',
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m22 8-6 4 6 4V8Z" />
-                  <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
-                </svg>
-              </div>
-              <h3 style={{ margin: '0 0 10px 0', fontSize: '17px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.01em' }}>
-                Bắt đầu cuộc gọi?
-              </h3>
-              <p style={{ margin: '0 0 28px 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6 }}>
-                Bạn có chắc chắn muốn thực hiện cuộc gọi video đến <strong>{nickname || friend.fullName}</strong> không?
-              </p>
-              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-                <button
-                  onClick={() => setShowCallConfirm(false)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    color: '#e5e5e5',
-                    fontFamily: 'inherit',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s cubic-bezier(0.32, 0.72, 0, 1)',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  onClick={() => {
-                    setShowCallConfirm(false);
-                    initiateCall(friend);
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: 'var(--primary)',
-                    border: 'none',
-                    borderRadius: '12px',
-                    color: 'white',
-                    fontFamily: 'inherit',
-                    fontWeight: 800,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s cubic-bezier(0.32, 0.72, 0, 1)',
-                    boxShadow: '0 4px 12px rgba(13, 148, 136, 0.2)',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'var(--primary-hover, #0f766e)';
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(13, 148, 136, 0.35)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'var(--primary)';
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 148, 136, 0.2)';
-                  }}
-                >
-                  Gọi ngay
-                </button>
-              </div>
             </div>
           </div>
         </div>
