@@ -33,10 +33,25 @@ export default function usePushNotifications(user) {
           return;
         }
 
-        // Register with Apple / Google push services
-        await PushNotifications.register();
+        // 1. Create a high-priority default Notification Channel for Android 8.0+
+        try {
+          await PushNotifications.createChannel({
+            id: 'default',
+            name: 'Default',
+            description: 'Kênh thông báo mặc định',
+            importance: 5, // High priority (vibrate, sound, pop on screen)
+            visibility: 1, // Visible on lockscreen
+            sound: 'default',
+            vibration: true
+          });
+          if (import.meta.env.DEV) console.log('[Push] Default notification channel created/verified');
+        } catch (channelErr) {
+          if (import.meta.env.DEV) console.error('[Push] Failed to create notification channel:', channelErr);
+        }
 
-        // 1. Listen for successful registration and upload token to Supabase
+        // 2. Add listeners BEFORE calling register() to prevent race conditions
+        
+        // Listen for successful registration and upload token to Supabase
         await PushNotifications.addListener('registration', async (token) => {
           if (import.meta.env.DEV) console.log('[Push] Token registered:', token.value);
           localStorage.setItem('sc_fcm_token', token.value);
@@ -58,17 +73,17 @@ export default function usePushNotifications(user) {
           }
         });
 
-        // 2. Listen for registration failures
+        // Listen for registration failures
         await PushNotifications.addListener('registrationError', (err) => {
           if (import.meta.env.DEV) console.error('[Push] Registration error:', err);
         });
 
-        // 3. Listen for incoming push notification while app is running in foreground
+        // Listen for incoming push notification while app is running in foreground
         await PushNotifications.addListener('pushNotificationReceived', (notification) => {
           if (import.meta.env.DEV) console.log('[Push] Notification received in foreground:', notification);
         });
 
-        // 4. Listen for user tapping on push notification
+        // Listen for user tapping on push notification
         await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
           if (import.meta.env.DEV) console.log('[Push] Action performed:', action);
           
@@ -84,6 +99,9 @@ export default function usePushNotifications(user) {
             }
           }
         });
+
+        // 3. Finally, register with Apple / Google push services
+        await PushNotifications.register();
 
       } catch (error) {
         if (import.meta.env.DEV) console.error('[Push] Initialization failed:', error);
