@@ -47,8 +47,8 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
       background: '#000000',
       border: speaking ? '3px solid #ffffff' : '1.5px solid #262626',
       aspectRatio: fullScreen ? 'auto' : ((window.innerWidth <= 768 || Capacitor.isNativePlatform()) ? '4/3' : '16/9'),
-      width: fullScreen ? '100%' : '100%',
-      height: fullScreen ? '100%' : '100%',
+      width: '100%',
+      height: fullScreen ? '100%' : 'auto',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       boxShadow: 'none',
@@ -1149,7 +1149,7 @@ export default function MeetRoom() {
 
   return (
     <AppLayout hideSidebar={true} hideNavbar={true}>
-      <div ref={containerRef} onMouseMove={resetHideTimer} style={{ height: '100vh', background: '#0A0A0C', display: 'flex', flexDirection: 'column', fontFamily: 'inherit', overflow: 'hidden' }}>
+      <div ref={containerRef} onMouseMove={resetHideTimer} onClick={resetHideTimer} style={{ position: 'fixed', inset: 0, background: '#0A0A0C', display: 'flex', flexDirection: 'column', fontFamily: 'inherit', overflow: 'hidden' }}>
         <style>{`
           .meet-pip-container {
             width: 180px !important;
@@ -1303,7 +1303,7 @@ export default function MeetRoom() {
         </nav>
 
         {/* ── Body ── */}
-        <div className="meet-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', height: isFullscreen ? '100%' : 'calc(100vh - 64px)', position: 'relative' }}>
+        <div className="meet-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0, position: 'relative' }}>
 
           {/* ── Video Area ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: isFullscreen ? '0' : (isMobile ? '8px' : '20px'), position: 'relative', height: '100%' }}>
@@ -1379,8 +1379,8 @@ export default function MeetRoom() {
                   );
                 }
 
-                // TRƯỜNG HỢP: Phòng chỉ có 2 người, sử dụng giao diện PiP (1 to - 1 nhỏ)
-                if (allFeeds.length === 2) {
+                // TRƯỜNG HỢP: Phòng chỉ có 2 người, sử dụng giao diện PiP (1 to - 1 nhỏ) (Chỉ trên Desktop)
+                if (allFeeds.length === 2 && !isMobile) {
                   const localFeed = allFeeds.find(f => f.isLocal);
                   const remoteFeed = allFeeds.find(f => !f.isLocal);
 
@@ -1467,8 +1467,8 @@ export default function MeetRoom() {
                   );
                 }
 
-                // TRƯỜNG HỢP: Phòng chỉ có 1 người, hiển thị toàn bộ màn hình
-                if (allFeeds.length === 1) {
+                // TRƯỜNG HỢP: Phòng chỉ có 1 người, hiển thị toàn bộ màn hình (Chỉ trên Desktop)
+                if (allFeeds.length === 1 && !isMobile) {
                   const f = allFeeds[0];
                   return (
                     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: isFullscreen ? '0' : '24px' }}>
@@ -1760,7 +1760,7 @@ export default function MeetRoom() {
                 active={micOn}
                 onClick={() => setMicOn(m => !m)}
                 danger={!micOn}
-                icon={<MicSvg active={micOn} />}
+                icon={<MicSvg active={micOn} size={isMobile ? 17 : 20} />}
                 label={isMobile ? "" : (micOn ? "Tắt Mic" : "Bật Mic")}
                 size={isMobile ? 38 : 46}
               />
@@ -1770,7 +1770,7 @@ export default function MeetRoom() {
                 active={camOn}
                 onClick={() => setCamOn(c => !c)}
                 danger={!camOn}
-                icon={<VideoSvg active={camOn} />}
+                icon={<VideoSvg active={camOn} size={isMobile ? 17 : 20} />}
                 label={isMobile ? "" : (camOn ? "Tắt Camera" : "Bật Camera")}
                 size={isMobile ? 38 : 46}
               />
@@ -1800,7 +1800,7 @@ export default function MeetRoom() {
                     setSidebarOpen(true);
                   }
                 }}
-                icon={<ChatSvg />}
+                icon={<ChatSvg size={isMobile ? 17 : 20} />}
                 label={isMobile ? "" : "Trò chuyện"}
                 badge={unreadChatCount > 0 ? true : null}
                 size={isMobile ? 38 : 46}

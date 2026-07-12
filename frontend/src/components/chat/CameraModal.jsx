@@ -20,45 +20,70 @@ export default function CameraModal({ onCapture, onClose }) {
   }, []);
 
   useEffect(() => {
-    const startCamera = async () => {
-      const constraintOptions = [
-        { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } },
-        { video: { width: { ideal: 1280 }, height: { ideal: 720 } } },
-        { video: true }
-      ];
-
-      let stream = null;
-      let lastError = null;
-
-      for (const constraints of constraintOptions) {
+    if (Capacitor.isNativePlatform()) {
+      const startNativeCamera = async () => {
         try {
-          stream = await navigator.mediaDevices.getUserMedia(constraints);
-          break;
+          const { Camera, CameraResultType } = await import('@capacitor/camera');
+          const image = await Camera.getPhoto({
+            quality: 85,
+            allowEditing: false,
+            resultType: CameraResultType.Base64,
+            promptLabelHeader: 'Chụp ảnh',
+            promptLabelPhoto: 'Chọn từ thư viện',
+            promptLabelPicture: 'Chụp ảnh mới'
+          });
+          if (image && image.base64String) {
+            onCapture(`data:image/jpeg;base64,${image.base64String}`);
+          } else {
+            onClose();
+          }
         } catch (err) {
-          lastError = err;
+          if (import.meta.env.DEV) console.warn('[CameraModal] Native camera cancelled or failed:', err);
+          onClose();
         }
-      }
+      };
+      startNativeCamera();
+    } else {
+      const startCamera = async () => {
+        const constraintOptions = [
+          { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } },
+          { video: { width: { ideal: 1280 }, height: { ideal: 720 } } },
+          { video: true }
+        ];
 
-      if (stream) {
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          setReady(true);
+        let stream = null;
+        let lastError = null;
+
+        for (const constraints of constraintOptions) {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            break;
+          } catch (err) {
+            lastError = err;
+          }
         }
-      } else {
-        if (import.meta.env.DEV) console.error('All camera constraint options failed:', lastError);
-        setError('Không thể truy cập camera. Vui lòng kiểm tra quyền thiết bị.');
-      }
-    };
 
-    startCamera();
+        if (stream) {
+          streamRef.current = stream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            setReady(true);
+          }
+        } else {
+          if (import.meta.env.DEV) console.error('All camera constraint options failed:', lastError);
+          setError('Không thể truy cập camera. Vui lòng kiểm tra quyền thiết bị.');
+        }
+      };
+
+      startCamera();
+    }
 
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, [onCapture, onClose]);
 
   const handleCapture = () => {
     if (!ready || !videoRef.current || !canvasRef.current) return;
@@ -76,6 +101,27 @@ export default function CameraModal({ onCapture, onClose }) {
       onCapture(dataUrl);
     }
   };
+
+  if (Capacitor.isNativePlatform()) {
+    return (
+      <div 
+        style={{
+          position: 'fixed', 
+          inset: 0, 
+          zIndex: 9999,
+          background: 'rgba(10, 10, 20, 0.85)', 
+          backdropFilter: 'blur(16px)',
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+        }}
+      >
+        <div style={{ color: '#ffffff', fontSize: '15px', fontWeight: 600 }}>
+          Đang khởi động camera hệ thống...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
