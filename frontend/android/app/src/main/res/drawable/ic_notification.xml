@@ -3,8 +3,8 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <!-- Graduation Cap / Mortarboard icon silhouette for notification -->
+    <!-- Open Book icon silhouette for notification matching the app logo -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M12,3L1,9L12,15L21,10.09V17H23V9L12,3M18.82,12.5L12,16.22L5.18,12.5L3,13.7L12,18.6L21,13.7L18.82,12.5Z" />
+        android:pathData="M21 5c-1.11-1.11-2.61-1.74-4.21-1.74-1.6 0-3.1.63-4.21 1.74-1.11-1.11-2.61-1.74-4.21-1.74-1.6 0-3.1.63-4.21 1.74C2.63 6.11 2 7.61 2 9.21v11.08c0 .38.31.69.69.69h.12c.38 0 .69-.31.69-.69V9.21c0-1.14.45-2.22 1.28-3.04.82-.82 1.9-1.28 3.04-1.28 1.14 0 2.22.45 3.04 1.28.82.82 1.28 1.9 1.28 3.04v11.08c0 .38.31.69.69.69h.12c.38 0 .69-.31.69-.69V9.21c0-1.6 1.6-3.1 4.21-3.1 1.6 0 3.1.63 4.21 1.74.82.82 1.28 1.9 1.28 3.04v11.08c0 .38.31.69.69.69h.12c.38 0 .69-.31.69-.69V9.21c0-1.6-.63-3.1-1.74-4.21z" />
 </vector>
