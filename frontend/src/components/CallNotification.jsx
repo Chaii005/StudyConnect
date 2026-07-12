@@ -28,10 +28,16 @@ function useRingTone(active) {
     const playRing = () => {
       // Rung thiết bị ở block riêng biệt, tránh bị ảnh hưởng bởi lỗi AudioContext (do chính sách autoplay của trình duyệt)
       try {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate([1000, 800]);
+        }
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn('[CallNotification] navigator.vibrate failed:', e);
+      }
+
+      try {
         if (Capacitor.isNativePlatform()) {
           Haptics.vibrate({ duration: 1000 }).catch(() => {});
-        } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate([1000, 800]);
         }
       } catch (hapticsErr) {
         if (import.meta.env.DEV) console.warn('[CallNotification] Haptics failed:', hapticsErr);
@@ -109,11 +115,16 @@ function useRingTone(active) {
       clearInterval(intervalRef.current);
       nodesRef.current.forEach(n => { try { n.stop(); } catch { /* empty */ } });
       nodesRef.current = [];
-      if (Capacitor.isNativePlatform()) {
-        Haptics.vibrate({ duration: 0 }).catch(() => {});
-      } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(0);
-      }
+      try {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate(0);
+        }
+      } catch (e) {}
+      try {
+        if (Capacitor.isNativePlatform()) {
+          Haptics.vibrate({ duration: 0 }).catch(() => {});
+        }
+      } catch (e) {}
     };
   }, [active]);
 }
