@@ -1890,4 +1890,17 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 .is-web-browser .layout-1col-custom {
   grid-template-columns: 1fr !important;
 }
+
+/* Custom class to show elements on mobile/native app screens but hide on desktop lock */
+.show-on-mobile-only {
+  display: none !important;
+}
+@media (max-width: 991px) {
+  .show-on-mobile-only {
+    display: block !important;
+  }
+}
+.is-web-browser .show-on-mobile-only {
+  display: none !important;
+}
 

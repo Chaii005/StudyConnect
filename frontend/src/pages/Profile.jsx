@@ -704,7 +704,7 @@ export default function Profile() {
           </div>
 
           {/* Mobile Logout Button */}
-          <div className="mobile-only" style={{ marginTop: '8px', marginBottom: '20px', padding: '0 8px' }}>
+          <div className="show-on-mobile-only" style={{ marginTop: '8px', marginBottom: '20px', padding: '0 8px' }}>
             <button
               type="button"
               onClick={handleLogout}
