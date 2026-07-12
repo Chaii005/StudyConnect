@@ -81,6 +81,11 @@ export default function usePushNotifications(user) {
         // Listen for incoming push notification while app is running in foreground
         await PushNotifications.addListener('pushNotificationReceived', (notification) => {
           if (import.meta.env.DEV) console.log('[Push] Notification received in foreground:', notification);
+          
+          // Display a friendly toast in-app when notification is received in foreground
+          const title = notification.title || 'Thông báo';
+          const body = notification.body || '';
+          addToast(`${title}: ${body}`, 'info');
         });
 
         // Listen for user tapping on push notification
