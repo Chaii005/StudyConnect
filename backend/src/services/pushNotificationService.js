@@ -40,6 +40,13 @@ const sendPushToUsers = async (userIds, { title, body, data = {} }) => {
         ...data,
         click_action: 'FLUTTER_NOTIFICATION_CLICK', // standard compatibility
       },
+      android: {
+        notification: {
+          channelId: 'default',
+          sound: 'default',
+        },
+        priority: 'high'
+      },
       tokens
     };
 
