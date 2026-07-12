@@ -1,7 +1,7 @@
 // src/pages/Chat.jsx
 // ── Orchestrator: composes Chat sidebar + ConversationView ─────────
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useOnlineUsers } from '../context/OnlineUsersContext';
 import { getFriends } from '../services/friendService.js';
@@ -18,6 +18,8 @@ import ConversationView from '../components/chat/ConversationView';
 export default function Chat() {
   const { isAuth, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryUserId = searchParams.get('userId');
   const onlineUserIds = useOnlineUsers();
 
   const [friends, setFriends] = useState([]);
@@ -30,6 +32,18 @@ export default function Chat() {
 
   const friendsRef = useRef([]);
   useEffect(() => { friendsRef.current = friends; }, [friends]);
+
+  // Handle direct navigation via userId query parameter
+  useEffect(() => {
+    if (friends.length > 0 && queryUserId) {
+      const friend = friends.find(f => String(f.userId) === String(queryUserId));
+      if (friend) {
+        setSelectedFriend(friend);
+        // Clear query parameters to avoid resetting selection on unrelated state changes
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [friends, queryUserId, setSearchParams]);
 
   // Track active chat friend for GlobalMessageListener
   useEffect(() => {

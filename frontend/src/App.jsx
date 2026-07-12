@@ -8,6 +8,7 @@ import CallNotification from './components/CallNotification';
 import { ToastProvider } from './context/ToastContext';
 import { NotificationProvider } from './context/NotificationContext';
 import GlobalMessageListener from './components/GlobalMessageListener';
+import usePushNotifications from './hooks/usePushNotifications';
 import { supabase } from './config/supabaseClient';
 
 // ── Statically imported pages (Fixes ChunkLoadErrors and black screens on navigation) ──
@@ -149,6 +150,9 @@ const StudentCallWrapper = () => {
 
 // ── Routes ────────────────────────────────────────────────────────
 function AppRoutes() {
+  const { user } = useAuth();
+  usePushNotifications(user);
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>

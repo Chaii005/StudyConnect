@@ -138,6 +138,8 @@ export default function NotificationBell({ style }) {
     else if (n.type === 'comment' || n.type === 'like' || n.type === 'posttag_user' || n.type === 'posttag_group') navigate(n.postId ? `/?postId=${n.postId}` : '/');
     else if (n.type === 'friendaccept' || n.type === 'friendreq') navigate('/friends');
     else if (n.type === 'joinrequest') navigate(`/groups/${n.groupId}`);
+    else if (n.type === 'privatemsg' || n.type === 'missedcall') navigate(n.senderId ? `/chat?userId=${n.senderId}` : '/chat');
+    else if (n.type === 'groupkick' || n.type === 'groupdemote') navigate('/groups');
   };
 
   const onAcceptInvite = (n) => { acceptInvite(n.inviteId); };

@@ -3,11 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { supabase } from '../config/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import usePushNotifications from '../hooks/usePushNotifications';
-
 export default function GlobalMessageListener() {
   const { user } = useAuth();
-  usePushNotifications(user);
   const { addToast: originalAddToast } = useToast();
   const location = useLocation();
 
@@ -171,7 +168,7 @@ export default function GlobalMessageListener() {
           const text = (msg.content?.startsWith('data:image') || msg.content?.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i))
             ? 'Đã gửi một ảnh'
             : (msg.content || '');
-          addToast(`${senderName}: ${text}`, 'message', 6000, '/chat');
+          addToast(`${senderName}: ${text}`, 'message', 6000, `/chat?userId=${msg.sender_id}`);
         } catch { /* ignore */ }
       })
       // ④ Lời mời kết bạn & Chấp nhận kết bạn

@@ -1,5 +1,24 @@
 import { timeAgo } from '@/utils';
 
+function stripEmojis(str) {
+  if (!str || typeof str !== 'string') return str;
+  return str
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+    .replace(/[\u{1F600}-\u{1F64F}]/gu, '')
+    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '')
+    .replace(/[\u{2600}-\u{26FF}]/gu, '')
+    .replace(/[\u{2700}-\u{27BF}]/gu, '')
+    .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+    .replace(/[\u{1F900}-\u{1F9FF}]/gu, '')
+    .replace(/[\u{1F000}-\u{1F02F}]/gu, '')
+    .replace(/[\u{1F0A0}-\u{1F0FF}]/gu, '')
+    .replace(/[\u{1F100}-\u{1F1FF}]/gu, '')
+    .replace(/[\u{1F200}-\u{1F2FF}]/gu, '')
+    .replace(/[\u{1FA00}-\u{1FAFF}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export default function NotificationItem({
   notification: n,
   isUnread,
@@ -38,12 +57,12 @@ export default function NotificationItem({
           lineHeight: 1.4,
         }}
       >
-        {n.title}
+        {stripEmojis(n.title)}
       </div>
 
       {n.body && (
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: 4 }}>
-          {n.body}
+          {stripEmojis(n.body)}
         </div>
       )}
 

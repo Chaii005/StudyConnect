@@ -1,5 +1,6 @@
 // frontend/src/hooks/usePushNotifications.js
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/config/supabaseClient';
@@ -7,9 +8,110 @@ import { useToast } from '@/context/ToastContext';
 
 export default function usePushNotifications(user) {
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
+  // 1. Register Action Listeners immediately on startup (runs once on mount, independent of user auth)
   useEffect(() => {
-    // Only register on native platforms (Android / iOS)
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    const initListeners = async () => {
+      try {
+        // Create standard default notification channel
+        try {
+          await PushNotifications.createChannel({
+            id: 'default',
+            name: 'Default',
+            description: 'Kênh thông báo mặc định',
+            importance: 5,
+            visibility: 1,
+            sound: 'default',
+            vibration: true
+          });
+        } catch (channelErr) {
+          if (import.meta.env.DEV) console.warn('[Push] Default channel creation failed:', channelErr);
+        }
+
+        // Create calls notification channel with max priority
+        try {
+          await PushNotifications.createChannel({
+            id: 'calls',
+            name: 'Cuộc gọi đến',
+            description: 'Kênh thông báo cho cuộc gọi đến',
+            importance: 5,
+            visibility: 1,
+            sound: 'default',
+            vibration: true,
+            lights: true,
+            lightColor: '#ef4444'
+          });
+        } catch (channelErr) {
+          if (import.meta.env.DEV) console.warn('[Push] Calls channel creation failed:', channelErr);
+        }
+
+        // Listen for foreground notifications
+        await PushNotifications.addListener('pushNotificationReceived', (notification) => {
+          if (import.meta.env.DEV) console.log('[Push] Notification received in foreground:', notification);
+          const title = notification.title || 'Thông báo';
+          const body = notification.body || '';
+          addToast(`${title}: ${body}`, 'info');
+        });
+
+        // Listen for user tapping on push notifications (handles cold start launch actions)
+        await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+          if (import.meta.env.DEV) console.log('[Push] Action performed:', action);
+          
+          const data = action.notification?.data;
+          if (data) {
+            let targetPath = null;
+            if (data.type === 'incoming_call' && data.callId) {
+              targetPath = `/call/${data.callId}?mode=callee&friendName=${encodeURIComponent(data.callerName || '')}&friendAvatar=&friendId=${data.callerId}`;
+            } else if (data.type === 'privatemsg' && data.senderId) {
+              targetPath = `/chat?userId=${data.senderId}`;
+            } else if (data.type === 'groupmsg' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=chat`;
+            } else if (data.type === 'fileupload' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=documents`;
+            } else if (data.type === 'schedule' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=schedule`;
+            } else if (data.type === 'deadline' && data.groupId) {
+              targetPath = `/groups/${data.groupId}?tab=deadlines`;
+            } else if (data.type === 'friendreq' || data.type === 'friendaccept') {
+              targetPath = '/friends';
+            } else if (data.type === 'groupinvite') {
+              targetPath = '/groups';
+            } else if (data.type === 'joinrequest' && data.groupId) {
+              targetPath = `/groups/${data.groupId}`;
+            }
+
+            if (targetPath) {
+              const hasSession = !!localStorage.getItem('sc_session');
+              if (hasSession) {
+                if (import.meta.env.DEV) console.log('[Push] Session active, navigating directly to:', targetPath);
+                navigate(targetPath);
+              } else {
+                if (import.meta.env.DEV) console.log('[Push] Session not loaded yet, storing pending redirect:', targetPath);
+                sessionStorage.setItem('pending_push_redirect', targetPath);
+              }
+            }
+          }
+        });
+
+      } catch (err) {
+        if (import.meta.env.DEV) console.error('[Push] Action listeners init failed:', err);
+      }
+    };
+
+    initListeners();
+
+    return () => {
+      PushNotifications.removeAllListeners();
+    };
+  }, [navigate, addToast]);
+
+  // 2. Register Device Token (runs/updates whenever user is authenticated)
+  useEffect(() => {
     if (!Capacitor.isNativePlatform()) {
       return;
     }
@@ -18,58 +120,20 @@ export default function usePushNotifications(user) {
       return;
     }
 
-    const initPush = async () => {
+    const initTokenRegistration = async () => {
       try {
         let permStatus = await PushNotifications.checkPermissions();
 
-        // Request permission if not already granted (handles 'prompt' and 'prompt-with-rationale')
         if (permStatus.receive !== 'granted') {
           permStatus = await PushNotifications.requestPermissions();
         }
 
         if (permStatus.receive !== 'granted') {
           if (import.meta.env.DEV) console.warn('[Push] User denied notification permission');
-          addToast('Thông báo đẩy đang bị tắt. Bạn có thể bật lại trong Cài đặt hệ thống để nhận tin nhắn mới.', 'info');
           return;
         }
 
-        // 1. Create a high-priority default Notification Channel for Android 8.0+
-        try {
-          await PushNotifications.createChannel({
-            id: 'default',
-            name: 'Default',
-            description: 'Kênh thông báo mặc định',
-            importance: 5, // High priority (vibrate, sound, pop on screen)
-            visibility: 1, // Visible on lockscreen
-            sound: 'default',
-            vibration: true
-          });
-          if (import.meta.env.DEV) console.log('[Push] Default notification channel created/verified');
-        } catch (channelErr) {
-          if (import.meta.env.DEV) console.error('[Push] Failed to create default notification channel:', channelErr);
-        }
-
-        // 2. Create calls notification channel with max importance, sound, and vibration for incoming calls
-        try {
-          await PushNotifications.createChannel({
-            id: 'calls',
-            name: 'Cuộc gọi đến',
-            description: 'Kênh thông báo cho cuộc gọi đến',
-            importance: 5, // Max importance
-            visibility: 1, // Visible on lockscreen
-            sound: 'default',
-            vibration: true,
-            lights: true,
-            lightColor: '#ef4444'
-          });
-          if (import.meta.env.DEV) console.log('[Push] Calls notification channel created/verified');
-        } catch (channelErr) {
-          if (import.meta.env.DEV) console.error('[Push] Failed to create calls notification channel:', channelErr);
-        }
-
-        // 2. Add listeners BEFORE calling register() to prevent race conditions
-        
-        // Listen for successful registration and upload token to Supabase
+        // Upload FCM token to database
         await PushNotifications.addListener('registration', async (token) => {
           if (import.meta.env.DEV) console.log('[Push] Token registered:', token.value);
           localStorage.setItem('sc_fcm_token', token.value);
@@ -91,53 +155,33 @@ export default function usePushNotifications(user) {
           }
         });
 
-        // Listen for registration failures
         await PushNotifications.addListener('registrationError', (err) => {
           if (import.meta.env.DEV) console.error('[Push] Registration error:', err);
         });
 
-        // Listen for incoming push notification while app is running in foreground
-        await PushNotifications.addListener('pushNotificationReceived', (notification) => {
-          if (import.meta.env.DEV) console.log('[Push] Notification received in foreground:', notification);
-          
-          // Display a friendly toast in-app when notification is received in foreground
-          const title = notification.title || 'Thông báo';
-          const body = notification.body || '';
-          addToast(`${title}: ${body}`, 'info');
-        });
-
-        // Listen for user tapping on push notification
-        await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-          if (import.meta.env.DEV) console.log('[Push] Action performed:', action);
-          
-          // Route redirection based on notification payload data
-          const data = action.notification?.data;
-          if (data) {
-            if (data.type === 'privatemsg' && data.senderId) {
-              window.location.href = `/chat?userId=${data.senderId}`;
-            } else if ((data.type === 'groupmsg' || data.type === 'fileupload' || data.type === 'schedule' || data.type === 'deadline') && data.groupId) {
-              window.location.href = `/groups/${data.groupId}`;
-            } else if (data.type === 'friendreq') {
-              window.location.href = `/friends`;
-            }
-          }
-        });
-
-        // 3. Finally, register with Apple / Google push services
+        // Trigger registration for FCM token
         await PushNotifications.register();
 
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('[Push] Initialization failed:', error);
+      } catch (err) {
+        if (import.meta.env.DEV) console.error('[Push] Token registration failed:', err);
       }
     };
 
-    initPush();
-
-    // Cleanup listeners when user logs out or hook unmounts
-    return () => {
-      if (Capacitor.isNativePlatform()) {
-        PushNotifications.removeAllListeners();
-      }
-    };
+    initTokenRegistration();
   }, [user]);
+
+  // 3. Process pending notification redirect once authenticated
+  useEffect(() => {
+    if (user && user.id) {
+      const pendingRedirect = sessionStorage.getItem('pending_push_redirect');
+      if (pendingRedirect) {
+        if (import.meta.env.DEV) console.log('[Push] Auth complete, executing pending redirect:', pendingRedirect);
+        sessionStorage.removeItem('pending_push_redirect');
+        // Small delay to ensure react router route tree is fully ready
+        setTimeout(() => {
+          navigate(pendingRedirect);
+        }, 100);
+      }
+    }
+  }, [user, navigate]);
 }
