@@ -297,6 +297,12 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, setMicOn, setCamOn
                 });
               } else {
                 if (import.meta.env.DEV) console.log('[PrivateCall] My ID is larger, waiting for remote offer...');
+                if (msg.type === 'join') {
+                  channelRef.current?.send({
+                    type: 'broadcast', event: 'pc_signal',
+                    payload: { type: 'ready', from: myId, camOn: camOnRef.current, micOn: micOnRef.current }
+                  });
+                }
               }
             }
           }

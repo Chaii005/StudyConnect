@@ -119,15 +119,18 @@ export const CallProvider = ({ children }) => {
 
         // Nhận cuộc gọi đến
         if (payload.type === 'call' && String(payload.receiverId) === String(user.id)) {
-          setIncomingCall({
+          const inCallObj = {
             callId: payload.callId,
             callerId: payload.callerId,
             callerName: payload.callerName,
             callerAvatar: payload.callerAvatar,
-          });
+          };
+          setIncomingCall(inCallObj);
+          incomingCallRef.current = inCallObj;
           clearTimeout(ringTimerRef.current);
           ringTimerRef.current = setTimeout(() => {
             setIncomingCall(null);
+            incomingCallRef.current = null;
             setCallStatus('missed');
             clearTimeout(statusTimerRef.current);
             statusTimerRef.current = setTimeout(() => setCallStatus(null), 3000);
@@ -142,15 +145,19 @@ export const CallProvider = ({ children }) => {
           const outCall = outgoingCallRef.current;
           clearTimeout(ringTimerRef.current);
           clearTimeout(statusTimerRef.current);
+          outgoingCallRef.current = null;
           setOutgoingCall(null);
           setCallStatus(null);
-          navigate(`/call/${payload.callId}?mode=caller&friendName=${encodeURIComponent(outCall?.receiverName || '')}&friendAvatar=${encodeURIComponent(outCall?.receiverAvatar || '')}&friendId=${outCall?.receiverId}`);
+          if (!locationRef.current.startsWith(`/call/${payload.callId}`)) {
+            navigate(`/call/${payload.callId}?mode=caller&friendName=${encodeURIComponent(outCall?.receiverName || '')}&friendAvatar=${encodeURIComponent(outCall?.receiverAvatar || '')}&friendId=${outCall?.receiverId}`);
+          }
         }
 
         // Đối phương từ chối (người gọi nhận)
         if (payload.type === 'reject' && outgoingCallRef.current?.callId === payload.callId) {
           clearTimeout(ringTimerRef.current);
           const outCall = outgoingCallRef.current;
+          outgoingCallRef.current = null;
           setOutgoingCall(null);
           setCallStatus('rejected');
           clearTimeout(statusTimerRef.current);
@@ -170,6 +177,7 @@ export const CallProvider = ({ children }) => {
           incomingCallRef.current?.callId === payload.callId
         ) {
           clearTimeout(ringTimerRef.current);
+          incomingCallRef.current = null;
           setIncomingCall(null);
           setCallStatus('missed');
           clearTimeout(statusTimerRef.current);
@@ -185,6 +193,7 @@ export const CallProvider = ({ children }) => {
           incomingCallRef.current?.callId === payload.callId
         ) {
           clearTimeout(ringTimerRef.current);
+          incomingCallRef.current = null;
           setIncomingCall(null);
         }
       });
@@ -234,12 +243,14 @@ export const CallProvider = ({ children }) => {
       receiverId: friend.userId,
     };
 
-    setOutgoingCall({
+    const outCallObj = {
       callId,
       receiverId: friend.userId,
       receiverName: friend.fullName,
       receiverAvatar: friend.avatar || '',
-    });
+    };
+    setOutgoingCall(outCallObj);
+    outgoingCallRef.current = outCallObj;
     setCallStatus('ringing');
 
     await channelRef.current?.send({
@@ -268,6 +279,7 @@ export const CallProvider = ({ children }) => {
         event: 'call_signal',
         payload: { type: 'no_answer', callId, receiverId },
       });
+      outgoingCallRef.current = null;
       setOutgoingCall(null);
       setCallStatus('no_answer');
       clearTimeout(statusTimerRef.current);
@@ -296,6 +308,7 @@ export const CallProvider = ({ children }) => {
       payload: { type: 'accept', callId: call.callId, receiverId: user?.id },
     });
 
+    incomingCallRef.current = null;
     setIncomingCall(null);
     navigate(`/call/${call.callId}?mode=callee&friendName=${encodeURIComponent(call.callerName)}&friendAvatar=${encodeURIComponent(call.callerAvatar || '')}&friendId=${call.callerId}`);
   }, [user, navigate]);
@@ -314,6 +327,7 @@ export const CallProvider = ({ children }) => {
       payload: { type: 'reject', callId: call.callId },
     });
 
+    incomingCallRef.current = null;
     setIncomingCall(null);
   }, []);
 
@@ -330,6 +344,7 @@ export const CallProvider = ({ children }) => {
       payload: { type: 'cancel', callId: call.callId },
     });
 
+    outgoingCallRef.current = null;
     setOutgoingCall(null);
     setCallStatus(null);
     if (shouldNavigate) navigate(-1);
