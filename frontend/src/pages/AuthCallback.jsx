@@ -137,7 +137,7 @@ export default function AuthCallback() {
         if (isNewUser) {
           // User mới Google: chuyển sang trang hoàn thiện hồ sơ
           localStorage.setItem('sc_pending_profile_id', String(finalUser.id));
-          addToast('Đăng ký thành công! Hãy hoàn tất hồ sơ học tập của bạn.', 'success');
+          addToast('Hãy hoàn tất hồ sơ để hoàn thành đăng ký.', 'info');
           navigate('/complete-profile', { replace: true });
         } else {
           addToast('Đăng nhập bằng Google thành công! Chào mừng quay trở lại.', 'success');

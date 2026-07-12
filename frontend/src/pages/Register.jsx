@@ -276,7 +276,7 @@ export default function Register() {
 
         const { user: loggedInUser, isNewUser } = await signInWithGoogleNative(idToken);
         setUser(loggedInUser);
-        addToast(isNewUser ? 'Đăng ký thành công! Hãy hoàn tất hồ sơ học tập.' : 'Đăng nhập thành công!', 'success');
+        addToast(isNewUser ? 'Hãy hoàn tất hồ sơ để hoàn thành đăng ký.' : 'Đăng nhập thành công!', isNewUser ? 'info' : 'success');
 
         if (isNewUser) {
           localStorage.setItem('sc_pending_profile_id', String(loggedInUser.id));

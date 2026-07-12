@@ -173,7 +173,7 @@ function DropdownField({ label, value, placeholder, onClick }) {
 /* ═══════════════════════════════════════════════ */
 export default function CompleteProfile() {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { setUser, logout, isAuth } = useAuth();
   const { addToast } = useToast();
 
   const [password, setPassword]               = useState('');
@@ -194,8 +194,12 @@ export default function CompleteProfile() {
   const pendingUserId = localStorage.getItem('sc_pending_profile_id');
 
   useEffect(() => {
-    if (!pendingUserId) navigate('/', { replace: true });
-  }, [pendingUserId, navigate]);
+    if (!isAuth) {
+      navigate('/login', { replace: true });
+    } else if (!pendingUserId) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuth, pendingUserId, navigate]);
 
   const validate = () => {
     if (!password) { setError('Vui lòng nhập mật khẩu.'); return false; }
@@ -244,13 +248,18 @@ export default function CompleteProfile() {
       localStorage.removeItem('sc_pending_profile_id');
       setUser(safeUser);
       sessionStorage.setItem('sc_fireworks', '1');
-      addToast('Hồ sơ hoàn tất! Chào mừng đến StudyConnect 🎉', 'success');
+      addToast('Đăng ký thành công! Chào mừng đến StudyConnect 🎉', 'success');
       navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    logout();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -282,13 +291,8 @@ export default function CompleteProfile() {
             <label className="form-label" htmlFor="cp-pass" style={{ marginBottom: '4px', fontSize: '12px' }}>Mật khẩu</label>
             <div className="form-input-wrap">
               <SafeInput id="cp-pass" name="password" type={showPass ? 'text' : 'password'}
-                className="form-input" placeholder="Chữ + số + ký tự đặc biệt, ≥6 ký tự"
+                className="form-input no-icon" placeholder="Nhập mật khẩu mới"
                 value={password} onChange={e => { setPassword(e.target.value); setError(''); }} />
-              <span className="input-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-              </span>
               <button type="button" className="password-toggle"
                 onClick={() => setShowPass(v => !v)} tabIndex={-1}
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -304,6 +308,9 @@ export default function CompleteProfile() {
                 )}
               </button>
             </div>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', textAlign: 'left', lineHeight: 1.4 }}>
+              Mật khẩu tối thiểu 6 ký tự, gồm cả chữ, số và ký tự đặc biệt
+            </p>
           </div>
 
           {/* Trường đại học */}
@@ -384,6 +391,15 @@ export default function CompleteProfile() {
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: '6px' }}>
             {loading ? <span className="spinner" /> : null}
             {loading ? 'Đang lưu...' : 'Hoàn tất & Vào trang chủ'}
+          </button>
+
+          <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading} style={{
+            marginTop: '4px',
+            background: 'transparent',
+            border: '1.5px solid var(--border)',
+            color: 'var(--text-primary)',
+          }}>
+            Quay lại đăng nhập
           </button>
 
         </form>

@@ -75,11 +75,27 @@ function PageLoader() {
 // ── Route guards ──────────────────────────────────────────────────
 const PrivateRoute = ({ children }) => {
   const { isAuth } = useAuth();
-  return isAuth ? children : <Navigate to="/login" replace />;
+  const hasPendingProfile = localStorage.getItem('sc_pending_profile_id');
+
+  if (!isAuth) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (hasPendingProfile) {
+    return <Navigate to="/complete-profile" replace />;
+  }
+
+  return children;
 };
 
 const PublicRoute = ({ children }) => {
   const { isAuth } = useAuth();
+  const hasPendingProfile = localStorage.getItem('sc_pending_profile_id');
+
+  if (isAuth && hasPendingProfile) {
+    return <Navigate to="/complete-profile" replace />;
+  }
+
   return isAuth ? <Navigate to="/" replace /> : children;
 };
 

@@ -24,6 +24,7 @@ const saveSession = (user) => {
 const clearSession = () => {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(ADMIN_SESSION_KEY);
+  localStorage.removeItem('sc_pending_profile_id');
 };
 
 // Hàm hash mật khẩu bảo mật Salted SHA-256 (Client-side)
