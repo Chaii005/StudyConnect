@@ -1,5 +1,5 @@
 // src/pages/AuthCallback.jsx
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/config/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
@@ -10,9 +10,11 @@ export default function AuthCallback() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const { addToast } = useToast();
+  const calledRef = useRef(false);
 
   useEffect(() => {
-    let isSyncing = false;
+    if (calledRef.current) return;
+    calledRef.current = true;
 
     const handleAuth = async () => {
       try {
@@ -37,6 +39,7 @@ export default function AuthCallback() {
         let session = null;
 
         if (code) {
+          if (import.meta.env.DEV) console.log('[AuthCallback] Exchanging code for session...');
           // Trao đổi mã code PKCE lấy phiên đăng nhập (session)
           const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           if (exchangeError) {
@@ -44,20 +47,34 @@ export default function AuthCallback() {
           }
           session = data.session;
         } else {
+          if (import.meta.env.DEV) console.log('[AuthCallback] No code in URL, getting session...');
           // Fallback check: kiểm tra xem có session sẵn chưa (như implicit flow)
           const { data, error: sessionError } = await supabase.auth.getSession();
           if (sessionError) {
             throw sessionError;
           }
           session = data.session;
+
+          // Nếu chưa có session nhưng URL có chứa tokens ở hash, chờ Supabase client xử lý (tối đa 3 giây)
+          if (!session && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))) {
+            if (import.meta.env.DEV) console.log('[AuthCallback] Hash token detected. Waiting for Supabase to parse...');
+            for (let i = 0; i < 6; i++) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+              const { data: retryData } = await supabase.auth.getSession();
+              if (retryData?.session) {
+                session = retryData.session;
+                break;
+              }
+            }
+          }
         }
 
         if (!session) {
           throw new Error("Không tìm thấy thông tin phiên đăng nhập từ Google (Session is null)");
         }
 
-        isSyncing = true;
         const authUser = session.user;
+        if (import.meta.env.DEV) console.log('[AuthCallback] Authenticated user:', authUser.email);
 
         // 2. Kiểm tra xem người dùng đã tồn tại trong public.users theo email chưa
         const { data: existingUser, error: queryError } = await supabase
@@ -75,6 +92,7 @@ export default function AuthCallback() {
 
         if (!existingUser) {
           isNewUser = true;
+          if (import.meta.env.DEV) console.log('[AuthCallback] Creating new public user...');
           // 3. Nếu là người dùng Google OAuth mới, đăng ký họ vào public.users
           const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
           const avatarUrl = authUser.user_metadata?.avatar_url || '';
@@ -102,6 +120,7 @@ export default function AuthCallback() {
         } else {
           // 4. Cập nhật liên kết supabase_uid nếu chưa được đặt
           if (!existingUser.supabase_uid) {
+            if (import.meta.env.DEV) console.log('[AuthCallback] Syncing existing user supabase_uid...');
             const { data: updatedUser, error: updateError } = await supabase
               .from('users')
               .update({ supabase_uid: authUser.id })
