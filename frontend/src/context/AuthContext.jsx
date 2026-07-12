@@ -1,8 +1,7 @@
-// src/context/AuthContext.jsx
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { getCurrentUser, logout as serviceLogout } from '../services/authService';
 import { supabase } from '../config/supabaseClient';
+import { useLocation } from 'react-router-dom';
 
 const getAdminCurrentUser = () => {
   try { return JSON.parse(localStorage.getItem('sc_admin_session')); }
@@ -15,13 +14,21 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => getCurrentUser());
   const [admin, setAdmin] = useState(() => getAdminCurrentUser());
   const [loading] = useState(false);
+  const location = useLocation();
+  const lastCheckedRef = useRef(0);
 
   useEffect(() => {
     if (!user?.id) return;
 
     let active = true;
 
-    const verifyUser = async () => {
+    const verifyUser = async (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastCheckedRef.current < 5000) {
+        return;
+      }
+      lastCheckedRef.current = now;
+
       try {
         const { data, error } = await supabase
           .from('users')
@@ -32,7 +39,7 @@ export const AuthProvider = ({ children }) => {
         if (!active) return;
 
         if (error || !data || data.is_banned) {
-          serviceLogout();
+          await serviceLogout();
           setUser(null);
           window.location.href = '/login';
           return;
@@ -67,13 +74,13 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    // Verify immediately on mount to sync profile
+    // Verify immediately on mount or route transition
     verifyUser();
 
     // Verify periodically every 30 seconds when the app is visible
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
-        verifyUser();
+        verifyUser(true);
       }
     }, 30000);
 
@@ -81,7 +88,7 @@ export const AuthProvider = ({ children }) => {
       active = false;
       clearInterval(interval);
     };
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const logout = () => {
     serviceLogout();
