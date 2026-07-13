@@ -261,7 +261,7 @@ export default function Register() {
     setError('');
     try {
       if (Capacitor.isNativePlatform()) {
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '439735954624-9i63k1356vj68eb9i45m1n861r4t8i26.apps.googleusercontent.com';
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '1041742440704-j966ktttu2jjp1kjl6eqtbbqr47cpciv.apps.googleusercontent.com';
         GoogleAuth.initialize({
           clientId: clientId,
           scopes: ['profile', 'email'],
@@ -291,10 +291,13 @@ export default function Register() {
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('Google Native Register Error:', err);
+      const errMsg = err.message || 'Không thể đăng ký bằng Google.';
       if (err.message?.includes('user cancelled') || err.message?.includes('cancelled')) {
         setError('Đăng ký đã bị hủy.');
+        addToast('Đăng ký đã bị hủy.', 'info');
       } else {
-        setError(err.message || 'Không thể đăng ký bằng Google.');
+        setError(errMsg);
+        addToast(errMsg, 'error');
       }
       setLoading(false);
     }
