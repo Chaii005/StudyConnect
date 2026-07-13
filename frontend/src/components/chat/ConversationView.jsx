@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { useCall } from '../../context/CallContext';
 import { supabase } from '../../config/supabaseClient';
 import { compressImage as compressImageFile } from '../../utils/imageCompress';
@@ -122,6 +123,7 @@ export default function ConversationView({
   const msgsContainerRef = useRef(null);
   const chatOuterRef = useRef(null);
   const fileInputRef = useRef(null);
+  const mobileCameraInputRef = useRef(null);
   const textareaRef = useRef(null);
   const prevMsgCount = useRef(0);
 
@@ -146,7 +148,23 @@ export default function ConversationView({
   const [viewingImage, setViewingImage] = useState(null);
   const [attachedFile, setAttachedFile] = useState(null);
   const [bgToast, setBgToast] = useState(null); // { name }
-  const prevBgRef = useRef(null);
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const handleViewportResize = () => {
+      const isKeyboardOpen = window.visualViewport.height < window.innerHeight * 0.85;
+      if (isKeyboardOpen) {
+        document.body.classList.add('hide-mobile-bottom-nav');
+      } else {
+        if (document.activeElement !== textareaRef.current) {
+          document.body.classList.remove('hide-mobile-bottom-nav');
+        }
+      }
+    };
+    window.visualViewport.addEventListener('resize', handleViewportResize);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleViewportResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (!chatBg) {
@@ -547,6 +565,92 @@ export default function ConversationView({
     setShowScrollBtn(false);
   };
 
+  const dataURLtoFile = (dataurl, filename) => {
+    try {
+      const arr = dataurl.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[arr.length - 1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, { type: mime });
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('dataURLtoFile failed:', err);
+      return null;
+    }
+  };
+
+  const handleSendCameraDataUrl = async (dataUrl) => {
+    if (!dataUrl || sending) return;
+    setSending(true);
+    try {
+      const file = dataURLtoFile(dataUrl, `camera_${Date.now()}.jpg`);
+      if (!file) throw new Error('Không thể xử lý ảnh từ camera.');
+      
+      let fileToUpload = file;
+      try {
+        fileToUpload = await compressImageFile(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.78 });
+      } catch (err) {
+        if (import.meta.env.DEV) console.error('Compression failed:', err);
+      }
+      
+      const fileName = `private/${user.id}/${Date.now()}_camera.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from('attachments')
+        .upload(fileName, fileToUpload, { cacheControl: '2592000', upsert: true });
+
+      if (uploadError) throw new Error(uploadError.message);
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('attachments')
+        .getPublicUrl(fileName);
+        
+      await sendMessage(user.id, friend.userId, publicUrl, 'image');
+      await load();
+      msgsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      alert('Không thể gửi ảnh chụp: ' + err.message);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleMobileCameraChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setSending(true);
+    try {
+      let fileToUpload = file;
+      try {
+        fileToUpload = await compressImageFile(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.78 });
+      } catch (err) {
+        if (import.meta.env.DEV) console.error('Compression failed:', err);
+      }
+      
+      const fileName = `private/${user.id}/${Date.now()}_camera.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from('attachments')
+        .upload(fileName, fileToUpload, { cacheControl: '2592000', upsert: true });
+
+      if (uploadError) throw new Error(uploadError.message);
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('attachments')
+        .getPublicUrl(fileName);
+        
+      await sendMessage(user.id, friend.userId, publicUrl, 'image');
+      await load();
+      msgsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      alert('Không thể gửi ảnh từ camera: ' + err.message);
+    } finally {
+      setSending(false);
+      e.target.value = '';
+    }
+  };
+
   const handleSendText = async (text) => {
     if (!text?.trim() || sending) return;
     setSending(true);
@@ -880,157 +984,160 @@ export default function ConversationView({
             )}
 
             {(!friend.status || friend.status === 'accepted') && (
-              <button
-                onClick={() => setShowMenuDropdown(prev => !prev)}
-                title="Tùy chọn"
-                style={{
-                  width: 40, 
-                  height: 40, 
-                  borderRadius: '50%', 
-                  border: '1.5px solid var(--border)', 
-                  cursor: 'pointer',
-                  background: 'var(--bg-card)',
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  transition: 'all 0.2s', 
-                  flexShrink: 0,
-                  color: 'var(--text-primary)',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                  <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
-                  <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
-                </svg>
-              </button>
-            )}
-
-            {/* Option Settings Dropdown Menu */}
-            {showMenuDropdown && (
-              <>
-                <div 
-                  onClick={() => setShowMenuDropdown(false)}
-                  style={{ position: 'fixed', inset: 0, zIndex: 999 }}
-                />
-                <div 
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <button
+                  onClick={() => setShowMenuDropdown(prev => !prev)}
+                  title="Tùy chọn"
                   style={{
-                    position: 'absolute',
-                    top: '48px',
-                    right: '0',
+                    width: 40, 
+                    height: 40, 
+                    borderRadius: '50%', 
+                    border: '1.5px solid var(--border)', 
+                    cursor: 'pointer',
                     background: 'var(--bg-card)',
-                    border: '1.5px solid var(--border)',
-                    borderRadius: '16px',
-                    width: '180px',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                    zIndex: 1000,
-                    overflow: 'hidden',
-                    animation: 'fadeIn 0.15s ease-out'
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    transition: 'all 0.2s', 
+                    flexShrink: 0,
+                    color: 'var(--text-primary)',
                   }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
                 >
-                  <button
-                    onClick={() => {
-                      setShowMenuDropdown(false);
-                      navigate(`/friends/${friend.userId}`);
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'none',
-                      border: 'none',
-                      textAlign: 'left',
-                      color: 'var(--text-primary)',
-                      fontSize: '13.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      transition: 'background 0.2s',
-                      fontFamily: 'inherit'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    Trang cá nhân
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowMenuDropdown(false);
-                      handleRenameClick();
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'none',
-                      border: 'none',
-                      textAlign: 'left',
-                      color: 'var(--text-primary)',
-                      fontSize: '13.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      transition: 'background 0.2s',
-                      fontFamily: 'inherit',
-                      borderTop: '1px solid var(--border)'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    Đổi biệt danh
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowMenuDropdown(false);
-                      const savedUrl = chatBg ? chatBg.split('|')[0] : '';
-                      const savedPos = chatBg && chatBg.includes('|') ? chatBg.split('|')[1] : 'center';
-                      setBgFilePreview(savedUrl.startsWith('data:') ? savedUrl : '');
-                      setBgPos(savedPos);
-                      setShowBgModal(true);
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'none',
-                      border: 'none',
-                      textAlign: 'left',
-                      color: 'var(--text-primary)',
-                      fontSize: '13.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      transition: 'background 0.2s',
-                      fontFamily: 'inherit',
-                      borderTop: '1px solid var(--border)'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    Đổi hình nền
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowMenuDropdown(false);
-                      setShowClearConfirm(true);
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'none',
-                      border: 'none',
-                      textAlign: 'left',
-                      color: '#ff4d4d',
-                      fontSize: '13.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      transition: 'background 0.2s',
-                      fontFamily: 'inherit',
-                      borderTop: '1px solid var(--border)'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,77,0.08)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    Xóa lịch sử trò chuyện
-                  </button>
-                </div>
-              </>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                    <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                    <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                {/* Option Settings Dropdown Menu */}
+                {showMenuDropdown && (
+                  <>
+                    <div 
+                      onClick={() => setShowMenuDropdown(false)}
+                      style={{ position: 'fixed', inset: 0, zIndex: 999 }}
+                    />
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        top: '48px',
+                        right: '0',
+                        background: 'var(--bg-card)',
+                        border: '1.5px solid var(--border)',
+                        borderRadius: '16px',
+                        width: '180px',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                        zIndex: 1000,
+                        overflow: 'hidden',
+                        animation: 'dropdownSlideInFromRight 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                        transformOrigin: 'top right'
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          setShowMenuDropdown(false);
+                          navigate(`/friends/${friend.userId}`);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'none',
+                          border: 'none',
+                          textAlign: 'left',
+                          color: 'var(--text-primary)',
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                          fontFamily: 'inherit'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        Trang cá nhân
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowMenuDropdown(false);
+                          handleRenameClick();
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'none',
+                          border: 'none',
+                          textAlign: 'left',
+                          color: 'var(--text-primary)',
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                          fontFamily: 'inherit',
+                          borderTop: '1px solid var(--border)'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        Đổi biệt danh
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowMenuDropdown(false);
+                          const savedUrl = chatBg ? chatBg.split('|')[0] : '';
+                          const savedPos = chatBg && chatBg.includes('|') ? chatBg.split('|')[1] : 'center';
+                          setBgFilePreview(savedUrl.startsWith('data:') ? savedUrl : '');
+                          setBgPos(savedPos);
+                          setShowBgModal(true);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'none',
+                          border: 'none',
+                          textAlign: 'left',
+                          color: 'var(--text-primary)',
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                          fontFamily: 'inherit',
+                          borderTop: '1px solid var(--border)'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        Đổi hình nền
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowMenuDropdown(false);
+                          setShowClearConfirm(true);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'none',
+                          border: 'none',
+                          textAlign: 'left',
+                          color: '#ff4d4d',
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                          fontFamily: 'inherit',
+                          borderTop: '1px solid var(--border)'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,77,0.08)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        Xóa lịch sử trò chuyện
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -1752,6 +1859,15 @@ export default function ConversationView({
               onChange={handleFileChange} 
               style={{ display: 'none' }} 
             />
+
+            <input 
+              ref={mobileCameraInputRef} 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              onChange={handleMobileCameraChange} 
+              style={{ display: 'none' }} 
+            />
             
             <button 
               onClick={() => fileInputRef.current?.click()} 
@@ -1779,7 +1895,15 @@ export default function ConversationView({
             </button>
 
             <button 
-              onClick={() => setShowCamera(true)} 
+              onClick={() => {
+                const isNative = Capacitor.isNativePlatform();
+                const isMobileLayout = window.innerWidth <= 768;
+                if (isNative || isMobileLayout) {
+                  mobileCameraInputRef.current?.click();
+                } else {
+                  setShowCamera(true);
+                }
+              }}
               title="Chụp ảnh trực tiếp" 
               style={{
                 background: 'var(--bg-card)', 
@@ -1829,8 +1953,17 @@ export default function ConversationView({
                 overscrollBehavior: 'contain',
                 transition: 'border-color 0.2s ease',
               }}
-              onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-              onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
+              onFocus={e => {
+                e.currentTarget.style.borderColor = 'var(--primary)';
+                document.body.classList.add('hide-mobile-bottom-nav');
+              }}
+              onBlur={e => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.85);
+                if (!isKeyboardOpen) {
+                  document.body.classList.remove('hide-mobile-bottom-nav');
+                }
+              }}
             />
 
             <button 
@@ -1970,7 +2103,7 @@ export default function ConversationView({
         <CameraModal 
           onCapture={(d) => {
             setShowCamera(false);
-            handleSendAttachment(d, null);
+            handleSendCameraDataUrl(d);
           }} 
           onClose={() => setShowCamera(false)} 
         />

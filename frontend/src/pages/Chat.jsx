@@ -2,6 +2,7 @@
 // ── Orchestrator: composes Chat sidebar + ConversationView ─────────
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { useAuth } from '../context/AuthContext';
 import { useOnlineUsers } from '../context/OnlineUsersContext';
 import { getFriends } from '../services/friendService.js';
@@ -54,6 +55,18 @@ export default function Chat() {
     }
     return () => { sessionStorage.removeItem('active_chat_friend_id'); };
   }, [selectedFriend]);
+
+  // Hide mobile bottom nav when in an active mobile conversation
+  useEffect(() => {
+    if (selectedFriend && (isMobile || Capacitor.isNativePlatform())) {
+      document.body.classList.add('hide-mobile-bottom-nav');
+    } else {
+      document.body.classList.remove('hide-mobile-bottom-nav');
+    }
+    return () => {
+      document.body.classList.remove('hide-mobile-bottom-nav');
+    };
+  }, [selectedFriend, isMobile]);
 
   // Auth guard
   useEffect(() => { if (!isAuth) navigate('/login'); }, [isAuth, navigate]);

@@ -1452,6 +1452,16 @@ input::-ms-clear {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes dropdownSlideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
 .sc-card-animated { animation: sc-float-in 0.4s ease both; }
 .sc-card-hover {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -1814,8 +1824,15 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 }
 
 /* Hide bottom nav when keyboard is active or a modal is open */
-.has-modal .mobile-bottom-nav {
+.has-modal .mobile-bottom-nav,
+body.hide-mobile-bottom-nav .mobile-bottom-nav,
+.is-native-app body.hide-mobile-bottom-nav .mobile-bottom-nav {
   display: none !important;
+}
+
+body.hide-mobile-bottom-nav .app-layout-wrapper,
+.is-native-app body.hide-mobile-bottom-nav .app-layout-wrapper {
+  padding-bottom: 0 !important;
 }
 
 /* Create Post Modal CSS */
