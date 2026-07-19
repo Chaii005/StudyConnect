@@ -334,7 +334,7 @@ export default function Home() {
           </div>
 
           {/* Post List - Scrollable Area */}
-          <div className="no-scrollbar sc-card-animated" style={{ flex: 1, height: 0, overflowY: 'auto', animationDelay: '0.05s' }}>
+          <div className="no-scrollbar sc-card-animated home-feed-scroll-area" style={{ flex: 1, height: 0, overflowY: 'auto', animationDelay: '0.05s' }}>
             <PostList
               posts={sortedPosts}
               currentUser={user}

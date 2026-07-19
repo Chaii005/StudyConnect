@@ -1818,11 +1818,23 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 }
 
 .is-native-app .layout-container {
-  padding: 0 !important;
+  padding: 10px 14px 0 !important;
 }
 
 .is-native-app .layout-grid-custom {
   gap: 0 !important;
+}
+
+.is-native-app .post-card {
+  margin-bottom: 12px !important;
+}
+
+.is-native-app .home-create-box-wrapper {
+  padding-bottom: 12px !important;
+}
+
+.is-native-app .home-feed-scroll-area {
+  padding-bottom: 24px !important;
 }
 
 .mobile-nav-bell {
