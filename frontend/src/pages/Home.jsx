@@ -312,7 +312,7 @@ export default function Home() {
       ))}
       <div className="home-feed-container">
         {/* MIDDLE COLUMN: Feed */}
-        <main className="home-feed-main">
+        <div className="home-feed-main">
           {/* Create Question Box - Fixed Top */}
           <div className="home-create-box-wrapper">
             <div className="home-create-box sc-card-animated">
@@ -347,7 +347,7 @@ export default function Home() {
               onEdit={handleEditPost}
             />
           </div>
-        </main>
+        </div>
       </div>
 
       {showCreateModal && (

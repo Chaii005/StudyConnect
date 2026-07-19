@@ -1813,7 +1813,7 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
   padding-top: 24px !important;
 }
 
-.is-native-app main:not(.no-navbar) {
+.is-native-app .app-layout-wrapper > main:not(.no-navbar) {
   height: calc(100% - 88px) !important;
 }
 
