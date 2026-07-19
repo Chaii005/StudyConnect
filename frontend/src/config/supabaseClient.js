@@ -27,5 +27,11 @@ export const supabase = createClient(
         'x-client-info': 'studyconnect-web',
       },
     },
+    realtime: {
+      params: {
+        eventsPerSecond: 50, // Tăng băng thông xử lý sự kiện realtime lên 50 events/s
+      },
+      timeout: 15000, // Phát hiện kết nối chết và tự động kết nối lại nhanh hơn (15s thay vì mặc định 40s)
+    },
   }
 );

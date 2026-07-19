@@ -135,6 +135,29 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       document.documentElement.classList.remove('is-native-app');
     }
   }, [darkStatusBar]);
+ 
+  // Tự động kết nối lại Supabase Realtime khi app/web được mở lại (visibilityState === 'visible') hoặc có kết nối mạng (online)
+  useEffect(() => {
+    const handleSyncReconnect = () => {
+      if (document.visibilityState === 'visible' && navigator.onLine) {
+        if (supabase && supabase.realtime) {
+          if (import.meta.env.DEV) {
+            console.log('[Supabase Realtime] Khôi phục kết nối WebSocket ngay lập tức...');
+          }
+          supabase.realtime.disconnect();
+          supabase.realtime.connect();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleSyncReconnect);
+    window.addEventListener('online', handleSyncReconnect);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleSyncReconnect);
+      window.removeEventListener('online', handleSyncReconnect);
+    };
+  }, []);
 
   // Auto-hide bottom nav on mobile/native when keyboard is visible
   useEffect(() => {
