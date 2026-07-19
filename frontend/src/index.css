@@ -1817,6 +1817,14 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
   height: calc(100% - 88px) !important;
 }
 
+.is-native-app .layout-container {
+  padding: 0 !important;
+}
+
+.is-native-app .layout-grid-custom {
+  gap: 0 !important;
+}
+
 .mobile-nav-bell {
   display: none !important;
 }
@@ -2069,7 +2077,7 @@ body.hide-mobile-bottom-nav .app-layout-wrapper,
 .chat-options-dropdown-container {
   position: absolute;
   top: calc(100% + 6px);
-  right: -4px;
+  right: 0;
   background: var(--bg-card);
   border: 1.5px solid var(--border);
   border-radius: 14px;
