@@ -1,5 +1,5 @@
 // frontend/src/hooks/usePushNotifications.js
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
@@ -9,12 +9,43 @@ import { useToast } from '@/context/ToastContext';
 export default function usePushNotifications(user) {
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const userRef = useRef(user);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  const saveTokenToDatabase = async (tokenValue, userId) => {
+    if (!tokenValue || !userId) return;
+    try {
+      const { error } = await supabase
+        .from('user_push_tokens')
+        .upsert({
+          user_id: parseInt(userId, 10),
+          device_token: tokenValue,
+          platform: Capacitor.getPlatform()
+        }, { onConflict: 'device_token' });
+
+      if (error) {
+        if (import.meta.env.DEV) console.error('[Push] Failed to save token to database:', error.message);
+      } else {
+        if (import.meta.env.DEV) console.log('[Push] Token saved/synced to database successfully');
+      }
+    } catch (dbErr) {
+      if (import.meta.env.DEV) console.error('[Push] Database error saving token:', dbErr);
+    }
+  };
 
   // 1. Register Action Listeners immediately on startup (runs once on mount, independent of user auth)
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) {
       return;
     }
+
+    let regListener = null;
+    let regErrorListener = null;
+    let notificationListener = null;
+    let actionListener = null;
 
     const initListeners = async () => {
       try {
@@ -50,8 +81,23 @@ export default function usePushNotifications(user) {
           if (import.meta.env.DEV) console.warn('[Push] Calls channel creation failed:', channelErr);
         }
 
+        // Listen for device token registration
+        regListener = await PushNotifications.addListener('registration', async (token) => {
+          if (import.meta.env.DEV) console.log('[Push] Token registered:', token.value);
+          localStorage.setItem('sc_fcm_token', token.value);
+          
+          if (userRef.current && userRef.current.id) {
+            await saveTokenToDatabase(token.value, userRef.current.id);
+          }
+        });
+
+        // Listen for registration errors
+        regErrorListener = await PushNotifications.addListener('registrationError', (err) => {
+          if (import.meta.env.DEV) console.error('[Push] Registration error:', err);
+        });
+
         // Listen for foreground notifications
-        await PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        notificationListener = await PushNotifications.addListener('pushNotificationReceived', (notification) => {
           if (import.meta.env.DEV) console.log('[Push] Notification received in foreground:', notification);
           const title = notification.title || 'Thông báo';
           const body = notification.body || '';
@@ -108,7 +154,7 @@ export default function usePushNotifications(user) {
         });
 
         // Listen for user tapping on push notifications (handles cold start launch actions)
-        await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+        actionListener = await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
           if (import.meta.env.DEV) console.log('[Push] Action performed:', action);
           
           const data = action.notification?.data;
@@ -169,6 +215,11 @@ export default function usePushNotifications(user) {
           }
         });
 
+        // Trigger registration for FCM on startup (checks permissions and registers if granted)
+        const permStatus = await PushNotifications.checkPermissions();
+        if (permStatus.receive === 'granted') {
+          await PushNotifications.register();
+        }
       } catch (err) {
         if (import.meta.env.DEV) console.error('[Push] Action listeners init failed:', err);
       }
@@ -177,11 +228,14 @@ export default function usePushNotifications(user) {
     initListeners();
 
     return () => {
-      PushNotifications.removeAllListeners();
+      if (regListener) regListener.remove();
+      if (regErrorListener) regErrorListener.remove();
+      if (notificationListener) notificationListener.remove();
+      if (actionListener) actionListener.remove();
     };
   }, [navigate, addToast]);
 
-  // 2. Register Device Token (runs/updates whenever user is authenticated)
+  // 2. Register Device Token & Sync cached token (runs/updates whenever user is authenticated)
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) {
       return;
@@ -204,33 +258,13 @@ export default function usePushNotifications(user) {
           return;
         }
 
-        // Upload FCM token to database
-        await PushNotifications.addListener('registration', async (token) => {
-          if (import.meta.env.DEV) console.log('[Push] Token registered:', token.value);
-          localStorage.setItem('sc_fcm_token', token.value);
-          
-          try {
-            const { error } = await supabase
-              .from('user_push_tokens')
-              .upsert({
-                user_id: parseInt(user.id, 10),
-                device_token: token.value,
-                platform: Capacitor.getPlatform()
-              }, { onConflict: 'device_token' });
+        // Sync already registered cached token if exists
+        const cachedToken = localStorage.getItem('sc_fcm_token');
+        if (cachedToken) {
+          await saveTokenToDatabase(cachedToken, user.id);
+        }
 
-            if (error && import.meta.env.DEV) {
-              console.error('[Push] Failed to save token to database:', error.message);
-            }
-          } catch (dbErr) {
-            if (import.meta.env.DEV) console.error('[Push] Database error saving token:', dbErr);
-          }
-        });
-
-        await PushNotifications.addListener('registrationError', (err) => {
-          if (import.meta.env.DEV) console.error('[Push] Registration error:', err);
-        });
-
-        // Trigger registration for FCM token
+        // Request token generation / update
         await PushNotifications.register();
 
       } catch (err) {
@@ -239,7 +273,7 @@ export default function usePushNotifications(user) {
     };
 
     initTokenRegistration();
-  }, [user]);
+  }, [user?.id]);
 
   // 3. Process pending notification redirect once authenticated
   useEffect(() => {
@@ -248,7 +282,6 @@ export default function usePushNotifications(user) {
       if (pendingRedirect) {
         if (import.meta.env.DEV) console.log('[Push] Auth complete, executing pending redirect:', pendingRedirect);
         sessionStorage.removeItem('pending_push_redirect');
-        // Small delay to ensure react router route tree is fully ready
         setTimeout(() => {
           navigate(pendingRedirect);
         }, 100);
