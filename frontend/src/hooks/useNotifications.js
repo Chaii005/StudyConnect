@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/config/supabaseClient';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { acceptGroupInvite, declineGroupInvite } from '@/services/groupInviteService';
@@ -26,7 +26,7 @@ export default function useNotifications(userId) {
   const groupNamesRef = useRef({});
   const userNamesCacheRef = useRef({});
 
-  // â•â•â• OPTIMIZED REFRESH â€” parallel queries via notificationQueries.js â•â•â•
+  // ═══ OPTIMIZED REFRESH — parallel queries via notificationQueries.js ═══
   const refresh = useCallback(async () => {
     if (!userId) return;
     try {
@@ -72,9 +72,9 @@ export default function useNotifications(userId) {
       if (data?.name) {
         groupNamesRef.current[groupId] = data.name;
       }
-      return data?.name || 'NhĂ³m há»c';
+      return data?.name || 'Nhóm học';
     } catch {
-      return 'NhĂ³m há»c';
+      return 'Nhóm học';
     }
   };
 
@@ -85,9 +85,9 @@ export default function useNotifications(userId) {
       if (data?.full_name) {
         userNamesCacheRef.current[userId] = data.full_name;
       }
-      return data?.full_name || 'ThĂ nh viĂªn';
+      return data?.full_name || 'Thành viên';
     } catch {
-      return 'ThĂ nh viĂªn';
+      return 'Thành viên';
     }
   };
 
@@ -105,7 +105,7 @@ export default function useNotifications(userId) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
 
-    // Channel name unique má»—i mount Ä‘á»ƒ trĂ¡nh duplicate subscription
+    // Channel name unique mỗi mount để tránh duplicate subscription
     const notifChannel = supabase
       .channel(`notif-${userId}`)
       // friendships
@@ -121,8 +121,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `friendreq:${f.id}`,
                   type: 'friendreq',
-                  title: 'Lá»i má»i káº¿t báº¡n',
-                  body: `${senderName} muá»‘n káº¿t báº¡n vá»›i báº¡n.`,
+                  title: 'Lời mời kết bạn',
+                  body: `${senderName} muốn kết bạn với bạn.`,
                   createdAt: f.created_at,
                   requestId: f.id.toString(),
                   fromUserId: f.from_user_id,
@@ -134,8 +134,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `friendaccept:${f.id}`,
                   type: 'friendaccept',
-                  title: 'Káº¿t báº¡n thĂ nh cĂ´ng',
-                  body: `${userName} Ä‘Ă£ Ä‘á»“ng Ă½ lá»i má»i káº¿t báº¡n.`,
+                  title: 'Kết bạn thành công',
+                  body: `${userName} đã đồng ý lời mời kết bạn.`,
                   createdAt: f.accepted_at || f.created_at,
                 });
               });
@@ -156,8 +156,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `groupinvite:${inv.id}`,
               type: 'groupinvite',
-              title: 'Lá»i má»i vĂ o nhĂ³m',
-              body: `${inviterName} má»i báº¡n tham gia nhĂ³m "${groupName}".`,
+              title: 'Lời mời vào nhóm',
+              body: `${inviterName} mời bạn tham gia nhóm "${groupName}".`,
               createdAt: inv.created_at,
               inviteId: inv.id.toString(),
               groupId: inv.group_id.toString(),
@@ -183,8 +183,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `groupjoin:${m.group_id}`,
                     type: 'groupjoin',
-                    title: 'Gia nháº­p nhĂ³m thĂ nh cĂ´ng',
-                    body: `Báº¡n Ä‘Ă£ tham gia nhĂ³m há»c táº­p "${groupName}".`,
+                    title: 'Gia nhập nhóm thành công',
+                    body: `Bạn đã tham gia nhóm học tập "${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -192,8 +192,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `groupdeputy:${m.group_id}`,
                     type: 'groupdeputy',
-                    title: 'Bá»• nhiá»‡m PhĂ³ nhĂ³m',
-                    body: `Báº¡n Ä‘Ă£ Ä‘Æ°á»£c bá»• nhiá»‡m lĂ m PhĂ³ nhĂ³m cá»§a "${groupName}".`,
+                    title: 'Bổ nhiệm Phó nhóm',
+                    body: `Bạn đã được bổ nhiệm làm Phó nhóm của "${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -204,8 +204,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `othergroupjoin:${m.group_id}:${m.user_id}`,
                     type: 'othergroupjoin',
-                    title: 'ThĂ nh viĂªn má»›i',
-                    body: `${userName} vá»«a tham gia nhĂ³m "${groupName}".`,
+                    title: 'Thành viên mới',
+                    body: `${userName} vừa tham gia nhóm "${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -227,8 +227,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `schedule:${s.id}`,
               type: 'schedule',
-              title: 'Lá»‹ch há»c nhĂ³m má»›i',
-              body: `NhĂ³m "${groupName}" há»c: ${s.topic} Â· ${new Date(s.date_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`,
+              title: 'Lịch học nhóm mới',
+              body: `Nhóm "${groupName}" học: ${s.topic} · ${new Date(s.date_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`,
               createdAt: s.created_at,
               groupId: s.group_id.toString(),
             });
@@ -249,8 +249,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `deadline:${d.id}`,
               type: 'deadline',
-              title: 'Háº¡n ná»™p má»›i',
-              body: `${isPersonal ? 'Giao riĂªng cho báº¡n' : 'Cáº£ nhĂ³m ' + groupName} Â· ${d.title} (Háº¡n: ${new Date(d.due_date).toLocaleDateString('vi-VN')})`,
+              title: 'Hạn nộp mới',
+              body: `${isPersonal ? 'Giao riêng cho bạn' : 'Cả nhóm ' + groupName} · ${d.title} (Hạn: ${new Date(d.due_date).toLocaleDateString('vi-VN')})`,
               createdAt: d.created_at,
               groupId: d.group_id.toString(),
             });
@@ -270,38 +270,38 @@ export default function useNotifications(userId) {
           if (m.content?.startsWith('[chat_background]:')) return;
 
           if (import.meta.env.DEV) {
-            console.log(`[useNotifications] Nháº­n tin nháº¯n riĂªng realtime:`, m);
+            console.log(`[useNotifications] Nhận tin nhắn riêng realtime:`, m);
           }
 
           getUserName(senderId).then(senderName => {
-            if (m.content?.startsWith('đŸ“µ')) {
+            if (m.content?.startsWith('\u{1F4F5}')) {
               if (import.meta.env.DEV) {
-                console.log(`[useNotifications] Táº¡o thĂ´ng bĂ¡o cuá»™c gá»i nhá»¡ (realtime): missedcall:in:${m.id}`);
+                console.log(`[useNotifications] Tạo thông báo cuộc gọi nhỡ (realtime): missedcall:in:${m.id}`);
               }
               addIncrementalNotif({
                 key: `missedcall:in:${m.id}`,
                 type: 'missedcall',
-                title: 'Cuá»™c gá»i nhá»¡',
-                body: `Cuá»™c gá»i nhá»¡ tá»« ${senderName}.`,
+                title: 'Cuộc gọi nhỡ',
+                body: `Cuộc gọi nhỡ từ ${senderName}.`,
                 createdAt: m.created_at,
                 senderId: m.sender_id.toString(),
               });
             } else {
               const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-                ? 'ÄĂ£ gá»­i má»™t áº£nh'
+                ? 'Đã gửi một ảnh'
                 : m.content || '';
               addIncrementalNotif({
                 key: `privatemsg:${m.id}`,
                 type: 'privatemsg',
-                title: `Tin nháº¯n tá»« ${senderName}`,
-                body: displayContent?.length > 80 ? displayContent.slice(0, 80) + 'â€¦' : displayContent,
+                title: `Tin nhắn từ ${senderName}`,
+                body: displayContent?.length > 80 ? displayContent.slice(0, 80) + '\u2026' : displayContent,
                 createdAt: m.created_at,
                 senderId: m.sender_id.toString(),
               });
             }
           }).catch(err => {
             if (import.meta.env.DEV) {
-              console.error(`[useNotifications] Lá»—i khi láº¥y tĂªn ngÆ°á»i gá»­i:`, err);
+              console.error(`[useNotifications] Lỗi khi lấy tên người gửi:`, err);
             }
           });
         }
@@ -322,8 +322,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `file:upload:${rf.id}`,
               type: 'fileupload',
-              title: 'TĂ i liá»‡u nhĂ³m má»›i',
-              body: `${userName} Ä‘Ă£ chia sáº» "${rf.file_name}" táº¡i "${groupName}".`,
+              title: 'Tài liệu nhóm mới',
+              body: `${userName} đã chia sẻ "${rf.file_name}" tại "${groupName}".`,
               createdAt: rf.created_at,
               groupId: rf.group_id.toString(),
             });
@@ -343,8 +343,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `joinrequest:${r.id}`,
               type: 'joinrequest',
-              title: 'YĂªu cáº§u tham gia',
-              body: `${requesterName} xin gia nháº­p nhĂ³m "${groupName}".`,
+              title: 'Yêu cầu tham gia',
+              body: `${requesterName} xin gia nhập nhóm "${groupName}".`,
               createdAt: r.created_at,
               requestId: r.id.toString(),
               groupId: r.group_id.toString(),
@@ -368,7 +368,7 @@ export default function useNotifications(userId) {
             .single()
             .then(({ data: postData }) => {
               if (!postData) return;
-              const taggerName = postData.users?.full_name || 'Ai Ä‘Ă³';
+              const taggerName = postData.users?.full_name || 'Ai đó';
               const isCreator = String(postData.user_id) === String(userId);
               if (isCreator) return;
 
@@ -376,8 +376,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `posttag:db:${t.id}`,
                   type: 'posttag_user',
-                  title: 'ÄÆ°á»£c nháº¯c tĂªn',
-                  body: `${taggerName} Ä‘Ă£ tag báº¡n trong má»™t bĂ i viáº¿t.`,
+                  title: 'Được nhắc tên',
+                  body: `${taggerName} đã tag bạn trong một bài viết.`,
                   createdAt: t.created_at,
                   postId: String(t.post_id),
                 });
@@ -386,8 +386,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `posttagg:db:${t.id}`,
                     type: 'posttag_group',
-                    title: 'Nháº¯c tĂªn nhĂ³m',
-                    body: `${taggerName} Ä‘Ă£ nháº¯c Ä‘áº¿n nhĂ³m "${gName}" trong bĂ i viáº¿t.`,
+                    title: 'Nhắc tên nhóm',
+                    body: `${taggerName} đã nhắc đến nhóm "${gName}" trong bài viết.`,
                     createdAt: t.created_at,
                     postId: String(t.post_id),
                     groupId: String(t.target_id),
@@ -403,7 +403,7 @@ export default function useNotifications(userId) {
       if (document.visibilityState === 'visible') {
         refresh();
       }
-    }, 1800000); // fallback 30 phĂºt
+    }, 1800000); // fallback 30 phút
     
     return () => {
       clearInterval(interval);
@@ -415,7 +415,7 @@ export default function useNotifications(userId) {
   const markAllRead = useCallback(() => {
     const newSeen = new Set([...seen, ...notifs.map(n => n.key)]);
     setSeen(newSeen);
-    // LÆ°u vĂ o localStorage Ä‘á»ƒ tá»“n qua cĂ¡c láº§n refresh()
+    // Lưu vào localStorage để tồn qua các lần refresh()
     try {
       localStorage.setItem(STORAGE_KEYS.NOTIF_SEEN, JSON.stringify([...newSeen]));
     } catch (err) {
