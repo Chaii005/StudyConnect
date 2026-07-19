@@ -992,7 +992,7 @@ export default function GroupChatPanel({
           <SafeInput
             ref={chatInputRef}
             type="text"
-            placeholder="Nhập tin nhắn... (@ để tag thành viên)"
+            placeholder="Nhập tin nhắn..."
             value={chatInput}
             onChange={handleInputChange}
             onKeyDown={(e) => {
