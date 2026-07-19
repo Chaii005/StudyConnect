@@ -25,7 +25,7 @@ export default function PostList({ posts, currentUser, friends = [], myLeaderGro
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
       {posts.map((post) => (
         <PostCard
           key={post.id}

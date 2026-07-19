@@ -1,7 +1,7 @@
 // src/pages/Chat.jsx
 // ── Orchestrator: composes Chat sidebar + ConversationView ─────────
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { useAuth } from '../context/AuthContext';
 import { useOnlineUsers } from '../context/OnlineUsersContext';
@@ -205,40 +205,6 @@ export default function Chat() {
                 gap: '12px',
               }}
             >
-              <Link
-                to="/"
-                style={{
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '10px',
-                  background: 'rgba(17, 24, 39, 0.04)',
-                  border: '1.5px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(17, 24, 39, 0.08)';
-                  e.currentTarget.style.borderColor = 'var(--text-primary)';
-                  e.currentTarget.style.transform = 'translateX(-2px)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(17, 24, 39, 0.04)';
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.transform = 'none';
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12"/>
-                  <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                Quay lại
-              </Link>
-
               <span style={{ flex: 1, fontWeight: 800, fontSize: '16px', color: 'var(--text-primary)', letterSpacing: '-0.015em' }}>
                 Tin nhắn
               </span>

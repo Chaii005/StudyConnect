@@ -1413,7 +1413,7 @@ input::-ms-clear {
 
 @media (max-width: 991px) {
   .app-layout-wrapper {
-    padding-bottom: 80px !important; /* Perfect space for mobile bottom nav without empty gaps */
+    padding-bottom: 64px !important; /* Space for mobile bottom nav */
   }
   .responsive-btn-full {
     width: 100% !important;
