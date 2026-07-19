@@ -161,7 +161,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.70)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5000, padding: isNative ? 'env(safe-area-inset-top, 24px) 12px calc(env(safe-area-inset-bottom, 12px) + 12px)' : '40px 16px 24px' }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--bg-card)', width: '100%', maxWidth: step === 1 ? '480px' : '440px', maxHeight: isNative ? 'calc(100vh - env(safe-area-inset-top, 24px) - env(safe-area-inset-bottom, 12px) - 32px)' : 'calc(100vh - 64px)', borderRadius: '20px', border: '1px solid var(--border)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'max-width 0.3s ease' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--bg-card)', width: '100%', maxWidth: step === 1 ? '480px' : '440px', maxHeight: isNative ? 'min(490px, 85vh)' : 'min(570px, 85vh)', borderRadius: '20px', border: '1px solid var(--border)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'max-width 0.3s ease' }}>
 
         {/* Header */}
         <div style={{ padding: '14px 18px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -459,18 +459,26 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
               {/* Location Picker for Offline mode */}
               {meetingMode === 'offline' && !isPrivate && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', borderRadius: '16px', background: 'var(--bg-card)', border: '1.5px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Tên địa điểm học tập *</label>
+                    <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, color: 'var(--text-muted)', fontWeight: 700 }}>Tên địa điểm học tập *</label>
                     <div className="form-input-wrap" style={{ position: 'relative' }}>
-                      <SafeInput
-                        className="form-input"
-                        style={{ padding: '9px 13px', fontSize: 13 }}
-                        placeholder="Nhập tên quán cà phê, thư viện..."
-                        value={customName}
-                        onChange={e => handleCustomLocationChange(e.target.value)}
-                        required
-                      />
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ position: 'absolute', left: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </span>
+                        <SafeInput
+                          className="form-input"
+                          style={{ padding: '10px 14px 10px 34px', fontSize: 13, width: '100%', borderRadius: 10, border: '1px solid var(--border)' }}
+                          placeholder="Tìm quán cà phê, thư viện, địa điểm học..."
+                          value={customName}
+                          onChange={e => handleCustomLocationChange(e.target.value)}
+                          required
+                        />
+                      </div>
                       
                       {suggestions.length > 0 && (
                         <div style={{
@@ -478,33 +486,37 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                           top: '100%',
                           left: 0,
                           right: 0,
-                          marginTop: 4,
+                          marginTop: 6,
                           background: 'var(--bg-card)',
                           border: '1px solid var(--border)',
-                          borderRadius: 10,
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+                          borderRadius: 12,
+                          boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
                           zIndex: 1000,
-                          maxHeight: 120,
+                          maxHeight: 130,
                           overflowY: 'auto',
-                          padding: 4
+                          padding: '6px'
                         }}>
                           {suggestions.map((s, idx) => (
                             <div
                               key={s.placeId || idx}
                               onClick={() => handleSelectSuggestion(s)}
                               style={{
-                                padding: '8px 12px',
-                                borderRadius: 6,
+                                padding: '9px 12px',
+                                borderRadius: 8,
                                 cursor: 'pointer',
                                 fontSize: 12.5,
                                 color: 'var(--text-primary)',
-                                transition: 'background 0.15s',
-                                textAlign: 'left'
+                                transition: 'all 0.15s',
+                                textAlign: 'left',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
                               }}
-                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
-                              onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
                             >
-                              📍 {s.text}
+                              <span style={{ flexShrink: 0 }}>📍</span>
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.text}</span>
                             </div>
                           ))}
                         </div>
@@ -512,7 +524,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
                       {placesError && (
                         <div style={{
-                          marginTop: 6,
+                          marginTop: 8,
                           padding: '10px 12px',
                           background: 'rgba(239, 68, 68, 0.08)',
                           border: '1px solid rgba(239, 68, 68, 0.2)',
@@ -532,37 +544,56 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
                   {/* Map preview */}
                   {geoLoading && (
-                    <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ display: 'inline-block', width: 12, height: 12, border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                      Đang tìm địa điểm...
+                    <div style={{ marginTop: 4, fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                      Đang xác vị trí bản đồ...
                     </div>
                   )}
                   {!geoLoading && selectedLocation && customName.trim() && (
-                    <div style={{ marginTop: 10, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.05)' }}>
+                    <div style={{ marginTop: 4, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--bg-input)' }}>
                       {selectedLocation.lat && selectedLocation.lng && (
                         <iframe
                           title="Bản đồ địa điểm"
-                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedLocation.lng - 0.01},${selectedLocation.lat - 0.007},${selectedLocation.lng + 0.01},${selectedLocation.lat + 0.007}&layer=mapnik&marker=${selectedLocation.lat},${selectedLocation.lng}`}
-                          style={{ width: '100%', height: 140, border: 'none', display: 'block' }}
+                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedLocation.lng - 0.005},${selectedLocation.lat - 0.0035},${selectedLocation.lng + 0.005},${selectedLocation.lat + 0.0035}&layer=mapnik&marker=${selectedLocation.lat},${selectedLocation.lng}`}
+                          style={{ width: '100%', height: 110, border: 'none', display: 'block' }}
                           loading="lazy"
                         />
                       )}
-                      <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
+                      <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             📍 {selectedLocation.name}
                           </div>
                           {selectedLocation.formattedAddress && selectedLocation.formattedAddress !== selectedLocation.name && (
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{selectedLocation.formattedAddress}</div>
+                            <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {selectedLocation.formattedAddress}
+                            </div>
                           )}
                         </div>
                         <a
                           href={googleMapsSearchUrl(selectedLocation.name)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#10b981,#059669)', padding: '6px 12px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(16,185,129,0.35)' }}
+                          style={{
+                            flexShrink: 0,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: '#ffffff',
+                            background: '#10b981',
+                            padding: '6px 10px',
+                            borderRadius: 8,
+                            textDecoration: 'none',
+                            whiteSpace: 'nowrap',
+                            boxShadow: '0 2px 8px rgba(16,185,129,0.25)',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#059669'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#10b981'; }}
                         >
-                          Mở Maps
+                          Bản đồ
                         </a>
                       </div>
                     </div>
