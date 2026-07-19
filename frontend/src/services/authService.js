@@ -346,6 +346,12 @@ export const logout = async () => {
   }
   if (Capacitor.isNativePlatform()) {
     try {
+      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '1041742440704-j966ktttu2jjp1kjl6eqtbbqr47cpciv.apps.googleusercontent.com';
+      GoogleAuth.initialize({
+        clientId: clientId,
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
+      });
       await GoogleAuth.signOut();
     } catch (err) {
       if (import.meta.env.DEV) console.warn('Native GoogleAuth signOut failed:', err);
