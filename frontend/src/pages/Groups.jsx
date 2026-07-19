@@ -2241,58 +2241,42 @@ export default function Groups() {
 
       <div className="groups-page-container">
         <div className="groups-header-row">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
-            <h2 className="page-title" style={{ margin: 0, whiteSpace: 'nowrap' }}>Nhóm Học Tập</h2>
-            {/* Compact Search Bar */}
-            <div 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px', 
-                background: 'var(--bg-card)', 
-                border: '1.5px solid var(--border)', 
-                borderRadius: '20px',
-                padding: '0 12px',
-                height: '38px',
-                width: '100%',
-                maxWidth: '240px',
-                boxSizing: 'border-box',
-                transition: 'all 0.2s ease',
+          <h2 className="page-title">Nhóm Học Tập</h2>
+          
+          {/* Compact Search Bar */}
+          <div className="search-panel-compact">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+            <SafeInput 
+              type="text" 
+              placeholder="Tìm ID phòng..." 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              style={{
+                background: 'none',
+                border: 'none',
+                outline: 'none',
+                flex: 1,
+                color: 'var(--text-primary)',
+                fontSize: '13px',
+                fontFamily: 'inherit',
+                padding: 0
               }}
-              className="search-panel-compact"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.3-4.3"/>
-              </svg>
-              <SafeInput 
-                type="text" 
-                placeholder="Tìm ID phòng..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  outline: 'none',
-                  flex: 1,
-                  color: 'var(--text-primary)',
-                  fontSize: '13px',
-                  fontFamily: 'inherit',
-                  padding: 0
+                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  style={{
-                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
+              >
+                ✕
+              </button>
+            )}
           </div>
+
           <div className="groups-action-buttons">
             {/* Nút Tạo nhóm */}
             <button
@@ -2462,8 +2446,8 @@ export default function Groups() {
       <style>{`
         .groups-header-row {
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          justify-content: space-between;
           margin-bottom: 24px;
           gap: 16px;
           flex-wrap: wrap;
@@ -2471,9 +2455,10 @@ export default function Groups() {
         .groups-action-buttons {
           display: flex;
           gap: 8px;
+          margin-left: auto;
         }
         .groups-page-container {
-          padding: 12px 16px 80px 16px;
+          padding: 24px 20px 100px 20px;
           max-width: 1100px;
           margin: 0 auto;
           font-family: 'Inter', sans-serif;
@@ -2500,6 +2485,32 @@ export default function Groups() {
           letter-spacing: -0.5px;
           margin: 0;
         }
+        .search-panel-compact {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--bg-card);
+          border: 1.5px solid var(--border);
+          border-radius: 20px;
+          padding: 0 12px;
+          height: 38px;
+          width: 100%;
+          max-width: 240px;
+          box-sizing: border-box;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+        .search-panel-compact:focus-within {
+          border-color: var(--text-primary);
+          box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+        }
+        .groups-vertical-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
+          margin-top: 16px;
+          margin-bottom: 28px;
+        }
         .premium-panel {
           background: var(--bg-card);
           border: 1.5px solid var(--border);
@@ -2519,9 +2530,8 @@ export default function Groups() {
           position: relative;
           overflow: hidden;
           box-shadow: var(--shadow);
-          flex: 0 0 320px;
-          width: 320px;
-          scroll-snap-align: start;
+          width: 100%;
+          box-sizing: border-box;
         }
         .group-card::before {
           content: '';
@@ -2551,6 +2561,50 @@ export default function Groups() {
           border-radius: 20px;
           white-space: nowrap;
           border: 1px solid;
+        }
+        @media (max-width: 768px) {
+          .groups-header-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 0 4px;
+            box-sizing: border-box;
+          }
+          .page-title {
+            order: 1;
+            margin-bottom: 4px;
+          }
+          .groups-action-buttons {
+            order: 2;
+            margin-left: 0;
+            width: 100%;
+            display: flex;
+            gap: 8px;
+            box-sizing: border-box;
+          }
+          .groups-action-buttons button {
+            flex: 1;
+            min-width: 0 !important;
+            font-size: 13px !important;
+            height: 38px !important;
+            padding: 0 8px !important;
+          }
+          .search-panel-compact {
+            order: 3;
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+          .groups-vertical-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-top: 12px;
+            margin-bottom: 24px;
+            padding: 0 4px;
+          }
+          .groups-page-container {
+            padding: 20px 12px 90px 12px;
+          }
         }
       `}</style>
 
