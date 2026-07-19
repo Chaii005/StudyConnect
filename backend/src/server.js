@@ -17,6 +17,10 @@ const start = async () => {
 
     await connectDB();
 
+    // Start background notification queue worker
+    const { startWorker } = require('./services/notificationQueueWorker');
+    startWorker();
+
     const server = app.listen(PORT, () => {
       logger.info(`🚀 StudyConnect API running on http://localhost:${PORT}`);
       logger.info(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -25,6 +29,14 @@ const start = async () => {
     // Graceful shutdown
     const shutdown = (signal) => {
       logger.warn(`${signal} received — shutting down gracefully...`);
+      
+      try {
+        const { stopWorker } = require('./services/notificationQueueWorker');
+        stopWorker();
+      } catch (err) {
+        // ignore
+      }
+
       server.close(() => {
         logger.info('✅ HTTP server closed');
         process.exit(0);
