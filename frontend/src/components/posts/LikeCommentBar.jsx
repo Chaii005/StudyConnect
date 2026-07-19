@@ -1,7 +1,7 @@
 
 export default function LikeCommentBar({ isLiked, likedEmoji, showComments, onLike, onToggleComments }) {
   return (
-    <div style={{ display: 'flex', padding: '4px 10px', borderTop: '1px solid var(--border)' }}>
+    <div style={{ display: 'flex', padding: '2px 8px', borderTop: '1px solid var(--border)' }}>
 
       {/* Heart (Like) Button */}
       <div style={{ flex: 1 }}>

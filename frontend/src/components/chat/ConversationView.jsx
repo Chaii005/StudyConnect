@@ -997,7 +997,7 @@ export default function ConversationView({
             )}
 
             {(!friend.status || friend.status === 'accepted') && (
-              <div style={{ position: 'relative', display: 'inline-block' }}>
+              <div className="chat-options-trigger-wrap">
                 <button
                   onClick={() => setShowMenuDropdown(prev => !prev)}
                   title="Tùy chọn"
@@ -1032,42 +1032,13 @@ export default function ConversationView({
                       onClick={() => setShowMenuDropdown(false)}
                       style={{ position: 'fixed', inset: 0, zIndex: 999 }}
                     />
-                    <div 
-                      style={{
-                        position: 'absolute',
-                        top: '48px',
-                        right: '0',
-                        background: 'var(--bg-card)',
-                        border: '1.5px solid var(--border)',
-                        borderRadius: '16px',
-                        width: '180px',
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                        zIndex: 1000,
-                        overflow: 'hidden',
-                        animation: 'dropdownSlideInFromRight 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-                        transformOrigin: 'top right'
-                      }}
-                    >
+                    <div className="chat-options-dropdown-container">
                       <button
                         onClick={() => {
                           setShowMenuDropdown(false);
                           navigate(`/friends/${friend.userId}`);
                         }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          background: 'none',
-                          border: 'none',
-                          textAlign: 'left',
-                          color: 'var(--text-primary)',
-                          fontSize: '13.5px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          transition: 'background 0.2s',
-                          fontFamily: 'inherit'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                        className="chat-options-btn"
                       >
                         Trang cá nhân
                       </button>
@@ -1076,22 +1047,7 @@ export default function ConversationView({
                           setShowMenuDropdown(false);
                           handleRenameClick();
                         }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          background: 'none',
-                          border: 'none',
-                          textAlign: 'left',
-                          color: 'var(--text-primary)',
-                          fontSize: '13.5px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          transition: 'background 0.2s',
-                          fontFamily: 'inherit',
-                          borderTop: '1px solid var(--border)'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                        className="chat-options-btn"
                       >
                         Đổi biệt danh
                       </button>
@@ -1104,22 +1060,7 @@ export default function ConversationView({
                           setBgPos(savedPos);
                           setShowBgModal(true);
                         }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          background: 'none',
-                          border: 'none',
-                          textAlign: 'left',
-                          color: 'var(--text-primary)',
-                          fontSize: '13.5px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          transition: 'background 0.2s',
-                          fontFamily: 'inherit',
-                          borderTop: '1px solid var(--border)'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                        className="chat-options-btn"
                       >
                         Đổi hình nền
                       </button>
@@ -1128,22 +1069,7 @@ export default function ConversationView({
                           setShowMenuDropdown(false);
                           setShowClearConfirm(true);
                         }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          background: 'none',
-                          border: 'none',
-                          textAlign: 'left',
-                          color: '#ff4d4d',
-                          fontSize: '13.5px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          transition: 'background 0.2s',
-                          fontFamily: 'inherit',
-                          borderTop: '1px solid var(--border)'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,77,0.08)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                        className="chat-options-btn danger-btn"
                       >
                         Xóa lịch sử trò chuyện
                       </button>

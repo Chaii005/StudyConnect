@@ -310,15 +310,16 @@ export default function Home() {
           {p.char}
         </span>
       ))}
-      <div style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <div className="home-feed-container">
         {/* MIDDLE COLUMN: Feed */}
-        <main style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', paddingRight: '4px', overflow: 'hidden', height: '100%' }}>
+        <main className="home-feed-main">
           {/* Create Question Box - Fixed Top */}
-          <div style={{ flexShrink: 0, paddingBottom: '14px', zIndex: 20 }}>
-            <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: '18px', padding: '16px 18px', display: 'flex', gap: '12px', alignItems: 'center', animationDelay: '0s' }}>
+          <div className="home-create-box-wrapper">
+            <div className="home-create-box sc-card-animated">
               <Avatar src={user?.avatar} initial={user?.fullName || 'U'} size={42} />
               <button
                 onClick={() => setShowCreateModal(true)}
+                className="home-create-btn"
                 style={{ flex: 1, background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '24px', padding: '12px 18px', color: 'var(--text-muted)', fontSize: '14px', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center' }}
               >
                 <Typewriter

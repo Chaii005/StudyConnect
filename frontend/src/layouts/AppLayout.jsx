@@ -793,7 +793,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         {shouldHideSidebar ? (
           children
         ) : (
-          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '10px 16px', height: '100%' }}>
+          <div className="layout-container" style={{ height: '100%' }}>
             <div className={`layout-grid-custom ${layoutClass}`} style={{ height: '100%' }}>
               {/* Unified desktop left sidebar */}
               <aside className="desktop-only no-scrollbar" style={{ position: 'sticky', top: 0, display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 10, height: 'calc(100vh - 112px)', maxHeight: 'calc(100vh - 112px)', overflowY: 'auto' }}>

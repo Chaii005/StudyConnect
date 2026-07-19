@@ -353,25 +353,10 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
   return (
     <article
       ref={cardRef}
-      style={{
-        background: 'var(--bg-card)',
-        border: '1.5px solid var(--border)',
-        borderRadius: 'var(--radius-lg)',
-        marginBottom: '14px',
-        overflow: 'visible',
-        transition: 'border-color 0.25s, box-shadow 0.25s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(42, 117, 118, 0.35)';
-        e.currentTarget.style.boxShadow = '0 4px 24px rgba(42, 117, 118, 0.06)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--border)';
-        e.currentTarget.style.boxShadow = 'none';
-      }}
+      className="post-card"
     >
       {/* Author row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 18px 0' }}>
+      <div className="post-card-author-row">
         <Link to={profileUrl} style={{ textDecoration: 'none' }}>
           <Avatar src={post.userAvatar} initial={post.userFullName || 'U'} size={46} />
         </Link>
@@ -476,7 +461,7 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
       </div>
 
       {/* Content */}
-      <div style={{ padding: '12px 18px 14px' }}>
+      <div className="post-card-content-area">
         {isEditing ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {/* Textarea với @mention */}
@@ -683,7 +668,7 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
 
       {/* Tagged users / groups chips */}
       {((post.taggedUsers && post.taggedUsers.length > 0) || (post.taggedGroups && post.taggedGroups.length > 0)) && (
-        <div style={{ padding: '0 18px 12px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', position: 'relative' }}>
+        <div className="post-card-tags-area">
           <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginRight: '2px' }}>Cùng với:</span>
 
           {(post.taggedUserNames || []).map((name, i) => {
@@ -932,16 +917,7 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
       )}
 
       {/* Stats row */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 18px 10px',
-          fontSize: '12px',
-          color: 'var(--text-muted)',
-        }}
-      >
+      <div className="post-card-stats-row">
         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {post.likes && post.likes.length > 0 && (
             <>
@@ -969,7 +945,7 @@ export default function PostCard({ post, currentUser, friends = [], myLeaderGrou
 
       {/* Comments section */}
       {showComments && (
-        <div style={{ borderTop: '1px solid var(--border)', padding: '12px 18px 14px' }}>
+        <div className="post-card-comments-section">
           {/* Threaded comments tree */}
           {post.comments && post.comments.length > 0 && (() => {
             const roots = post.comments.filter((c) => !c.parentId);
