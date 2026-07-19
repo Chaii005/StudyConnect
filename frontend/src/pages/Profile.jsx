@@ -55,7 +55,16 @@ function CustomSelect({ value, onChange, options, placeholder = "Chọn...", dis
           boxSizing: 'border-box'
         }}
       >
-        <span>{value || placeholder}</span>
+        <span style={{
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          marginRight: '8px',
+          flex: 1,
+          textAlign: 'left'
+        }}>
+          {value || placeholder}
+        </span>
         <span style={{ fontSize: '10px', color: 'var(--text-secondary)', transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
       </div>
       {isOpen && (
@@ -308,7 +317,6 @@ export default function Profile() {
       }}>
         <div>
           <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, fontFamily: "'Inter', sans-serif" }}>Hồ sơ cá nhân</h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 0', fontFamily: "'Inter', sans-serif" }}>Quản lý thông tin tài khoản và cấu hình riêng tư</p>
         </div>
       </div>
 
@@ -540,7 +548,7 @@ export default function Profile() {
                   )}
 
                   {/* Khu vực hoạt động */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '10px', marginBottom: '10px' }}>
+                  <div className="form-row" style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label className="form-label">Tỉnh / Thành phố</label>
                       <div className="form-input-wrap">
@@ -551,7 +559,7 @@ export default function Profile() {
                             setDistrict('');
                           }}
                           options={Object.keys(VIETNAM_LOCATIONS)}
-                          placeholder="-- Chọn Tỉnh/Thành phố --"
+                          placeholder="Chọn Tỉnh/Thành phố"
                         />
                       </div>
                     </div>
@@ -563,7 +571,7 @@ export default function Profile() {
                           value={district}
                           onChange={(val) => setDistrict(val)}
                           options={province ? VIETNAM_LOCATIONS[province] : []}
-                          placeholder="-- Chọn Quận/Huyện --"
+                          placeholder="Chọn Quận/Huyện"
                           disabled={!province}
                         />
                       </div>
@@ -578,35 +586,7 @@ export default function Profile() {
                     <div className="char-count" style={{ display: 'none' }}>{info.bio.length}/300</div>
                   </div>
 
-                  {/* Thiết lập quyền riêng tư */}
-                  <div className="form-group" style={{ marginTop: '12px', marginBottom: '12px' }}>
-                    <label className="form-label" style={{ fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-primary)' }}>
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      </svg>
-                      Thiết lập quyền riêng tư
-                    </label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13.5px', color: 'var(--text-primary)', margin: 0 }}>
-                        <input
-                          type="checkbox"
-                          checked={hideLocation}
-                          onChange={(e) => setHideLocation(e.target.checked)}
-                          style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: 'var(--primary)' }}
-                        />
-                        <span>Ẩn khu vực sinh sống</span>
-                      </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13.5px', color: 'var(--text-primary)', margin: 0 }}>
-                        <input
-                          type="checkbox"
-                          checked={hideJoinDate}
-                          onChange={(e) => setHideJoinDate(e.target.checked)}
-                          style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: 'var(--primary)' }}
-                        />
-                        <span>Ẩn ngày tham gia</span>
-                      </label>
-                    </div>
-                  </div>
+
 
                   {avatarFile && (
                     <div className="alert alert-success" style={{ marginBottom: '16px' }}>
@@ -704,50 +684,7 @@ export default function Profile() {
             )}
           </div>
 
-          {/* Mobile Logout Button */}
-          <div className="show-on-mobile-only" style={{ marginTop: '8px', marginBottom: '20px', padding: '0 8px' }}>
-            <button
-              type="button"
-              onClick={handleLogout}
-              style={{
-                width: '100%',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                background: 'rgba(239, 68, 68, 0.08)',
-                border: '1.5px solid rgba(239, 68, 68, 0.25)',
-                color: '#ef4444',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#ef4444';
-                e.currentTarget.style.color = '#ffffff';
-                e.currentTarget.style.borderColor = '#ef4444';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-                e.currentTarget.style.color = '#ef4444';
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-              Đăng xuất tài khoản
-            </button>
-          </div>
+
         </main>
       </div>
     </>
