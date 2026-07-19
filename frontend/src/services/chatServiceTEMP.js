@@ -225,6 +225,7 @@ export const markAsRead = async (userId, friendId) => {
     cachedMessages = cachedMessages.map(m =>
       m.fromUserId === String(fid) && m.toUserId === String(uid) ? { ...m, read: true } : m
     );
+    window.dispatchEvent(new CustomEvent('sc-messages-read', { detail: { userId: String(uid), friendId: String(fid) } }));
   }
 };
 

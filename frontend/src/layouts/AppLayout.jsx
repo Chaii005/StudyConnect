@@ -296,6 +296,20 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     return;
   }, [user]);
 
+  // Listen to sc-messages-read event to instantly update global unread count
+  useEffect(() => {
+    if (!user?.id) return;
+    const handleReadEvent = (e) => {
+      const { userId } = e.detail;
+      if (String(userId) === String(user.id)) {
+        const count = getTotalUnread(String(user.id));
+        setUnreadCount(count);
+      }
+    };
+    window.addEventListener('sc-messages-read', handleReadEvent);
+    return () => window.removeEventListener('sc-messages-read', handleReadEvent);
+  }, [user?.id]);
+
   useEffect(() => {
     if (!user?.id) return;
 

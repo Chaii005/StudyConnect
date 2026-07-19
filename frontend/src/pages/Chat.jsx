@@ -145,6 +145,21 @@ export default function Chat() {
     return () => supabase.removeChannel(channel);
   }, [user?.id]);
 
+  // Listen to sc-messages-read events to instantly update local unread badges
+  useEffect(() => {
+    if (!user?.id) return;
+    const handleReadEvent = (e) => {
+      const { userId } = e.detail;
+      if (String(userId) === String(user.id)) {
+        setFriends(prev => [...prev]);
+        const total = friendsRef.current.reduce((acc, f) => acc + getUnreadCount(user.id, f.userId), 0);
+        setTotalUnread(total);
+      }
+    };
+    window.addEventListener('sc-messages-read', handleReadEvent);
+    return () => window.removeEventListener('sc-messages-read', handleReadEvent);
+  }, [user?.id]);
+
   if (!isAuth || !user) return null;
 
   return (
