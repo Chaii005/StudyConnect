@@ -2462,20 +2462,8 @@ export default function Groups() {
           max-width: 1100px;
           margin: 0 auto;
           font-family: 'Inter', sans-serif;
-          height: 100vh;
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
+          min-height: 100vh;
           box-sizing: border-box;
-        }
-        .groups-page-container::-webkit-scrollbar {
-          width: 6px;
-        }
-        .groups-page-container::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .groups-page-container::-webkit-scrollbar-thumb {
-          background: var(--border);
-          border-radius: 3px;
         }
         .page-title {
           font-family: 'Inter', sans-serif;
@@ -2518,20 +2506,19 @@ export default function Groups() {
         }
         .group-card {
           background: var(--bg-card);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
           border: 1px solid var(--border);
           border-radius: 20px;
           padding: 20px;
           display: flex;
           flex-direction: column;
           gap: 0;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
           overflow: hidden;
           box-shadow: var(--shadow);
           width: 100%;
           box-sizing: border-box;
+          will-change: transform;
         }
         .group-card::before {
           content: '';
