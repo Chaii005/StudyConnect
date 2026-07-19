@@ -1798,10 +1798,13 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 
 .is-native-app .mobile-bottom-nav {
   display: flex !important;
+  height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  box-sizing: border-box !important;
 }
 
 .is-native-app .app-layout-wrapper {
-  padding-bottom: 80px !important;
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .is-native-app .navbar {
