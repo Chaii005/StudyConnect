@@ -164,31 +164,57 @@ export const login = async ({ email, password }) => {
       throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống do vi phạm chính sách nội dung khiêu dâm.');
     }
 
-    // Đây là người dùng cũ đăng nhập đúng mật khẩu lần đầu:
-    // Tự động tạo tài khoản cho họ trên Supabase Auth
-    try {
-      const { data: newAuth, error: signUpError } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password: password,
-        options: {
-          data: { full_name: legacyUser.full_name }
+    // Đây là người dùng cũ đăng nhập đúng mật khẩu:
+    // Tự động đồng bộ Supabase Auth trong nền (không chặn đăng nhập)
+    if (!legacyUser.supabase_uid) {
+      try {
+        const { data: newAuth, error: signUpError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: password,
+          options: {
+            data: { full_name: legacyUser.full_name }
+          }
+        });
+        
+        if (!signUpError && newAuth?.user) {
+          await supabase
+            .from('users')
+            .update({ supabase_uid: newAuth.user.id })
+            .eq('id', legacyUser.id);
         }
-      });
-      
-      if (!signUpError && newAuth?.user) {
-        // Cập nhật cột supabase_uid
+      } catch (syncErr) {
+        if (import.meta.env.DEV) console.warn('[Auth] Background Supabase Auth sync failed:', syncErr);
+      }
+    }
+
+    // Nâng cấp mật khẩu legacy lên Salted SHA-256 nếu cần
+    if (isLegacyMatch && !isHashMatch) {
+      try {
+        const newHash = await hashPassword(password, normalizedEmail);
         await supabase
           .from('users')
-          .update({ supabase_uid: newAuth.user.id })
+          .update({ password: newHash })
           .eq('id', legacyUser.id);
-        
-        throw new Error('Tài khoản của bạn đã được cập nhật hệ thống bảo mật mới. Vui lòng kiểm tra email để xác thực tài khoản trước khi tiếp tục đăng nhập.');
-      } else {
-        throw signUpError;
+      } catch (upgradeErr) {
+        if (import.meta.env.DEV) console.warn('[Auth] Password upgrade failed:', upgradeErr);
       }
-    } catch (err) {
-      throw new Error(err.message || 'Lỗi hệ thống khi tự động đồng bộ tài khoản bảo mật.', { cause: err });
     }
+
+    // Cho phép đăng nhập ngay với dữ liệu từ public.users
+    const safeUser = {
+      id: legacyUser.id,
+      fullName: legacyUser.full_name,
+      email: legacyUser.email,
+      role: legacyUser.role,
+      university: legacyUser.university || '',
+      major: legacyUser.major || '',
+      avatar: legacyUser.avatar || '',
+      bio: legacyUser.bio || '',
+      createdAt: legacyUser.created_at,
+    };
+
+    saveSession(safeUser);
+    return { user: safeUser };
   }
 
   // 2. Đăng nhập Supabase Auth thành công -> Lấy thông tin user có BIGINT ID tương ứng từ public.users
