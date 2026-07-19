@@ -8,6 +8,7 @@ import { sendGroupInvite, getGroupInvitesSent } from '../services/groupInviteSer
 import ConfirmModal from '../components/ConfirmModal';
 import { supabase } from '../config/supabaseClient';
 import { formatBytes } from '../utils';
+import { Capacitor } from '@capacitor/core';
 
 import { geocodeAddress, staticMapUrl, googleMapsSearchUrl, autocompletePlaces, getPlaceDetails } from '../utils/geocoding';
 import { SafeInput, SafeTextarea } from '../components/common/SafeInput';
@@ -2205,15 +2206,17 @@ export default function Groups() {
       </aside>
 
       {/* Button to open sidebar drawer (Mobile Only) */}
-      <div className="mobile-only" style={{ maxWidth: '1100px', margin: '40px auto 0', padding: '0 24px' }}>
-        <button onClick={() => setSidebarOpen(true)}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.06)', border: '1.5px solid var(--border)', color: 'var(--text-primary)', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'var(--transition)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.1)'; e.currentTarget.style.borderColor = 'var(--text-primary)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-        >
-          ☰ Menu Tiện ích
-        </button>
-      </div>
+      {!Capacitor.isNativePlatform() && (
+        <div className="mobile-only" style={{ maxWidth: '1100px', margin: '40px auto 0', padding: '0 24px' }}>
+          <button onClick={() => setSidebarOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.06)', border: '1.5px solid var(--border)', color: 'var(--text-primary)', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'var(--transition)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.1)'; e.currentTarget.style.borderColor = 'var(--text-primary)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+          >
+            ☰ Menu Tiện ích
+          </button>
+        </div>
+      )}
 
       <div className="groups-page-container">
         <div className="groups-header-row">
