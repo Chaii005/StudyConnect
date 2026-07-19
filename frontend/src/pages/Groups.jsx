@@ -2324,7 +2324,7 @@ export default function Groups() {
           <div style={{ display: 'flex', alignItems: 'center', height: '48px' }}>
             {!isSearchExpanded ? (
               <button
-                onMouseEnter={() => setIsSearchExpanded(true)}
+                onClick={() => setIsSearchExpanded(true)}
                 style={{
                   width: '48px',
                   height: '48px',
@@ -2343,7 +2343,9 @@ export default function Groups() {
                 onMouseEnter={e => { 
                   e.currentTarget.style.color = 'var(--text-primary)'; 
                   e.currentTarget.style.borderColor = 'var(--border-hover)'; 
-                  setIsSearchExpanded(true);
+                  if (!Capacitor.isNativePlatform()) {
+                    setIsSearchExpanded(true);
+                  }
                 }}
                 onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
               >
@@ -2366,7 +2368,7 @@ export default function Groups() {
                   borderRadius: '24px',
                   padding: '0 16px'
                 }}
-                onMouseLeave={() => { if (!searchQuery.trim()) setIsSearchExpanded(false); }}
+                onMouseLeave={() => { if (!Capacitor.isNativePlatform() && !searchQuery.trim()) setIsSearchExpanded(false); }}
               >
                 <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
