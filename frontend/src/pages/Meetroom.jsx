@@ -1158,7 +1158,7 @@ export default function MeetRoom() {
     : (n <= 1 ? '1fr' : n <= 2 ? '1fr 1fr' : n <= 4 ? '1fr 1fr' : 'repeat(3, 1fr)');
 
   return (
-    <AppLayout hideSidebar={true} hideNavbar={true}>
+    <AppLayout hideSidebar={true} hideNavbar={true} darkStatusBar={true}>
       <div ref={containerRef} onMouseMove={resetHideTimer} onClick={resetHideTimer} style={{ position: 'fixed', inset: 0, background: '#0A0A0C', display: 'flex', flexDirection: 'column', fontFamily: 'inherit', overflow: 'hidden' }}>
         <style>{`
           .meet-pip-container {

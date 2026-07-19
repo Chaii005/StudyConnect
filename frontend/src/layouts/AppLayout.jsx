@@ -87,7 +87,7 @@ const NAV_ITEMS = [
   { icon: 'chat', label: 'Nhắn tin', to: '/chat', key: 'chat' },
 ];
 
-export default function AppLayout({ children, hideNavbar = false, hideSidebar = false, hideRightSidebar = false }) {
+export default function AppLayout({ children, hideNavbar = false, hideSidebar = false, hideRightSidebar = false, darkStatusBar = false }) {
   const { user, admin, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -120,8 +120,13 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       try {
         StatusBar.show().catch(() => {});
         StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
-        StatusBar.setStyle({ style: Style.Light }).catch(() => {});
-        StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(() => {});
+        if (darkStatusBar) {
+          StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+          StatusBar.setBackgroundColor({ color: '#0A0A0C' }).catch(() => {});
+        } else {
+          StatusBar.setStyle({ style: Style.Light }).catch(() => {});
+          StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(() => {});
+        }
       } catch (err) {
         console.warn('StatusBar error:', err);
       }
@@ -129,7 +134,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
       document.documentElement.classList.add('is-web-browser');
       document.documentElement.classList.remove('is-native-app');
     }
-  }, []);
+  }, [darkStatusBar]);
 
   // Auto-hide bottom nav on mobile/native when keyboard is visible
   useEffect(() => {

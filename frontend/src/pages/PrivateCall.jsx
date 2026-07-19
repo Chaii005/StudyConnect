@@ -8,6 +8,7 @@ import { supabase } from '../config/supabaseClient';
 import { sendMessage } from '../services/chatServiceTEMP.js';
 import { useCall } from '../context/CallContext';
 import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 /* ─── Màu avatar ──────────────────────────────────────────── */
 const COLORS = ['#1A1A1A','#3A3A3A','#2E2E2E','#4A4A4A','#222222','#383838','#2A2A2A'];
@@ -605,6 +606,29 @@ export default function PrivateCall() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isNative = Capacitor.isNativePlatform();
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        StatusBar.show().catch(() => {});
+        StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+        StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+        StatusBar.setBackgroundColor({ color: '#000000' }).catch(() => {});
+      } catch (err) {
+        console.warn('StatusBar error in PrivateCall:', err);
+      }
+    }
+    return () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          StatusBar.setStyle({ style: Style.Light }).catch(() => {});
+          StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(() => {});
+        } catch (err) {
+          console.warn('StatusBar error on PrivateCall cleanup:', err);
+        }
+      }
+    };
+  }, []);
 
   const mode = searchParams.get('mode') || 'caller';
   const friendName = (() => { try { return decodeURIComponent(searchParams.get('friendName') || ''); } catch { return ''; } })() || 'Người dùng';
