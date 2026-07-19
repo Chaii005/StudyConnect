@@ -131,6 +131,74 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     }
   }, []);
 
+  // Auto-hide bottom nav on mobile/native when keyboard is visible
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const handleViewportChange = () => {
+      if (!window.visualViewport) return;
+      const viewHeight = window.visualViewport.height;
+      const screenHeight = window.screen.height;
+      
+      // If viewport height is significantly smaller than screen height, keyboard is active
+      const isKeyboardOpen = screenHeight - viewHeight > 150;
+      
+      if (isKeyboardOpen) {
+        document.body.classList.add('hide-mobile-bottom-nav');
+      } else {
+        const activeEl = document.activeElement;
+        const isInputActive = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+        if (!isInputActive) {
+          document.body.classList.remove('hide-mobile-bottom-nav');
+        }
+      }
+    };
+
+    const handleFocusIn = (e) => {
+      const target = e.target;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        document.body.classList.add('hide-mobile-bottom-nav');
+      }
+    };
+
+    const handleFocusOut = (e) => {
+      const target = e.target;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        setTimeout(() => {
+          const activeEl = document.activeElement;
+          const isInputActive = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+          
+          if (!isInputActive) {
+            if (window.visualViewport) {
+              const viewHeight = window.visualViewport.height;
+              const screenHeight = window.screen.height;
+              if (screenHeight - viewHeight <= 150) {
+                document.body.classList.remove('hide-mobile-bottom-nav');
+              }
+            } else {
+              document.body.classList.remove('hide-mobile-bottom-nav');
+            }
+          }
+        }, 150);
+      }
+    };
+
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+    }
+
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+      }
+    };
+  }, []);
+
+
   const [schedules, setSchedules] = useState([]);
   const [deadlines, setDeadlines] = useState([]);
   const [friends, setFriends] = useState([]);
