@@ -160,25 +160,25 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
   };
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.70)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5000, padding: isNative ? 'env(safe-area-inset-top, 24px) 12px calc(env(safe-area-inset-bottom, 12px) + 12px)' : '40px 16px 24px' }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--bg-card)', width: '100%', maxWidth: step === 1 ? '480px' : '440px', maxHeight: isNative ? 'min(490px, 85vh)' : 'min(570px, 85vh)', borderRadius: '20px', border: '1px solid var(--border)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'max-width 0.3s ease' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.70)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5000, padding: isNative ? 'env(safe-area-inset-top, 16px) 12px calc(env(safe-area-inset-bottom, 8px) + 8px)' : '24px 16px' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--bg-card)', width: '100%', maxWidth: step === 1 ? '440px' : '400px', maxHeight: isNative ? 'min(410px, 82vh)' : 'min(490px, 85vh)', borderRadius: '20px', border: '1px solid var(--border)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'all 0.3s ease' }}>
 
         {/* Header */}
-        <div style={{ padding: '14px 18px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {step === 2 && (
-              <button onClick={handleBack} style={{ background: 'var(--bg-input)', border: '1.5px solid var(--border)', borderRadius: 10, color: 'var(--text-secondary)', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s', padding: 0 }}
+              <button onClick={handleBack} style={{ background: 'var(--bg-input)', border: '1.5px solid var(--border)', borderRadius: 10, color: 'var(--text-secondary)', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s', padding: 0 }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="19" y1="12" x2="5" y2="12" />
                   <polyline points="12 19 5 12 12 5" />
                 </svg>
               </button>
             )}
             <div>
-              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <h3 style={{ margin: 0, fontSize: 14.5, fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {step === 1 ? (
                   'Tạo Nhóm Học Mới'
                 ) : meetingMode === 'online' ? (
@@ -200,54 +200,52 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                   </>
                 )}
               </h3>
-              <p style={{ margin: '1px 0 0 0', fontSize: 11, color: 'var(--text-muted)' }}>
-                {step === 1 ? 'Chọn hình thức học của nhóm bạn' : 'Điền thông tin chi tiết cho nhóm học'}
+              <p style={{ margin: '1px 0 0 0', fontSize: 10.5, color: 'var(--text-muted)' }}>
+                {step === 1 ? 'Chọn hình thức học' : 'Điền thông tin chi tiết'}
               </p>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 18, cursor: 'pointer', padding: '3px 5px', borderRadius: 6, lineHeight: 1, transition: 'all 0.2s' }}
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 16, cursor: 'pointer', padding: '3px 5px', borderRadius: 6, lineHeight: 1, transition: 'all 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; }}
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'none'; }}
           >✕</button>
         </div>
 
-
-
         {/* STEP 1: Pick mode */}
         {step === 1 && (
-          <div style={{ padding: '14px 18px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {/* Online Card */}
-            <button onClick={() => handleModeSelect('online')} style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: 12, padding: '14px 16px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 14 }}
+            <button onClick={() => handleModeSelect('online')} style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: 12, padding: '12px 14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 12 }}
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="2" y1="12" x2="22" y2="12" />
                   <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                 </svg>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>Học Online</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>Không cần ra ngoài — học mọi lúc mọi nơi, kết nối và cộng tác cùng nhóm dù ở bất kỳ đâu.</div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>Học Online</div>
+                <div style={{ fontSize: 10.5, color: 'var(--text-muted)', lineHeight: 1.4 }}>Học trực tuyến qua phòng video, tiện lợi, linh hoạt.</div>
               </div>
             </button>
 
             {/* Offline Card */}
-            <button onClick={() => handleModeSelect('offline')} style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: 12, padding: '14px 16px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 14 }}
+            <button onClick={() => handleModeSelect('offline')} style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)', borderRadius: 12, padding: '12px 14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 12 }}
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-input)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>Học Offline</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>Gặp gỡ trực tiếp, trao đổi dễ hơn — chọn địa điểm phù hợp để cả nhóm cùng học chung.</div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 2 }}>Học Offline</div>
+                <div style={{ fontSize: 10.5, color: 'var(--text-muted)', lineHeight: 1.4 }}>Gặp mặt trực tiếp tại quán cà phê, thư viện, trường học.</div>
               </div>
             </button>
           </div>
@@ -256,43 +254,19 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
         {/* STEP 2: Fill form */}
         {step === 2 && (
           <>
-            {/* Mode badge */}
-            <div style={{ padding: '8px 18px 0' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 20, background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1.5px solid var(--border)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', letterSpacing: '0.02em' }}>
-                {meetingMode === 'online' ? (
-                  <>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                      <circle cx="12" cy="12" r="10" fill="rgba(0,0,0,0.04)" />
-                      <line x1="2" y1="12" x2="22" y2="12" />
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    </svg>
-                    Học Online
-                  </>
-                ) : (
-                  <>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    Học Offline
-                  </>
-                )}
-              </span>
-            </div>
-
-            <div key={`${meetingMode}-${step}`} style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', flex: 1 }}>
+            <div key={`${meetingMode}-${step}`} style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', flex: '1 1 auto', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.15) transparent' }}>
               {/* Tên nhóm */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Tên nhóm *</label>
+                <label className="form-label" style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 700, color: 'var(--text-muted)' }}>Tên nhóm *</label>
                 <div className="form-input-wrap">
-                  <SafeInput className="form-input" style={{ padding: '9px 13px', fontSize: 13 }} placeholder={meetingMode === 'online' ? 'Nhập tên nhóm của bạn ' : 'Nhập tên nhóm học của bạn'} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+                  <SafeInput className="form-input" style={{ padding: '8px 12px', fontSize: 13, background: 'var(--bg-input)' }} placeholder={meetingMode === 'online' ? 'Nhập tên nhóm của bạn...' : 'Nhập tên nhóm học của bạn...'} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                 </div>
               </div>
 
               {/* Môn học */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Môn học *</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <label className="form-label" style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 700, color: 'var(--text-muted)' }}>Môn học *</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ position: 'relative' }}>
                     <div 
                       onClick={() => setSubjectDropdownOpen(!subjectDropdownOpen)}
@@ -301,9 +275,9 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                         background: 'var(--bg-input)',
                         border: '1px solid var(--border)',
                         borderRadius: 10,
-                        padding: '10px 14px',
+                        padding: '8px 12px',
                         color: 'var(--text-primary)',
-                        fontSize: '13.5px',
+                        fontSize: '13px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -329,15 +303,15 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                           top: '100%',
                           left: 0,
                           right: 0,
-                          marginTop: 6,
+                          marginTop: 4,
                           background: 'var(--bg-card)',
                           border: '1px solid var(--border)',
-                           borderRadius: 12,
-                          boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+                          borderRadius: 10,
+                          boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
                           zIndex: 10000,
                           maxHeight: 120,
                           overflowY: 'auto',
-                          padding: '6px',
+                          padding: '4px',
                           display: 'flex',
                           flexDirection: 'column',
                           gap: 2,
@@ -350,10 +324,10 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                             setSubjectDropdownOpen(false);
                           }}
                           style={{
-                            padding: '8px 12px',
+                            padding: '7px 10px',
                             borderRadius: 6,
                             cursor: 'pointer',
-                            fontSize: 13,
+                            fontSize: 12.5,
                             color: 'var(--text-secondary)',
                             transition: 'all 0.15s',
                             background: !formData.subject && subjectMode === 'select' ? 'var(--bg-input)' : 'transparent',
@@ -375,10 +349,10 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                                 setSubjectDropdownOpen(false);
                               }}
                               style={{
-                                padding: '8px 12px',
+                                padding: '7px 10px',
                                 borderRadius: 6,
                                 cursor: 'pointer',
-                                fontSize: 13,
+                                fontSize: 12.5,
                                 color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
                                 fontWeight: isSelected ? 600 : 400,
                                 transition: 'all 0.15s',
@@ -400,10 +374,10 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                               setSubjectDropdownOpen(false);
                             }}
                             style={{
-                              padding: '8px 12px',
+                              padding: '7px 10px',
                               borderRadius: 6,
                               cursor: 'pointer',
-                              fontSize: 13,
+                              fontSize: 12.5,
                               color: formData.subject === 'Chung' && subjectMode === 'select' ? 'var(--text-primary)' : 'var(--text-secondary)',
                               transition: 'all 0.15s',
                               background: formData.subject === 'Chung' && subjectMode === 'select' ? 'var(--bg-input)' : 'transparent',
@@ -422,10 +396,10 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                             setSubjectDropdownOpen(false);
                           }}
                           style={{
-                            padding: '8px 12px',
+                            padding: '7px 10px',
                             borderRadius: 6,
                             cursor: 'pointer',
-                            fontSize: 13,
+                            fontSize: 12.5,
                             color: subjectMode === 'custom' ? 'var(--text-primary)' : 'var(--text-secondary)',
                             transition: 'all 0.15s',
                             background: subjectMode === 'custom' ? 'var(--bg-input)' : 'transparent',
@@ -441,7 +415,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                   {subjectMode === 'custom' && (
                     <SafeInput
                       className="form-input"
-                      style={{ padding: '9px 13px', fontSize: 13, borderColor: 'var(--primary-light)', boxShadow: '0 0 0 2px rgba(0,0,0,0.08)' }}
+                      style={{ padding: '8px 12px', fontSize: 13, borderColor: 'var(--primary-light)', background: 'var(--bg-input)' }}
                       placeholder="Nhập tên môn học mới..."
                       value={customSubject}
                       onChange={e => {
@@ -457,27 +431,27 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
               {/* Mô tả - Chỉ hiển thị khi tạo nhóm công khai */}
               {!isPrivate && (
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Mô tả nhóm</label>
-                  <SafeTextarea className="form-textarea" placeholder="Mô tả ngắn gọn về nhóm để thành viên hiểu mục tiêu học" style={{ height: '72px', resize: 'none', padding: '9px 13px', fontSize: 13 }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                  <label className="form-label" style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 700, color: 'var(--text-muted)' }}>Mô tả nhóm</label>
+                  <SafeTextarea className="form-textarea" placeholder="Mô tả ngắn gọn về mục tiêu học của nhóm..." style={{ height: '52px', resize: 'none', padding: '8px 12px', fontSize: 13, background: 'var(--bg-input)' }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                 </div>
               )}
 
               {/* Location Picker for Offline mode */}
               {meetingMode === 'offline' && !isPrivate && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', borderRadius: '16px', background: 'var(--bg-card)', border: '1.5px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px dashed var(--border)', paddingTop: '10px', marginTop: '2px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, color: 'var(--text-muted)', fontWeight: 700 }}>Tên địa điểm học tập *</label>
+                    <label className="form-label" style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, color: 'var(--text-muted)', fontWeight: 700 }}>Địa điểm học tập *</label>
                     <div className="form-input-wrap" style={{ position: 'relative' }}>
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                        <span style={{ position: 'absolute', left: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <span style={{ position: 'absolute', left: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                             <circle cx="12" cy="10" r="3" />
                           </svg>
                         </span>
                         <SafeInput
                           className="form-input"
-                          style={{ padding: '10px 14px 10px 34px', fontSize: 13, width: '100%', borderRadius: 10, border: '1px solid var(--border)' }}
+                          style={{ padding: '8px 12px 8px 30px', fontSize: 13, width: '100%', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--bg-input)' }}
                           placeholder="Tìm quán cà phê, thư viện, địa điểm học..."
                           value={customName}
                           onChange={e => handleCustomLocationChange(e.target.value)}
@@ -491,25 +465,25 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                           top: '100%',
                           left: 0,
                           right: 0,
-                          marginTop: 6,
+                          marginTop: 4,
                           background: 'var(--bg-card)',
                           border: '1px solid var(--border)',
-                          borderRadius: 12,
-                          boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+                          borderRadius: 10,
+                          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
                           zIndex: 1000,
-                          maxHeight: 130,
+                          maxHeight: 120,
                           overflowY: 'auto',
-                          padding: '6px'
+                          padding: '4px'
                         }}>
                           {suggestions.map((s, idx) => (
                             <div
                               key={s.placeId || idx}
                               onClick={() => handleSelectSuggestion(s)}
                               style={{
-                                padding: '9px 12px',
-                                borderRadius: 8,
+                                padding: '8px 10px',
+                                borderRadius: 6,
                                 cursor: 'pointer',
-                                fontSize: 12.5,
+                                fontSize: 12,
                                 color: 'var(--text-primary)',
                                 transition: 'all 0.15s',
                                 textAlign: 'left',
@@ -529,19 +503,16 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
                       {placesError && (
                         <div style={{
-                          marginTop: 8,
-                          padding: '10px 12px',
+                          marginTop: 6,
+                          padding: '8px 10px',
                           background: 'rgba(239, 68, 68, 0.08)',
                           border: '1px solid rgba(239, 68, 68, 0.2)',
-                          borderRadius: 10,
+                          borderRadius: 8,
                           color: '#f87171',
-                          fontSize: 11,
+                          fontSize: 10.5,
                           lineHeight: 1.4
                         }}>
-                          ⚠️ <strong>Lỗi Places API (403):</strong> {placesError}. 
-                          <div style={{ marginTop: 4 }}>
-                            Vui lòng kiểm tra và kích hoạt <strong>Places API (New)</strong> trong Google Cloud Console cho API Key này.
-                          </div>
+                          ⚠️ Places API Error: {placesError}
                         </div>
                       )}
                     </div>
@@ -549,28 +520,45 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
                   {/* Map preview */}
                   {geoLoading && (
-                    <div style={{ marginTop: 4, fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    <div style={{ marginTop: 2, fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ display: 'inline-block', width: 12, height: 12, border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                       Đang xác vị trí bản đồ...
                     </div>
                   )}
                   {!geoLoading && selectedLocation && customName.trim() && (
-                    <div style={{ marginTop: 4, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--bg-input)' }}>
+                    <div style={{ position: 'relative', marginTop: 4, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--bg-input)', height: 95, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
                       {selectedLocation.lat && selectedLocation.lng && (
                         <iframe
                           title="Bản đồ địa điểm"
-                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedLocation.lng - 0.005},${selectedLocation.lat - 0.0035},${selectedLocation.lng + 0.005},${selectedLocation.lat + 0.0035}&layer=mapnik&marker=${selectedLocation.lat},${selectedLocation.lng}`}
-                          style={{ width: '100%', height: 110, border: 'none', display: 'block' }}
+                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedLocation.lng - 0.003},${selectedLocation.lat - 0.002},${selectedLocation.lng + 0.003},${selectedLocation.lat + 0.002}&layer=mapnik&marker=${selectedLocation.lat},${selectedLocation.lng}`}
+                          style={{ width: '100%', height: '100%', border: 'none', display: 'block', opacity: 0.85, filter: 'grayscale(0.15) contrast(0.95)' }}
                           loading="lazy"
                         />
                       )}
-                      <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                      {/* Glassmorphic info overlay on top of map */}
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 6,
+                        left: 6,
+                        right: 6,
+                        background: 'rgba(255, 255, 255, 0.90)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(255, 255, 255, 0.5)',
+                        borderRadius: 8,
+                        padding: '6px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 6,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      }}>
                         <div style={{ minWidth: 0, flex: 1 }}>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#1f2937', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             📍 {selectedLocation.name}
                           </div>
                           {selectedLocation.formattedAddress && selectedLocation.formattedAddress !== selectedLocation.name && (
-                            <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div style={{ fontSize: 9.5, color: '#4b5563', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {selectedLocation.formattedAddress}
                             </div>
                           )}
@@ -581,19 +569,16 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                           rel="noopener noreferrer"
                           style={{
                             flexShrink: 0,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 5,
-                            fontSize: 11,
+                            fontSize: 9.5,
                             fontWeight: 700,
                             color: '#ffffff',
                             background: '#10b981',
-                            padding: '6px 10px',
-                            borderRadius: 8,
+                            padding: '4px 8px',
+                            borderRadius: 5,
                             textDecoration: 'none',
                             whiteSpace: 'nowrap',
-                            boxShadow: '0 2px 8px rgba(16,185,129,0.25)',
-                            transition: 'all 0.2s'
+                            boxShadow: '0 1.5px 5px rgba(16,185,129,0.2)',
+                            transition: 'all 0.15s'
                           }}
                           onMouseEnter={e => { e.currentTarget.style.background = '#059669'; }}
                           onMouseLeave={e => { e.currentTarget.style.background = '#10b981'; }}
@@ -608,7 +593,7 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
               {/* Số lượng thành viên tối đa */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Số lượng thành viên tối đa</label>
+                <label className="form-label" style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 700, color: 'var(--text-muted)' }}>Số lượng thành viên tối đa</label>
                 <div className="form-input-wrap">
                   <div style={{ position: 'relative' }}>
                     <div 
@@ -618,9 +603,9 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                         background: 'var(--bg-input)',
                         border: '1px solid var(--border)',
                         borderRadius: 10,
-                        padding: '10px 14px',
+                        padding: '8px 12px',
                         color: 'var(--text-primary)',
-                        fontSize: '13.5px',
+                        fontSize: '13px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -642,15 +627,15 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                           top: '100%',
                           left: 0,
                           right: 0,
-                          marginTop: 6,
+                          marginTop: 4,
                           background: 'var(--bg-card)',
                           border: '1px solid var(--border)',
-                           borderRadius: 12,
-                          boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+                          borderRadius: 10,
+                          boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
                           zIndex: 10000,
                           maxHeight: 120,
                           overflowY: 'auto',
-                          padding: '6px',
+                          padding: '4px',
                           display: 'flex',
                           flexDirection: 'column',
                           gap: 2,
@@ -666,10 +651,10 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
                                 setMaxMembersDropdownOpen(false);
                               }}
                               style={{
-                                padding: '8px 12px',
+                                padding: '7px 10px',
                                 borderRadius: 6,
                                 cursor: 'pointer',
-                                fontSize: 13,
+                                fontSize: 12.5,
                                 color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
                                 fontWeight: isSelected ? 600 : 400,
                                 transition: 'all 0.15s',
@@ -690,68 +675,68 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
 
               {/* Toggle Riêng tư / Công khai */}
               <div style={{ 
-                borderRadius: 12, 
-                border: '1.5px solid var(--border)', 
-                background: 'var(--bg-card)', 
-                padding: '16px 20px', 
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
-                transition: 'all 0.25s' 
+                borderRadius: 10, 
+                border: '1px solid var(--border)', 
+                background: 'rgba(255,255,255,0.01)', 
+                padding: '10px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      {isPrivate ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EAB308" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="rgba(234, 179, 8, 0.1)" stroke="#EAB308" />
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#EAB308" />
-                        </svg>
-                      ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                          <circle cx="12" cy="12" r="10" fill="rgba(59, 130, 246, 0.1)" />
-                          <line x1="2" y1="12" x2="22" y2="12" />
-                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                        </svg>
-                      )}
-                      <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-primary)' }}>
-                        {isPrivate ? 'Nhóm riêng tư' : 'Nhóm công khai'}
-                      </span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                      {isPrivate
-                        ? 'Thành viên mới cần gửi yêu cầu và được trưởng nhóm duyệt mới vào được.'
-                        : 'Bất kỳ ai cũng có thể tham gia nhóm ngay mà không cần chờ duyệt.'}
-                    </p>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {isPrivate ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EAB308" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="rgba(234, 179, 8, 0.05)" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <circle cx="12" cy="12" r="10" fill="rgba(59, 130, 246, 0.05)" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                    )}
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                      {isPrivate ? 'Nhóm riêng tư' : 'Nhóm công khai'}
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsPrivate(p => {
-                      const next = !p;
-                      if (next) {
-                        setFormData(prev => ({ ...prev, description: '' }));
-                      }
-                      return next;
-                    })}
-                    style={{
-                      width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', flexShrink: 0,
-                      background: isPrivate ? '#E5E7EB' : 'var(--text-primary)',
-                      position: 'relative', transition: 'background 0.25s', padding: 0,
-                    }}
-                    title={isPrivate ? 'Đang tắt: Công khai — nhấn để chuyển sang Công khai' : 'Đang bật: Công khai — nhấn để chuyển sang Riêng tư'}
-                  >
-                    <span style={{
-                      position: 'absolute', top: 3, left: isPrivate ? 3 : 23,
-                      width: 18, height: 18, borderRadius: '50%', background: 'white',
-                      transition: 'left 0.25s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-                    }} />
-                  </button>
+                  <p style={{ margin: '2px 0 0', fontSize: 10.5, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                    {isPrivate
+                      ? 'Cần duyệt yêu cầu để vào nhóm.'
+                      : 'Bất kỳ ai cũng có thể tham gia ngay.'}
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPrivate(p => {
+                    const next = !p;
+                    if (next) {
+                      setFormData(prev => ({ ...prev, description: '' }));
+                    }
+                    return next;
+                  })}
+                  style={{
+                    width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', flexShrink: 0,
+                    background: isPrivate ? '#E5E7EB' : 'var(--text-primary)',
+                    position: 'relative', transition: 'background 0.25s', padding: 0,
+                  }}
+                  title={isPrivate ? 'Chuyển sang công khai' : 'Chuyển sang riêng tư'}
+                >
+                  <span style={{
+                    position: 'absolute', top: 2, left: isPrivate ? 2 : 20,
+                    width: 18, height: 18, borderRadius: '50%', background: 'white',
+                    transition: 'left 0.25s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                  }} />
+                </button>
               </div>
             </div>
 
             {/* Footer */}
-            <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border)', flexShrink: 0, display: 'flex', gap: 8 }}>
-              <button type="button" className="btn btn-secondary" style={{ flex: 1, padding: '8px', fontSize: 13 }} onClick={onClose}>Hủy</button>
-              <button type="button" className="btn btn-primary" style={{ flex: 2, padding: '8px', fontSize: 13, background: meetingMode === 'online' ? undefined : 'linear-gradient(135deg, #10b981, #059669)', boxShadow: meetingMode === 'offline' ? '0 4px 16px rgba(16,185,129,0.35)' : undefined }} disabled={isSubmitting} onClick={onSubmit}>
+            <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border)', flexShrink: 0, display: 'flex', gap: 8 }}>
+              <button type="button" className="btn btn-secondary" style={{ flex: 1, padding: '8px', fontSize: 13, height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}>Hủy</button>
+              <button type="button" className="btn btn-primary" style={{ flex: 2, padding: '8px', fontSize: 13, height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: meetingMode === 'online' ? undefined : 'linear-gradient(135deg, #10b981, #059669)', boxShadow: meetingMode === 'offline' ? '0 4px 14px rgba(16,185,129,0.3)' : undefined }} disabled={isSubmitting} onClick={onSubmit}>
                 {isSubmitting ? 'Đang tạo...' : `Tạo nhóm ${meetingMode === 'online' ? 'Online' : 'Offline'}`}
               </button>
             </div>
@@ -2228,7 +2213,6 @@ export default function Groups() {
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{user?.email}</div>
           </div>
         </div>
-
         <nav style={{ flex: 1, padding: '12px 12px' }}>
           {SIDEBAR_ITEMS.map(item => (
             <Link key={item.to} to={item.to} onClick={() => setSidebarOpen(false)}
@@ -2257,8 +2241,57 @@ export default function Groups() {
 
       <div className="groups-page-container">
         <div className="groups-header-row">
-          <div>
-            <h2 className="page-title">Nhóm Học Tập</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
+            <h2 className="page-title" style={{ margin: 0, whiteSpace: 'nowrap' }}>Nhóm Học Tập</h2>
+            {/* Compact Search Bar */}
+            <div 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                background: 'var(--bg-card)', 
+                border: '1.5px solid var(--border)', 
+                borderRadius: '20px',
+                padding: '0 12px',
+                height: '38px',
+                width: '100%',
+                maxWidth: '240px',
+                boxSizing: 'border-box',
+                transition: 'all 0.2s ease',
+              }}
+              className="search-panel-compact"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
+              <SafeInput 
+                type="text" 
+                placeholder="Tìm ID phòng..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  flex: 1,
+                  color: 'var(--text-primary)',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  padding: 0
+                }}
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
           <div className="groups-action-buttons">
             {/* Nút Tạo nhóm */}
@@ -2266,7 +2299,7 @@ export default function Groups() {
               onClick={() => setShowModal(true)}
               style={{
                 padding: '0 20px',
-                height: '42px',
+                height: '38px',
                 boxSizing: 'border-box',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
@@ -2278,7 +2311,7 @@ export default function Groups() {
                 border: 'none',
                 color: '#fff',
                 fontWeight: 700,
-                fontSize: '13.5px',
+                fontSize: '13px',
                 borderRadius: '12px',
                 boxShadow: '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)',
                 cursor: 'pointer',
@@ -2304,7 +2337,7 @@ export default function Groups() {
                 onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
                 style={{
                   padding: '0 18px',
-                  height: '42px',
+                  height: '38px',
                   boxSizing: 'border-box',
                   whiteSpace: 'nowrap',
                   flexShrink: 0,
@@ -2312,7 +2345,6 @@ export default function Groups() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  minWidth: '156px',
                   background: showOnlyMyMajor
                     ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
                     : 'rgba(42,117,118,0.07)',
@@ -2357,94 +2389,6 @@ export default function Groups() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', height: '48px', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', height: '48px' }}>
-            {!isSearchExpanded ? (
-              <button
-                onClick={() => setIsSearchExpanded(true)}
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  background: 'var(--bg-card)',
-                  border: '1.5px solid var(--border)',
-                  color: 'var(--text-muted)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: 'var(--shadow)',
-                  padding: 0
-                }}
-                onMouseEnter={e => { 
-                  e.currentTarget.style.color = 'var(--text-primary)'; 
-                  e.currentTarget.style.borderColor = 'var(--border-hover)'; 
-                  if (!Capacitor.isNativePlatform()) {
-                    setIsSearchExpanded(true);
-                  }
-                }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.3-4.3"/>
-                </svg>
-              </button>
-            ) : (
-              <div 
-                className="premium-panel search-panel" 
-                style={{ 
-                  width: '300px', 
-                  margin: 0, 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '10px', 
-                  height: '100%', 
-                  boxSizing: 'border-box',
-                  borderRadius: '24px',
-                  padding: '0 16px'
-                }}
-                onMouseLeave={() => { if (!Capacitor.isNativePlatform() && !searchQuery.trim()) setIsSearchExpanded(false); }}
-              >
-                <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.3-4.3"/>
-                  </svg>
-                </span>
-                <SafeInput 
-                  type="text" 
-                  className="search-input" 
-                  placeholder="Nhập ID phòng..." 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)} 
-                  autoFocus
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    outline: 'none',
-                    flex: 1,
-                    color: 'var(--text-primary)',
-                    fontSize: '14px',
-                    fontFamily: 'inherit'
-                  }}
-                />
-                <button 
-                  onClick={() => { setIsSearchExpanded(false); setSearchQuery(''); }}
-                  style={{
-                    background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Toggle button moved to header row */}
-        </div>
-
         {/* Search Mode */}
         {_searchQ && (
           (() => {
@@ -2458,7 +2402,7 @@ export default function Groups() {
                 </p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+              <div className="groups-vertical-grid">
                 {results.map(g => renderGroupCard(g))}
               </div>
             );
@@ -2484,7 +2428,7 @@ export default function Groups() {
                     Chưa có nhóm học nào thuộc ngành của bạn.
                   </p>
                 ) : (
-                  <div className="horizontal-scroll-container">
+                  <div className="groups-vertical-grid">
                     {myMajorGroups.map(g => renderGroupCard(g))}
                   </div>
                 )}
@@ -2506,7 +2450,7 @@ export default function Groups() {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>Tạo nhóm để kết nối và học tập cùng bạn bè ngay.</p>
                   </div>
                 ) : (
-                  <div className="horizontal-scroll-container">
+                  <div className="groups-vertical-grid">
                     {_baseList.map(g => renderGroupCard(g))}
                   </div>
                 )}
@@ -2520,88 +2464,45 @@ export default function Groups() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
-          gap: 12px;
+          margin-bottom: 24px;
+          gap: 16px;
           flex-wrap: wrap;
         }
         .groups-action-buttons {
           display: flex;
-          gap: 12px;
-          align-items: center;
-        }
-        @media (max-width: 576px) {
-          .groups-header-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 14px;
-          }
-          .groups-action-buttons {
-            width: 100%;
-            flex-direction: column;
-            gap: 8px;
-          }
-          .groups-action-buttons button {
-            width: 100% !important;
-            box-sizing: border-box;
-          }
+          gap: 8px;
         }
         .groups-page-container {
-          padding: 12px 16px;
+          padding: 12px 16px 80px 16px;
           max-width: 1100px;
           margin: 0 auto;
           font-family: 'Inter', sans-serif;
-          overflow-x: hidden;
+          height: 100vh;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          box-sizing: border-box;
+        }
+        .groups-page-container::-webkit-scrollbar {
+          width: 6px;
+        }
+        .groups-page-container::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .groups-page-container::-webkit-scrollbar-thumb {
+          background: var(--border);
+          border-radius: 3px;
         }
         .page-title {
-          font-family: 'Fraunces', serif;
-          font-size: 22px;
-          font-weight: 900;
+          font-family: 'Inter', sans-serif;
+          font-size: 20px;
+          font-weight: 850;
           color: var(--text-primary);
+          letter-spacing: -0.5px;
           margin: 0;
-          line-height: 1.2;
         }
         .premium-panel {
           background: var(--bg-card);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
-          box-shadow: var(--shadow);
-        }
-        .search-panel {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 20px;
-          margin-bottom: 24px;
-          max-width: 500px;
-          transition: all 0.3s;
-          background: var(--bg-card);
           border: 1.5px solid var(--border);
-        }
-        .search-panel:focus-within {
-          border-color: var(--text-primary);
-          background: var(--bg-card);
-          box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
-        }
-        .search-input {
-          background: none; border: none; outline: none; flex: 1;
-          color: var(--text-primary); font-size: 14px; font-family: inherit;
-        }
-        .search-input::placeholder {
-          color: var(--text-secondary);
-        }
-        .horizontal-scroll-container {
-          display: flex;
-          flex-direction: row;
-          gap: 16px;
-          overflow-x: auto;
-          padding: 8px 4px 8px 4px;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar {
           display: none;
         }
         .group-card {
