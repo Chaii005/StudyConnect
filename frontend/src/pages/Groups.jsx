@@ -21,6 +21,7 @@ const SIDEBAR_ITEMS = [
 
 // ── CREATE GROUP MODAL (2-Step) ────────────────────────────────────────────
 function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, isPrivate, setIsPrivate, isSubmitting, onClose, onSubmit, selectedLocation, setSelectedLocation, userMajor }) {
+  const isNative = Capacitor.isNativePlatform();
   const [step, setStep] = useState(1); // 1 = pick mode, 2 = fill form
   const [geoLoading, setGeoLoading] = useState(false);
   const [customName, setCustomName] = useState('');
@@ -159,8 +160,8 @@ function CreateGroupModal({ formData, setFormData, meetingMode, setMeetingMode, 
   };
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.70)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5000, padding: '80px 16px 32px' }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--bg-card)', width: '100%', maxWidth: step === 1 ? '480px' : '440px', maxHeight: 'calc(100vh - 120px)', borderRadius: '20px', border: '1px solid var(--border)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'max-width 0.3s ease' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.70)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5000, padding: isNative ? 'env(safe-area-inset-top, 24px) 12px calc(env(safe-area-inset-bottom, 12px) + 12px)' : '40px 16px 24px' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--bg-card)', width: '100%', maxWidth: step === 1 ? '480px' : '440px', maxHeight: isNative ? 'calc(100vh - env(safe-area-inset-top, 24px) - env(safe-area-inset-bottom, 12px) - 32px)' : 'calc(100vh - 64px)', borderRadius: '20px', border: '1px solid var(--border)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'max-width 0.3s ease' }}>
 
         {/* Header */}
         <div style={{ padding: '14px 18px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

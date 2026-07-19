@@ -121,8 +121,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `friendreq:${f.id}`,
                   type: 'friendreq',
-                  title: 'Lời mời kết bạn',
-                  body: `${senderName} muốn kết bạn với bạn.`,
+                  title: 'L\u1eddi\u0020m\u1eddi\u0020k\u1ebft\u0020b\u1ea1n',
+                  body: `${senderName}\u0020mu\u1ed1n\u0020k\u1ebft\u0020b\u1ea1n\u0020v\u1edbi\u0020b\u1ea1n.`,
                   createdAt: f.created_at,
                   requestId: f.id.toString(),
                   fromUserId: f.from_user_id,
@@ -134,8 +134,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `friendaccept:${f.id}`,
                   type: 'friendaccept',
-                  title: 'Kết bạn thành công',
-                  body: `${userName} đã đồng ý lời mời kết bạn.`,
+                  title: 'K\u1ebft\u0020b\u1ea1n\u0020th\u00e0nh\u0020c\u00f4ng',
+                  body: `${userName}\u0020\u0111\u00e3\u0020\u0111\u1ed3ng\u0020\u00fd\u0020l\u1eddi\u0020m\u1eddi\u0020k\u1ebft\u0020b\u1ea1n.`,
                   createdAt: f.accepted_at || f.created_at,
                 });
               });
@@ -156,8 +156,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `groupinvite:${inv.id}`,
               type: 'groupinvite',
-              title: 'Lời mời vào nhóm',
-              body: `${inviterName} mời bạn tham gia nhóm "${groupName}".`,
+              title: 'L\u1eddi\u0020m\u1eddi\u0020v\u00e0o\u0020nh\u00f3m',
+              body: `${inviterName}\u0020m\u1eddi\u0020b\u1ea1n\u0020tham\u0020gia\u0020nh\u00f3m\u0020"${groupName}".`,
               createdAt: inv.created_at,
               inviteId: inv.id.toString(),
               groupId: inv.group_id.toString(),
@@ -183,8 +183,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `groupjoin:${m.group_id}`,
                     type: 'groupjoin',
-                    title: 'Gia nhập nhóm thành công',
-                    body: `Bạn đã tham gia nhóm học tập "${groupName}".`,
+                    title: 'Gia\u0020nh\u1eadp\u0020nh\u00f3m\u0020th\u00e0nh\u0020c\u00f4ng',
+                    body: `B\u1ea1n\u0020\u0111\u00e3\u0020tham\u0020gia\u0020nh\u00f3m\u0020h\u1ecdc\u0020t\u1eadp\u0020"${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -192,8 +192,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `groupdeputy:${m.group_id}`,
                     type: 'groupdeputy',
-                    title: 'Bổ nhiệm Phó nhóm',
-                    body: `Bạn đã được bổ nhiệm làm Phó nhóm của "${groupName}".`,
+                    title: 'B\u1ed5\u0020nhi\u1ec7m\u0020Ph\u00f3\u0020nh\u00f3m',
+                    body: `B\u1ea1n\u0020\u0111\u00e3\u0020\u0111\u01b0\u1ee3c\u0020b\u1ed5\u0020nhi\u1ec7m\u0020l\u00e0m\u0020Ph\u00f3\u0020nh\u00f3m\u0020c\u1ee7a\u0020"${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -204,8 +204,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `othergroupjoin:${m.group_id}:${m.user_id}`,
                     type: 'othergroupjoin',
-                    title: 'Thành viên mới',
-                    body: `${userName} vừa tham gia nhóm "${groupName}".`,
+                    title: 'Th\u00e0nh\u0020vi\u00ean\u0020m\u1edbi',
+                    body: `${userName}\u0020v\u1eeba\u0020tham\u0020gia\u0020nh\u00f3m\u0020"${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -227,8 +227,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `schedule:${s.id}`,
               type: 'schedule',
-              title: 'Lịch học nhóm mới',
-              body: `Nhóm "${groupName}" học: ${s.topic} · ${new Date(s.date_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`,
+              title: 'L\u1ecbch\u0020h\u1ecdc\u0020nh\u00f3m\u0020m\u1edbi',
+              body: `Nh\u00f3m\u0020"${groupName}"\u0020h\u1ecdc:\u0020${s.topic}\u0020\u00b7\u0020${new Date(s.date_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`,
               createdAt: s.created_at,
               groupId: s.group_id.toString(),
             });
@@ -249,8 +249,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `deadline:${d.id}`,
               type: 'deadline',
-              title: 'Hạn nộp mới',
-              body: `${isPersonal ? 'Giao riêng cho bạn' : 'Cả nhóm ' + groupName} · ${d.title} (Hạn: ${new Date(d.due_date).toLocaleDateString('vi-VN')})`,
+              title: 'H\u1ea1n\u0020n\u1ed9p\u0020m\u1edbi',
+              body: `${isPersonal ? 'Giao\u0020ri\u00eang\u0020cho\u0020b\u1ea1n' : 'C\u1ea3\u0020nh\u00f3m\u0020' + groupName}\u0020\u00b7\u0020${d.title}\u0020(H\u1ea1n:\u0020${new Date(d.due_date).toLocaleDateString('vi-VN')})`,
               createdAt: d.created_at,
               groupId: d.group_id.toString(),
             });
@@ -281,19 +281,19 @@ export default function useNotifications(userId) {
               addIncrementalNotif({
                 key: `missedcall:in:${m.id}`,
                 type: 'missedcall',
-                title: 'Cuộc gọi nhỡ',
-                body: `Cuộc gọi nhỡ từ ${senderName}.`,
+                title: 'Cu\u1ed9c\u0020g\u1ecdi\u0020nh\u1ee1',
+                body: `Cu\u1ed9c\u0020g\u1ecdi\u0020nh\u1ee1\u0020t\u1eeb\u0020${senderName}.`,
                 createdAt: m.created_at,
                 senderId: m.sender_id.toString(),
               });
             } else {
               const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-                ? 'Đã gửi một ảnh'
+                ? '\u0110\u00e3\u0020g\u1eedi\u0020m\u1ed9t\u0020\u1ea3nh'
                 : m.content || '';
               addIncrementalNotif({
                 key: `privatemsg:${m.id}`,
                 type: 'privatemsg',
-                title: `Tin nhắn từ ${senderName}`,
+                title: `Tin\u0020nh\u1eafn\u0020t\u1eeb\u0020${senderName}`,
                 body: displayContent?.length > 80 ? displayContent.slice(0, 80) + '\u2026' : displayContent,
                 createdAt: m.created_at,
                 senderId: m.sender_id.toString(),
@@ -322,8 +322,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `file:upload:${rf.id}`,
               type: 'fileupload',
-              title: 'Tài liệu nhóm mới',
-              body: `${userName} đã chia sẻ "${rf.file_name}" tại "${groupName}".`,
+              title: 'T\u00e0i\u0020li\u1ec7u\u0020nh\u00f3m\u0020m\u1edbi',
+              body: `${userName}\u0020\u0111\u00e3\u0020chia\u0020s\u1ebb\u0020"${rf.file_name}"\u0020t\u1ea1i\u0020"${groupName}".`,
               createdAt: rf.created_at,
               groupId: rf.group_id.toString(),
             });
@@ -343,8 +343,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `joinrequest:${r.id}`,
               type: 'joinrequest',
-              title: 'Yêu cầu tham gia',
-              body: `${requesterName} xin gia nhập nhóm "${groupName}".`,
+              title: 'Y\u00eau\u0020c\u1ea7u\u0020tham\u0020gia',
+              body: `${requesterName}\u0020xin\u0020gia\u0020nh\u1eadp\u0020nh\u00f3m\u0020"${groupName}".`,
               createdAt: r.created_at,
               requestId: r.id.toString(),
               groupId: r.group_id.toString(),
@@ -368,7 +368,7 @@ export default function useNotifications(userId) {
             .single()
             .then(({ data: postData }) => {
               if (!postData) return;
-              const taggerName = postData.users?.full_name || 'Ai đó';
+              const taggerName = postData.users?.full_name || 'Ai\u0020\u0111\u00f3';
               const isCreator = String(postData.user_id) === String(userId);
               if (isCreator) return;
 
@@ -376,8 +376,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `posttag:db:${t.id}`,
                   type: 'posttag_user',
-                  title: 'Được nhắc tên',
-                  body: `${taggerName} đã tag bạn trong một bài viết.`,
+                  title: '\u0110\u01b0\u1ee3c\u0020nh\u1eafc\u0020t\u00ean',
+                  body: `${taggerName}\u0020\u0111\u00e3\u0020tag\u0020b\u1ea1n\u0020trong\u0020m\u1ed9t\u0020b\u00e0i\u0020vi\u1ebft.`,
                   createdAt: t.created_at,
                   postId: String(t.post_id),
                 });
@@ -386,8 +386,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `posttagg:db:${t.id}`,
                     type: 'posttag_group',
-                    title: 'Nhắc tên nhóm',
-                    body: `${taggerName} đã nhắc đến nhóm "${gName}" trong bài viết.`,
+                    title: 'Nh\u1eafc\u0020t\u00ean\u0020nh\u00f3m',
+                    body: `${taggerName}\u0020\u0111\u00e3\u0020nh\u1eafc\u0020\u0111\u1ebfn\u0020nh\u00f3m\u0020"${gName}"\u0020trong\u0020b\u00e0i\u0020vi\u1ebft.`,
                     createdAt: t.created_at,
                     postId: String(t.post_id),
                     groupId: String(t.target_id),

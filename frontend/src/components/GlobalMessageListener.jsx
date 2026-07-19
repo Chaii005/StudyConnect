@@ -16,27 +16,27 @@ export default function GlobalMessageListener() {
   const [managedGroupIds, setManagedGroupIds] = useState(new Set());
 
   const getUserName = useCallback(async (id) => {
-    if (!id) return 'Người dùng';
+    if (!id) return 'Ng\u01b0\u1eddi\u0020d\u00f9ng';
     const sId = String(id);
     if (userNameCache.current[sId]) return userNameCache.current[sId];
     try {
       const { data } = await supabase.from('users').select('full_name').eq('id', parseInt(id, 10)).single();
-      userNameCache.current[sId] = data?.full_name || 'Người dùng';
+      userNameCache.current[sId] = data?.full_name || 'Ng\u01b0\u1eddi\u0020d\u00f9ng';
     } catch {
-      userNameCache.current[sId] = 'Người dùng';
+      userNameCache.current[sId] = 'Ng\u01b0\u1eddi\u0020d\u00f9ng';
     }
     return userNameCache.current[sId];
   }, []);
 
   const getGroupName = useCallback(async (groupId) => {
-    if (!groupId) return 'Nhóm';
+    if (!groupId) return 'Nh\u00f3m';
     const gIdStr = String(groupId);
     if (groupNameCache.current[gIdStr]) return groupNameCache.current[gIdStr];
     try {
       const { data } = await supabase.from('study_groups').select('name').eq('id', parseInt(groupId, 10)).single();
-      groupNameCache.current[gIdStr] = data?.name || 'Nhóm';
+      groupNameCache.current[gIdStr] = data?.name || 'Nh\u00f3m';
     } catch {
-      groupNameCache.current[gIdStr] = 'Nhóm';
+      groupNameCache.current[gIdStr] = 'Nh\u00f3m';
     }
     return groupNameCache.current[gIdStr];
   }, []);
@@ -166,7 +166,7 @@ export default function GlobalMessageListener() {
           const senderName = nickname || await getUserName(msg.sender_id);
 
           const text = (msg.content?.startsWith('data:image') || msg.content?.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i))
-            ? 'Đã gửi một ảnh'
+            ? '\u0110\u00e3\u0020g\u1eedi\u0020m\u1ed9t\u0020\u1ea3nh'
             : (msg.content || '');
           addToast(`${senderName}: ${text}`, 'message', 6000, `/chat?userId=${msg.sender_id}`);
         } catch { /* ignore */ }
@@ -178,7 +178,7 @@ export default function GlobalMessageListener() {
           if (f.status !== 'pending') return;
           try {
             const senderName = await getUserName(f.from_user_id);
-            addToast(`${senderName} muốn kết bạn với bạn`, 'notification', 7000, '/friends');
+            addToast(`${senderName}\u0020mu\u1ed1n\u0020k\u1ebft\u0020b\u1ea1n\u0020v\u1edbi\u0020b\u1ea1n`, 'notification', 7000, '/friends');
           } catch { /* ignore */ }
         }
       })
@@ -188,7 +188,7 @@ export default function GlobalMessageListener() {
         if (newF.status === 'accepted' && oldF?.status !== 'accepted') {
           try {
             const accepterName = await getUserName(newF.to_user_id);
-            addToast(`${accepterName} đã đồng ý kết bạn`, 'notification', 7000, '/friends');
+            addToast(`${accepterName}\u0020\u0111\u00e3\u0020\u0111\u1ed3ng\u0020\u00fd\u0020k\u1ebft\u0020b\u1ea1n`, 'notification', 7000, '/friends');
           } catch { /* ignore */ }
         }
       })
@@ -202,7 +202,7 @@ export default function GlobalMessageListener() {
             getGroupName(inv.group_id)
           ]);
           addToast(
-            `${inviterName} mời bạn vào nhóm "${groupName}"`,
+            `${inviterName}\u0020m\u1eddi\u0020b\u1ea1n\u0020v\u00e0o\u0020nh\u00f3m\u0020"${groupName}"`,
             'notification', 7000, '/groups'
           );
         } catch { /* ignore */ }
@@ -215,12 +215,12 @@ export default function GlobalMessageListener() {
           if (m.role === 'admin' && old?.role !== 'admin') {
             try {
               const groupName = await getGroupName(m.group_id);
-              addToast(`Bạn được bổ nhiệm làm Phó nhóm "${groupName}"`, 'success', 7000, `/groups/${m.group_id}`);
+              addToast(`B\u1ea1n\u0020\u0111\u01b0\u1ee3c\u0020b\u1ed5\u0020nhi\u1ec7m\u0020l\u00e0m\u0020Ph\u00f3\u0020nh\u00f3m\u0020"${groupName}"`, 'success', 7000, `/groups/${m.group_id}`);
             } catch { /* ignore */ }
           } else if (m.role === 'member' && (old?.role === 'admin' || !old || old.role === undefined)) {
             try {
               const groupName = await getGroupName(m.group_id);
-              addToast(`Đã thu hồi quyền phó nhóm của bạn tại nhóm "${groupName}"`, 'error', 7000, `/groups/${m.group_id}`);
+              addToast(`\u0110\u00e3\u0020thu\u0020h\u1ed3i\u0020quy\u1ec1n\u0020ph\u00f3\u0020nh\u00f3m\u0020c\u1ee7a\u0020b\u1ea1n\u0020t\u1ea1i\u0020nh\u00f3m\u0020"${groupName}"`, 'error', 7000, `/groups/${m.group_id}`);
               try {
                 const demotions = JSON.parse(localStorage.getItem('studyconect_demoted_notifications') || '[]');
                 demotions.push({ id: Date.now().toString(), groupName, createdAt: new Date().toISOString() });
@@ -234,7 +234,7 @@ export default function GlobalMessageListener() {
             return;
           }
           try {
-            const cachedName = groupNameCache.current[String(m.group_id)] || 'Nhóm';
+            const cachedName = groupNameCache.current[String(m.group_id)] || 'Nh\u00f3m';
             
             // Check if the group still exists
             const { data: groupData } = await supabase
@@ -245,11 +245,11 @@ export default function GlobalMessageListener() {
 
             if (!groupData) {
               // Group disbanded
-              addToast(`Nhóm học "${cachedName}" đã bị giải tán`, 'error', 8000, '/groups');
+              addToast(`Nh\u00f3m\u0020h\u1ecdc\u0020"${cachedName}"\u0020\u0111\u00e3\u0020b\u1ecb\u0020gi\u1ea3i\u0020t\u00e1n`, 'error', 8000, '/groups');
             } else {
               // Group still exists, user was kicked
               const realName = groupData.name || cachedName;
-              addToast(`Bạn đã bị mời ra khỏi nhóm "${realName}"`, 'error', 8000, '/groups');
+              addToast(`B\u1ea1n\u0020\u0111\u00e3\u0020b\u1ecb\u0020m\u1eddi\u0020ra\u0020kh\u1ecfi\u0020nh\u00f3m\u0020"${realName}"`, 'error', 8000, '/groups');
             }
             
             try {
@@ -263,8 +263,8 @@ export default function GlobalMessageListener() {
               localStorage.setItem('studyconect_kicked_notifications', JSON.stringify(kicks));
             } catch { /* ignore */ }
           } catch {
-            const fallbackName = groupNameCache.current[String(m.group_id)] || 'Nhóm';
-            addToast(`Bạn không còn ở trong nhóm "${fallbackName}"`, 'error', 8000, '/groups');
+            const fallbackName = groupNameCache.current[String(m.group_id)] || 'Nh\u00f3m';
+            addToast(`B\u1ea1n\u0020kh\u00f4ng\u0020c\u00f2n\u0020\u1edf\u0020trong\u0020nh\u00f3m\u0020"${fallbackName}"`, 'error', 8000, '/groups');
           }
         }
       })
@@ -280,7 +280,7 @@ export default function GlobalMessageListener() {
           const taggerName = await getUserName(post.user_id);
 
           addToast(
-            `${taggerName} đã tag bạn trong bài viết`,
+            `${taggerName}\u0020\u0111\u00e3\u0020tag\u0020b\u1ea1n\u0020trong\u0020b\u00e0i\u0020vi\u1ebft`,
             'notification', 6000, '/'
           );
         } catch { /* ignore */ }
@@ -299,7 +299,7 @@ export default function GlobalMessageListener() {
           if (String(c.user_id) === String(uid)) return;
           try {
             const commenterName = await getUserName(c.user_id);
-            addToast(`${commenterName} bình luận: "${c.content}"`, 'notification', 6000, '/');
+            addToast(`${commenterName}\u0020b\u00ecnh\u0020lu\u1eadn:\u0020"${c.content}"`, 'notification', 6000, '/');
           } catch { /* ignore */ }
         }
       )
@@ -318,7 +318,7 @@ export default function GlobalMessageListener() {
           if (String(r.user_id) === String(uid)) return;
           try {
             const reactorName = await getUserName(r.user_id);
-            addToast(`${reactorName} đã bày tỏ cảm xúc với bài viết của bạn`, 'notification', 6000, '/');
+            addToast(`${reactorName}\u0020\u0111\u00e3\u0020b\u00e0y\u0020t\u1ecf\u0020c\u1ea3m\u0020x\u00fac\u0020v\u1edbi\u0020b\u00e0i\u0020vi\u1ebft\u0020c\u1ee7a\u0020b\u1ea1n`, 'notification', 6000, '/');
           } catch { /* ignore */ }
         }
       )
@@ -356,11 +356,11 @@ export default function GlobalMessageListener() {
               if (rId && location.pathname.startsWith(`/room/${rId}`)) return;
 
               const text = raw.startsWith('[meetroom:') ? raw.replace(/^\[meetroom:[^\]]+\]\s*/, '') : raw;
-              addToast(`[Phòng họp] ${senderName}: ${text}`, 'info', 6000, `/groups/${gId}?tab=chat`);
+              addToast(`[Ph\u00f2ng\u0020h\u1ecdp]\u0020${senderName}:\u0020${text}`, 'info', 6000, `/groups/${gId}?tab=chat`);
               return;
             }
             addToast(
-              `[${groupName}] ${senderName}: ${raw}`,
+              `[${groupName}]\u0020${senderName}:\u0020${raw}`,
               'message', 6000,
               `/groups/${gId}?tab=chat`
             );
@@ -373,7 +373,7 @@ export default function GlobalMessageListener() {
           try {
             const groupName = await getGroupName(gId);
             addToast(
-              `Lịch học mới: "${s.topic}" — Nhóm "${groupName}"`,
+              `L\u1ecbch\u0020h\u1ecdc\u0020m\u1edbi:\u0020"${s.topic}"\u0020\u2014\u0020Nh\u00f3m\u0020"${groupName}"`,
               'notification', 7000, `/groups/${gId}?tab=schedule`
             );
           } catch { /* ignore */ }
@@ -384,9 +384,9 @@ export default function GlobalMessageListener() {
           if (d.assignee_id && String(d.assignee_id) !== String(uid)) return;
           try {
             const groupName = await getGroupName(gId);
-            const personal = d.assignee_id ? ' (Giao cho bạn)' : '';
+            const personal = d.assignee_id ? '\u0020(Giao\u0020cho\u0020b\u1ea1n)' : '';
             addToast(
-              `Deadline mới: "${d.title}" — ${groupName}${personal}`,
+              `Deadline\u0020m\u1edbi:\u0020"${d.title}"\u0020\u2014\u0020${groupName}${personal}`,
               'notification', 7000, `/groups/${gId}?tab=deadlines`
             );
           } catch { /* ignore */ }
@@ -400,7 +400,7 @@ export default function GlobalMessageListener() {
               getUserName(m.user_id),
               getGroupName(gId)
             ]);
-            addToast(`${newUserName} đã tham gia nhóm "${groupName}"`, 'info', 5000, `/groups/${gId}`);
+            addToast(`${newUserName}\u0020\u0111\u00e3\u0020tham\u0020gia\u0020nh\u00f3m\u0020"${groupName}"`, 'info', 5000, `/groups/${gId}`);
           } catch { /* ignore */ }
         })
         // ⑨ Tài liệu học tập mới (được duyệt)
@@ -414,7 +414,7 @@ export default function GlobalMessageListener() {
 
           if (String(f.user_id) === String(uid)) {
             addToast(
-              `Tài liệu "${f.file_name}" của bạn đã được Admin phê duyệt! 🎉`,
+              `T\u00e0i\u0020li\u1ec7u\u0020"${f.file_name}"\u0020c\u1ee7a\u0020b\u1ea1n\u0020\u0111\u00e3\u0020\u0111\u01b0\u1ee3c\u0020Admin\u0020ph\u00ea\u0020duy\u1ec7t!\u0020\ud83c\udf89`,
               'success', 7000, `/groups/${gId}?tab=documents`
             );
             return;
@@ -426,7 +426,7 @@ export default function GlobalMessageListener() {
               getGroupName(gId)
             ]);
             addToast(
-              `Tài liệu mới được duyệt: "${f.file_name}" — Đăng bởi ${uploaderName} trong nhóm ${groupName}`,
+              `T\u00e0i\u0020li\u1ec7u\u0020m\u1edbi\u0020\u0111\u01b0\u1ee3c\u0020duy\u1ec7t:\u0020"${f.file_name}"\u0020\u2014\u0020\u0110\u0103ng\u0020b\u1edfi\u0020${uploaderName}\u0020trong\u0020nh\u00f3m\u0020${groupName}`,
               'notification', 7000, `/groups/${gId}?tab=documents`
             );
           } catch { /* ignore */ }
@@ -443,7 +443,7 @@ export default function GlobalMessageListener() {
             const taggerName = await getUserName(post.user_id);
             const groupName = await getGroupName(gId);
             addToast(
-              `${taggerName} đã tag nhóm "${groupName}" trong bài viết`,
+              `${taggerName}\u0020\u0111\u00e3\u0020tag\u0020nh\u00f3m\u0020"${groupName}"\u0020trong\u0020b\u00e0i\u0020vi\u1ebft`,
               'notification', 6000, '/'
             );
           } catch { /* ignore */ }
@@ -460,7 +460,7 @@ export default function GlobalMessageListener() {
               getGroupName(gId)
             ]);
             addToast(
-              `${requesterName} xin tham gia nhóm "${groupName}"`,
+              `${requesterName}\u0020xin\u0020tham\u0020gia\u0020nh\u00f3m\u0020"${groupName}"`,
               'notification', 8000, `/groups/${gId}`
             );
           } catch { /* ignore */ }
@@ -484,7 +484,7 @@ export default function GlobalMessageListener() {
       // Trường hợp A: Người đăng tài liệu
       if (String(userId) === String(uid)) {
         addToast(
-          `Tài liệu "${fileName}" của bạn đã được Admin phê duyệt! 🎉`,
+          `T\u00e0i\u0020li\u1ec7u\u0020"${fileName}"\u0020c\u1ee7a\u0020b\u1ea1n\u0020\u0111\u00e3\u0020\u0111\u01b0\u1ee3c\u0020Admin\u0020ph\u00ea\u0020duy\u1ec7t!\u0020\ud83c\udf89`,
           'success', 7000, `/groups/${groupId}?tab=documents`
         );
         return;
@@ -494,7 +494,7 @@ export default function GlobalMessageListener() {
       if (!userGroupIds.has(Number(groupId))) return;
       
       addToast(
-        `Tài liệu mới được duyệt: "${fileName}" — Đăng bởi ${userFullName || 'Thành viên'} trong nhóm ${groupName || 'Nhóm học'}`,
+        `T\u00e0i\u0020li\u1ec7u\u0020m\u1edbi\u0020\u0111\u01b0\u1ee3c\u0020duy\u1ec7t:\u0020"${fileName}"\u0020\u2014\u0020\u0110\u0103ng\u0020b\u1edfi\u0020${userFullName || 'Th\u00e0nh\u0020vi\u00ean'}\u0020trong\u0020nh\u00f3m\u0020${groupName || 'Nh\u00f3m\u0020h\u1ecdc'}`,
         'notification', 7000, `/groups/${groupId}?tab=documents`
       );
     });
@@ -506,7 +506,7 @@ export default function GlobalMessageListener() {
       // Chỉ thông báo cho người đăng tài liệu bị từ chối
       if (String(userId) === String(uid)) {
         addToast(
-          `Tài liệu "${fileName}" của bạn trong nhóm "${groupName || 'Nhóm học'}" đã bị Admin từ chối phê duyệt và xóa bỏ. ❌`,
+          `T\u00e0i\u0020li\u1ec7u\u0020"${fileName}"\u0020c\u1ee7a\u0020b\u1ea1n\u0020trong\u0020nh\u00f3m\u0020"${groupName || 'Nh\u00f3m\u0020h\u1ecdc'}"\u0020\u0111\u00e3\u0020b\u1ecb\u0020Admin\u0020t\u1eeb\u0020ch\u1ed1i\u0020ph\u00ea\u0020duy\u1ec7t\u0020v\u00e0\u0020x\u00f3a\u0020b\u1ecf.\u0020\u274c`,
           'error', 8000, null
         );
       }
@@ -517,7 +517,7 @@ export default function GlobalMessageListener() {
       const { userId } = payload;
       if (String(userId) === String(uid)) {
         addToast(
-          'Bài viết của bạn đã được phê duyệt thành công! 🎉',
+          'B\u00e0i\u0020vi\u1ebft\u0020c\u1ee7a\u0020b\u1ea1n\u0020\u0111\u00e3\u0020\u0111\u01b0\u1ee3c\u0020ph\u00ea\u0020duy\u1ec7t\u0020th\u00e0nh\u0020c\u00f4ng!\u0020\ud83c\udf89',
           'success', 7000, '/'
         );
       }
@@ -528,7 +528,7 @@ export default function GlobalMessageListener() {
       const { userId } = payload;
       if (String(userId) === String(uid)) {
         addToast(
-          'Bài viết của bạn không được phê duyệt và đã được gỡ bỏ.',
+          'B\u00e0i\u0020vi\u1ebft\u0020c\u1ee7a\u0020b\u1ea1n\u0020kh\u00f4ng\u0020\u0111\u01b0\u1ee3c\u0020ph\u00ea\u0020duy\u1ec7t\u0020v\u00e0\u0020\u0111\u00e3\u0020\u0111\u01b0\u1ee3c\u0020g\u1ee1\u0020b\u1ecf.',
           'error', 8000, null
         );
       }

@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../config/supabaseClient';
 import { sendMessage } from '../services/chatServiceTEMP.js';
 import { useCall } from '../context/CallContext';
+import { Capacitor } from '@capacitor/core';
 
 /* ─── Màu avatar ──────────────────────────────────────────── */
 const COLORS = ['#1A1A1A','#3A3A3A','#2E2E2E','#4A4A4A','#222222','#383838','#2A2A2A'];
@@ -603,6 +604,7 @@ export default function PrivateCall() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isNative = Capacitor.isNativePlatform();
 
   const mode = searchParams.get('mode') || 'caller';
   const friendName = (() => { try { return decodeURIComponent(searchParams.get('friendName') || ''); } catch { return ''; } })() || 'Người dùng';
@@ -802,7 +804,7 @@ export default function PrivateCall() {
         {/* ── Header ── */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0,
-          padding: '24px 24px 40px',
+          padding: isNative ? 'calc(env(safe-area-inset-top, 28px) + 12px) 24px 40px' : '24px 24px 40px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)',
           zIndex: 10,
