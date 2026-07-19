@@ -10,17 +10,8 @@ export async function fetchAllNotifications(uid, cutoff, now, ONE_DAY_MS, groupN
   const notifsList = [];
   const userGroupIds = new Set();
 
-  // ═══ WAVE 1: Fire all independent queries simultaneously ═══
-  const [
-    friendReqsResult,
-    acceptedReqsResult,
-    invitesResult,
-    joinedMembersResult,
-    myPostsResult,
-    privateMsgsResult,
-    createdGroupsResult,
-    missedOutResult,
-  ] = await Promise.allSettled([
+  // ═══ WAVE 1: Micro-batched queries to avoid Supabase pool exhaustion ═══
+  const batch1 = await Promise.allSettled([
     // Q1: Pending friend requests
     supabase.from('friendships').select('id, from_user_id, status, created_at, users:users!from_user_id(full_name)').eq('to_user_id', uid).eq('status', 'pending'),
     // Q2: Accepted friend requests (24h)
@@ -29,6 +20,9 @@ export async function fetchAllNotifications(uid, cutoff, now, ONE_DAY_MS, groupN
     supabase.from('group_invites').select('id, group_id, inviter_id, status, created_at, study_groups(name), users:users!inviter_id(full_name)').eq('invitee_id', uid).eq('status', 'pending'),
     // Q4: Joined groups
     supabase.from('group_members').select('group_id, role, joined_at, study_groups(name)').eq('user_id', uid),
+  ]);
+
+  const batch2 = await Promise.allSettled([
     // Q5: My posts (for comments/likes)
     supabase.from('posts').select('id, content, likes, created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(20),
     // Q6: Private messages (24h) — only unread
@@ -38,6 +32,20 @@ export async function fetchAllNotifications(uid, cutoff, now, ONE_DAY_MS, groupN
     // Q8: Outgoing missed calls (24h)
     supabase.from('messages').select('id, receiver_id, content, created_at, users:users!receiver_id(full_name)').eq('sender_id', uid).is('group_id', null).like('content', '📵%').gte('created_at', cutoff).order('created_at', { ascending: false }).limit(5),
   ]);
+
+  const [
+    friendReqsResult,
+    acceptedReqsResult,
+    invitesResult,
+    joinedMembersResult,
+  ] = batch1;
+
+  const [
+    myPostsResult,
+    privateMsgsResult,
+    createdGroupsResult,
+    missedOutResult,
+  ] = batch2;
 
   // ═══ PROCESS WAVE 1 RESULTS ═══
 

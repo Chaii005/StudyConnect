@@ -228,7 +228,7 @@ async function processQueueItem(item) {
 /**
  * Polls the database and processes pending notifications
  */
-async function pollAndProcess() {
+async function pollAndProcess(source = 'fallback') {
   if (isPolling) return;
   isPolling = true;
 
@@ -249,6 +249,8 @@ async function pollAndProcess() {
       isPolling = false;
       return;
     }
+
+    logger.info(`Notification queue worker: found ${items.length} pending items to process (source: ${source})`);
 
     // 2. Mark fetched items as processing in transaction
     const ids = items.map(item => item.id);
@@ -287,7 +289,7 @@ async function pollAndProcess() {
     } catch (e) {
       // ignore
     }
-    logger.error('Error in notification queue poll:', err);
+    logger.error(`Error in notification queue poll (source: ${source}):`, err);
   } finally {
     isPolling = false;
   }
@@ -324,7 +326,7 @@ function startWorker(intervalMs = 3000) {
   
   // Set up execution interval
   workerIntervalId = setInterval(async () => {
-    await pollAndProcess();
+    await pollAndProcess('fallback');
   }, intervalMs);
 
   // Set up stuck jobs cleanup interval (every 5 minutes)
@@ -333,7 +335,7 @@ function startWorker(intervalMs = 3000) {
   }, 5 * 60 * 1000);
 
   // Run initial poll
-  pollAndProcess();
+  pollAndProcess('startup');
 }
 
 /**
@@ -349,5 +351,6 @@ function stopWorker() {
 
 module.exports = {
   startWorker,
-  stopWorker
+  stopWorker,
+  pollAndProcess
 };

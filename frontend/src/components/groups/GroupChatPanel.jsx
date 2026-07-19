@@ -359,7 +359,7 @@ export default function GroupChatPanel({
 
             return (
               <div
-                key={msg.id}
+                key={msg.localId || msg.id}
                 id={`msg-${msg.id}`}
                 style={{
                   display: 'flex',

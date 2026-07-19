@@ -666,6 +666,7 @@ export default function ConversationView({
     const optimisticId = `optimistic-${Date.now()}`;
     const optimisticMsg = {
       id: optimisticId,
+      localId: optimisticId,
       fromUserId: String(user.id),
       toUserId: String(friend.userId),
       content: messageContent,
@@ -1263,7 +1264,7 @@ export default function ConversationView({
 
           if (m.content?.startsWith('[chat_background]')) {
             return (
-              <div key={m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
+              <div key={m.localId || m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
                 <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'var(--bg-input-chat)', border: '1px solid var(--border-chat)', color: 'var(--text-secondary-chat)' }}>
                   {isMine ? 'Bạn đã thay đổi hình nền' : `${nickname || friend.fullName} đã thay đổi hình nền`}
                 </span>
@@ -1278,7 +1279,7 @@ export default function ConversationView({
               : (cleanNick ? `${friend.fullName} đã thay đổi biệt danh của bạn thành "${cleanNick}"` : `${friend.fullName} đã xóa biệt danh`);
 
             return (
-              <div key={m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
+              <div key={m.localId || m.id} style={{ textAlign: 'center', margin: '14px 0', fontSize: '12px' }}>
                 <span style={{ padding: '6px 16px', borderRadius: '16px', background: 'var(--bg-input-chat)', border: '1px solid var(--border-chat)', color: 'var(--text-secondary-chat)' }}>
                   {msgText}
                 </span>
@@ -1290,7 +1291,7 @@ export default function ConversationView({
             const isMissed = m.content.startsWith('📵');
             const labelText = m.content.replace(/^\S+\s*/, '');
             return (
-              <div key={m.id} style={{ textAlign: 'center', margin: '20px 0' }}>
+              <div key={m.localId || m.id} style={{ textAlign: 'center', margin: '20px 0' }}>
                 <span 
                   style={{
                     display: 'inline-flex', 
@@ -1345,7 +1346,7 @@ export default function ConversationView({
 
           return (
             <div 
-              key={m.id} 
+              key={m.localId || m.id} 
               style={{ 
                 display: 'flex', 
                 justifyContent: isMine ? 'flex-end' : 'flex-start', 

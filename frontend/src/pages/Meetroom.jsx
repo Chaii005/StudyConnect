@@ -1072,7 +1072,7 @@ export default function MeetRoom() {
             const hasOptimistic = prev.some(x => x.isOptimistic && String(x.senderId) === String(newMsg.senderId) && x.text === newMsg.text);
             if (hasOptimistic) {
               // Replace the optimistic message with the real one
-              return prev.map(x => (x.isOptimistic && String(x.senderId) === String(newMsg.senderId) && x.text === newMsg.text) ? newMsg : x);
+              return prev.map(x => (x.isOptimistic && String(x.senderId) === String(newMsg.senderId) && x.text === newMsg.text) ? { ...newMsg, localId: x.localId } : x);
             }
             
             return [...prev, newMsg];
@@ -1127,6 +1127,7 @@ export default function MeetRoom() {
     const optimisticId = `optimistic-${Date.now()}`;
     const optimisticMsg = {
       id: optimisticId,
+      localId: optimisticId,
       text: text,
       sender: user.fullName || 'Bạn',
       senderId: user.id,
@@ -1630,7 +1631,7 @@ export default function MeetRoom() {
                         {messages.map(msg => {
                           const isMe = String(msg.senderId) === String(user?.id);
                           return (
-                            <div key={msg.id} style={{ display: 'flex', gap: '6px', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-end' }}>
+                            <div key={msg.localId || msg.id} style={{ display: 'flex', gap: '6px', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-end' }}>
                               {!isMe && <Avatar src={msg.avatar} name={msg.sender} size={22} />}
                               <div style={{ maxWidth: '78%' }}>
                                 {!isMe && <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', marginBottom: '2px', paddingLeft: '3px' }}>{msg.sender}</div>}
@@ -1992,7 +1993,7 @@ export default function MeetRoom() {
                       {messages.map(msg => {
                         const isMe = String(msg.senderId) === String(user?.id);
                         return (
-                          <div key={msg.id} style={{ display: 'flex', gap: '8px', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-end', marginBottom: '4px' }}>
+                          <div key={msg.localId || msg.id} style={{ display: 'flex', gap: '8px', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-end', marginBottom: '4px' }}>
                             {!isMe && <Avatar src={msg.avatar} name={msg.sender} size={26} />}
                             <div style={{ maxWidth: '76%' }}>
                               {!isMe && <div style={{ fontSize: '10px', color: 'rgba(0,0,0,0.4)', marginBottom: '3px', paddingLeft: '4px' }}>{msg.sender}</div>}

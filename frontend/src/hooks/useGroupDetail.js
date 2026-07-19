@@ -414,10 +414,19 @@ export default function useGroupDetail(groupId, user, addToast) {
           setChatMessages(prev => {
             // Tránh duplicate
             if (prev.some(m => m.id === newMsg.id)) return prev;
-            // Loại bỏ tin nhắn optimistic tương ứng nếu có
-            const filtered = prev.filter(m => !(m.isOptimistic && String(m.userId) === String(newMsg.userId) && m.content === newMsg.content));
-            const updated = [...filtered, newMsg];
-            return updated.length > 50 ? updated.slice(updated.length - 50) : updated;
+            
+            const optimisticIndex = prev.findIndex(m => m.isOptimistic && String(m.userId) === String(newMsg.userId) && m.content === newMsg.content);
+            if (optimisticIndex !== -1) {
+              const updated = [...prev];
+              updated[optimisticIndex] = {
+                ...newMsg,
+                localId: prev[optimisticIndex].localId || prev[optimisticIndex].id
+              };
+              return updated.length > 50 ? updated.slice(updated.length - 50) : updated;
+            } else {
+              const updated = [...prev, newMsg];
+              return updated.length > 50 ? updated.slice(updated.length - 50) : updated;
+            }
           });
         }
       )
@@ -1514,6 +1523,7 @@ export default function useGroupDetail(groupId, user, addToast) {
     // Tạo tin nhắn hiển thị tạm thời (Optimistic UI)
     const optimisticMsg = {
       id: optimisticId,
+      localId: optimisticId,
       groupId: groupId.toString(),
       userId: user.id,
       userFullName: user.fullName || 'Bạn',

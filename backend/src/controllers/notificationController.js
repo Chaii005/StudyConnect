@@ -243,6 +243,27 @@ router.post('/webhook', async (req, res) => {
       logger.error('Error handling notification webhook:', err);
     }
   })();
+// POST /api/notifications/poll
+router.post('/poll', async (req, res) => {
+  const signature = req.headers['x-webhook-signature'];
+  const expectedSecret = process.env.WEBHOOK_SECRET;
+
+  if (expectedSecret && signature !== expectedSecret) {
+    return res.status(401).json(apiError('Webhook signature invalid', 401));
+  }
+
+  res.status(200).json(apiSuccess(null, 'Poll triggered'));
+
+  // Trigger poll immediately in background
+  (async () => {
+    try {
+      const { pollAndProcess } = require('../services/notificationQueueWorker');
+      logger.info('Polling triggered by database webhook.');
+      await pollAndProcess('webhook');
+    } catch (err) {
+      logger.error('Error handling manual poll request:', err);
+    }
+  })();
 });
 
 module.exports = router;

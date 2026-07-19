@@ -17,6 +17,35 @@ const start = async () => {
 
     await connectDB();
 
+    // Sync app settings to database for database-to-worker polling webhook trigger
+    const syncAppSettings = async () => {
+      const apiUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+      const webhookSecret = process.env.WEBHOOK_SECRET || '';
+      
+      try {
+        const { sequelize } = require('./config/database');
+        await sequelize.query(`
+          INSERT INTO public.app_settings (key, value, updated_at)
+          VALUES ('api_url', :apiUrl, NOW())
+          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();
+        `, { replacements: { apiUrl } });
+
+        if (webhookSecret) {
+          await sequelize.query(`
+            INSERT INTO public.app_settings (key, value, updated_at)
+            VALUES ('webhook_secret', :webhookSecret, NOW())
+            ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();
+          `, { replacements: { webhookSecret } });
+        }
+        
+        logger.info(`Synced app settings to database: api_url = ${apiUrl}`);
+      } catch (err) {
+        logger.error('Error syncing app settings to database:', err);
+      }
+    };
+
+    await syncAppSettings();
+
     // Start background notification queue worker
     const { startWorker } = require('./services/notificationQueueWorker');
     startWorker();
