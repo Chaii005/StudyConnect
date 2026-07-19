@@ -3,8 +3,10 @@ import { supabase } from '@/config/supabaseClient';
 
 // ─── GỬI LỜI MỜI KẾT BẠN ────────────────────────────────
 export const sendFriendRequest = async (fromUserId, toUserId) => {
+  if (!fromUserId || !toUserId) throw new Error('Tham số không hợp lệ.');
   const fid = parseInt(fromUserId, 10);
   const tid = parseInt(toUserId, 10);
+  if (isNaN(fid) || isNaN(tid)) throw new Error('Tham số không hợp lệ.');
 
   // Check if relation already exists
   const { data: existing, error: checkError } = await supabase
@@ -81,7 +83,9 @@ export const removeFriend = async (requestId) => {
 
 // ─── LẤY DANH SÁCH BẠN BÈ CỦA USER ─────────────────────
 export const getFriends = async (userId, includePending = false) => {
+  if (!userId) return [];
   const uid = Number(userId);
+  if (isNaN(uid)) return [];
 
   let query = supabase.from('friendships').select('id, from_user_id, to_user_id, status, created_at, accepted_at').limit(100);
   if (includePending) {
@@ -128,7 +132,9 @@ export const getFriends = async (userId, includePending = false) => {
 
 // ─── LỜI MỜI ĐÃ NHẬN (ĐANG CHỜ) ─────────────────────────
 export const getPendingRequests = async (userId) => {
+  if (!userId) return [];
   const uid = Number(userId);
+  if (isNaN(uid)) return [];
 
   const { data: friendships, error: fetchError } = await supabase
     .from('friendships')
@@ -167,7 +173,9 @@ export const getPendingRequests = async (userId) => {
 
 // ─── LỜI MỜI ĐÃ GỬI (ĐANG CHỜ) ──────────────────────────
 export const getSentRequests = async (userId) => {
+  if (!userId) return [];
   const uid = Number(userId);
+  if (isNaN(uid)) return [];
 
   const { data: friendships, error: fetchError } = await supabase
     .from('friendships')
@@ -219,7 +227,9 @@ const parseUserBioLocation = (bioString) => {
 };
 
 export const getSuggestions = async (userId) => {
+  if (!userId) return [];
   const uid = Number(userId);
+  if (isNaN(uid)) return [];
 
   // 1. Fetch current user major and bio (location) to personalize suggestions
   const { data: currentUser } = await supabase
@@ -297,8 +307,10 @@ export const getSuggestions = async (userId) => {
 
 // ─── KIỂM TRA TRẠNG THÁI QUAN HỆ ─────────────────────────
 export const getFriendshipStatus = async (userId, targetId) => {
+  if (!userId || !targetId) return null;
   const uid = Number(userId);
   const tid = Number(targetId);
+  if (isNaN(uid) || isNaN(tid)) return null;
 
   const { data: rel, error } = await supabase
     .from('friendships')

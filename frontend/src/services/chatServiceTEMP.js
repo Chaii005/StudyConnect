@@ -3,6 +3,16 @@
 import { supabase } from '../config/supabaseClient';
 
 let cachedMessages = [];
+let cachedUserId = null;
+
+const checkUserSession = (userId) => {
+  if (!userId) return;
+  const uidStr = String(userId);
+  if (cachedUserId !== uidStr) {
+    cachedMessages = [];
+    cachedUserId = uidStr;
+  }
+};
 
 // ─── HELPER: parse raw DB row → message object ────────────
 const parseRaw = (raw) => ({
@@ -26,6 +36,7 @@ const parseRaw = (raw) => ({
 
 // ─── LẤY TIN NHẮN TỪ CACHE (KHÔNG CẦN MẠNG) ─────────────
 export const getConversationFromCache = (userId, friendId) => {
+  checkUserSession(userId);
   const uid = String(userId);
   const fid = String(friendId);
 
@@ -55,6 +66,7 @@ export const refreshCache = async (userId) => {
   const uid = parseInt(userId, 10);
   if (isNaN(uid)) return;
 
+  checkUserSession(userId);
   try {
     // 1. Fetch new messages since last cached message
     let query = supabase
@@ -108,6 +120,7 @@ export const refreshCache = async (userId) => {
 
 // ─── GỬI TIN NHẮN ────────────────────────────────────────
 export const sendMessage = async (fromUserId, toUserId, content, type = 'text', fileAttachment = null) => {
+  checkUserSession(fromUserId);
   if (type === 'text' && !content?.trim() && !fileAttachment) throw new Error('Nội dung tin nhắn không được trống.');
 
   const cleanContent = type === 'text' && content ? content.trim() : (content || '');
@@ -134,6 +147,7 @@ export const sendMessage = async (fromUserId, toUserId, content, type = 'text', 
 // ─── LẤY TIN NHẮN GIỮA 2 USER (SYNC TỪ DB) ──────────────
 // Chỉ gọi khi cần sync mới nhất, KHÔNG dùng để render lần đầu
 export const syncConversation = async (userId, friendId) => {
+  checkUserSession(userId);
   const uid = parseInt(userId, 10);
   const fid = parseInt(friendId, 10);
 
@@ -175,6 +189,7 @@ export const syncConversation = async (userId, friendId) => {
 // ─── LẤY TIN NHẮN GIỮA 2 USER (GIỮ TƯƠNG THÍCH) ─────────
 // Gọi full query khi cần thiết (lần đầu mở app, cache rỗng)
 export const getConversation = async (userId, friendId) => {
+  checkUserSession(userId);
   // Nếu cache đã có dữ liệu, dùng cache trước rồi sync thêm mới
   if (cachedMessages.length > 0) {
     await syncConversation(userId, friendId);
@@ -211,6 +226,7 @@ export const getConversation = async (userId, friendId) => {
 
 // ─── ĐÁNH DẤU ĐÃ ĐỌC ─────────────────────────────────────
 export const markAsRead = async (userId, friendId) => {
+  checkUserSession(userId);
   const uid = parseInt(userId, 10);
   const fid = parseInt(friendId, 10);
 
@@ -231,6 +247,7 @@ export const markAsRead = async (userId, friendId) => {
 
 // ─── ĐẾM TIN CHƯA ĐỌC ────────────────────────────────────
 export const getUnreadCount = (userId, friendId) => {
+  checkUserSession(userId);
   const uid = String(userId);
   const fid = String(friendId);
   return cachedMessages.filter(m => m.fromUserId === fid && m.toUserId === uid && !m.read && m.type !== 'background').length;
@@ -238,12 +255,14 @@ export const getUnreadCount = (userId, friendId) => {
 
 // ─── TỔNG SỐ TIN CHƯA ĐỌC ────────────────────────────────
 export const getTotalUnread = (userId) => {
+  checkUserSession(userId);
   const uid = String(userId);
   return cachedMessages.filter(m => m.toUserId === uid && !m.read && m.type !== 'background').length;
 };
 
 // ─── LẤY TIN NHẮN CUỐI CỦA MỖI CUỘC HỘI THOẠI ──────────
 export const getLastMessages = (userId) => {
+  checkUserSession(userId);
   const uid = String(userId);
   const convMap = {};
   cachedMessages.forEach(m => {

@@ -414,8 +414,9 @@ export default function useGroupDetail(groupId, user, addToast) {
           setChatMessages(prev => {
             // Tránh duplicate
             if (prev.some(m => m.id === newMsg.id)) return prev;
-            // Giữ tối đa 50 messages trong memory
-            const updated = [...prev, newMsg];
+            // Loại bỏ tin nhắn optimistic tương ứng nếu có
+            const filtered = prev.filter(m => !(m.isOptimistic && String(m.userId) === String(newMsg.userId) && m.content === newMsg.content));
+            const updated = [...filtered, newMsg];
             return updated.length > 50 ? updated.slice(updated.length - 50) : updated;
           });
         }
@@ -1493,27 +1494,76 @@ export default function useGroupDetail(groupId, user, addToast) {
   const handleSendChatMessage = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!chatInput.trim() && !chatAttachedFile) return;
-    setIsSendingChatMessage(true);
+
+    const messageContent = chatInput.trim();
+    const currentAttachedFile = chatAttachedFile;
+    const currentReplyTo = replyTo;
+    const optimisticId = `optimistic-${Date.now()}`;
+
+    // Khóa input và hiển thị spinner chỉ khi upload file
+    if (currentAttachedFile) {
+      setIsSendingChatMessage(true);
+    }
+
+    // Xóa input ngay lập tức để người dùng có thể gõ tin nhắn tiếp theo không bị khựng
+    if (!currentAttachedFile) {
+      setChatInput('');
+      setReplyTo(null);
+    }
+
+    // Tạo tin nhắn hiển thị tạm thời (Optimistic UI)
+    const optimisticMsg = {
+      id: optimisticId,
+      groupId: groupId.toString(),
+      userId: user.id,
+      userFullName: user.fullName || 'Bạn',
+      userAvatar: user.avatar || '',
+      content: messageContent,
+      meetroom_id: null,
+      fileAttachment: currentAttachedFile ? {
+        fileName: currentAttachedFile.name,
+        fileType: currentAttachedFile.type,
+        fileData: '',
+        fileSize: formatBytes(currentAttachedFile.size),
+        name: currentAttachedFile.name,
+        type: currentAttachedFile.type,
+        data: '',
+      } : null,
+      replyTo: currentReplyTo ? {
+        id: currentReplyTo.id,
+        userFullName: currentReplyTo.userFullName,
+        content: currentReplyTo.content,
+      } : null,
+      isPinned: false,
+      createdAt: new Date().toISOString(),
+      isOptimistic: true
+    };
+
+    setChatMessages(prev => {
+      const updated = [...prev, optimisticMsg];
+      return updated.length > 50 ? updated.slice(updated.length - 50) : updated;
+    });
+
     try {
       let fileAttachment = null;
-      if (chatAttachedFile) {
+      if (currentAttachedFile) {
         const MAX_CHAT_FILE_SIZE = 25 * 1024 * 1024; // 25MB
-        if (chatAttachedFile.size > MAX_CHAT_FILE_SIZE) {
+        if (currentAttachedFile.size > MAX_CHAT_FILE_SIZE) {
           addToast('File đính kèm chat quá lớn! Vui lòng chọn file nhỏ hơn hoặc bằng 25MB.', 'error');
+          setChatMessages(prev => prev.filter(m => m.id !== optimisticId));
           setIsSendingChatMessage(false);
           return;
         }
 
-        let fileToUpload = chatAttachedFile;
-        // Compress ảnh trước khi upload vào group chat
-        if (chatAttachedFile.type.startsWith('image/')) {
+        let fileToUpload = currentAttachedFile;
+        if (currentAttachedFile.type.startsWith('image/')) {
           try {
-            fileToUpload = await compressImage(chatAttachedFile, { maxWidth: 1280, maxHeight: 1280, quality: 0.78 });
+            fileToUpload = await compressImage(currentAttachedFile, { maxWidth: 1280, maxHeight: 1280, quality: 0.78 });
           } catch {
-            fileToUpload = chatAttachedFile; // fallback
+            fileToUpload = currentAttachedFile;
           }
         }
-        const safeName = sanitizeForStorage(fileToUpload.name || chatAttachedFile.name);
+        const safeName = sanitizeForStorage(fileToUpload.name || currentAttachedFile.name);
         const chatFileName = `chat/${groupId}/${Date.now()}_${safeName}`;
         const { error: uploadError } = await supabase.storage
           .from('attachments')
@@ -1531,35 +1581,48 @@ export default function useGroupDetail(groupId, user, addToast) {
           .getPublicUrl(chatFileName);
 
         fileAttachment = {
-          fileName: chatAttachedFile.name,
-          fileType: chatAttachedFile.type,
+          fileName: currentAttachedFile.name,
+          fileType: currentAttachedFile.type,
           fileData: chatFileUrl,
           fileSize: formatBytes(fileToUpload.size),
-          name: chatAttachedFile.name,
-          type: chatAttachedFile.type,
+          name: currentAttachedFile.name,
+          type: currentAttachedFile.type,
           data: chatFileUrl,
         };
+
+        // Cập nhật đường dẫn file cho tin nhắn tạm thời
+        setChatMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, fileAttachment } : m));
       }
-      await sendChatMessage(groupId, {
-        content: chatInput.trim(),
+
+      const sentMsg = await sendChatMessage(groupId, {
+        content: messageContent,
         fileAttachment,
         userId: user.id,
         userFullName: user.fullName,
         userAvatar: user.avatar,
-        replyTo: replyTo ? {
-          id: replyTo.id,
-          userFullName: replyTo.userFullName,
-          content: replyTo.content,
+        replyTo: currentReplyTo ? {
+          id: currentReplyTo.id,
+          userFullName: currentReplyTo.userFullName,
+          content: currentReplyTo.content,
         } : null
       });
-      setChatInput('');
-      setChatAttachedFile(null);
-      const fileInput = document.getElementById('chat-file-input');
-      if (fileInput) fileInput.value = '';
-      setReplyTo(null);
-      // Không cần fetch lại — Realtime subscription sẽ append tin nhắn mới tự động
+
+      // Cập nhật ID thực tế từ database sau khi gửi thành công để khớp với Realtime event sau này
+      setChatMessages(prev => prev.map(m => m.id === optimisticId ? {
+        ...m,
+        id: sentMsg.id,
+        isOptimistic: false
+      } : m));
+
+      if (currentAttachedFile) {
+        setChatAttachedFile(null);
+        const fileInput = document.getElementById('chat-file-input');
+        if (fileInput) fileInput.value = '';
+      }
     } catch (err) {
       addToast(err.message || 'Lỗi gửi tin nhắn', 'error');
+      // Nếu lỗi, xóa tin nhắn tạm thời khỏi giao diện
+      setChatMessages(prev => prev.filter(m => m.id !== optimisticId));
     } finally {
       setIsSendingChatMessage(false);
     }

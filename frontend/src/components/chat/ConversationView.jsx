@@ -656,15 +656,48 @@ export default function ConversationView({
   };
 
   const handleSendText = async (text) => {
-    if (!text?.trim() || sending) return;
-    setSending(true);
+    if (!text?.trim()) return;
+    const messageContent = text.trim();
+    
+    // Clear input immediately so user can type the next message without lag
+    setInput('');
+    
+    // Create an optimistic message to render on the screen immediately
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticMsg = {
+      id: optimisticId,
+      fromUserId: String(user.id),
+      toUserId: String(friend.userId),
+      content: messageContent,
+      fileAttachment: null,
+      type: 'text',
+      createdAt: new Date().toISOString(),
+      read: false,
+      isOptimistic: true
+    };
+    
+    setMessages(prev => [...prev, optimisticMsg]);
+    
+    // Auto-scroll to the bottom immediately when sending a message
+    setTimeout(() => {
+      if (msgsContainerRef.current) {
+        msgsContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 50);
+
     try {
-      await sendMessage(user.id, friend.userId, text.trim());
-      setInput('');
-      await load();
-      msgsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch { /* ignore */ }
-    finally { setSending(false); }
+      const newMsg = await sendMessage(user.id, friend.userId, messageContent);
+      
+      // Replace the optimistic message with the actual database message
+      setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, id: String(newMsg.id), isOptimistic: false } : m));
+      
+      // Update read status in background
+      markAsRead(user.id, friend.userId).catch(() => {});
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Error sending message:', err);
+      // Remove the optimistic message if it failed to send
+      setMessages(prev => prev.filter(m => m.id !== optimisticId));
+    }
   };
 
   const handleSendAttachment = async (dataUrl, caption) => {
@@ -1374,6 +1407,7 @@ export default function ConversationView({
                       border: isMine ? 'none' : '1.5px solid var(--border-chat)',
                       position: 'relative',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                      opacity: m.isOptimistic ? 0.65 : 1,
                     }}
                   >
                     {isImage ? (

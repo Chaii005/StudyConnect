@@ -1067,6 +1067,14 @@ export default function MeetRoom() {
           };
           setMessages(prev => {
             if (prev.some(x => x.id === newMsg.id)) return prev;
+            
+            // Check if there is an optimistic message with the same content sent by us
+            const hasOptimistic = prev.some(x => x.isOptimistic && String(x.senderId) === String(newMsg.senderId) && x.text === newMsg.text);
+            if (hasOptimistic) {
+              // Replace the optimistic message with the real one
+              return prev.map(x => (x.isOptimistic && String(x.senderId) === String(newMsg.senderId) && x.text === newMsg.text) ? newMsg : x);
+            }
+            
             return [...prev, newMsg];
           });
         }
@@ -1116,6 +1124,19 @@ export default function MeetRoom() {
     const text = input.trim();
     setInput('');
 
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticMsg = {
+      id: optimisticId,
+      text: text,
+      sender: user.fullName || 'Bạn',
+      senderId: user.id,
+      avatar: user.avatar,
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      isOptimistic: true
+    };
+
+    setMessages(prev => [...prev, optimisticMsg]);
+
     try {
       const payload = {
         sender_id: parseInt(user.id, 10),
@@ -1139,23 +1160,15 @@ export default function MeetRoom() {
 
       if (error) {
         if (import.meta.env.DEV) console.error('Error sending meetroom message:', error);
+        setMessages(prev => prev.filter(x => x.id !== optimisticId));
       } else if (data && data[0]) {
         const m = data[0];
-        const newMsg = {
-          id: m.id.toString(),
-          text: text,
-          sender: user.fullName || 'Bạn',
-          senderId: user.id,
-          avatar: user.avatar,
-          time: new Date(m.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
-        };
-        setMessages(prev => {
-          if (prev.some(x => x.id === newMsg.id)) return prev;
-          return [...prev, newMsg];
-        });
+        const newMsgId = m.id.toString();
+        setMessages(prev => prev.map(x => x.id === optimisticId ? { ...x, id: newMsgId, isOptimistic: false } : x));
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('Exception in sendMessage:', err);
+      setMessages(prev => prev.filter(x => x.id !== optimisticId));
     }
   };
 
@@ -1988,6 +2001,7 @@ export default function MeetRoom() {
                                 color: isMe ? '#ffffff' : '#171717', border: isMe ? 'none' : '1px solid rgba(0,0,0,0.05)',
                                 borderRadius: isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
                                 padding: '9px 13px', fontSize: '13px', lineHeight: 1.5,
+                                opacity: msg.isOptimistic ? 0.65 : 1,
                               }}>{msg.text}</div>
                               <div style={{ fontSize: '10px', color: 'rgba(0,0,0,0.25)', marginTop: '3px', textAlign: isMe ? 'right' : 'left', padding: '0 4px' }}>{msg.time}</div>
                             </div>

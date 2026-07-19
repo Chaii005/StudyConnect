@@ -78,9 +78,9 @@ export default function Chat() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Initial data load + polling fallback
+  // Initial data load
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || user.id === 'undefined' || user.id === 'null' || isNaN(Number(user.id))) return;
     const refresh = async () => {
       try {
         await refreshCache(user.id);
@@ -97,15 +97,11 @@ export default function Chat() {
       }
     };
     refresh();
-    const timer = setInterval(() => {
-      if (document.visibilityState === 'visible') refresh();
-    }, 1800000);
-    return () => clearInterval(timer);
-  }, [user]);
+  }, [user?.id]);
 
   // Realtime: sidebar overview updates on new message
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || user.id === 'undefined' || user.id === 'null' || isNaN(Number(user.id))) return;
     const channel = supabase
       .channel(`chat-overview-${user.id}`)
       .on(
@@ -145,9 +141,56 @@ export default function Chat() {
     return () => supabase.removeChannel(channel);
   }, [user?.id]);
 
+  // Realtime: friend list updates when friendships table changes (replacing 30-min polling)
+  useEffect(() => {
+    if (!user?.id || user.id === 'undefined' || user.id === 'null' || isNaN(Number(user.id))) return;
+
+    const refreshFriendList = async () => {
+      try {
+        const list = await getFriends(String(user.id), true);
+        setFriends(list);
+        const lm = getLastMessages(user.id);
+        setLastMessages(lm);
+        const total = list.reduce((acc, f) => acc + getUnreadCount(user.id, f.userId), 0);
+        setTotalUnread(total);
+      } catch (err) {
+        if (import.meta.env.DEV) console.warn('[Chat] Friend list sync failed:', err);
+      }
+    };
+
+    const channelName = `chat-friendships-${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'friendships',
+          filter: `to_user_id=eq.${user.id}`,
+        },
+        refreshFriendList
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'friendships',
+          filter: `from_user_id=eq.${user.id}`,
+        },
+        refreshFriendList
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   // Listen to sc-messages-read events to instantly update local unread badges
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || user.id === 'undefined' || user.id === 'null' || isNaN(Number(user.id))) return;
     const handleReadEvent = (e) => {
       const { userId } = e.detail;
       if (String(userId) === String(user.id)) {
