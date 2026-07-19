@@ -1,5 +1,5 @@
 // src/pages/Register.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SafeInput } from '@/components/common/SafeInput';
 import { registerWithEmailConfirmation, signInWithGoogle, signInWithGoogleNative } from '../services/authService';
@@ -185,6 +185,28 @@ export default function Register() {
   const [error, setError] = useState('');
   const [step, setStep] = useState(1);
   const [success, setSuccess] = useState(false);
+
+  // ── Chặn nút Back trình duyệt khi ở Step 2 ──
+  // Khi chuyển sang Step 2, push thêm 1 history entry
+  // Nếu user bấm Back → popstate → quay về Step 1 thay vì thoát trang
+  useEffect(() => {
+    if (step !== 2) return;
+
+    // Push fake state để giữ user ở trang register
+    window.history.pushState({ registerStep: 2 }, '');
+
+    const handlePopState = (e) => {
+      // User bấm Back → quay về Step 1 thay vì rời trang
+      setStep(1);
+      // Push lại state để tránh back lần nữa thoát luôn
+      window.history.pushState({ registerStep: 1 }, '');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [step]);
 
   // States mở/đóng Modal chọn vị trí
   const [openProvinceModal, setOpenProvinceModal] = useState(false);

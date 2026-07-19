@@ -201,6 +201,33 @@ export default function CompleteProfile() {
     }
   }, [isAuth, pendingUserId, navigate]);
 
+  // ── Chặn nút Back trình duyệt — không cho thoát trang khi chưa hoàn tất ──
+  useEffect(() => {
+    if (!pendingUserId) return;
+
+    // Push fake history entry để chặn back
+    window.history.pushState({ completeProfile: true }, '');
+
+    const handlePopState = () => {
+      // User bấm Back → giữ lại trang, hiện cảnh báo
+      window.history.pushState({ completeProfile: true }, '');
+      addToast('Vui lòng hoàn tất hồ sơ trước khi rời trang.', 'warning', 3000);
+    };
+
+    // Chặn đóng tab/refresh khi chưa hoàn tất
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [pendingUserId, addToast]);
+
   const validate = () => {
     if (!password) { setError('Vui lòng nhập mật khẩu.'); return false; }
     if (password.length < 6) { setError('Mật khẩu ít nhất 6 ký tự.'); return false; }

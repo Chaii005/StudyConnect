@@ -38,35 +38,35 @@ function Avatar({ src, name = '', size = 80 }) {
 // Sử dụng nhiều TURN server dự phòng để đảm bảo kết nối xuyên mạng
 const ICE_SERVERS = {
   iceServers: [
-    // Google STUN (primary)
+    // Google STUN (primary — highly reliable)
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
     { urls: 'stun:stun2.l.google.com:19302' },
     { urls: 'stun:stun3.l.google.com:19302' },
-    // Open Relay (Metered) — TURN fallback #1
+    { urls: 'stun:stun4.l.google.com:19302' },
+    // Metered TURN (free tier — active & maintained)
+    {
+      urls: [
+        'turn:a.relay.metered.ca:80',
+        'turn:a.relay.metered.ca:80?transport=tcp',
+        'turn:a.relay.metered.ca:443',
+        'turn:a.relay.metered.ca:443?transport=tcp',
+        'turns:a.relay.metered.ca:443',
+      ],
+      username: 'e8dd65b92f70a28e5c182a86',
+      credential: '3JGufwQKRFKbFPeV',
+    },
+    // OpenRelay backup
     {
       urls: [
         'turn:openrelay.metered.ca:80',
-        'turn:openrelay.metered.ca:80?transport=tcp',
         'turn:openrelay.metered.ca:443',
         'turn:openrelay.metered.ca:443?transport=tcp',
       ],
       username: 'openrelayproject',
       credential: 'openrelayproject',
     },
-    // Numb STUN (backup)
-    { urls: 'stun:numb.viagenie.ca' },
-    // FreeSTUN
-    { urls: 'stun:freestun.net:3478' },
-    {
-      urls: [
-        'turn:freestun.net:3478',
-        'turns:freestun.net:5349',
-      ],
-      username: 'free',
-      credential: 'free',
-    },
-    // Cloudflare STUN
+    // Cloudflare STUN backup
     { urls: 'stun:stun.cloudflare.com:3478' },
   ],
   iceCandidatePoolSize: 10,

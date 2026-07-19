@@ -653,50 +653,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
               Hồ sơ cá nhân
             </Link>
 
-            {/* Nút Đăng xuất trên di động */}
-            <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px dashed var(--border)' }}>
-              <button
-                type="button"
-                onClick={async () => {
-                  setMobileMenuOpen(false);
-                  await handleLogout();
-                }}
-                style={{
-                  width: '100%',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  background: 'rgba(239, 68, 68, 0.08)',
-                  border: '1.5px solid rgba(239, 68, 68, 0.25)',
-                  color: '#ef4444',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  fontFamily: 'inherit',
-                  boxSizing: 'border-box'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#ef4444';
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.borderColor = '#ef4444';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-                  e.currentTarget.style.color = '#ef4444';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                Đăng xuất tài khoản
-              </button>
-            </div>
+
           </div>
 
           {isCapacitorApp && (

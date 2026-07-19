@@ -56,6 +56,7 @@ export const refreshCache = async (userId) => {
   if (isNaN(uid)) return;
 
   try {
+    // 1. Fetch new messages since last cached message
     let query = supabase
       .from('messages')
       .select('id, sender_id, receiver_id, content, file_attachment, is_read, created_at')
@@ -66,7 +67,7 @@ export const refreshCache = async (userId) => {
       const lastMsg = cachedMessages[cachedMessages.length - 1];
       query = query.gt('created_at', lastMsg.createdAt).order('created_at', { ascending: true });
     } else {
-      query = query.order('created_at', { ascending: false }).limit(50); // giới hạn 50 tin — đủ cho badge và preview
+      query = query.order('created_at', { ascending: false }).limit(50);
     }
 
     const { data, error } = await query;
@@ -78,6 +79,24 @@ export const refreshCache = async (userId) => {
       const uniqueNewMsgs = newMsgs.filter(m => !existingIds.has(m.id));
       if (uniqueNewMsgs.length > 0) {
         cachedMessages = [...cachedMessages, ...uniqueNewMsgs];
+      }
+    }
+
+    // 2. Sync is_read status for messages that were marked read in DB but stale in cache
+    const unreadInCache = cachedMessages.filter(m => m.toUserId === String(uid) && !m.read && m.type !== 'background');
+    if (unreadInCache.length > 0) {
+      const unreadIds = unreadInCache.map(m => parseInt(m.id, 10));
+      const { data: readData, error: readErr } = await supabase
+        .from('messages')
+        .select('id')
+        .in('id', unreadIds)
+        .eq('is_read', true);
+
+      if (!readErr && readData && readData.length > 0) {
+        const readIdSet = new Set(readData.map(r => String(r.id)));
+        cachedMessages = cachedMessages.map(m =>
+          readIdSet.has(m.id) ? { ...m, read: true } : m
+        );
       }
     }
   } catch (err) {

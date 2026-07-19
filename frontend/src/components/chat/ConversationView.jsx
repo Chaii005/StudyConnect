@@ -24,6 +24,7 @@ import { SafeInput, SafeTextarea } from '../common/SafeInput';
 function fmtFull(iso) {
   if (!iso) return '';
   return new Date(iso).toLocaleString('vi-VN', { 
+    timeZone: 'Asia/Ho_Chi_Minh',
     hour: '2-digit', 
     minute: '2-digit', 
     day: '2-digit', 
@@ -75,6 +76,7 @@ export default function ConversationView({
   const [showEmoji, setShowEmoji] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimerRef = useRef(null);
+  const prevBgRef = useRef(null);
 
   // Setup presence for typing indicator
   useEffect(() => {
@@ -828,18 +830,27 @@ export default function ConversationView({
     document.body.removeChild(a);
   };
 
-  // Group messages by date (newest first)
+  // Group messages by date — column-reverse: array bottom→top visually,
+  // so date headers must come AFTER their day's messages in the array
+  // to appear ABOVE them on screen.
   const groupedMsgs = [];
   let lastDate = null;
   const reversedMessages = [...messages].reverse();
   reversedMessages.forEach(m => {
-    const d = new Date(m.createdAt).toLocaleDateString('vi-VN');
-    if (d !== lastDate) { 
-      groupedMsgs.push({ type: 'date', label: d }); 
-      lastDate = d; 
+    const d = new Date(m.createdAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    if (d !== lastDate) {
+      if (lastDate !== null) {
+        // Insert date header for the PREVIOUS group (appears above those msgs)
+        groupedMsgs.push({ type: 'date', label: lastDate });
+      }
+      lastDate = d;
     }
     groupedMsgs.push({ type: 'msg', data: m });
   });
+  // Insert final date header for the last group of messages
+  if (lastDate !== null) {
+    groupedMsgs.push({ type: 'date', label: lastDate });
+  }
 
   return (
     <div 

@@ -36,6 +36,7 @@ const getSubmissionsCount = (groupId, deadlineId) => {
 const formatDate = (dateStr) => {
   const d = new Date(dateStr);
   return d.toLocaleString('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh',
     weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit'
   });
@@ -515,7 +516,7 @@ export default function Schedule() {
                               <circle cx="12" cy="12" r="10"/>
                               <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            {new Date(d.dueDate).toLocaleString('vi-VN')}
+                            {new Date(d.dueDate).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                           </span>
                           {d.dueSoon && <span style={{ background: 'rgba(239,68,68,0.2)', color: 'var(--text-primary)', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>&lt; 24h</span>}
                           {d.overdue && <span style={{ background: 'rgba(100,100,120,0.3)', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>Quá hạn</span>}

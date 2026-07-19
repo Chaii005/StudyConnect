@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/config/supabaseClient';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { acceptGroupInvite, declineGroupInvite } from '@/services/groupInviteService';
 import { acceptFriendRequest as acceptRealFriend, removeFriend as declineRealFriend } from '@/services/friendService';
 import { approveJoinRequest, rejectJoinRequest } from '@/services/groupService';
+import { fetchAllNotifications } from './notificationQueries';
 
 export default function useNotifications(userId) {
   const [notifs, setNotifs] = useState([]);
@@ -22,745 +23,29 @@ export default function useNotifications(userId) {
   const myCommentIdsRef = useRef([]);
   const myCreatedGroupIdsRef = useRef([]);
 
+  const groupNamesRef = useRef({});
+  const userNamesCacheRef = useRef({});
+
+  // â•â•â• OPTIMIZED REFRESH â€” parallel queries via notificationQueries.js â•â•â•
   const refresh = useCallback(async () => {
     if (!userId) return;
     try {
       const uid = parseInt(userId, 10);
       const now = new Date();
       const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-      // cutoff: chỉ lấy dữ liệu trong 24h qua để giảm egress
       const cutoff = new Date(now.getTime() - ONE_DAY_MS).toISOString();
-      const notifsList = [];
-      const userGroupIds = new Set();
 
-      // 1. Fetch friend requests from Supabase
-      const { data: friendReqs, error: fError } = await supabase
-        .from('friendships')
-        .select(`
-          id,
-          from_user_id,
-          status,
-          created_at,
-          users:users!from_user_id (
-            full_name
-          )
-        `)
-        .eq('to_user_id', uid)
-        .eq('status', 'pending');
+      const result = await fetchAllNotifications(uid, cutoff, now, ONE_DAY_MS, groupNamesRef);
 
-      if (!fError && friendReqs) {
-        friendReqs
-          .filter(f => (now - new Date(f.created_at)) < ONE_DAY_MS)
-          .forEach(f => {
-            const senderName = f.users?.full_name || 'Ai đó';
-            notifsList.push({
-              key: `friendreq:${f.id}`,
-              type: 'friendreq',
-              title: 'Lời mời kết bạn',
-              body: `${senderName} muốn kết bạn với bạn.`,
-              createdAt: f.created_at,
-              requestId: f.id.toString(),
-              fromUserId: f.from_user_id,
-              fromUserName: senderName,
-            });
-          });
-      }
+      // Update refs for realtime listener filtering
+      myGroupIdsRef.current = result.joinedIds.map(Number);
+      myCreatedGroupIdsRef.current = result.myCreatedGroupIds;
+      myPostIdsRef.current = result.myPostIds.map(Number);
 
-      // 1b. Fetch accepted friend requests from Supabase
-      const { data: acceptedReqs } = await supabase
-        .from('friendships')
-        .select(`
-          id,
-          to_user_id,
-          accepted_at,
-          users:users!to_user_id (
-            full_name
-          )
-        `)
-        .eq('from_user_id', uid)
-        .eq('status', 'accepted');
+      result.notifsList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setNotifs(result.notifsList);
 
-      if (acceptedReqs) {
-        acceptedReqs
-          .filter(ar => ar.accepted_at && (now - new Date(ar.accepted_at)) < ONE_DAY_MS)
-          .forEach(ar => {
-            const userName = ar.users?.full_name || 'Người dùng';
-            notifsList.push({
-              key: `friendaccept:${ar.id}`,
-              type: 'friendaccept',
-              title: 'Kết bạn thành công',
-              body: `${userName} đã đồng ý lời mời kết bạn.`,
-              createdAt: ar.accepted_at,
-            });
-          });
-      }
-
-      // 2. Fetch group invites from Supabase
-      const { data: invites, error: iError } = await supabase
-        .from('group_invites')
-        .select(`
-          id,
-          group_id,
-          inviter_id,
-          status,
-          created_at,
-          study_groups (
-            name
-          ),
-          users:users!inviter_id (
-            full_name
-          )
-        `)
-        .eq('invitee_id', uid)
-        .eq('status', 'pending');
-
-      if (!iError && invites) {
-        invites
-          .filter(inv => (now - new Date(inv.created_at)) < ONE_DAY_MS)
-          .forEach(inv => {
-            const inviterName = inv.users?.full_name || 'Thành viên';
-            const groupName = inv.study_groups?.name || 'Nhóm học';
-            notifsList.push({
-              key: `groupinvite:${inv.id}`,
-              type: 'groupinvite',
-              title: 'Lời mời vào nhóm',
-              body: `${inviterName} mời bạn tham gia nhóm "${groupName}".`,
-              createdAt: inv.created_at,
-              inviteId: inv.id.toString(),
-              groupId: inv.group_id.toString(),
-              groupName: groupName,
-            });
-          });
-      }
-
-      // 3. Fetch joined groups to filter schedules, deadlines, and group messages
-      const { data: joinedMembers, error: mError } = await supabase
-        .from('group_members')
-        .select(`
-          group_id,
-          role,
-          joined_at,
-          study_groups (
-            name
-          )
-        `)
-        .eq('user_id', uid);
-
-      if (!mError && joinedMembers && joinedMembers.length > 0) {
-        const joinedIds = joinedMembers.map(m => m.group_id);
-        joinedIds.forEach(id => userGroupIds.add(Number(id)));
-        myGroupIdsRef.current = joinedIds.map(Number);
-        joinedMembers.forEach(m => {
-          if (m.study_groups?.name) {
-            groupNamesRef.current[Number(m.group_id)] = m.study_groups.name;
-          }
-        });
-
-        // Notify user about group joins and role upgrades in the notification bell
-        joinedMembers.forEach(m => {
-          if (m.joined_at && (now - new Date(m.joined_at)) < ONE_DAY_MS) {
-            const groupName = m.study_groups?.name || 'Nhóm học';
-            if (m.role === 'member') {
-              notifsList.push({
-                key: `groupjoin:${m.group_id}`,
-                type: 'groupjoin',
-                title: 'Gia nhập nhóm thành công',
-                body: `Bạn đã tham gia nhóm học tập "${groupName}".`,
-                createdAt: m.joined_at,
-                groupId: m.group_id.toString(),
-              });
-            } else if (m.role === 'admin') {
-              notifsList.push({
-                key: `groupdeputy:${m.group_id}`,
-                type: 'groupdeputy',
-                title: 'Bổ nhiệm Phó nhóm',
-                body: `Bạn đã được bổ nhiệm làm Phó nhóm của "${groupName}".`,
-                createdAt: m.joined_at,
-                groupId: m.group_id.toString(),
-              });
-            }
-          }
-        });
-
-        // Fetch other members who joined recently (chỉ 24h qua)
-        const { data: otherJoinedMembers } = await supabase
-          .from('group_members')
-          .select(`
-            group_id,
-            user_id,
-            joined_at,
-            users:users (
-              full_name
-            ),
-            study_groups (
-              name
-            )
-          `)
-          .in('group_id', joinedIds)
-          .neq('user_id', uid)
-          .gte('joined_at', cutoff)
-          .limit(20);
-
-        if (otherJoinedMembers) {
-          otherJoinedMembers
-            .filter(om => om.joined_at && (now - new Date(om.joined_at)) < ONE_DAY_MS)
-            .forEach(om => {
-              const userName = om.users?.full_name || 'Người dùng';
-              const groupName = om.study_groups?.name || 'Nhóm';
-              notifsList.push({
-                key: `othergroupjoin:${om.group_id}:${om.user_id}`,
-                type: 'othergroupjoin',
-                title: 'Thành viên mới',
-                body: `${userName} vừa tham gia nhóm "${groupName}".`,
-                createdAt: om.joined_at,
-                groupId: om.group_id.toString(),
-              });
-            });
-        }
-
-        // Fetch schedules
-        const { data: schedules } = await supabase
-          .from('schedules')
-          .select(`
-            id, group_id, topic, date_time, created_at,
-            study_groups (
-              name
-            )
-          `)
-          .in('group_id', joinedIds)
-          .gte('date_time', now.toISOString())
-          .limit(50);
-
-        if (schedules) {
-          schedules
-            .filter(s => (now - new Date(s.created_at)) < ONE_DAY_MS)
-            .forEach(s => {
-              notifsList.push({
-                key: `schedule:${s.id}`,
-                type: 'schedule',
-                title: 'Lịch học nhóm mới',
-                body: `Nhóm "${s.study_groups?.name || 'Nhóm học'}" học: ${s.topic} · ${new Date(s.date_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`,
-                createdAt: s.created_at,
-                groupId: s.group_id.toString(),
-              });
-            });
-        }
-
-        // Fetch deadlines
-        const { data: deadlines } = await supabase
-          .from('deadlines')
-          .select(`
-            id, group_id, title, due_date, assignee_id, created_at,
-            study_groups (
-              name
-            )
-          `)
-          .in('group_id', joinedIds)
-          .eq('completed', false)
-          .limit(50);
-
-        if (deadlines) {
-          deadlines
-            .filter(d => {
-              if ((now - new Date(d.created_at)) >= ONE_DAY_MS) return false;
-              if (d.assignee_id) {
-                return String(d.assignee_id) === String(uid);
-              }
-              return true;
-            })
-            .forEach(d => {
-              const isPersonal = d.assignee_id;
-              notifsList.push({
-                key: `deadline:${d.id}`,
-                type: 'deadline',
-                title: 'Hạn nộp mới',
-                body: `${isPersonal ? 'Giao riêng cho bạn' : 'Cả nhóm ' + (d.study_groups?.name || '')} · ${d.title} (Hạn: ${new Date(d.due_date).toLocaleDateString('vi-VN')})`,
-                createdAt: d.created_at,
-                groupId: d.group_id.toString(),
-              });
-            });
-
-          // Fetch urgent deadlines (due in 24 hours)
-          deadlines
-            .filter(d => {
-              const due = new Date(d.due_date).getTime();
-              const timeLeft = due - now.getTime();
-              if (!(timeLeft > 0 && timeLeft <= ONE_DAY_MS)) return false;
-              if (d.assignee_id) {
-                return String(d.assignee_id) === String(uid);
-              }
-              return true;
-            })
-            .forEach(d => {
-              const due = new Date(d.due_date).getTime();
-              const timeLeft = due - now.getTime();
-              const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-              const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-              const timeStr = hoursLeft > 0 ? `${hoursLeft} giờ ${minutesLeft} phút` : `${minutesLeft} phút`;
-              const isPersonal = d.assignee_id;
-              notifsList.push({
-                key: `deadline-urgent:${d.id}`,
-                type: 'deadline-urgent',
-                title: 'Sắp tới hạn',
-                body: `Còn ${timeStr} để nộp "${d.title}" ${isPersonal ? '(giao riêng cho bạn)' : 'trong nhóm ' + (d.study_groups?.name || 'Học tập')}.`,
-                createdAt: new Date(new Date(d.due_date).getTime() - ONE_DAY_MS).toISOString(),
-                groupId: d.group_id.toString(),
-                deadlineId: d.id.toString(),
-                dueDate: d.due_date,
-              });
-            });
-        }
-
-        // NOTE: Group chat messages are intentionally excluded from the global
-        // notification bell. Users read them directly inside the group chat tab,
-        // which has its own unread badge (unreadChatCount in useGroupDetail).
-
-        // Fetch shared documents/files in groups (24h qua)
-        const { data: recentFiles } = await supabase
-          .from('files')
-          .select(`
-            id,
-            group_id,
-            file_name,
-            created_at,
-            users:users (
-              full_name
-            ),
-            study_groups (
-              name
-            )
-          `)
-          .in('group_id', joinedIds)
-          .neq('user_id', uid)
-          .gte('created_at', cutoff)
-          .limit(20);
-
-        if (recentFiles) {
-          recentFiles
-            .filter(rf => rf.created_at && (now - new Date(rf.created_at)) < ONE_DAY_MS)
-            .forEach(rf => {
-              const userName = rf.users?.full_name || 'Thành viên';
-              const groupName = rf.study_groups?.name || 'Nhóm';
-              notifsList.push({
-                key: `file:upload:${rf.id}`,
-                type: 'fileupload',
-                title: 'Tài liệu nhóm mới',
-                body: `${userName} đã chia sẻ "${rf.file_name}" tại "${groupName}".`,
-                createdAt: rf.created_at,
-                groupId: rf.group_id.toString(),
-              });
-            });
-        }
-      }
-
-      // Custom deadline reminders from LocalStorage removed to comply with quota limits
-
-      // 5. Fetch user's posts to get comments & reactions on them (giới hạn 20 post gần nhất)
-      const { data: myPosts } = await supabase
-        .from('posts')
-        .select('id, content, likes, created_at')
-        .eq('user_id', uid)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (myPosts && myPosts.length > 0) {
-        const myPostIds = myPosts.map(p => p.id);
-        myPostIdsRef.current = myPostIds.map(Number);
-
-        // Fetch comments on user's posts (24h qua)
-        const { data: postComments } = await supabase
-          .from('comments')
-          .select(`
-            id,
-            post_id,
-            user_id,
-            content,
-            created_at,
-            users:users!user_id (
-              full_name
-            )
-          `)
-          .in('post_id', myPostIds)
-          .neq('user_id', uid)
-          .gte('created_at', cutoff)
-          .order('created_at', { ascending: false })
-          .limit(10);
-
-        if (postComments) {
-          postComments
-            .filter(c => (now - new Date(c.created_at)) < ONE_DAY_MS)
-            .forEach(c => {
-              const commenterName = c.users?.full_name || 'Người dùng';
-              notifsList.push({
-                key: `comment:${c.id}`,
-                type: 'comment',
-                title: 'Bình luận mới',
-                body: `${commenterName} đã bình luận bài của bạn: "${c.content?.length > 60 ? c.content.slice(0, 60) + '…' : c.content}"`,
-                createdAt: c.created_at,
-                postId: c.post_id.toString(),
-              });
-            });
-        }
-        
-        // Fetch comments by this user (24h qua) to find replies to them
-        const { data: myComments } = await supabase
-          .from('comments')
-          .select('id')
-          .eq('user_id', uid)
-          .gte('created_at', cutoff)
-          .limit(50);
-
-        if (myComments && myComments.length > 0) {
-          const myCommentIds = myComments.map(c => c.id);
-          myCommentIdsRef.current = myCommentIds.map(Number);
-          const { data: replies } = await supabase
-            .from('comments')
-            .select(`
-              id,
-              post_id,
-              user_id,
-              content,
-              created_at,
-              users:users!user_id (
-                full_name
-              )
-            `)
-            .in('parent_id', myCommentIds)
-            .neq('user_id', uid)
-            .gte('created_at', cutoff)
-            .order('created_at', { ascending: false })
-            .limit(10);
-
-          if (replies) {
-            replies
-              .filter(r => (now - new Date(r.created_at)) < ONE_DAY_MS)
-              .forEach(r => {
-                // Tránh duplicate nếu bình luận này cũng nằm trên bài viết của chính user
-                if (notifsList.some(n => n.key === `comment:${r.id}`)) return;
-
-                const replierName = r.users?.full_name || 'Người dùng';
-                notifsList.push({
-                  key: `reply:${r.id}`,
-                  type: 'comment',
-                  title: 'Phản hồi bình luận',
-                  body: `${replierName} đã trả lời bạn: "${r.content?.length > 60 ? r.content.slice(0, 60) + '…' : r.content}"`,
-                  createdAt: r.created_at,
-                  postId: r.post_id.toString(),
-                });
-              });
-          }
-        }
-
-        // Fetch user information for likes
-        const likerIds = [];
-        myPosts.forEach(p => {
-          if (Array.isArray(p.likes)) {
-            p.likes.forEach(lk => {
-              const lkId = typeof lk === 'object' ? parseInt(lk.userId, 10) : parseInt(lk, 10);
-              if (lkId && lkId !== uid) {
-                likerIds.push(lkId);
-              }
-            });
-          }
-        });
-
-        if (likerIds.length > 0) {
-          const uniqueLikerIds = [...new Set(likerIds)];
-          const { data: usersData } = await supabase
-            .from('users')
-            .select('id, full_name')
-            .in('id', uniqueLikerIds);
-
-          const likersMap = {};
-          if (usersData) {
-            usersData.forEach(u => {
-              likersMap[String(u.id)] = u.full_name;
-            });
-          }
-
-          myPosts.forEach(p => {
-            if (Array.isArray(p.likes)) {
-              p.likes.forEach(lk => {
-                const lkId = typeof lk === 'object' ? String(lk.userId) : String(lk);
-                if (lkId && lkId !== String(uid)) {
-                  const likerName = likersMap[lkId] || 'Người dùng';
-                  notifsList.push({
-                    key: `like:${p.id}:${lkId}`,
-                    type: 'like',
-                    title: 'Tương tác mới',
-                    body: `${likerName} đã thích bài viết của bạn.`,
-                    createdAt: p.created_at, // Approximation of time
-                    postId: p.id.toString(),
-                  });
-                }
-              });
-            }
-          });
-        }
-      }
-
-      // 1c. Fetch recent private messages (24h qua, giới hạn 10)
-      const { data: privateMsgs } = await supabase
-        .from('messages')
-        .select(`
-          id,
-          sender_id,
-          content,
-          created_at,
-          users:users!sender_id (
-            full_name
-          )
-        `)
-        .eq('receiver_id', uid)
-        .neq('sender_id', uid)
-        .is('group_id', null)
-        .gte('created_at', cutoff)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (privateMsgs) {
-        privateMsgs
-          .filter(m => (now - new Date(m.created_at)) < ONE_DAY_MS)
-          .forEach(m => {
-            // Bỏ qua hoàn toàn tin nhắn đổi hình nền - không hiện toast
-            if (m.content?.startsWith('[chat_background]:')) return;
-
-            // Tin nhắn cuộc gọi nhỡ → hiển thị kiểu missedcall riêng
-            if (m.content?.startsWith('📵')) {
-              const senderName = m.users?.full_name || 'Người dùng';
-              notifsList.push({
-                key: `missedcall:in:${m.id}`,
-                type: 'missedcall',
-                title: 'Cuộc gọi nhỡ',
-                body: `Cuộc gọi nhỡ từ ${senderName}.`,
-                createdAt: m.created_at,
-                senderId: m.sender_id.toString(),
-              });
-              return;
-            }
-
-            const senderName = m.users?.full_name || 'Người dùng';
-            const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-              ? 'Đã gửi một ảnh'
-              : m.content || '';
-            notifsList.push({
-              key: `privatemsg:${m.id}`,
-              type: 'privatemsg',
-              title: `Tin nhắn từ ${senderName}`,
-              body: displayContent?.length > 80 ? displayContent.slice(0, 80) + '…' : displayContent,
-              createdAt: m.created_at,
-              senderId: m.sender_id.toString(),
-            });
-          });
-      }
-
-      // 2b. Fetch pending group join requests for groups created by current user
-      const { data: myCreatedGroups } = await supabase
-        .from('study_groups')
-        .select('id, name')
-        .eq('creator_id', uid);
-
-      if (myCreatedGroups && myCreatedGroups.length > 0) {
-        const myGroupIds = myCreatedGroups.map(g => g.id);
-        myCreatedGroupIdsRef.current = myGroupIds.map(Number);
-        myCreatedGroups.forEach(g => {
-          groupNamesRef.current[Number(g.id)] = g.name;
-        });
-        const { data: pendingRequests } = await supabase
-          .from('group_join_requests')
-          .select(`
-            id,
-            group_id,
-            user_id,
-            created_at,
-            users:users (
-              full_name
-            ),
-            study_groups (
-              name
-            )
-          `)
-          .in('group_id', myGroupIds)
-          .eq('status', 'pending')
-          .limit(50);
-
-        if (pendingRequests) {
-          pendingRequests
-            .filter(r => (now - new Date(r.created_at)) < ONE_DAY_MS)
-            .forEach(r => {
-              const requesterName = r.users?.full_name || 'Thành viên';
-              const groupName = r.study_groups?.name || 'Nhóm';
-              notifsList.push({
-                key: `joinrequest:${r.id}`,
-                type: 'joinrequest',
-                title: 'Yêu cầu tham gia',
-                body: `${requesterName} xin gia nhập nhóm "${groupName}".`,
-                createdAt: r.created_at,
-                requestId: r.id.toString(),
-                groupId: r.group_id.toString(),
-                fromUserId: r.user_id,
-                requesterName: requesterName,
-              });
-            });
-        }
-      }
-
-      // 2c. Fetch local group kicks
-      try {
-        const localKicks = JSON.parse(localStorage.getItem('studyconect_kicked_notifications') || '[]');
-        localKicks
-          .filter(k => (now - new Date(k.createdAt)) < ONE_DAY_MS)
-          .forEach(k => {
-            const isDisbanded = !!k.isDisbanded;
-            notifsList.push({
-              key: `kick:${k.id}`,
-              type: 'groupkick',
-              title: isDisbanded ? 'Giải tán nhóm' : 'Thay đổi thành viên',
-              body: isDisbanded 
-                ? `Nhóm học "${k.groupName}" đã bị giải tán.`
-                : `Bạn đã bị mời ra khỏi nhóm "${k.groupName}".`,
-              createdAt: k.createdAt,
-            });
-          });
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn('Error reading local kicks:', err);
-      }
-
-      // 2d. Fetch local group demotions
-      try {
-        const localDemotions = JSON.parse(localStorage.getItem('studyconect_demoted_notifications') || '[]');
-        localDemotions
-          .filter(d => (now - new Date(d.createdAt)) < ONE_DAY_MS)
-          .forEach(d => {
-            notifsList.push({
-              key: `demote:${d.id}`,
-              type: 'groupdemote',
-              title: 'Thu hồi quyền Phó nhóm',
-              body: `Đã thu hồi quyền Phó nhóm tại "${d.groupName}".`,
-              createdAt: d.createdAt,
-            });
-          });
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn('Error reading local demotions:', err);
-      }
-
-      // Post Tag Notifications (from Supabase post_tags)
-      try {
-        const joinedGroupIdsStr = Array.from(userGroupIds).map(String);
-        let orFilter = `and(target_type.eq.user,target_id.eq.${uid})`;
-        if (joinedGroupIdsStr.length > 0) {
-          orFilter += `,and(target_type.eq.group,target_id.in.(${joinedGroupIdsStr.join(',')}))`;
-        }
-
-        const { data: dbTags, error: dbTagsError } = await supabase
-          .from('post_tags')
-          .select(`
-            id,
-            post_id,
-            target_type,
-            target_id,
-            created_at,
-            posts (
-              user_id,
-              users (
-                full_name
-              )
-            )
-          `)
-          .or(orFilter)
-          .limit(50);
-
-        if (!dbTagsError && dbTags) {
-          dbTags
-            .filter(t => (now - new Date(t.created_at)) < ONE_DAY_MS)
-            .forEach(t => {
-              const taggerName = t.posts?.users?.full_name || 'Ai đó';
-              const isCreator = String(t.posts?.user_id) === String(uid);
-              if (isCreator) return; // don't notify self
-
-              if (t.target_type === 'user' && String(t.target_id) === String(uid)) {
-                const key = `posttag:db:${t.id}`;
-                if (!notifsList.some(x => x.key === key)) {
-                  notifsList.push({
-                    key,
-                    type: 'posttag_user',
-                    title: 'Được nhắc tên',
-                    body: `${taggerName} đã tag bạn trong một bài viết.`,
-                    createdAt: t.created_at,
-                    postId: String(t.post_id),
-                  });
-                }
-              }
-
-              if (t.target_type === 'group' && userGroupIds.has(Number(t.target_id))) {
-                const key = `posttagg:db:${t.id}`;
-                if (!notifsList.some(x => x.key === key)) {
-                  const gMem = joinedMembers && joinedMembers.find(m => Number(m.group_id) === Number(t.target_id));
-                  const gName = gMem?.study_groups?.name || 'Nhóm học';
-                  notifsList.push({
-                    key,
-                    type: 'posttag_group',
-                    title: 'Nhắc tên nhóm',
-                    body: `${taggerName} đã nhắc đến nhóm "${gName}" trong bài viết.`,
-                    createdAt: t.created_at,
-                    postId: String(t.post_id),
-                    groupId: String(t.target_id),
-                  });
-                }
-              }
-            });
-        }
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn('Error fetching post tag notifications:', err);
-      }
-
-      // Fetch outgoing missed call messages (24h qua)
-      try {
-        const { data: outgoingMissed, error: omError } = await supabase
-          .from('messages')
-          .select(`
-            id,
-            receiver_id,
-            content,
-            created_at,
-            users:users!receiver_id (
-              full_name
-            )
-          `)
-          .eq('sender_id', uid)
-          .is('group_id', null)
-          .like('content', '📵%')
-          .gte('created_at', cutoff)
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        if (!omError && outgoingMissed) {
-          outgoingMissed
-            .filter(m => (now - new Date(m.created_at)) < ONE_DAY_MS)
-            .forEach(m => {
-              const key = `missedcall:out:${m.id}`;
-              if (notifsList.some(n => n.key === key)) return;
-              const receiverName = m.users?.full_name || 'Người dùng';
-              notifsList.push({
-                key,
-                type: 'missedcall',
-                title: m.content?.startsWith('📵 Người nhận đang bận') ? 'Người nhận bận' : 'Cuộc gọi nhỡ',
-                body: `${receiverName} không phản hồi cuộc gọi.`,
-                createdAt: m.created_at,
-                senderId: String(uid),
-              });
-            });
-        }
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn('Error fetching outgoing missed calls:', err);
-      }
-
-
-      notifsList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setNotifs(notifsList);
-
-
-      // Refresh seen set from localStorage just in case
+      // Refresh seen set from localStorage
       try {
         setSeen(new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_SEEN)) || []));
       } catch {
@@ -771,8 +56,6 @@ export default function useNotifications(userId) {
     }
   }, [userId]);
 
-  const groupNamesRef = useRef({});
-  const userNamesCacheRef = useRef({});
 
   const addIncrementalNotif = useCallback((newNotif) => {
     setNotifs(prev => {
@@ -789,9 +72,9 @@ export default function useNotifications(userId) {
       if (data?.name) {
         groupNamesRef.current[groupId] = data.name;
       }
-      return data?.name || 'Nhóm học';
+      return data?.name || 'NhĂ³m há»c';
     } catch {
-      return 'Nhóm học';
+      return 'NhĂ³m há»c';
     }
   };
 
@@ -802,9 +85,9 @@ export default function useNotifications(userId) {
       if (data?.full_name) {
         userNamesCacheRef.current[userId] = data.full_name;
       }
-      return data?.full_name || 'Thành viên';
+      return data?.full_name || 'ThĂ nh viĂªn';
     } catch {
-      return 'Thành viên';
+      return 'ThĂ nh viĂªn';
     }
   };
 
@@ -822,7 +105,7 @@ export default function useNotifications(userId) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
 
-    // Channel name unique mỗi mount để tránh duplicate subscription
+    // Channel name unique má»—i mount Ä‘á»ƒ trĂ¡nh duplicate subscription
     const notifChannel = supabase
       .channel(`notif-${userId}`)
       // friendships
@@ -838,8 +121,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `friendreq:${f.id}`,
                   type: 'friendreq',
-                  title: 'Lời mời kết bạn',
-                  body: `${senderName} muốn kết bạn với bạn.`,
+                  title: 'Lá»i má»i káº¿t báº¡n',
+                  body: `${senderName} muá»‘n káº¿t báº¡n vá»›i báº¡n.`,
                   createdAt: f.created_at,
                   requestId: f.id.toString(),
                   fromUserId: f.from_user_id,
@@ -851,8 +134,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `friendaccept:${f.id}`,
                   type: 'friendaccept',
-                  title: 'Kết bạn thành công',
-                  body: `${userName} đã đồng ý lời mời kết bạn.`,
+                  title: 'Káº¿t báº¡n thĂ nh cĂ´ng',
+                  body: `${userName} Ä‘Ă£ Ä‘á»“ng Ă½ lá»i má»i káº¿t báº¡n.`,
                   createdAt: f.accepted_at || f.created_at,
                 });
               });
@@ -873,8 +156,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `groupinvite:${inv.id}`,
               type: 'groupinvite',
-              title: 'Lời mời vào nhóm',
-              body: `${inviterName} mời bạn tham gia nhóm "${groupName}".`,
+              title: 'Lá»i má»i vĂ o nhĂ³m',
+              body: `${inviterName} má»i báº¡n tham gia nhĂ³m "${groupName}".`,
               createdAt: inv.created_at,
               inviteId: inv.id.toString(),
               groupId: inv.group_id.toString(),
@@ -900,8 +183,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `groupjoin:${m.group_id}`,
                     type: 'groupjoin',
-                    title: 'Gia nhập nhóm thành công',
-                    body: `Bạn đã tham gia nhóm học tập "${groupName}".`,
+                    title: 'Gia nháº­p nhĂ³m thĂ nh cĂ´ng',
+                    body: `Báº¡n Ä‘Ă£ tham gia nhĂ³m há»c táº­p "${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -909,8 +192,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `groupdeputy:${m.group_id}`,
                     type: 'groupdeputy',
-                    title: 'Bổ nhiệm Phó nhóm',
-                    body: `Bạn đã được bổ nhiệm làm Phó nhóm của "${groupName}".`,
+                    title: 'Bá»• nhiá»‡m PhĂ³ nhĂ³m',
+                    body: `Báº¡n Ä‘Ă£ Ä‘Æ°á»£c bá»• nhiá»‡m lĂ m PhĂ³ nhĂ³m cá»§a "${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -921,8 +204,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `othergroupjoin:${m.group_id}:${m.user_id}`,
                     type: 'othergroupjoin',
-                    title: 'Thành viên mới',
-                    body: `${userName} vừa tham gia nhóm "${groupName}".`,
+                    title: 'ThĂ nh viĂªn má»›i',
+                    body: `${userName} vá»«a tham gia nhĂ³m "${groupName}".`,
                     createdAt: m.joined_at || new Date().toISOString(),
                     groupId: m.group_id.toString(),
                   });
@@ -944,8 +227,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `schedule:${s.id}`,
               type: 'schedule',
-              title: 'Lịch học nhóm mới',
-              body: `Nhóm "${groupName}" học: ${s.topic} · ${new Date(s.date_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`,
+              title: 'Lá»‹ch há»c nhĂ³m má»›i',
+              body: `NhĂ³m "${groupName}" há»c: ${s.topic} Â· ${new Date(s.date_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`,
               createdAt: s.created_at,
               groupId: s.group_id.toString(),
             });
@@ -966,8 +249,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `deadline:${d.id}`,
               type: 'deadline',
-              title: 'Hạn nộp mới',
-              body: `${isPersonal ? 'Giao riêng cho bạn' : 'Cả nhóm ' + groupName} · ${d.title} (Hạn: ${new Date(d.due_date).toLocaleDateString('vi-VN')})`,
+              title: 'Háº¡n ná»™p má»›i',
+              body: `${isPersonal ? 'Giao riĂªng cho báº¡n' : 'Cáº£ nhĂ³m ' + groupName} Â· ${d.title} (Háº¡n: ${new Date(d.due_date).toLocaleDateString('vi-VN')})`,
               createdAt: d.created_at,
               groupId: d.group_id.toString(),
             });
@@ -987,38 +270,38 @@ export default function useNotifications(userId) {
           if (m.content?.startsWith('[chat_background]:')) return;
 
           if (import.meta.env.DEV) {
-            console.log(`[useNotifications] Nhận tin nhắn riêng realtime:`, m);
+            console.log(`[useNotifications] Nháº­n tin nháº¯n riĂªng realtime:`, m);
           }
 
           getUserName(senderId).then(senderName => {
-            if (m.content?.startsWith('📵')) {
+            if (m.content?.startsWith('đŸ“µ')) {
               if (import.meta.env.DEV) {
-                console.log(`[useNotifications] Tạo thông báo cuộc gọi nhỡ (realtime): missedcall:in:${m.id}`);
+                console.log(`[useNotifications] Táº¡o thĂ´ng bĂ¡o cuá»™c gá»i nhá»¡ (realtime): missedcall:in:${m.id}`);
               }
               addIncrementalNotif({
                 key: `missedcall:in:${m.id}`,
                 type: 'missedcall',
-                title: 'Cuộc gọi nhỡ',
-                body: `Cuộc gọi nhỡ từ ${senderName}.`,
+                title: 'Cuá»™c gá»i nhá»¡',
+                body: `Cuá»™c gá»i nhá»¡ tá»« ${senderName}.`,
                 createdAt: m.created_at,
                 senderId: m.sender_id.toString(),
               });
             } else {
               const displayContent = (m.content?.startsWith('data:image') || (m.content?.startsWith('http') && m.content?.match(/\.(jpeg|jpg|gif|png)/i)))
-                ? 'Đã gửi một ảnh'
+                ? 'ÄĂ£ gá»­i má»™t áº£nh'
                 : m.content || '';
               addIncrementalNotif({
                 key: `privatemsg:${m.id}`,
                 type: 'privatemsg',
-                title: `Tin nhắn từ ${senderName}`,
-                body: displayContent?.length > 80 ? displayContent.slice(0, 80) + '…' : displayContent,
+                title: `Tin nháº¯n tá»« ${senderName}`,
+                body: displayContent?.length > 80 ? displayContent.slice(0, 80) + 'â€¦' : displayContent,
                 createdAt: m.created_at,
                 senderId: m.sender_id.toString(),
               });
             }
           }).catch(err => {
             if (import.meta.env.DEV) {
-              console.error(`[useNotifications] Lỗi khi lấy tên người gửi:`, err);
+              console.error(`[useNotifications] Lá»—i khi láº¥y tĂªn ngÆ°á»i gá»­i:`, err);
             }
           });
         }
@@ -1039,8 +322,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `file:upload:${rf.id}`,
               type: 'fileupload',
-              title: 'Tài liệu nhóm mới',
-              body: `${userName} đã chia sẻ "${rf.file_name}" tại "${groupName}".`,
+              title: 'TĂ i liá»‡u nhĂ³m má»›i',
+              body: `${userName} Ä‘Ă£ chia sáº» "${rf.file_name}" táº¡i "${groupName}".`,
               createdAt: rf.created_at,
               groupId: rf.group_id.toString(),
             });
@@ -1060,8 +343,8 @@ export default function useNotifications(userId) {
             addIncrementalNotif({
               key: `joinrequest:${r.id}`,
               type: 'joinrequest',
-              title: 'Yêu cầu tham gia',
-              body: `${requesterName} xin gia nhập nhóm "${groupName}".`,
+              title: 'YĂªu cáº§u tham gia',
+              body: `${requesterName} xin gia nháº­p nhĂ³m "${groupName}".`,
               createdAt: r.created_at,
               requestId: r.id.toString(),
               groupId: r.group_id.toString(),
@@ -1085,7 +368,7 @@ export default function useNotifications(userId) {
             .single()
             .then(({ data: postData }) => {
               if (!postData) return;
-              const taggerName = postData.users?.full_name || 'Ai đó';
+              const taggerName = postData.users?.full_name || 'Ai Ä‘Ă³';
               const isCreator = String(postData.user_id) === String(userId);
               if (isCreator) return;
 
@@ -1093,8 +376,8 @@ export default function useNotifications(userId) {
                 addIncrementalNotif({
                   key: `posttag:db:${t.id}`,
                   type: 'posttag_user',
-                  title: 'Được nhắc tên',
-                  body: `${taggerName} đã tag bạn trong một bài viết.`,
+                  title: 'ÄÆ°á»£c nháº¯c tĂªn',
+                  body: `${taggerName} Ä‘Ă£ tag báº¡n trong má»™t bĂ i viáº¿t.`,
                   createdAt: t.created_at,
                   postId: String(t.post_id),
                 });
@@ -1103,8 +386,8 @@ export default function useNotifications(userId) {
                   addIncrementalNotif({
                     key: `posttagg:db:${t.id}`,
                     type: 'posttag_group',
-                    title: 'Nhắc tên nhóm',
-                    body: `${taggerName} đã nhắc đến nhóm "${gName}" trong bài viết.`,
+                    title: 'Nháº¯c tĂªn nhĂ³m',
+                    body: `${taggerName} Ä‘Ă£ nháº¯c Ä‘áº¿n nhĂ³m "${gName}" trong bĂ i viáº¿t.`,
                     createdAt: t.created_at,
                     postId: String(t.post_id),
                     groupId: String(t.target_id),
@@ -1120,7 +403,7 @@ export default function useNotifications(userId) {
       if (document.visibilityState === 'visible') {
         refresh();
       }
-    }, 1800000); // fallback 30 phút
+    }, 1800000); // fallback 30 phĂºt
     
     return () => {
       clearInterval(interval);
@@ -1132,7 +415,7 @@ export default function useNotifications(userId) {
   const markAllRead = useCallback(() => {
     const newSeen = new Set([...seen, ...notifs.map(n => n.key)]);
     setSeen(newSeen);
-    // Lưu vào localStorage để tồn qua các lần refresh()
+    // LÆ°u vĂ o localStorage Ä‘á»ƒ tá»“n qua cĂ¡c láº§n refresh()
     try {
       localStorage.setItem(STORAGE_KEYS.NOTIF_SEEN, JSON.stringify([...newSeen]));
     } catch (err) {

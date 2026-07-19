@@ -7,13 +7,12 @@ const format24h = (dateStr) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return '';
-  const pad = (n) => String(n).padStart(2, '0');
-  const hours = pad(d.getHours());
-  const minutes = pad(d.getMinutes());
-  const day = pad(d.getDate());
-  const month = pad(d.getMonth() + 1);
-  const year = d.getFullYear();
-  return `${hours}:${minutes} - ${day}/${month}/${year}`;
+  return d.toLocaleString('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour: '2-digit', minute: '2-digit',
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour12: false,
+  });
 };
 
 export default function GroupSchedule({
