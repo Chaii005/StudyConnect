@@ -149,7 +149,9 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
         const activeEl = document.activeElement;
         const isInputActive = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
         if (!isInputActive) {
-          document.body.classList.remove('hide-mobile-bottom-nav');
+          if (!sessionStorage.getItem('active_chat_friend_id')) {
+            document.body.classList.remove('hide-mobile-bottom-nav');
+          }
         }
       }
     };
@@ -173,10 +175,14 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
               const viewHeight = window.visualViewport.height;
               const screenHeight = window.screen.height;
               if (screenHeight - viewHeight <= 150) {
-                document.body.classList.remove('hide-mobile-bottom-nav');
+                if (!sessionStorage.getItem('active_chat_friend_id')) {
+                  document.body.classList.remove('hide-mobile-bottom-nav');
+                }
               }
             } else {
-              document.body.classList.remove('hide-mobile-bottom-nav');
+              if (!sessionStorage.getItem('active_chat_friend_id')) {
+                document.body.classList.remove('hide-mobile-bottom-nav');
+              }
             }
           }
         }, 150);

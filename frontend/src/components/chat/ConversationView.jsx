@@ -158,7 +158,9 @@ export default function ConversationView({
         document.body.classList.add('hide-mobile-bottom-nav');
       } else {
         if (document.activeElement !== textareaRef.current) {
-          document.body.classList.remove('hide-mobile-bottom-nav');
+          if (!sessionStorage.getItem('active_chat_friend_id')) {
+            document.body.classList.remove('hide-mobile-bottom-nav');
+          }
         }
       }
     };
@@ -1974,7 +1976,9 @@ export default function ConversationView({
                 e.currentTarget.style.borderColor = 'var(--border)';
                 const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.85);
                 if (!isKeyboardOpen) {
-                  document.body.classList.remove('hide-mobile-bottom-nav');
+                  if (!sessionStorage.getItem('active_chat_friend_id')) {
+                    document.body.classList.remove('hide-mobile-bottom-nav');
+                  }
                 }
               }}
             />
