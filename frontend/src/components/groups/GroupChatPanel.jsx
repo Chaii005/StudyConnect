@@ -1023,8 +1023,17 @@ export default function GroupChatPanel({
               const picker = document.getElementById('emoji-picker-popup');
               if (picker) picker.style.display = 'none';
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--primary)')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--primary)';
+              document.body.classList.add('hide-mobile-bottom-nav');
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.85);
+              if (!isKeyboardOpen) {
+                document.body.classList.remove('hide-mobile-bottom-nav');
+              }
+            }}
           />
 
           {/* Send button */}

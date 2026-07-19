@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 
-export function SafeInput({ value, onChange, onCompositionStart, onCompositionEnd, ...props }) {
+export const SafeInput = forwardRef(function SafeInput({ value, onChange, onCompositionStart, onCompositionEnd, ...props }, ref) {
   const [localValue, setLocalValue] = useState(value ?? '');
 
   useEffect(() => {
@@ -16,6 +16,7 @@ export function SafeInput({ value, onChange, onCompositionStart, onCompositionEn
 
   return (
     <input
+      ref={ref}
       {...props}
       value={localValue}
       onChange={handleChange}
@@ -23,9 +24,9 @@ export function SafeInput({ value, onChange, onCompositionStart, onCompositionEn
       onCompositionEnd={onCompositionEnd}
     />
   );
-}
+});
 
-export function SafeTextarea({ value, onChange, onCompositionStart, onCompositionEnd, ...props }) {
+export const SafeTextarea = forwardRef(function SafeTextarea({ value, onChange, onCompositionStart, onCompositionEnd, ...props }, ref) {
   const [localValue, setLocalValue] = useState(value ?? '');
 
   useEffect(() => {
@@ -41,6 +42,7 @@ export function SafeTextarea({ value, onChange, onCompositionStart, onCompositio
 
   return (
     <textarea
+      ref={ref}
       {...props}
       value={localValue}
       onChange={handleChange}
@@ -48,4 +50,4 @@ export function SafeTextarea({ value, onChange, onCompositionStart, onCompositio
       onCompositionEnd={onCompositionEnd}
     />
   );
-}
+});

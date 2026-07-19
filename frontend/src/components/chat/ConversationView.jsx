@@ -1388,7 +1388,7 @@ export default function ConversationView({
               style={{ 
                 display: 'flex', 
                 justifyContent: isMine ? 'flex-end' : 'flex-start', 
-                marginBottom: '4px',
+                marginBottom: isImage ? '10px' : '4px',
                 animation: 'msgFadeIn 0.25s ease-out forwards',
               }}
             >
@@ -1456,8 +1456,9 @@ export default function ConversationView({
                         onClick={() => setViewingImage(m.content)}
                         style={{ 
                           maxWidth: '280px', 
+                          width: '100%',
                           maxHeight: '320px', 
-                          borderRadius: '12px', 
+                          borderRadius: '14px', 
                           display: 'block', 
                           objectFit: 'cover', 
                           cursor: 'zoom-in' 
@@ -1827,7 +1828,7 @@ export default function ConversationView({
       ) : (
         <div 
           style={{
-            padding: '8px 20px', 
+            padding: '8px 12px', 
             borderTop: '1.5px solid var(--border)',
             background: 'var(--bg-card)', 
             flexShrink: 0, 
@@ -1836,16 +1837,16 @@ export default function ConversationView({
         >
           {showEmoji && <EmojiPicker onSelect={addEmoji} onClose={() => setShowEmoji(false)} />}
           
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button 
               onClick={() => setShowEmoji(v => !v)} 
               title="Biểu cảm" 
               style={{
                 background: showEmoji ? 'var(--bg-input)' : 'var(--bg-card)',
                 border: '1.5px solid var(--border)', 
-                borderRadius: '12px',
-                width: '40px', 
-                height: '40px', 
+                borderRadius: '10px',
+                width: '36px', 
+                height: '36px', 
                 cursor: 'pointer',
                 display: 'flex', 
                 alignItems: 'center', 
@@ -1855,7 +1856,7 @@ export default function ConversationView({
                 color: 'var(--text-secondary)',
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
                 <line x1="9" y1="9" x2="9.01" y2="9"/>
@@ -1886,9 +1887,9 @@ export default function ConversationView({
               style={{
                 background: 'var(--bg-card)', 
                 border: '1.5px solid var(--border)',
-                borderRadius: '12px', 
-                width: '40px', 
-                height: '40px', 
+                borderRadius: '10px', 
+                width: '36px', 
+                height: '36px', 
                 cursor: 'pointer',
                 display: 'flex', 
                 alignItems: 'center', 
@@ -1900,7 +1901,7 @@ export default function ConversationView({
               onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
               onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
               </svg>
             </button>
@@ -1919,9 +1920,9 @@ export default function ConversationView({
               style={{
                 background: 'var(--bg-card)', 
                 border: '1.5px solid var(--border)',
-                borderRadius: '12px', 
-                width: '40px', 
-                height: '40px', 
+                borderRadius: '10px', 
+                width: '36px', 
+                height: '36px', 
                 cursor: 'pointer',
                 display: 'flex', 
                 alignItems: 'center', 
@@ -1933,7 +1934,7 @@ export default function ConversationView({
               onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-input)'}
               onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                 <circle cx="12" cy="13" r="4"/>
               </svg>
@@ -1949,10 +1950,11 @@ export default function ConversationView({
               rows={1}
               style={{
                 flex: 1, 
+                minWidth: 0,
                 background: 'var(--bg-input)', 
                 border: '1.5px solid var(--border)',
                 borderRadius: '20px', 
-                padding: '10px 16px', 
+                padding: '9px 14px', 
                 resize: 'none',
                 color: 'var(--text-primary)', 
                 fontSize: '14px', 
@@ -1985,8 +1987,8 @@ export default function ConversationView({
                 background: input.trim() ? 'var(--primary)' : 'var(--bg-input)',
                 border: 'none', 
                 borderRadius: '50%', 
-                width: '40px', 
-                height: '40px',
+                width: '36px', 
+                height: '36px',
                 cursor: input.trim() ? 'pointer' : 'default',
                 display: 'flex', 
                 alignItems: 'center', 
