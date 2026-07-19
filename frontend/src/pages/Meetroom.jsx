@@ -190,11 +190,21 @@ function VideoTile({ stream, name, avatar, muted: mutedProp = false, camOff = fa
       {mutedProp && (
         <div style={{
           position: 'absolute', top: '16px', right: '16px',
-          background: '#ef4444', border: '1.5px solid var(--border)',
+          background: '#ef4444', border: '1.5px solid rgba(255, 255, 255, 0.2)',
           borderRadius: '50%',
           width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '14px', boxShadow: 'none',
-        }}>🔇</div>
+          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+          color: '#ffffff',
+          zIndex: 10,
+        }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23" />
+            <path d="M9 9v6a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+            <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg>
+        </div>
       )}
     </div>
   );
@@ -1196,12 +1206,12 @@ export default function MeetRoom() {
         }}>
           {/* Left: room info */}
           {!isFullscreen && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0, pointerEvents: 'auto' }}>
-              <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '110px', flexShrink: 0, pointerEvents: 'auto' }}>
+              <div style={{ minWidth: '110px', flexShrink: 0 }}>
                 <div style={{ fontWeight: 750, fontSize: '15px', color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>{groupName}</div>
-                <div style={{ fontSize: '11px', color: '#a3a3a3', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#22c55e', fontWeight: 550 }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ fontSize: '11px', color: '#a3a3a3', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#22c55e', fontWeight: 550, whiteSpace: 'nowrap' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', animation: 'pulse 1.5s infinite', flexShrink: 0 }} />
                     {allFeeds.length} trực tuyến
                   </span>
                 </div>
@@ -1247,22 +1257,6 @@ export default function MeetRoom() {
               position: 'absolute', top: '16px', right: '20px',
             } : {})
           }}>
-            {/* Copy link */}
-            {!isFullscreen && (
-              <button onClick={copyLink} style={{
-                background: copied ? 'rgba(34,197,94,0.1)' : 'rgba(255, 255, 255, 0.08)',
-                border: `1.5px solid ${copied ? '#22c55e' : '#262626'}`,
-                borderRadius: '12px', padding: '8px 16px', cursor: 'pointer',
-                color: copied ? '#22c55e' : '#ffffff',
-                fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600, transition: 'all 0.2s',
-                boxShadow: 'none',
-              }}
-              onMouseEnter={e => { if(!copied) { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#000000'; } }}
-              onMouseLeave={e => { if(!copied) { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.color = '#ffffff'; } }}
-              >
-                {copied ? '✓ Đã sao chép link' : '🔗 Chia sẻ link'}
-              </button>
-            )}
 
             {/* Fullscreen toggle */}
             <button onClick={toggleFullscreen} title={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'} style={{
