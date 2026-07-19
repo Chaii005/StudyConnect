@@ -1,6 +1,8 @@
 // src/services/authService.js
 import { supabase } from '@/config/supabaseClient';
 import { compressAvatar } from '@/utils/imageCompress';
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 const SESSION_KEY = 'sc_session';
 const ADMIN_SESSION_KEY = 'sc_admin_session';
@@ -322,7 +324,10 @@ export const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: {
+        prompt: 'select_account'
+      }
     }
   });
   if (error) throw new Error(error.message);
@@ -337,6 +342,13 @@ export const logout = async () => {
       localStorage.removeItem('sc_fcm_token');
     } catch (err) {
       if (import.meta.env.DEV) console.warn('Failed to delete push token on logout:', err);
+    }
+  }
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await GoogleAuth.signOut();
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('Native GoogleAuth signOut failed:', err);
     }
   }
   await supabase.auth.signOut();
