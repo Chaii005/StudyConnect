@@ -309,12 +309,25 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
 
   const getIceConfig = () => ({
     iceServers: [
-      // Google STUN (primary)
+      // Google STUN (primary — highly reliable)
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
       { urls: 'stun:stun2.l.google.com:19302' },
       { urls: 'stun:stun3.l.google.com:19302' },
-      // Open Relay (Metered) — TURN fallback #1
+      { urls: 'stun:stun4.l.google.com:19302' },
+      // Metered TURN (primary relay — supports UDP/TCP/TLS for cross-network & firewall)
+      {
+        urls: [
+          'turn:a.relay.metered.ca:80',
+          'turn:a.relay.metered.ca:80?transport=tcp',
+          'turn:a.relay.metered.ca:443',
+          'turn:a.relay.metered.ca:443?transport=tcp',
+          'turns:a.relay.metered.ca:443',
+        ],
+        username: 'e8dd65b92f70a28e5c182a86',
+        credential: '3JGufwQKRFKbFPeV',
+      },
+      // OpenRelay backup TURN
       {
         urls: [
           'turn:openrelay.metered.ca:80',
@@ -325,10 +338,7 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
         username: 'openrelayproject',
         credential: 'openrelayproject',
       },
-      // Numb STUN (backup)
-      { urls: 'stun:numb.viagenie.ca' },
-      // FreeSTUN
-      { urls: 'stun:freestun.net:3478' },
+      // FreeSTUN TURN backup
       {
         urls: [
           'turn:freestun.net:3478',
@@ -337,7 +347,7 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
         username: 'free',
         credential: 'free',
       },
-      // Cloudflare STUN
+      // Cloudflare STUN backup
       { urls: 'stun:stun.cloudflare.com:3478' },
     ],
     iceCandidatePoolSize: 10,
