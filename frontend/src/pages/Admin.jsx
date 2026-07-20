@@ -1023,7 +1023,7 @@ export default function Admin() {
           ) : (
             <div style={{ animation: 'slideUp 0.3s ease' }}>
               {activeTab === 'users' && (
-                <UserTable filteredUsers={filteredUsers} admin={admin} userSearch={userSearch} setUserSearch={setUserSearch} onEdit={openEditUser} onDelete={handleUserDelete} onResendEmail={handleResendEmail} />
+                <UserTable filteredUsers={filteredUsers} admin={admin} userSearch={userSearch} setUserSearch={setUserSearch} onEdit={openEditUser} onDelete={handleUserDelete} />
               )}
               {activeTab === 'groups' && (
                 <GroupTable filteredGroups={filteredGroups} groupSearch={groupSearch} setGroupSearch={setGroupSearch} users={users} onEdit={openEditGroup} onDelete={handleGroupDelete} onViewMembers={(g) => setSelectedGroupMembers(g)} />

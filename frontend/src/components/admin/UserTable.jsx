@@ -1,7 +1,7 @@
 import { SafeInput } from '@/components/common/SafeInput';
 
 // User management table for Admin panel
-export default function UserTable({ filteredUsers, admin, userSearch, setUserSearch, onEdit, onDelete, onResendEmail }) {
+export default function UserTable({ filteredUsers, admin, userSearch, setUserSearch, onEdit, onDelete }) {
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '28px 32px', boxShadow: 'var(--shadow), var(--shadow-glow)', backdropFilter: 'blur(16px)' }}>
       {/* Search & Actions */}
@@ -84,20 +84,6 @@ export default function UserTable({ filteredUsers, admin, userSearch, setUserSea
                     </td>
                     <td style={{ padding: '16px 16px', textAlign: 'right', width: '1%', whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'inline-flex', gap: '8px' }}>
-                        {onResendEmail && (
-                          <button
-                            className="btn btn-secondary"
-                            style={{ padding: '5px 10px', fontSize: '12px', minWidth: 'auto', borderRadius: '8px', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                            title="Gửi lại email xác thực kích hoạt tài khoản"
-                            onClick={() => onResendEmail(u)}
-                          >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <rect width="20" height="16" x="2" y="4" rx="2" />
-                              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                            </svg>
-                            Gửi mail kích hoạt
-                          </button>
-                        )}
                         <button className="btn btn-secondary" style={{ padding: '5px 10px', fontSize: '12px', minWidth: 'auto', borderRadius: '8px', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }} onClick={() => onEdit(u)}>
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 20h9"/>
