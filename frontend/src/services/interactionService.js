@@ -823,7 +823,7 @@ export const getDeadlines = async (groupId) => {
   const { data, error } = await supabase
     .from('deadlines')
     .select(`
-      id, title, due_date, group_id, creator_id, description, assignee_id, completed, created_at,
+      id, title, due_date, group_id, creator_id, description, assignee_id, completed, submission_type, created_at,
       users:users!assignee_id (
         full_name
       )
@@ -833,7 +833,7 @@ export const getDeadlines = async (groupId) => {
     .limit(50);
 
   if (error) {
-    // Fallback if relation not supported
+    // Fallback if relation or column not supported
     const { data: fbData } = await supabase.from('deadlines').select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at').eq('group_id', parseInt(groupId, 10)).limit(50);
     return (fbData || []).map(d => ({
       id: d.id.toString(),
@@ -845,6 +845,7 @@ export const getDeadlines = async (groupId) => {
       assigneeId: d.assignee_id || null,
       assigneeName: d.assignee_name || null,
       completed: d.completed || false,
+      submissionType: d.submission_type || d.submissionType || 'all',
       createdAt: d.created_at
     }));
   }
@@ -859,26 +860,29 @@ export const getDeadlines = async (groupId) => {
     assigneeId: d.assignee_id || null,
     assigneeName: d.users?.full_name || null,
     completed: d.completed || false,
+    submissionType: d.submission_type || d.submissionType || 'all',
     createdAt: d.created_at
   }));
 };
 
-export const createDeadline = async (groupId, { title, dueDate, description, creatorId, assigneeId }) => {
-  const { data: deadline, error } = await supabase
+export const createDeadline = async (groupId, { title, dueDate, description, creatorId, assigneeId, submissionType = 'all' }) => {
+  const insertPayload = {
+    group_id: parseInt(groupId, 10),
+    title,
+    due_date: dueDate,
+    description: description || '',
+    creator_id: parseInt(creatorId, 10),
+    assignee_id: assigneeId ? parseInt(assigneeId, 10) : null,
+    completed: false,
+    submission_type: submissionType || 'all',
+  };
+
+  let deadline;
+  let { data, error } = await supabase
     .from('deadlines')
-    .insert([
-      {
-        group_id: parseInt(groupId, 10),
-        title,
-        due_date: dueDate,
-        description: description || '',
-        creator_id: parseInt(creatorId, 10),
-        assignee_id: assigneeId ? parseInt(assigneeId, 10) : null,
-        completed: false
-      }
-    ])
+    .insert([insertPayload])
     .select(`
-      id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at,
+      id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at,
       users:users!assignee_id (
         full_name
       )
@@ -886,7 +890,24 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
     .single();
 
   if (error) {
-    throw new Error(`Tạo deadline thất bại: ${error.message}`);
+    // Retry without submission_type if table column does not exist in schema yet
+    delete insertPayload.submission_type;
+    const fbRes = await supabase
+      .from('deadlines')
+      .insert([insertPayload])
+      .select(`
+        id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at,
+        users:users!assignee_id (
+          full_name
+        )
+      `)
+      .single();
+    if (fbRes.error) {
+      throw new Error(`Tạo deadline thất bại: ${fbRes.error.message}`);
+    }
+    deadline = fbRes.data;
+  } else {
+    deadline = data;
   }
 
   return {
@@ -899,6 +920,7 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
     assigneeId: deadline.assignee_id,
     assigneeName: deadline.users?.full_name || null,
     completed: deadline.completed,
+    submissionType: deadline.submission_type || submissionType || 'all',
     createdAt: deadline.created_at
   };
 };
@@ -946,18 +968,22 @@ export const deleteDeadline = async (deadlineId) => {
   }
 };
 
-export const updateDeadline = async (deadlineId, { title, dueDate, description, assigneeId }) => {
-  const { data: deadline, error } = await supabase
+export const updateDeadline = async (deadlineId, { title, dueDate, description, assigneeId, submissionType = 'all' }) => {
+  const updatePayload = {
+    title,
+    due_date: dueDate,
+    description: description || '',
+    assignee_id: assigneeId ? parseInt(assigneeId, 10) : null,
+    submission_type: submissionType || 'all',
+  };
+
+  let deadline;
+  let { data, error } = await supabase
     .from('deadlines')
-    .update({
-      title,
-      due_date: dueDate,
-      description: description || '',
-      assignee_id: assigneeId ? parseInt(assigneeId, 10) : null
-    })
+    .update(updatePayload)
     .eq('id', parseInt(deadlineId, 10))
     .select(`
-      id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at,
+      id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at,
       users:users!assignee_id (
         full_name
       )
@@ -965,7 +991,24 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
     .single();
 
   if (error) {
-    throw new Error(`Cập nhật deadline thất bại: ${error.message}`);
+    delete updatePayload.submission_type;
+    const fbRes = await supabase
+      .from('deadlines')
+      .update(updatePayload)
+      .eq('id', parseInt(deadlineId, 10))
+      .select(`
+        id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at,
+        users:users!assignee_id (
+          full_name
+        )
+      `)
+      .single();
+    if (fbRes.error) {
+      throw new Error(`Cập nhật deadline thất bại: ${fbRes.error.message}`);
+    }
+    deadline = fbRes.data;
+  } else {
+    deadline = data;
   }
 
   return {
@@ -978,6 +1021,7 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
     assigneeId: deadline.assignee_id,
     assigneeName: deadline.users?.full_name || null,
     completed: deadline.completed,
+    submissionType: deadline.submission_type || submissionType || 'all',
     createdAt: deadline.created_at
   };
 };

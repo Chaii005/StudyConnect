@@ -539,12 +539,14 @@ export default function GroupDetail() {
             newDeadlineDueDate={h.newDeadlineDueDate} setNewDeadlineDueDate={h.setNewDeadlineDueDate}
             newDeadlineDesc={h.newDeadlineDesc} setNewDeadlineDesc={h.setNewDeadlineDesc}
             newDeadlineAssignee={h.newDeadlineAssignee} setNewDeadlineAssignee={h.setNewDeadlineAssignee}
+            newDeadlineSubmissionType={h.newDeadlineSubmissionType} setNewDeadlineSubmissionType={h.setNewDeadlineSubmissionType}
             isSubmittingDeadline={h.isSubmittingDeadline}
             editingDeadline={h.editingDeadline} setEditingDeadline={h.setEditingDeadline}
             editDeadlineTitle={h.editDeadlineTitle} setEditDeadlineTitle={h.setEditDeadlineTitle}
             editDeadlineDueDate={h.editDeadlineDueDate} setEditDeadlineDueDate={h.setEditDeadlineDueDate}
             editDeadlineDesc={h.editDeadlineDesc} setEditDeadlineDesc={h.setEditDeadlineDesc}
             editDeadlineAssignee={h.editDeadlineAssignee} setEditDeadlineAssignee={h.setEditDeadlineAssignee}
+            editDeadlineSubmissionType={h.editDeadlineSubmissionType} setEditDeadlineSubmissionType={h.setEditDeadlineSubmissionType}
             openEditDeadline={h.openEditDeadline}
             handleUpdateDeadline={h.handleUpdateDeadline}
             handleDeadlineSubmit={h.handleDeadlineSubmit}

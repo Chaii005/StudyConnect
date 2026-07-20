@@ -103,12 +103,14 @@ export default function useGroupDetail(groupId, user, addToast) {
   });
   const [newDeadlineDesc, setNewDeadlineDesc] = useState('');
   const [newDeadlineAssignee, setNewDeadlineAssignee] = useState('all');
+  const [newDeadlineSubmissionType, setNewDeadlineSubmissionType] = useState('all');
   const [isSubmittingDeadline, setIsSubmittingDeadline] = useState(false);
   const [editingDeadline, setEditingDeadline] = useState(null);
   const [editDeadlineTitle, setEditDeadlineTitle] = useState('');
   const [editDeadlineDueDate, setEditDeadlineDueDate] = useState('');
   const [editDeadlineDesc, setEditDeadlineDesc] = useState('');
   const [editDeadlineAssignee, setEditDeadlineAssignee] = useState('all');
+  const [editDeadlineSubmissionType, setEditDeadlineSubmissionType] = useState('all');
   const [urgentDeadlinesCount, setUrgentDeadlinesCount] = useState(0);
 
   // Submission state
@@ -1002,6 +1004,7 @@ export default function useGroupDetail(groupId, user, addToast) {
     setEditDeadlineDueDate(dl.dueDate ? new Date(dateObj.getTime() - dateObj.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '');
     setEditDeadlineDesc(dl.description || '');
     setEditDeadlineAssignee(dl.assigneeId || 'all');
+    setEditDeadlineSubmissionType(dl.submissionType || 'all');
   };
 
   const handleUpdateDeadline = async (e) => {
@@ -1035,6 +1038,7 @@ export default function useGroupDetail(groupId, user, addToast) {
         description: editDeadlineDesc.trim(),
         assigneeId: editDeadlineAssignee !== 'all' ? editDeadlineAssignee : null,
         assigneeName: assigneeMember,
+        submissionType: editDeadlineSubmissionType || 'all',
       });
       addToast('Cập nhật deadline thành công!', 'success');
       setEditingDeadline(null);
@@ -1338,12 +1342,14 @@ export default function useGroupDetail(groupId, user, addToast) {
         creatorId: user.id,
         assigneeId: newDeadlineAssignee !== 'all' ? newDeadlineAssignee : null,
         assigneeName: assigneeMemberNew,
+        submissionType: newDeadlineSubmissionType || 'all',
       });
       addToast('Thêm deadline mới thành công!', 'success');
       setNewDeadlineTitle('');
       setNewDeadlineDueDate('');
       setNewDeadlineDesc('');
       setNewDeadlineAssignee('all');
+      setNewDeadlineSubmissionType('all');
       fetchGroupDeadlines();
     } catch (err) {
       addToast(err.message || 'Lỗi khi thêm deadline', 'error');
@@ -1787,6 +1793,8 @@ export default function useGroupDetail(groupId, user, addToast) {
     setNewDeadlineDesc,
     newDeadlineAssignee,
     setNewDeadlineAssignee,
+    newDeadlineSubmissionType,
+    setNewDeadlineSubmissionType,
     isSubmittingDeadline,
     editingDeadline,
     setEditingDeadline,
@@ -1798,6 +1806,8 @@ export default function useGroupDetail(groupId, user, addToast) {
     setEditDeadlineDesc,
     editDeadlineAssignee,
     setEditDeadlineAssignee,
+    editDeadlineSubmissionType,
+    setEditDeadlineSubmissionType,
     urgentDeadlinesCount,
     submissions,
     showSubmitModal,
