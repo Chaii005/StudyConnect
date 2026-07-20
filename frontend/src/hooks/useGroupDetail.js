@@ -1497,10 +1497,13 @@ export default function useGroupDetail(groupId, user, addToast) {
       all[showSubmitModal] = list;
       saveSubmissions(all);
       setSubmissions({ ...all });
-      try {
-        await toggleDeadline(showSubmitModal);
-      } catch {
-        // Safe check
+      const targetDl = deadlines.find(d => String(d.id) === String(showSubmitModal));
+      if (targetDl && !targetDl.completed) {
+        try {
+          await toggleDeadline(showSubmitModal);
+        } catch {
+          // Safe check
+        }
       }
       fetchGroupDeadlines();
       addToast('Nộp bài thành công! ✅', 'success');
@@ -1532,10 +1535,21 @@ export default function useGroupDetail(groupId, user, addToast) {
       all[deadlineId] = updatedList;
       saveSubmissions(all);
       setSubmissions({ ...all });
+
+      if (targetDl && targetDl.completed) {
+        try {
+          await toggleDeadline(deadlineId);
+        } catch {
+          // Safe check
+        }
+        await fetchGroupDeadlines();
+      }
+
       addToast('Đã xóa bài nộp! Bạn có thể chọn file để nộp lại.', 'success');
       if (showSubmitModal === deadlineId) {
         setSubmitNote('');
         setSubmitFile(null);
+        setSubmitImages([]);
       }
     } catch {
       addToast('Lỗi khi xóa bài nộp', 'error');

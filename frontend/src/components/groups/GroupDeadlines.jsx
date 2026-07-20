@@ -262,13 +262,14 @@ export default function GroupDeadlines({
               const subs = submissions[d.id] || [];
               const mySubmission = subs.find((s) => String(s.userId) === String(user.id));
               const hasSubmitted = !!mySubmission;
+              const isDone = d.completed && hasSubmitted;
 
               return (
                 <div
                   key={d.id}
                   className="deadline-file-row"
                   style={{
-                    background: d.completed ? 'rgba(255,255,255,0.01)' : 'var(--bg-card)',
+                    background: isDone ? 'rgba(255,255,255,0.01)' : 'var(--bg-card)',
                     border: dueSoon
                       ? '1.5px solid var(--error)'
                       : overdue
@@ -280,7 +281,7 @@ export default function GroupDeadlines({
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '16px',
-                    opacity: d.completed ? 0.7 : 1,
+                    opacity: isDone ? 0.7 : 1,
                     boxShadow: dueSoon ? '0 0 10px rgba(239, 68, 68, 0.1)' : 'none',
                     width: '100%',
                     boxSizing: 'border-box',
@@ -294,13 +295,13 @@ export default function GroupDeadlines({
                         style={{
                           fontWeight: 700,
                           fontSize: '15px',
-                          color: d.completed ? 'var(--text-muted)' : 'var(--text-primary)',
-                          textDecoration: d.completed ? 'line-through' : 'none',
+                          color: isDone ? 'var(--text-muted)' : 'var(--text-primary)',
+                          textDecoration: isDone ? 'line-through' : 'none',
                         }}
                       >
                         {d.title}
                       </span>
-                      {dueSoon && !d.completed && (
+                      {dueSoon && !isDone && (
                         <span
                           style={{
                             background: 'rgba(239, 68, 68, 0.15)',
@@ -315,7 +316,7 @@ export default function GroupDeadlines({
                           Sắp hết hạn
                         </span>
                       )}
-                      {overdue && !d.completed && (
+                      {overdue && !isDone && (
                         <span
                           style={{
                             background: 'rgba(255,255,255,0.05)',
@@ -330,7 +331,7 @@ export default function GroupDeadlines({
                           Quá hạn
                         </span>
                       )}
-                      {d.completed && (
+                      {isDone && (
                         <span
                           style={{
                             background: 'rgba(34, 197, 94, 0.15)',
@@ -387,7 +388,7 @@ export default function GroupDeadlines({
                       </button>
                     )}
 
-                    {isLeader && !overdue && !d.completed && (
+                    {isLeader && !overdue && !isDone && (
                       <button
                         onClick={() => handleRemindDeadline(d.id)}
                         disabled={remindingIds[d.id]}
