@@ -66,13 +66,13 @@ export default function UserTable({ filteredUsers, admin, userSearch, setUserSea
                     </td>
                     <td style={{ padding: '16px 16px', color: 'var(--text-secondary)' }}>
                       <div>
-                        {u.university && <div>{u.university}</div>}
+                        {u.university && <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '13.5px' }}>{u.university}</div>}
                         {u.major ? (
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: 2 }}>
+                          <div style={{ fontSize: '12.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
                             <span>{u.major}</span>
                             {majorId ? (
-                              <span style={{ fontSize: '11px', background: 'rgba(42, 117, 118, 0.1)', color: 'var(--primary)', border: '1px solid rgba(42, 117, 118, 0.25)', borderRadius: '6px', padding: '1px 6px', fontWeight: 700 }}>
-                                ID: #{majorId}
+                              <span style={{ fontSize: '11.5px', fontWeight: 600, color: 'var(--text-muted)', opacity: 0.85 }}>
+                                (Mã ngành: {majorId})
                               </span>
                             ) : null}
                           </div>

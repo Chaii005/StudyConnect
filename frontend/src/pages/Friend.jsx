@@ -139,7 +139,7 @@ function PersonCard({ person, actions, isOnline }) {
                 borderRadius: '6px',
                 border: '1px solid rgba(42, 117, 118, 0.2)'
               }}>
-                ✨ Cùng ngành
+                Cùng ngành
               </span>
             )}
           </div>

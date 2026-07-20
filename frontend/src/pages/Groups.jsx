@@ -1040,7 +1040,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                       </span>
                       {group.sameMajor && (
                         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', borderRadius: 20, padding: '2px 9px', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                          ✨ Cùng ngành
+                          Cùng ngành
                         </span>
                       )}
                       {distanceText && (
@@ -1967,7 +1967,7 @@ export default function Groups() {
           {/* Major Badge */}
           {isSameMajor && (
             <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>
-              ✨ Cùng ngành
+              Cùng ngành
             </span>
           )}
         </div>

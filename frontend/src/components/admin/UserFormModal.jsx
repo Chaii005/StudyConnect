@@ -212,20 +212,20 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
               <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ngành học</label>
               {userForm.major && getMajorIdByName(userForm.major) && (
-                <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--primary)', background: 'rgba(42,117,118,0.1)', padding: '1px 8px', borderRadius: '6px', border: '1px solid rgba(42,117,118,0.25)' }}>
-                  Mã Ngành Admin: #{getMajorIdByName(userForm.major)}
+                <span style={{ fontSize: '11.5px', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  (Mã ngành: {getMajorIdByName(userForm.major)})
                 </span>
               )}
             </div>
             <CustomSelect
-              value={userForm.major ? (getMajorIdByName(userForm.major) ? `${userForm.major} (ID: #${getMajorIdByName(userForm.major)})` : userForm.major) : ''}
+              value={userForm.major ? (getMajorIdByName(userForm.major) ? `${userForm.major} (Mã ngành: ${getMajorIdByName(userForm.major)})` : userForm.major) : ''}
               onChange={(val) => {
-                const cleanMajor = val ? val.replace(/\s*\(ID:\s*#\d+\)$/, '') : '';
+                const cleanMajor = val ? val.replace(/\s*\(Mã ngành:\s*\d+\)$/, '') : '';
                 setUserForm({ ...userForm, major: cleanMajor });
               }}
               options={MAJORS.map(m => {
                 const mId = getMajorIdByName(m);
-                return mId ? `${m} (ID: #${mId})` : m;
+                return mId ? `${m} (Mã ngành: ${mId})` : m;
               })}
               placeholder="-- Chọn ngành học --"
             />
