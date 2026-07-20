@@ -114,9 +114,11 @@ export const MAJORS = [
   'Ngành khác...'
 ];
 
-// Danh sách ngành kèm Major ID chuẩn (An toàn thông tin = ID 1)
+// Danh sách ngành kèm Major ID chuẩn (An toàn thông tin = ID "000")
 export const MAJOR_ITEMS = MAJORS.map((name, index) => ({
-  id: index + 1,
+  id: String(index).padStart(3, '0'),
+  code: String(index).padStart(3, '0'),
+  numericId: index,
   name
 }));
 
@@ -128,10 +130,16 @@ export const getMajorIdByName = (majorName) => {
 };
 
 export const getMajorNameById = (majorId) => {
-  const numericId = Number(majorId);
-  if (!numericId || isNaN(numericId)) return '';
-  const found = MAJOR_ITEMS.find(m => m.id === numericId);
-  return found ? found.name : '';
+  if (majorId === null || majorId === undefined || majorId === '') return '';
+  const strId = String(majorId).trim().padStart(3, '0');
+  const found = MAJOR_ITEMS.find(m => m.id === strId);
+  if (found) return found.name;
+  const numId = Number(majorId);
+  if (!isNaN(numId)) {
+    const foundByNum = MAJOR_ITEMS.find(m => m.numericId === numId);
+    if (foundByNum) return foundByNum.name;
+  }
+  return '';
 };
 
 // Môn học mặc định theo ngành học (tự động load, không cần seed DB)
