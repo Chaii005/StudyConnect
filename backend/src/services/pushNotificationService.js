@@ -44,19 +44,21 @@ const sendPushToUsers = async (userIds, { title, body, data = {} }) => {
         click_action: 'FLUTTER_NOTIFICATION_CLICK', // standard compatibility
       },
       android: {
+        priority: 'high',
         notification: {
           channelId,
           sound: 'default',
+          defaultSound: true,
+          defaultVibrateTimings: true,
+          priority: isCall ? 'MAX' : 'HIGH',
+          visibility: 'PUBLIC',
           ...(isCall ? {
-            priority: 'max',
-            visibility: 'public',
             category: 'call',
             sticky: true,
             // Android vibration pattern for calls: 1s vibrate, 0.5s pause
             vibrateTimings: ['0s', '1s', '0.5s', '1s', '0.5s', '1s', '0.5s', '1s', '0.5s', '1s']
           } : {})
-        },
-        priority: 'high'
+        }
       },
       tokens
     };

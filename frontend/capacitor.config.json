@@ -35,6 +35,9 @@
       "scopes": ["profile", "email"],
       "serverClientId": "1041742440704-j966ktttu2jjp1kjl6eqtbbqr47cpciv.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
     }
   }
 }
