@@ -2303,7 +2303,62 @@ export default function Groups() {
           </div>
 
           <div className="groups-action-buttons">
-            {/* Nút Tạo nhóm */}
+            {/* Nút lọc ngành (nằm bên trái) */}
+            {user?.major && (
+              <button
+                onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
+                style={{
+                  padding: '0 12px',
+                  height: '38px',
+                  width: '150px',
+                  boxSizing: 'border-box',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  background: showOnlyMyMajor
+                    ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
+                    : 'rgba(42,117,118,0.07)',
+                  border: showOnlyMyMajor
+                    ? '1.5px solid #2A7576'
+                    : '1.5px solid rgba(42,117,118,0.35)',
+                  color: showOnlyMyMajor ? '#fff' : '#2A7576',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+                  fontFamily: 'inherit',
+                  letterSpacing: '-0.01em',
+                  boxShadow: showOnlyMyMajor
+                    ? '0 4px 14px rgba(42,117,118,0.35), inset 0 1px 0 rgba(255,255,255,0.12)'
+                    : '0 2px 8px rgba(42,117,118,0.12)',
+                }}
+                onMouseEnter={e => {
+                  if (!showOnlyMyMajor) {
+                    e.currentTarget.style.background = 'rgba(42,117,118,0.14)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(42,117,118,0.2)';
+                  } else {
+                    e.currentTarget.style.opacity = '0.88';
+                  }
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.background = showOnlyMyMajor
+                    ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
+                    : 'rgba(42,117,118,0.07)';
+                  e.currentTarget.style.boxShadow = showOnlyMyMajor
+                    ? '0 4px 14px rgba(42,117,118,0.35), inset 0 1px 0 rgba(255,255,255,0.12)'
+                    : '0 2px 8px rgba(42,117,118,0.12)';
+                }}
+              >
+                {showOnlyMyMajor ? 'Xem tất cả' : 'Nhóm cùng ngành'}
+              </button>
+            )}
+
+            {/* Nút Tạo nhóm (nằm bên phải - CỐ ĐỊNH HOÀN TOÀN TRÊN CẢ DESKTOP & MOBILE) */}
             <button
               onClick={() => setShowModal(true)}
               style={{
@@ -2324,78 +2379,19 @@ export default function Groups() {
                 borderRadius: '12px',
                 boxShadow: '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)',
                 cursor: 'pointer',
-                transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+                transition: 'background 0.2s ease, box-shadow 0.2s ease',
                 fontFamily: 'inherit',
                 letterSpacing: '-0.01em',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
                 e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)';
               }}
             >
               Lập nhóm học
             </button>
-
-            {/* Nút lọc ngành */}
-            {user?.major && (
-              <button
-                onClick={() => setShowOnlyMyMajor(!showOnlyMyMajor)}
-                style={{
-                  padding: '0 18px',
-                  height: '38px',
-                  minWidth: '148px',
-                  boxSizing: 'border-box',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  background: showOnlyMyMajor
-                    ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
-                    : 'rgba(42,117,118,0.07)',
-                  border: showOnlyMyMajor
-                    ? '1.5px solid #2A7576'
-                    : '1.5px solid rgba(42,117,118,0.35)',
-                  color: showOnlyMyMajor ? '#fff' : '#2A7576',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
-                  fontFamily: 'inherit',
-                  letterSpacing: '-0.01em',
-                  boxShadow: showOnlyMyMajor
-                    ? '0 4px 14px rgba(42,117,118,0.35), inset 0 1px 0 rgba(255,255,255,0.12)'
-                    : '0 2px 8px rgba(42,117,118,0.12)',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  if (!showOnlyMyMajor) {
-                    e.currentTarget.style.background = 'rgba(42,117,118,0.14)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(42,117,118,0.2)';
-                  } else {
-                    e.currentTarget.style.opacity = '0.88';
-                  }
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.opacity = '1';
-                  e.currentTarget.style.background = showOnlyMyMajor
-                    ? 'linear-gradient(135deg, #2A7576 0%, #1e5c5d 100%)'
-                    : 'rgba(42,117,118,0.07)';
-                  e.currentTarget.style.boxShadow = showOnlyMyMajor
-                    ? '0 4px 14px rgba(42,117,118,0.35), inset 0 1px 0 rgba(255,255,255,0.12)'
-                    : '0 2px 8px rgba(42,117,118,0.12)';
-                }}
-              >
-                {showOnlyMyMajor ? 'Xem tất cả' : 'Nhóm cùng ngành'}
-              </button>
-            )}
           </div>
         </div>
 
