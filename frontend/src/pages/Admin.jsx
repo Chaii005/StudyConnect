@@ -629,7 +629,7 @@ export default function Admin() {
     try {
       setSubmittingUser(true);
       if (currentEditUser) { const p = { ...finalForm }; if (!p.password) delete p.password; await adminUpdateUser(currentEditUser.id, p); showToast('Cập nhật tài khoản thành công!'); }
-      else { await adminCreateUser(finalForm); showToast('Tạo tài khoản thành công!'); }
+      else { await adminCreateUser(finalForm); showToast(`Tạo tài khoản thành công! Đã gửi email xác thực kích hoạt đến ${finalForm.email}`); }
       setShowUserModal(false); loadData();
     } catch (err) { showToast(err.message || 'Thao tác thất bại', 'error'); }
     finally { setSubmittingUser(false); }

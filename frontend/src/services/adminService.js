@@ -67,36 +67,76 @@ export const adminGetUsers = async () => {
 };
 
 export const adminCreateUser = async ({ fullName, email, password, role, university, major, bio }) => {
-  // Check if email already exists
+  const normalizedEmail = email.toLowerCase().trim();
+
+  // 1. Kiểm tra xem email đã tồn tại trong public.users chưa
   const { data: existingUser, error: checkError } = await supabase
     .from('users')
-    .select('id')
-    .eq('email', email.toLowerCase())
+    .select('id, is_banned')
+    .eq('email', normalizedEmail)
     .maybeSingle();
 
   if (checkError) throw new Error('Lỗi kiểm tra email.');
-  if (existingUser) throw new Error('Email này đã được sử dụng.');
+  if (existingUser) {
+    if (existingUser.is_banned) {
+      throw new Error('Email này đã bị khóa vĩnh viễn khỏi hệ thống.');
+    }
+    throw new Error('Email này đã được sử dụng.');
+  }
 
-  const hashedPassword = await hashPassword(password, email);
+  // 2. Đăng ký user trong Supabase Auth (Gửi email xác thực kích hoạt tài khoản tự động)
+  const { data: authData, error: signUpError } = await supabase.auth.signUp({
+    email: normalizedEmail,
+    password: password,
+    options: {
+      data: {
+        full_name: fullName
+      }
+    }
+  });
+
+  let supabaseUid = authData?.user?.id;
+
+  if (signUpError) {
+    const msg = signUpError.message.toLowerCase();
+    if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user_already_exists') || msg.includes('exists')) {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email: normalizedEmail
+      });
+      if (resendError) {
+        throw new Error(`Lỗi gửi lại email xác thực: ${resendError.message}`);
+      }
+    } else {
+      throw new Error(`Tạo xác thực tài khoản thất bại: ${signUpError.message}`);
+    }
+  }
+
+  // 3. Hash mật khẩu salted SHA-256 & lưu profile vào public.users với supabase_uid
+  const hashedPassword = await hashPassword(password, normalizedEmail);
+
+  const insertPayload = {
+    full_name: fullName,
+    email: normalizedEmail,
+    password: hashedPassword,
+    role: role || 'user',
+    university: university || '',
+    major: major || '',
+    bio: bio || '',
+    avatar: ''
+  };
+
+  if (supabaseUid) {
+    insertPayload.supabase_uid = supabaseUid;
+  }
 
   const { data: user, error: insertError } = await supabase
     .from('users')
-    .insert([
-      {
-        full_name: fullName,
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        role: role || 'user',
-        university: university || '',
-        major: major || '',
-        bio: bio || '',
-        avatar: ''
-      }
-    ])
+    .insert([insertPayload])
     .select('id, full_name, email, role, university, major, avatar, bio, created_at, is_banned')
     .single();
 
-  if (insertError) throw new Error(`Thêm người dùng thất bại: ${insertError.message}`);
+  if (insertError) throw new Error(`Thêm người dùng vào CSDL thất bại: ${insertError.message}`);
   return mapUser(user);
 };
 
