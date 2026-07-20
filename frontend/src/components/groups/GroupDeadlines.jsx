@@ -223,19 +223,23 @@ export default function GroupDeadlines({
                   onChange={(e) => setNewDeadlineSubmissionType(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    background: 'var(--bg-input)',
+                    padding: '10px 36px 10px 14px',
+                    background: 'var(--bg-input) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888888\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 12px center / 16px',
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-sm)',
                     color: 'var(--text-primary)',
                     fontSize: '14px',
+                    fontWeight: 500,
                     fontFamily: 'inherit',
                     cursor: 'pointer',
                     boxSizing: 'border-box',
+                    outline: 'none',
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
                   }}
                 >
-                  <option value="image">Hình ảnh bài làm (Ảnh 6 ô)</option>
-                  <option value="file">Tệp tài liệu (Word/PDF/Zip)</option>
+                  <option value="image" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Hình ảnh bài làm</option>
+                  <option value="file" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Tệp tài liệu (Word, PDF, ZIP)</option>
                 </select>
               </div>
             </div>
@@ -780,19 +784,23 @@ export default function GroupDeadlines({
                   onChange={(e) => setEditDeadlineSubmissionType(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    background: 'var(--bg-input)',
+                    padding: '10px 36px 10px 14px',
+                    background: 'var(--bg-input) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888888\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 12px center / 16px',
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-sm)',
                     color: 'var(--text-primary)',
                     fontSize: '14px',
+                    fontWeight: 500,
                     fontFamily: 'inherit',
                     cursor: 'pointer',
                     boxSizing: 'border-box',
+                    outline: 'none',
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
                   }}
                 >
-                  <option value="image">Hình ảnh bài làm (Ảnh 6 ô)</option>
-                  <option value="file">Tệp tài liệu (Word/PDF/Zip)</option>
+                  <option value="image" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Hình ảnh bài làm</option>
+                  <option value="file" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Tệp tài liệu (Word, PDF, ZIP)</option>
                 </select>
               </div>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
@@ -853,10 +861,9 @@ export default function GroupDeadlines({
               padding: '20px 24px',
               width: '100%',
               maxWidth: '520px',
-              maxHeight: 'calc(100vh - 110px)',
-              marginBottom: '40px',
+              maxHeight: 'calc(100vh - 80px)',
               overflowY: 'auto',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
               boxSizing: 'border-box',
             }}
           >
@@ -875,14 +882,14 @@ export default function GroupDeadlines({
               if (allowedType === 'file') {
                 return (
                   <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
-                    Yêu cầu bài nộp: Tệp tài liệu (Word/PDF/Zip)
+                    Yêu cầu bài nộp: Tệp tài liệu (Word, PDF, ZIP)
                   </div>
                 );
               }
 
               return (
                 <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
-                  Yêu cầu bài nộp: Hình ảnh bài làm (6 ô)
+                  Yêu cầu bài nộp: Hình ảnh bài làm
                 </div>
               );
             })()}
@@ -891,7 +898,7 @@ export default function GroupDeadlines({
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px', flexWrap: 'wrap' }}>
                   <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
-                    Danh sách 6 ô chứa ảnh ({submitImages.length}/6 ảnh)
+                    Danh sách hình ảnh ({submitImages.length}/6)
                   </label>
                   <label
                     htmlFor="bulk-images-upload-input"
@@ -909,7 +916,7 @@ export default function GroupDeadlines({
                       userSelect: 'none',
                     }}
                   >
-                    Chọn cùng lúc 1 - 6 ảnh
+                    Chọn ảnh bài làm
                   </label>
                   <input
                     id="bulk-images-upload-input"
@@ -1012,7 +1019,7 @@ export default function GroupDeadlines({
                           </>
                         ) : (
                           <div style={{ textAlign: 'center', padding: '6px', color: 'var(--text-muted)' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 600 }}>+ Ô ảnh {slotIdx + 1}</div>
+                            <div style={{ fontSize: '12px', fontWeight: 600 }}>+ Ảnh {slotIdx + 1}</div>
                           </div>
                         )}
                         <input
@@ -1027,7 +1034,7 @@ export default function GroupDeadlines({
                   })}
                 </div>
                 <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
-                  💡 Chọn 1 lúc tối đa 6 tấm ảnh bằng nút bên trên, hoặc click từng ô để thêm ảnh đơn lẻ.
+                  💡 Chọn tối đa 6 tấm ảnh bằng nút bên trên, hoặc nhấp trực tiếp từng ô để chọn lẻ.
                 </p>
               </div>
             ) : (
@@ -1184,11 +1191,10 @@ export default function GroupDeadlines({
               padding: '20px 24px',
               width: '100%',
               maxWidth: '560px',
-              maxHeight: 'calc(100vh - 110px)',
-              marginBottom: '40px',
+              maxHeight: 'calc(100vh - 80px)',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
               boxSizing: 'border-box',
             }}
           >
