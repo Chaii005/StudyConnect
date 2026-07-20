@@ -1023,10 +1023,10 @@ export default function Admin() {
           ) : (
             <div style={{ animation: 'slideUp 0.3s ease' }}>
               {activeTab === 'users' && (
-                <UserTable filteredUsers={filteredUsers} admin={admin} userSearch={userSearch} setUserSearch={setUserSearch} onEdit={openEditUser} onDelete={handleUserDelete} onResendEmail={handleResendEmail} onCreateNew={openCreateUser} />
+                <UserTable filteredUsers={filteredUsers} admin={admin} userSearch={userSearch} setUserSearch={setUserSearch} onEdit={openEditUser} onDelete={handleUserDelete} onResendEmail={handleResendEmail} />
               )}
               {activeTab === 'groups' && (
-                <GroupTable filteredGroups={filteredGroups} groupSearch={groupSearch} setGroupSearch={setGroupSearch} users={users} onEdit={openEditGroup} onDelete={handleGroupDelete} onViewMembers={(g) => setSelectedGroupMembers(g)} onCreateNew={openCreateGroup} />
+                <GroupTable filteredGroups={filteredGroups} groupSearch={groupSearch} setGroupSearch={setGroupSearch} users={users} onEdit={openEditGroup} onDelete={handleGroupDelete} onViewMembers={(g) => setSelectedGroupMembers(g)} />
               )}
               {activeTab === 'pendingFiles' && (
                 <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '28px 32px', boxShadow: 'var(--shadow), var(--shadow-glow)', backdropFilter: 'blur(16px)' }}>

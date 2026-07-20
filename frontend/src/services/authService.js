@@ -129,118 +129,93 @@ export const completeSignupProfile = async () => { return { user: {} }; };
 export const login = async ({ email, password }) => {
   const normalizedEmail = email.toLowerCase().trim();
 
-  // 1. Kiểm tra trong bảng public.users trước để đảm bảo đăng nhập tức thì cho mọi tài khoản (bao gồm cả Admin tạo)
-  const hashedPassword = await hashPassword(password, normalizedEmail);
-  const { data: dbUser, error: dbError } = await supabase
-    .from('users')
-    .select('id, full_name, email, password, role, university, major, avatar, bio, created_at, is_banned, supabase_uid')
-    .eq('email', normalizedEmail)
-    .maybeSingle();
-
-  if (dbUser) {
-    const isLegacyMatch = dbUser.password === password;
-    const isHashMatch = dbUser.password === hashedPassword;
-
-    if (isLegacyMatch || isHashMatch) {
-      if (dbUser.is_banned) {
-        throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống.');
-      }
-
-      // Nhập đúng mật khẩu -> Đăng nhập thành công ngay lập tức!
-      // Đồng bộ Supabase Auth trong nền nếu chưa có supabase_uid
-      if (!dbUser.supabase_uid) {
-        try {
-          const { data: newAuth, error: signUpError } = await supabase.auth.signUp({
-            email: normalizedEmail,
-            password: password,
-            options: { data: { full_name: dbUser.full_name } }
-          });
-          
-          if (!signUpError && newAuth?.user) {
-            await supabase
-              .from('users')
-              .update({ supabase_uid: newAuth.user.id })
-              .eq('id', dbUser.id);
-          }
-        } catch (syncErr) {
-          if (import.meta.env.DEV) console.warn('[Auth] Background sync:', syncErr);
-        }
-      }
-
-      // Nâng cấp mật khẩu legacy lên Salted SHA-256 nếu cần
-      if (isLegacyMatch && !isHashMatch) {
-        try {
-          const newHash = await hashPassword(password, normalizedEmail);
-          await supabase
-            .from('users')
-            .update({ password: newHash })
-            .eq('id', dbUser.id);
-        } catch (upgradeErr) {
-          if (import.meta.env.DEV) console.warn('[Auth] Password upgrade failed:', upgradeErr);
-        }
-      }
-
-      const safeUser = {
-        id: dbUser.id,
-        fullName: dbUser.full_name,
-        email: dbUser.email,
-        role: dbUser.role,
-        university: dbUser.university || '',
-        major: dbUser.major || '',
-        avatar: dbUser.avatar || '',
-        bio: dbUser.bio || '',
-        createdAt: dbUser.created_at,
-      };
-
-      saveSession(safeUser);
-      return { user: safeUser };
-    }
-  }
-
-  // 2. Thử đăng nhập qua Supabase Auth nếu user tồn tại trong Supabase Auth
+  // 1. Cố gắng đăng nhập bằng Supabase Auth trước
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email: normalizedEmail,
     password: password
   });
 
-  if (!authError && authData?.user) {
-    const { data: user } = await supabase
+  if (authError) {
+    // Nếu chưa xác nhận email trong Supabase Auth -> Chặn luôn và thông báo kích hoạt
+    if (authError.message.includes('Email not confirmed') || authError.message.includes('email_not_confirmed')) {
+      throw new Error('Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư email (bao gồm cả spam) để kích hoạt tài khoản.');
+    }
+
+    // Kiểm tra tương thích người dùng trong public.users
+    const hashedPassword = await hashPassword(password, normalizedEmail);
+    const { data: legacyUser } = await supabase
       .from('users')
-      .select('id, full_name, email, role, university, major, avatar, bio, created_at, is_banned, supabase_uid')
+      .select('id, full_name, email, password, role, university, major, avatar, bio, created_at, is_banned, supabase_uid')
       .eq('email', normalizedEmail)
       .maybeSingle();
 
-    if (user) {
-      if (user.is_banned) {
-        throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống.');
-      }
-
-      if ((!user.supabase_uid || user.supabase_uid !== authData.user.id)) {
-        await supabase
-          .from('users')
-          .update({ supabase_uid: authData.user.id })
-          .eq('id', user.id);
-      }
-
-      const safeUser = {
-        id: user.id,
-        fullName: user.full_name,
-        email: user.email,
-        role: user.role,
-        university: user.university || '',
-        major: user.major || '',
-        avatar: user.avatar || '',
-        bio: user.bio || '',
-        createdAt: user.created_at,
-      };
-
-      saveSession(safeUser);
-      return { user: safeUser };
+    if (!legacyUser) {
+      throw new Error('Email hoặc mật khẩu không đúng.');
     }
+
+    const isLegacyMatch = legacyUser.password === password;
+    const isHashMatch = legacyUser.password === hashedPassword;
+
+    if (!isLegacyMatch && !isHashMatch) {
+      throw new Error('Email hoặc mật khẩu không đúng.');
+    }
+
+    if (legacyUser.is_banned) {
+      throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống.');
+    }
+
+    const safeUser = {
+      id: legacyUser.id,
+      fullName: legacyUser.full_name,
+      email: legacyUser.email,
+      role: legacyUser.role,
+      university: legacyUser.university || '',
+      major: legacyUser.major || '',
+      avatar: legacyUser.avatar || '',
+      bio: legacyUser.bio || '',
+      createdAt: legacyUser.created_at,
+    };
+
+    saveSession(safeUser);
+    return { user: safeUser };
   }
 
-  // Mật khẩu không đúng hoặc tài khoản không tồn tại -> Báo sai email/mật khẩu
-  throw new Error('Email hoặc mật khẩu không đúng.');
+  // 2. Đăng nhập Supabase Auth thành công -> Lấy thông tin user từ public.users
+  const { data: user, error: dbError } = await supabase
+    .from('users')
+    .select('id, full_name, email, role, university, major, avatar, bio, created_at, is_banned, supabase_uid')
+    .eq('email', normalizedEmail)
+    .maybeSingle();
+
+  if (dbError || !user) {
+    throw new Error('Đăng nhập thành công nhưng không tìm thấy dữ liệu hồ sơ người dùng.');
+  }
+
+  if (user.is_banned) {
+    throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống.');
+  }
+
+  if ((!user.supabase_uid || user.supabase_uid !== authData.user.id) && authData.user) {
+    await supabase
+      .from('users')
+      .update({ supabase_uid: authData.user.id })
+      .eq('id', user.id);
+  }
+
+  const safeUser = {
+    id: user.id,
+    fullName: user.full_name,
+    email: user.email,
+    role: user.role,
+    university: user.university || '',
+    major: user.major || '',
+    avatar: user.avatar || '',
+    bio: user.bio || '',
+    createdAt: user.created_at,
+  };
+
+  saveSession(safeUser);
+  return { user: safeUser };
 };
 
 // ─── ĐỒNG BỘ TÀI KHOẢN & PHIÊN ĐĂNG NHẬP (OAUTH NATIVE) ─

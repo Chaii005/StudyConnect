@@ -1,10 +1,10 @@
 import { SafeInput } from '@/components/common/SafeInput';
 
-export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch, users, onEdit, onDelete, onViewMembers, onCreateNew }) {
+export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch, users, onEdit, onDelete, onViewMembers }) {
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '24px 28px', boxShadow: 'var(--shadow), var(--shadow-glow)', backdropFilter: 'blur(16px)' }}>
 
-      {/* ── Header: search LEFT, nút RIGHT, luôn cùng hàng ── */}
+      {/* ── Header: search ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '20px' }}>
 
         {/* Search — compact, icon bên trái, không placeholder dài */}
@@ -43,34 +43,6 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
             </button>
           )}
         </div>
-
-        {/* Nút — compact, tự co theo nội dung */}
-        <button
-          onClick={onCreateNew}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px',
-            background: 'var(--primary)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '10px',
-            fontSize: '13px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            transition: 'opacity 0.15s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Tạo phòng học mới
-        </button>
       </div>
 
       {/* ── Table: vừa khít 100%, không kéo ngang ── */}
