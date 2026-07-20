@@ -243,6 +243,8 @@ router.post('/webhook', async (req, res) => {
       logger.error('Error handling notification webhook:', err);
     }
   })();
+});
+
 // POST /api/notifications/poll
 router.post('/poll', async (req, res) => {
   const signature = req.headers['x-webhook-signature'];
