@@ -1,6 +1,6 @@
 // src/services/groupService.js
 import { supabase } from '@/config/supabaseClient';
-import { SUBJECTS_BY_MAJOR } from '@/constants/educationData';
+import { SUBJECTS_BY_MAJOR, getMajorIdByName } from '@/constants/educationData';
 
 // Map database group schema to frontend model
 const mapGroup = (g) => {
@@ -27,6 +27,7 @@ const mapGroup = (g) => {
     name: g.name,
     subject: g.subject,
     major: g.major || null,
+    majorId: getMajorIdByName(g.major),
     description: g.description,
     meetingMode: g.meeting_mode || 'online',
     isPrivate: g.is_private || false,

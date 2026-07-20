@@ -12,6 +12,7 @@ import { Capacitor } from '@capacitor/core';
 
 import { geocodeAddress, staticMapUrl, googleMapsSearchUrl, autocompletePlaces, getPlaceDetails } from '../utils/geocoding';
 import { SafeInput, SafeTextarea } from '../components/common/SafeInput';
+import { getMajorIdByName, getMajorNameById } from '../constants/educationData';
 
 const SIDEBAR_ITEMS = [
   { label: 'Chat', to: '/chat' },
@@ -917,6 +918,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
     });
 
     const userMajor = user?.major || null;
+    const userMajorId = getMajorIdByName(userMajor);
 
     const results = eligible.map(g => {
       let distance = null;
@@ -925,8 +927,9 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
           distance = getDistance(userCoords.lat, userCoords.lng, g.location.lat, g.location.lng);
         }
       }
-      const sameMajor = !!(userMajor && g.major && g.major === userMajor);
-      return { ...g, distance, sameMajor };
+      const gMajorId = g.majorId || getMajorIdByName(g.major);
+      const sameMajor = !!((userMajorId && gMajorId && userMajorId === gMajorId) || (userMajor && g.major && g.major === userMajor));
+      return { ...g, distance, sameMajor, majorId: gMajorId };
     });
 
     return results.filter(g => {
@@ -1037,7 +1040,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                       </span>
                       {group.sameMajor && (
                         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', borderRadius: 20, padding: '2px 9px', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                          ✨ Cùng ngành
+                          ✨ Cùng ngành {group.majorId ? `(ID: #${group.majorId})` : ''}
                         </span>
                       )}
                       {distanceText && (
@@ -1756,21 +1759,36 @@ export default function Groups() {
   const initials = user?.fullName?.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase() || '?';
 
   const _searchQ = searchQuery.trim();
+  const userMajorId = getMajorIdByName(user?.major);
   const _uMajor = (user?.major || '').toLowerCase().trim();
   const _baseList = (() => {
     if (!_searchQ) return groups;
     if (_searchQ.length < 6) return [];
     return groups.filter(g => g.id.toString() === _searchQ);
   })();
-  const myMajorGroups = _uMajor && !_searchQ ? _baseList.filter(g => g.major && g.major.toLowerCase().trim() === _uMajor) : [];
-  const otherGroups   = _uMajor && !_searchQ ? _baseList.filter(g => !g.major || g.major.toLowerCase().trim() !== _uMajor) : _baseList;
-  const filteredGroups = _uMajor && !_searchQ ? [...myMajorGroups, ...otherGroups] : _baseList;
+
+  const myMajorGroups = userMajorId && !_searchQ
+    ? _baseList.filter(g => {
+        const gMajorId = g.majorId || getMajorIdByName(g.major);
+        return gMajorId === userMajorId;
+      })
+    : (_uMajor && !_searchQ ? _baseList.filter(g => g.major && g.major.toLowerCase().trim() === _uMajor) : []);
+
+  const otherGroups = userMajorId && !_searchQ
+    ? _baseList.filter(g => {
+        const gMajorId = g.majorId || getMajorIdByName(g.major);
+        return gMajorId !== userMajorId;
+      })
+    : (_uMajor && !_searchQ ? _baseList.filter(g => !g.major || g.major.toLowerCase().trim() !== _uMajor) : _baseList);
+
+  const filteredGroups = (userMajorId || _uMajor) && !_searchQ ? [...myMajorGroups, ...otherGroups] : _baseList;
 
   const renderGroupCard = (group) => {
     const isMember = group?.members?.some(m => Number(m) === Number(user?.id));
     const isCreator = Number(group.creatorId) === Number(user?.id);
     const isDeputy = group.deputyId ? Number(group.deputyId) === Number(user?.id) : false;
-    const isSameMajor = _uMajor && group.major && group.major.toLowerCase().trim() === _uMajor;
+    const groupMajorId = group.majorId || getMajorIdByName(group.major);
+    const isSameMajor = (userMajorId && groupMajorId && groupMajorId === userMajorId) || (_uMajor && group.major && group.major.toLowerCase().trim() === _uMajor);
     return (
       <div key={group.id} className="group-card">
         <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 10px 0', lineHeight: 1.3, letterSpacing: '-0.01em' }}>{group.name}</h3>
@@ -1945,6 +1963,17 @@ export default function Groups() {
           {/* Role Badges */}
           {isCreator && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Trưởng nhóm</span>}
           {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Phó nhóm</span>}
+
+          {/* Major Badge */}
+          {isSameMajor ? (
+            <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>
+              ✨ Cùng ngành (ID: #{groupMajorId})
+            </span>
+          ) : groupMajorId ? (
+            <span style={{ fontSize: 11, fontWeight: 600, background: 'var(--bg-input)', color: 'var(--text-muted)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>
+              ID ngành: #{groupMajorId}
+            </span>
+          ) : null}
         </div>
 
         <div 
@@ -2367,7 +2396,7 @@ export default function Groups() {
                     : '0 2px 8px rgba(42,117,118,0.12)';
                 }}
               >
-                {showOnlyMyMajor ? 'Xem tất cả' : 'Nhóm cùng ngành'}
+                {showOnlyMyMajor ? 'Xem tất cả' : (userMajorId ? `Nhóm cùng ngành (ID: #${userMajorId})` : 'Nhóm cùng ngành')}
               </button>
             )}
           </div>
@@ -2377,7 +2406,10 @@ export default function Groups() {
         {_searchQ && (
           (() => {
             const results = showOnlyMyMajor 
-              ? filteredGroups.filter(g => g.major && g.major.toLowerCase().trim() === _uMajor)
+              ? filteredGroups.filter(g => {
+                  const gMajorId = g.majorId || getMajorIdByName(g.major);
+                  return (userMajorId && gMajorId && gMajorId === userMajorId) || (g.major && g.major.toLowerCase().trim() === _uMajor);
+                })
               : filteredGroups;
             return results.length === 0 ? (
               <div className="sc-card-animated" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: '16px', padding: '40px 16px', textAlign: 'center' }}>
@@ -2397,13 +2429,13 @@ export default function Groups() {
         {!_searchQ && (
           <>
             {/* Section 1: Dành cho bạn (Cùng ngành) */}
-            {showOnlyMyMajor && _uMajor && (
+            {showOnlyMyMajor && (userMajorId || _uMajor) && (
               <div style={{ marginBottom: '36px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <div style={{ width: 4, height: 20, background: 'var(--primary, #2A7576)', borderRadius: 4, flexShrink: 0 }} />
                   <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>Dành cho bạn</h3>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary, #2A7576)', background: 'rgba(42,117,118,0.09)', border: '1.5px solid rgba(42,117,118,0.25)', borderRadius: 20, padding: '2px 9px', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {user.major}
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary, #2A7576)', background: 'rgba(42,117,118,0.09)', border: '1.5px solid rgba(42,117,118,0.25)', borderRadius: 20, padding: '2px 9px', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.major} {userMajorId ? `(ID: #${userMajorId})` : ''}
                   </span>
                 </div>
 
