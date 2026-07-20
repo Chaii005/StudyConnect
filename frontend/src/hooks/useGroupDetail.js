@@ -103,14 +103,14 @@ export default function useGroupDetail(groupId, user, addToast) {
   });
   const [newDeadlineDesc, setNewDeadlineDesc] = useState('');
   const [newDeadlineAssignee, setNewDeadlineAssignee] = useState('all');
-  const [newDeadlineSubmissionType, setNewDeadlineSubmissionType] = useState('all');
+  const [newDeadlineSubmissionType, setNewDeadlineSubmissionType] = useState('image');
   const [isSubmittingDeadline, setIsSubmittingDeadline] = useState(false);
   const [editingDeadline, setEditingDeadline] = useState(null);
   const [editDeadlineTitle, setEditDeadlineTitle] = useState('');
   const [editDeadlineDueDate, setEditDeadlineDueDate] = useState('');
   const [editDeadlineDesc, setEditDeadlineDesc] = useState('');
   const [editDeadlineAssignee, setEditDeadlineAssignee] = useState('all');
-  const [editDeadlineSubmissionType, setEditDeadlineSubmissionType] = useState('all');
+  const [editDeadlineSubmissionType, setEditDeadlineSubmissionType] = useState('image');
   const [urgentDeadlinesCount, setUrgentDeadlinesCount] = useState(0);
 
   // Submission state
@@ -1342,14 +1342,14 @@ export default function useGroupDetail(groupId, user, addToast) {
         creatorId: user.id,
         assigneeId: newDeadlineAssignee !== 'all' ? newDeadlineAssignee : null,
         assigneeName: assigneeMemberNew,
-        submissionType: newDeadlineSubmissionType || 'all',
+        submissionType: newDeadlineSubmissionType || 'image',
       });
       addToast('Thêm deadline mới thành công!', 'success');
       setNewDeadlineTitle('');
       setNewDeadlineDueDate('');
       setNewDeadlineDesc('');
       setNewDeadlineAssignee('all');
-      setNewDeadlineSubmissionType('all');
+      setNewDeadlineSubmissionType('image');
       fetchGroupDeadlines();
     } catch (err) {
       addToast(err.message || 'Lỗi khi thêm deadline', 'error');

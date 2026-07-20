@@ -234,7 +234,6 @@ export default function GroupDeadlines({
                     boxSizing: 'border-box',
                   }}
                 >
-                  <option value="all">Cả 2 dạng (Ảnh hoặc Tài liệu)</option>
                   <option value="image">Hình ảnh bài làm (Ảnh 6 ô)</option>
                   <option value="file">Tệp tài liệu (Word/PDF/Zip)</option>
                 </select>
@@ -792,7 +791,6 @@ export default function GroupDeadlines({
                     boxSizing: 'border-box',
                   }}
                 >
-                  <option value="all">Cả 2 dạng (Ảnh hoặc Tài liệu)</option>
                   <option value="image">Hình ảnh bài làm (Ảnh 6 ô)</option>
                   <option value="file">Tệp tài liệu (Word/PDF/Zip)</option>
                 </select>
@@ -869,18 +867,10 @@ export default function GroupDeadlines({
               {deadlines.find((d) => String(d.id) === String(showSubmitModal))?.title}
             </p>
 
-            {/* Mode Selector Tabs / Locked Mode Header */}
+            {/* Mode Header */}
             {(() => {
               const currentDl = deadlines.find((d) => String(d.id) === String(showSubmitModal));
-              const allowedType = currentDl?.submissionType || 'all';
-
-              if (allowedType === 'image') {
-                return (
-                  <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
-                    Yêu cầu bài nộp: Hình ảnh bài làm (6 ô)
-                  </div>
-                );
-              }
+              const allowedType = currentDl?.submissionType || 'image';
 
               if (allowedType === 'file') {
                 return (
@@ -891,47 +881,8 @@ export default function GroupDeadlines({
               }
 
               return (
-                <div style={{ display: 'flex', background: 'var(--bg-input)', padding: '4px', borderRadius: '10px', marginBottom: '16px', gap: '4px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setSubmitTab('images')}
-                    style={{
-                      flex: 1,
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      background: submitTab === 'images' ? 'var(--bg-card)' : 'transparent',
-                      color: submitTab === 'images' ? 'var(--text-primary)' : 'var(--text-muted)',
-                      fontWeight: submitTab === 'images' ? 700 : 500,
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      boxShadow: submitTab === 'images' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
-                      transition: 'all 0.2s',
-                      textAlign: 'center',
-                    }}
-                  >
-                    Hình ảnh bài làm (6 ô)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSubmitTab('file')}
-                    style={{
-                      flex: 1,
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      background: submitTab === 'file' ? 'var(--bg-card)' : 'transparent',
-                      color: submitTab === 'file' ? 'var(--text-primary)' : 'var(--text-muted)',
-                      fontWeight: submitTab === 'file' ? 700 : 500,
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      boxShadow: submitTab === 'file' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
-                      transition: 'all 0.2s',
-                      textAlign: 'center',
-                    }}
-                  >
-                    Tệp tài liệu (Word/PDF)
-                  </button>
+                <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
+                  Yêu cầu bài nộp: Hình ảnh bài làm (6 ô)
                 </div>
               );
             })()}
