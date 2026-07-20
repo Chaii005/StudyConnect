@@ -302,6 +302,8 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     loadFriends();
     fetchSideData();
 
+    window.addEventListener('sc-deadline-submission-updated', fetchSideData);
+
     // Poll schedules/deadlines mỗi 30 phút (tăng từ 15) — dữ liệu này không cần thời gian thực
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
@@ -312,6 +314,7 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
     return () => {
       isMounted = false;
       clearInterval(interval);
+      window.removeEventListener('sc-deadline-submission-updated', fetchSideData);
     };
   }, [user?.id, fetchSideData]);
 

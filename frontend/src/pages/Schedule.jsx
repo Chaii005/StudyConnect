@@ -66,28 +66,9 @@ export default function Schedule() {
   const userGroupsRolesRef = useRef({});
   const groupNamesCacheRef = useRef({});
 
-  // Fetch user groups and roles on mount / user change
+  // Realtime subscription for member changes to update roles/deadlines
   useEffect(() => {
     if (!user?.id) return;
-    const fetchUserGroups = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('group_members')
-          .select('group_id, role')
-          .eq('user_id', parseInt(user.id, 10));
-        if (!error && data) {
-          const roles = {};
-          data.forEach(m => {
-            roles[m.group_id.toString()] = m.role;
-          });
-          userGroupsRolesRef.current = roles;
-        }
-      } catch (err) {
-        if (import.meta.env.DEV) console.error('Error fetching user groups:', err);
-      }
-    };
-    fetchUserGroups();
-
     const channelName = `user-groups-roles-realtime-${user.id}`;
     const channel = supabase
       .channel(channelName)
@@ -95,7 +76,7 @@ export default function Schedule() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${user.id}` },
         () => {
-          fetchUserGroups();
+          fetchAllData();
         }
       )
       .subscribe();
@@ -103,9 +84,8 @@ export default function Schedule() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id, fetchAllData]);
 
-  // Helper to check deadline visibility
   const isDeadlineVisibleForUser = useCallback((dl) => {
     const groupIdStr = (dl.group_id || dl.groupId)?.toString();
     if (!groupIdStr) return false;
@@ -117,15 +97,6 @@ export default function Schedule() {
     const assigneeId = dl.assignee_id || dl.assigneeId;
     if (assigneeId && assigneeId !== 'all' && Number(assigneeId) !== Number(user?.id)) {
       return false;
-    }
-
-    // Check overdue condition for non-leaders: hide if overdue and user has not submitted
-    const dueDateStr = dl.due_date || dl.dueDate;
-    const due = new Date(dueDateStr).getTime();
-    const isOverdue = !dl.completed && due < Date.now();
-    if (isOverdue) {
-      const subCount = getSubmissionsCount(groupIdStr, dl.id);
-      if (subCount === 0) return false;
     }
 
     return true;
@@ -324,6 +295,20 @@ export default function Schedule() {
     if (!user?.id) return;
     try {
       setLoading(true);
+      // Fetch user groups and roles first to avoid race condition in filtering
+      const { data: memberData } = await supabase
+        .from('group_members')
+        .select('group_id, role')
+        .eq('user_id', parseInt(user.id, 10));
+      
+      const roles = {};
+      if (memberData) {
+        memberData.forEach(m => {
+          roles[m.group_id.toString()] = m.role;
+        });
+      }
+      userGroupsRolesRef.current = roles;
+
       const { schedules: schedList, deadlines: deadList } = await getUserSchedulesAndDeadlines(user.id);
       setSchedules(schedList);
       const visibleDeadlines = deadList.filter(isDeadlineVisibleForUser);
@@ -338,8 +323,11 @@ export default function Schedule() {
   }, [user, addToast, isDeadlineVisibleForUser]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAllData();
+    window.addEventListener('sc-deadline-submission-updated', fetchAllData);
+    return () => {
+      window.removeEventListener('sc-deadline-submission-updated', fetchAllData);
+    };
   }, [fetchAllData]);
 
   useEffect(() => {

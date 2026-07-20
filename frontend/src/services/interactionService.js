@@ -1000,6 +1000,19 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
 };
 
 // ─── GLOBAL SCHEDULING (FOR USER DASHBOARD) ────────────
+export const isDeadlineSubmittedByUser = (groupId, deadlineId, userId) => {
+  if (!groupId || !deadlineId || !userId) return false;
+  try {
+    const stored = localStorage.getItem(`sc_submissions_${groupId}`);
+    if (!stored) return false;
+    const allSubs = JSON.parse(stored);
+    const deadlineSubs = allSubs[deadlineId] || [];
+    return deadlineSubs.some(s => String(s.userId) === String(userId));
+  } catch {
+    return false;
+  }
+};
+
 export const getUserSchedulesAndDeadlines = async (userId) => {
   const uid = parseInt(userId, 10);
   // Fetch user's joined groups first
@@ -1071,6 +1084,8 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
         subType = match[1].toLowerCase();
         desc = desc.replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
       }
+      const hasSubmitted = isDeadlineSubmittedByUser(d.group_id, d.id, userId);
+      const isCompletedForUser = Boolean(d.completed || hasSubmitted);
       return {
         id: d.id.toString(),
         groupId: d.group_id.toString(),
@@ -1079,7 +1094,8 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
         dueDate: d.due_date,
         description: desc,
         submissionType: subType,
-        completed: d.completed || false
+        completed: isCompletedForUser,
+        hasSubmitted: hasSubmitted
       };
     });
 
@@ -1313,4 +1329,118 @@ export const getUserPosts = async (friendId) => {
       createdAt: p.created_at
     };
   });
+};
+
+// ─── DEADLINE SUBMISSIONS (NỘP BÀI TẬP VÀ CHẤM ĐIỂM) ───────────────────
+export const getDeadlineSubmissions = async (groupId) => {
+  if (!groupId) return {};
+  const { data, error } = await supabase
+    .from('deadline_submissions')
+    .select(`
+      id,
+      deadline_id,
+      user_id,
+      user_name,
+      user_initial,
+      note,
+      file_name,
+      file_data,
+      images,
+      submitted_at,
+      grade,
+      feedback,
+      graded_at,
+      deadlines!inner (
+        group_id
+      )
+    `)
+    .eq('deadlines.group_id', parseInt(groupId, 10))
+    .limit(300);
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error('[getDeadlineSubmissions] Error fetching from Supabase:', error.message);
+    }
+    return {};
+  }
+
+  // Map to { [deadlineId]: [ { ... }, { ... } ] } format
+  const submissionsDict = {};
+  (data || []).forEach(sub => {
+    const dId = String(sub.deadline_id);
+    if (!submissionsDict[dId]) {
+      submissionsDict[dId] = [];
+    }
+    submissionsDict[dId].push({
+      userId: sub.user_id,
+      userName: sub.user_name,
+      userInitial: sub.user_initial,
+      note: sub.note,
+      fileName: sub.file_name,
+      fileData: sub.file_data,
+      images: sub.images,
+      submittedAt: sub.submitted_at,
+      grade: sub.grade != null ? Number(sub.grade) : null,
+      feedback: sub.feedback,
+      gradedAt: sub.graded_at
+    });
+  });
+  return submissionsDict;
+};
+
+export const submitDeadlineAssignment = async (deadlineId, { userId, userName, userInitial, note, fileName, fileData, images, grade = null, feedback = null, gradedAt = null }) => {
+  const { data, error } = await supabase
+    .from('deadline_submissions')
+    .upsert(
+      {
+        deadline_id: parseInt(deadlineId, 10),
+        user_id: parseInt(userId, 10),
+        user_name: userName,
+        user_initial: userInitial || (userName || 'U')[0].toUpperCase(),
+        note: note || '',
+        file_name: fileName || '',
+        file_data: fileData || '',
+        images: images || null,
+        submitted_at: new Date().toISOString(),
+        grade: grade != null ? parseFloat(grade) : null,
+        feedback: feedback || null,
+        graded_at: gradedAt || null
+      },
+      { onConflict: 'deadline_id,user_id' }
+    )
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Nộp bài thất bại: ${error.message}`);
+  }
+  return data;
+};
+
+export const deleteDeadlineAssignment = async (deadlineId, userId) => {
+  const { error } = await supabase
+    .from('deadline_submissions')
+    .delete()
+    .eq('deadline_id', parseInt(deadlineId, 10))
+    .eq('user_id', parseInt(userId, 10));
+
+  if (error) {
+    throw new Error(`Xóa bài nộp thất bại: ${error.message}`);
+  }
+};
+
+export const saveDeadlineGrade = async (deadlineId, userId, grade, feedback) => {
+  const { error } = await supabase
+    .from('deadline_submissions')
+    .update({
+      grade: grade != null ? parseFloat(grade) : null,
+      feedback: feedback || null,
+      graded_at: new Date().toISOString()
+    })
+    .eq('deadline_id', parseInt(deadlineId, 10))
+    .eq('user_id', parseInt(userId, 10));
+
+  if (error) {
+    throw new Error(`Lưu điểm thất bại: ${error.message}`);
+  }
 };

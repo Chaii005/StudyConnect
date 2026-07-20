@@ -18,10 +18,10 @@ async function main() {
     await client.connect();
     console.log('Connected to database.');
 
-    const sqlPath = path.join(__dirname, '../../supabase/migrations/15_fix_push_tokens_rls.sql');
+    const sqlPath = path.join(__dirname, '../../supabase/migrations/16_add_deadline_submissions.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
     
-    console.log('Applying migration 15_fix_push_tokens_rls.sql...');
+    console.log('Applying migration 16_add_deadline_submissions.sql...');
     const res = await client.query(sql);
     
     // Find status row if printed

@@ -24,7 +24,11 @@ import {
   getChatMessages,
   sendChatMessage,
   deleteChatMessage,
-  togglePinChatMessage
+  togglePinChatMessage,
+  getDeadlineSubmissions,
+  submitDeadlineAssignment,
+  deleteDeadlineAssignment,
+  saveDeadlineGrade
 } from '@/services/interactionService';
 
 const getProcessedDeadlines = (deadList) => {
@@ -191,30 +195,51 @@ export default function useGroupDetail(groupId, user, addToast) {
   const fetchGroupDeadlines = useCallback(async () => {
     if (!groupId) return;
     try {
-      const deadlinesData = await getDeadlines(groupId);
+      // Migrate legacy localStorage submissions if present
+      try {
+        const storedKey = STORAGE_KEYS.submissions(groupId);
+        const stored = localStorage.getItem(storedKey);
+        if (stored) {
+          const localSubs = JSON.parse(stored);
+          let migrationCount = 0;
+          for (const dId of Object.keys(localSubs)) {
+            const list = localSubs[dId] || [];
+            for (const entry of list) {
+              await submitDeadlineAssignment(dId, {
+                userId: entry.userId,
+                userName: entry.userName,
+                userInitial: entry.userInitial,
+                note: entry.note,
+                fileName: entry.fileName,
+                fileData: entry.fileData,
+                images: entry.images,
+                grade: entry.grade,
+                feedback: entry.feedback,
+                gradedAt: entry.gradedAt || entry.submittedAt
+              });
+              migrationCount++;
+            }
+          }
+          if (migrationCount > 0 && import.meta.env.DEV) {
+            console.log(`[Migration] Migrated ${migrationCount} submissions from local storage.`);
+          }
+          localStorage.removeItem(storedKey);
+        }
+      } catch (migErr) {
+        if (import.meta.env.DEV) console.warn('[Migration] Failed migrating local submissions:', migErr);
+      }
+
+      const [deadlinesData, submissionsData] = await Promise.all([
+        getDeadlines(groupId),
+        getDeadlineSubmissions(groupId)
+      ]);
       const processed = getProcessedDeadlines(deadlinesData);
       setDeadlines(processed);
+      setSubmissions(submissionsData || {});
     } catch (err) {
       addToast(err.message || 'Lỗi tải danh sách deadline', 'error');
     }
   }, [groupId, addToast]);
-
-  const loadSubmissions = useCallback(() => {
-    if (!groupId) return {};
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.submissions(groupId));
-      return stored ? JSON.parse(stored) : {};
-    } catch {
-      return {};
-    }
-  }, [groupId]);
-
-  const saveSubmissions = useCallback((data) => {
-    if (!groupId) return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.submissions(groupId), JSON.stringify(data));
-    } catch { /* empty */ }
-  }, [groupId]);
 
   const fetchChatMessages = useCallback(async () => {
     if (!groupId) return;
@@ -734,11 +759,11 @@ export default function useGroupDetail(groupId, user, addToast) {
     }
   }, [group, location.search]);
 
-  // Populate submissions on mount
+  // Populate submissions on mount (now fetched from Supabase via fetchGroupDeadlines)
   useEffect(() => {
     if (!groupId) return;
-    setSubmissions(loadSubmissions());
-  }, [groupId, loadSubmissions]);
+    // Handled in fetchGroupDetails -> fetchGroupDeadlines()
+  }, [groupId]);
 
   // Sync urgent deadline alarms
   useEffect(() => {
@@ -1361,6 +1386,10 @@ export default function useGroupDetail(groupId, user, addToast) {
   };
 
   const handleDeadlineDelete = (deadlineId) => {
+    if (!isLeader) {
+      addToast('Chỉ có Trưởng nhóm và Phó nhóm mới có quyền xóa deadline!', 'error');
+      return;
+    }
     setConfirmConfig({
       title: 'Xóa Deadline',
       message: 'Bạn có chắc chắn muốn xóa deadline này không?',
@@ -1369,7 +1398,12 @@ export default function useGroupDetail(groupId, user, addToast) {
       variant: 'danger',
       onConfirm: async () => {
         setConfirmConfig(null);
-        try { await deleteDeadline(deadlineId); addToast('Đã xóa deadline!', 'success'); fetchGroupDeadlines(); }
+        try { 
+          await deleteDeadline(deadlineId); 
+          addToast('Đã xóa deadline!', 'success'); 
+          fetchGroupDeadlines(); 
+          window.dispatchEvent(new CustomEvent('sc-deadline-submission-updated', { detail: { groupId, deadlineId } }));
+        }
         catch (err) { addToast(err.message || 'Lỗi khi xóa deadline', 'error'); }
       },
       onCancel: () => setConfirmConfig(null),
@@ -1487,10 +1521,13 @@ export default function useGroupDetail(groupId, user, addToast) {
         fileData = publicUrl;
       }
 
-      const all = loadSubmissions();
-      const list = all[showSubmitModal] || [];
-      const existingIdx = list.findIndex(s => String(s.userId) === String(user.id));
-      const entry = {
+      const existingList = submissions[showSubmitModal] || [];
+      const existingSub = existingList.find(s => String(s.userId) === String(user.id));
+      const grade = existingSub ? existingSub.grade : null;
+      const feedback = existingSub ? existingSub.feedback : null;
+      const gradedAt = existingSub ? existingSub.gradedAt : null;
+
+      await submitDeadlineAssignment(showSubmitModal, {
         userId: user.id,
         userName: user.fullName,
         userInitial: (user.fullName || 'U')[0].toUpperCase(),
@@ -1498,16 +1535,13 @@ export default function useGroupDetail(groupId, user, addToast) {
         fileName,
         fileData,
         images: uploadedImages.length > 0 ? uploadedImages : null,
-        submittedAt: new Date().toISOString(),
-        grade: existingIdx >= 0 ? list[existingIdx].grade : null,
-        feedback: existingIdx >= 0 ? list[existingIdx].feedback : null,
-      };
-      if (existingIdx >= 0) list[existingIdx] = entry;
-      else list.push(entry);
-      all[showSubmitModal] = list;
-      saveSubmissions(all);
-      setSubmissions({ ...all });
-      fetchGroupDeadlines();
+        grade,
+        feedback,
+        gradedAt
+      });
+
+      await fetchGroupDeadlines();
+      window.dispatchEvent(new CustomEvent('sc-deadline-submission-updated', { detail: { groupId, deadlineId: showSubmitModal } }));
       addToast('Nộp bài thành công! ✅', 'success');
       setShowSubmitModal(null);
       setSubmitNote('');
@@ -1531,13 +1565,9 @@ export default function useGroupDetail(groupId, user, addToast) {
       }
     }
     try {
-      const all = loadSubmissions();
-      const list = all[deadlineId] || [];
-      const updatedList = list.filter(s => String(s.userId) !== String(user.id));
-      all[deadlineId] = updatedList;
-      saveSubmissions(all);
-      setSubmissions({ ...all });
+      await deleteDeadlineAssignment(deadlineId, user.id);
       await fetchGroupDeadlines();
+      window.dispatchEvent(new CustomEvent('sc-deadline-submission-updated', { detail: { groupId, deadlineId } }));
 
       addToast('Đã xóa bài nộp! Bạn có thể chọn file để nộp lại.', 'success');
       if (showSubmitModal === deadlineId) {
@@ -1545,27 +1575,18 @@ export default function useGroupDetail(groupId, user, addToast) {
         setSubmitFile(null);
         setSubmitImages([]);
       }
-    } catch {
-      addToast('Lỗi khi xóa bài nộp', 'error');
+    } catch (err) {
+      addToast(err.message || 'Lỗi khi xóa bài nộp', 'error');
     }
   };
 
-  const handleSaveGrade = (deadlineId, targetUserId, grade, feedback) => {
+  const handleSaveGrade = async (deadlineId, targetUserId, grade, feedback) => {
     try {
-      const all = loadSubmissions();
-      const list = all[deadlineId] || [];
-      const idx = list.findIndex(s => String(s.userId) === String(targetUserId));
-      if (idx >= 0) {
-        list[idx].grade = grade;
-        list[idx].feedback = feedback;
-        list[idx].gradedAt = new Date().toISOString();
-        all[deadlineId] = list;
-        saveSubmissions(all);
-        setSubmissions({ ...all });
-        addToast(`Đã lưu điểm và nhận xét cho ${list[idx].userName || 'thành viên'}!`, 'success');
-      }
-    } catch {
-      addToast('Lỗi khi lưu điểm bài nộp', 'error');
+      await saveDeadlineGrade(deadlineId, targetUserId, grade, feedback);
+      await fetchGroupDeadlines();
+      addToast('Đã lưu điểm và nhận xét thành công!', 'success');
+    } catch (err) {
+      addToast(err.message || 'Lỗi khi lưu điểm bài nộp', 'error');
     }
   };
 
