@@ -1,5 +1,6 @@
 // src/services/friendService.js
 import { supabase } from '@/config/supabaseClient';
+import { getMajorIdByName } from '@/constants/educationData';
 
 // ─── GỬI LỜI MỜI KẾT BẠN ────────────────────────────────
 export const sendFriendRequest = async (fromUserId, toUserId) => {
@@ -120,6 +121,7 @@ export const getFriends = async (userId, includePending = false) => {
       fullName: friendUser.full_name,
       university: friendUser.university || '',
       major: friendUser.major || '',
+      majorId: getMajorIdByName(friendUser.major),
       avatar: friendUser.avatar || '',
       initial: (friendUser.full_name || 'U')[0].toUpperCase(),
       friendSince: f.accepted_at || f.created_at,
@@ -164,6 +166,7 @@ export const getPendingRequests = async (userId) => {
       fullName: sender.full_name,
       university: sender.university || '',
       major: sender.major || '',
+      majorId: getMajorIdByName(sender.major),
       avatar: sender.avatar || '',
       initial: (sender.full_name || 'U')[0].toUpperCase(),
       sentAt: f.created_at
@@ -205,6 +208,7 @@ export const getSentRequests = async (userId) => {
       fullName: receiver.full_name,
       university: receiver.university || '',
       major: receiver.major || '',
+      majorId: getMajorIdByName(receiver.major),
       avatar: receiver.avatar || '',
       initial: (receiver.full_name || 'U')[0].toUpperCase(),
       sentAt: f.created_at
@@ -212,7 +216,7 @@ export const getSentRequests = async (userId) => {
   }).filter(Boolean);
 };
 
-// ─── GỢI Ý KẾT BẠN (người chưa kết bạn) ─────────────────
+// ─── GỢI Ý KẾT BẠN (Lọc nghiêm ngặt theo Major ID) ──────
 // Helper to parse location from bio string
 const parseUserBioLocation = (bioString) => {
   if (bioString && bioString.startsWith('[📍 ')) {
@@ -231,7 +235,7 @@ export const getSuggestions = async (userId) => {
   const uid = Number(userId);
   if (isNaN(uid)) return [];
 
-  // 1. Fetch current user major and bio (location) to personalize suggestions
+  // 1. Lấy thông tin user hiện tại (ngành học & bio vị trí)
   const { data: currentUser } = await supabase
     .from('users')
     .select('major, bio')
@@ -239,9 +243,10 @@ export const getSuggestions = async (userId) => {
     .maybeSingle();
 
   const userMajor = currentUser?.major;
+  const userMajorId = getMajorIdByName(userMajor);
   const userBio = currentUser?.bio;
 
-  // 2. Fetch existing friendships to filter out already connected/pending users
+  // 2. Fetch danh sách bạn bè / lời mời hiện tại để loại trừ
   const { data: friendships } = await supabase
     .from('friendships')
     .select('from_user_id, to_user_id')
@@ -253,7 +258,7 @@ export const getSuggestions = async (userId) => {
   );
   relatedIds.add(uid);
 
-  // 3. Fetch candidate users (exclude admin role)
+  // 3. Lấy ứng viên (loại trừ tài khoản admin và chính mình/bạn bè)
   const { data: users, error: usersError } = await supabase
     .from('users')
     .select('id, full_name, university, major, avatar, bio')
@@ -262,19 +267,30 @@ export const getSuggestions = async (userId) => {
 
   if (usersError || !users) return [];
 
-  // Filter candidate list
-  const candidates = users.filter(u => !relatedIds.has(Number(u.id)));
+  let candidates = users.filter(u => !relatedIds.has(Number(u.id)));
 
-  // 4. Personalize and rank candidates based on major and location proximity
+  // 4. LỌC CHÍNH XÁC THEO MAJOR ID:
+  // Nếu user đã có Major ID (ví dụ: An toàn thông tin = ID 1)
+  // Hệ thống CHỈ gợi ý các user có cùng Major ID (ID = 1)!
+  if (userMajorId) {
+    const sameMajorCandidates = candidates.filter(u => getMajorIdByName(u.major) === userMajorId);
+    if (sameMajorCandidates.length > 0) {
+      candidates = sameMajorCandidates;
+    } else {
+      // Nếu chưa có user nào cùng Major ID, chỉ giữ ứng viên lọc theo ngành
+      candidates = sameMajorCandidates;
+    }
+  }
+
+  // 5. Tính điểm gợi ý & ưu tiên khoảng cách địa lý giữa các bạn cùng Major ID
   const scoredCandidates = candidates.map(u => {
+    const candidateMajorId = getMajorIdByName(u.major);
     let score = 0;
-    
-    // Major match: high weight
-    if (userMajor && u.major && u.major.toLowerCase().trim() === userMajor.toLowerCase().trim()) {
-      score += 100;
+
+    if (userMajorId && candidateMajorId === userMajorId) {
+      score += 1000;
     }
 
-    // Location match: medium weight for province, extra weight for district
     if (userBio && u.bio) {
       const myLoc = parseUserBioLocation(userBio);
       const theirLoc = parseUserBioLocation(u.bio);
@@ -286,20 +302,21 @@ export const getSuggestions = async (userId) => {
       }
     }
 
-    return { user: u, score };
+    return { user: u, candidateMajorId, score };
   });
 
-  // Sort by score descending (most relevant first)
+  // Sắp xếp điểm giảm dần
   scoredCandidates.sort((a, b) => b.score - a.score);
 
-  // Limit suggestions and map to UI schema
+  // Trả về danh sách gợi ý kèm Major ID chuẩn
   return scoredCandidates.slice(0, 20).map(item => ({
     userId: item.user.id.toString(),
     fullName: item.user.full_name,
     university: item.user.university || '',
     major: item.user.major || '',
+    majorId: item.candidateMajorId,
     avatar: item.user.avatar || '',
-    bio: item.user.bio || '', // include bio to show real proximity details on UI
+    bio: item.user.bio || '',
     initial: (item.user.full_name || 'U')[0].toUpperCase(),
     score: item.score
   }));

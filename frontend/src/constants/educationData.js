@@ -114,6 +114,26 @@ export const MAJORS = [
   'Ngành khác...'
 ];
 
+// Danh sách ngành kèm Major ID chuẩn (An toàn thông tin = ID 1)
+export const MAJOR_ITEMS = MAJORS.map((name, index) => ({
+  id: index + 1,
+  name
+}));
+
+export const getMajorIdByName = (majorName) => {
+  if (!majorName) return null;
+  const nameTrimmed = String(majorName).trim().toLowerCase();
+  const found = MAJOR_ITEMS.find(m => m.name.trim().toLowerCase() === nameTrimmed);
+  return found ? found.id : null;
+};
+
+export const getMajorNameById = (majorId) => {
+  const numericId = Number(majorId);
+  if (!numericId || isNaN(numericId)) return '';
+  const found = MAJOR_ITEMS.find(m => m.id === numericId);
+  return found ? found.name : '';
+};
+
 // Môn học mặc định theo ngành học (tự động load, không cần seed DB)
 export const SUBJECTS_BY_MAJOR = {
   // ── Công nghệ - Kỹ thuật ──

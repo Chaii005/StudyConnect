@@ -12,6 +12,7 @@ import {
   acceptFriendRequest,
   removeFriend,
 } from '../services/friendService';
+import { getMajorIdByName } from '@/constants/educationData';
 import { useToast } from '../components/Toast';
 import { supabase } from '../config/supabaseClient';
 import { SafeInput } from '@/components/common/SafeInput';
@@ -52,7 +53,11 @@ function PersonCard({ person, actions, isOnline }) {
     }
   };
 
-  const isSameMajor = person.major && user?.major && person.major.toLowerCase().trim() === user.major.toLowerCase().trim();
+  const userMajorId = getMajorIdByName(user?.major);
+  const personMajorId = person.majorId || getMajorIdByName(person.major);
+
+  const isSameMajor = (userMajorId && personMajorId && userMajorId === personMajorId) ||
+    (person.major && user?.major && person.major.toLowerCase().trim() === user.major.toLowerCase().trim());
 
   return (
     <div className="person-card" style={{ cursor: person.friendSince ? 'pointer' : 'default' }}
@@ -134,7 +139,7 @@ function PersonCard({ person, actions, isOnline }) {
                 borderRadius: '6px',
                 border: '1px solid rgba(42, 117, 118, 0.2)'
               }}>
-                Cùng ngành
+                Cùng ngành {personMajorId ? `(ID: #${personMajorId})` : ''}
               </span>
             )}
           </div>
