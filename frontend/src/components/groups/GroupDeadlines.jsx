@@ -253,19 +253,20 @@ export default function GroupDeadlines({
                   onChange={(e) => setNewDeadlineAssignee(e.target.value)}
                 >
                   <option value="all">Cả nhóm</option>
-                  {group?.members.map((memberId) => {
-                    const u = membersDetails.find((userObj) => String(userObj.id) === String(memberId));
-                    const memberName = u ? u.fullName : memberId;
-                    const memberIsLeader = String(memberId) === String(group.creatorId);
-                    const memberIsDeputy = group.deputyIds ? group.deputyIds.some(id => String(id) === String(memberId)) : String(memberId) === String(group.deputyId);
-                    const role = memberIsLeader ? ' (Trưởng nhóm)' : memberIsDeputy ? ' (Phó nhóm)' : '';
-                    return (
-                      <option key={memberId} value={memberId}>
-                        {memberName}
-                        {role}
-                      </option>
-                    );
-                  })}
+                  {group?.members
+                    .filter((mId) => String(mId) !== String(group?.creatorId))
+                    .map((memberId) => {
+                      const u = membersDetails.find((userObj) => String(userObj.id) === String(memberId));
+                      const memberName = u ? u.fullName : memberId;
+                      const memberIsDeputy = group.deputyIds ? group.deputyIds.some(id => String(id) === String(memberId)) : String(memberId) === String(group.deputyId);
+                      const role = memberIsDeputy ? ' (Phó nhóm)' : '';
+                      return (
+                        <option key={memberId} value={memberId}>
+                          {memberName}
+                          {role}
+                        </option>
+                      );
+                    })}
                 </select>
               </div>
               <div>
@@ -842,19 +843,20 @@ export default function GroupDeadlines({
                 >
                   <option value="all">Cả nhóm</option>
                   {group &&
-                    group.members.map((memberId) => {
-                      const u = membersDetails.find((userObj) => String(userObj.id) === String(memberId));
-                      const memberName = u ? u.fullName : memberId;
-                      const memberIsLeader = String(memberId) === String(group.creatorId);
-                      const memberIsDeputy = String(memberId) === String(group.deputyId);
-                      const role = memberIsLeader ? ' (Trưởng nhóm)' : memberIsDeputy ? ' (Phó nhóm)' : '';
-                      return (
-                        <option key={memberId} value={memberId}>
-                          {memberName}
-                          {role}
-                        </option>
-                      );
-                    })}
+                    group.members
+                      .filter((mId) => String(mId) !== String(group.creatorId))
+                      .map((memberId) => {
+                        const u = membersDetails.find((userObj) => String(userObj.id) === String(memberId));
+                        const memberName = u ? u.fullName : memberId;
+                        const memberIsDeputy = group.deputyIds ? group.deputyIds.some(id => String(id) === String(memberId)) : String(memberId) === String(group.deputyId);
+                        const role = memberIsDeputy ? ' (Phó nhóm)' : '';
+                        return (
+                          <option key={memberId} value={memberId}>
+                            {memberName}
+                            {role}
+                          </option>
+                        );
+                      })}
                 </select>
               </div>
               <div>
@@ -923,13 +925,14 @@ disabled={isSubmittingDeadline}
         const currDl = deadlines.find((d) => String(d.id) === String(showSubmissionsFor));
         const dlSubmissions = submissions[showSubmissionsFor] || [];
         
-        // Determine assigned member list
+        // Determine assigned member list (excluding group creator)
         let assignedMembers = [];
         if (currDl?.assigneeId && currDl.assigneeId !== 'all') {
           const m = membersDetails.find((mem) => String(mem.id) === String(currDl.assigneeId));
           assignedMembers = m ? [m] : [{ id: currDl.assigneeId, fullName: currDl.assigneeName || 'Thành viên' }];
         } else {
-          assignedMembers = membersDetails.length > 0 ? membersDetails : (group?.members || []).map((mId) => ({ id: mId, fullName: mId }));
+          const allMems = membersDetails.length > 0 ? membersDetails : (group?.members || []).map((mId) => ({ id: mId, fullName: mId }));
+          assignedMembers = allMems.filter((mem) => String(mem.id) !== String(group?.creatorId));
         }
 
         const submittedCount = assignedMembers.filter(m => dlSubmissions.some(s => String(s.userId) === String(m.id))).length;
