@@ -1073,47 +1073,95 @@ disabled={isSubmittingDeadline}
 
                       {/* Submission Content Details */}
                       {sub && (
-                        <div style={{ background: 'rgba(0,0,0,0.15)', padding: '10px 12px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ background: 'rgba(0,0,0,0.18)', padding: '12px 14px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '10px', border: '1px solid var(--border)' }}>
                           {/* File / Image Summary badge */}
                           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
                             {sub.images && sub.images.length > 0 ? (
-                              <span>📷 {sub.images.length} ảnh bài làm</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#3b82f6' }}>
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                  <circle cx="8.5" cy="8.5" r="1.5" />
+                                  <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                {sub.images.length} ảnh bài làm
+                              </span>
                             ) : sub.fileName ? (
-                              <span>📄 Tệp: {sub.fileName}</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#a855f7' }}>
+                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                  <polyline points="14 2 14 8 20 8" />
+                                </svg>
+                                Tệp đính kèm: {sub.fileName}
+                              </span>
                             ) : (
-                              <span>📝 Bài làm văn bản</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
+                                Bài làm văn bản
+                              </span>
                             )}
                           </div>
 
                           {sub.note && (
                             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-                              <strong>Ghi chú:</strong> {sub.note}
+                              <strong style={{ color: 'var(--text-primary)' }}>Ghi chú:</strong> {sub.note}
                             </p>
                           )}
 
-                          {/* Images gallery */}
+                          {/* Images gallery with interactive preview */}
                           {sub.images && sub.images.length > 0 && (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))', gap: '6px', marginTop: '4px' }}>
-                              {sub.images.map((img, i) => (
-                                <div
-                                  key={i}
-                                  onClick={() => setLightboxImg(img.fileData)}
-                                  style={{
-                                    height: '65px',
-                                    borderRadius: '6px',
-                                    overflow: 'hidden',
-                                    cursor: 'pointer',
-                                    border: '1px solid var(--border)',
-                                    position: 'relative',
-                                  }}
-                                >
-                                  <img src={img.fileData} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                </div>
-                              ))}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '2px' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
+                                {sub.images.map((img, i) => (
+                                  <div
+                                    key={i}
+                                    onClick={() => setLightboxImg(img.fileData)}
+                                    style={{
+                                      height: '75px',
+                                      borderRadius: '8px',
+                                      overflow: 'hidden',
+                                      cursor: 'pointer',
+                                      border: '1.5px solid var(--border)',
+                                      position: 'relative',
+                                      background: '#000',
+                                    }}
+                                    title="Click vào ảnh để xem kích thước lớn"
+                                  >
+                                    <img src={img.fileData} alt={`Bài làm ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  </div>
+                                ))}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setLightboxImg(sub.images[0].fileData)}
+                                style={{
+                                  alignSelf: 'flex-start',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  background: 'rgba(59, 130, 246, 0.12)',
+                                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                                  borderRadius: '8px',
+                                  padding: '6px 12px',
+                                  fontSize: '12px',
+                                  color: '#3b82f6',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s',
+                                }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                  <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                Xem ảnh trực tiếp ({sub.images.length} ảnh)
+                              </button>
                             </div>
                           )}
 
-                          {/* File download link */}
+                          {/* File download link for non-image files */}
                           {sub.fileName && sub.fileData && (
                             <div>
                               <a
@@ -1125,28 +1173,36 @@ disabled={isSubmittingDeadline}
                                   gap: '6px',
                                   background: 'rgba(255,255,255,0.06)',
                                   border: '1px solid var(--border)',
-                                  borderRadius: '6px',
-                                  padding: '4px 10px',
+                                  borderRadius: '8px',
+                                  padding: '6px 12px',
                                   fontSize: '12px',
                                   color: 'var(--text-primary)',
                                   textDecoration: 'none',
                                   fontWeight: 600,
                                 }}
                               >
-                                📥 Tải về: {sub.fileName}
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                  <polyline points="7 10 12 15 17 10" />
+                                  <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Tải file: {sub.fileName}
                               </a>
                             </div>
                           )}
 
                           {/* Grade & Feedback Display if graded */}
                           {sub.grade != null && (
-                            <div style={{ marginTop: '4px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '8px 12px', borderRadius: '8px' }}>
-                              <div style={{ fontSize: '13px', fontWeight: 800, color: '#eab308' }}>
-                                ⭐ Điểm số: {sub.grade}/10
+                            <div style={{ marginTop: '4px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '10px 14px', borderRadius: '10px' }}>
+                              <div style={{ fontSize: '13px', fontWeight: 800, color: '#eab308', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                </svg>
+                                Điểm số: {sub.grade}/10
                               </div>
                               {sub.feedback && (
-                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                                  💬 Nhận xét: "{sub.feedback}"
+                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.4 }}>
+                                  <strong>Nhận xét:</strong> "{sub.feedback}"
                                 </div>
                               )}
                             </div>
@@ -1160,17 +1216,20 @@ disabled={isSubmittingDeadline}
                                 onClick={() => openGradingModal(currDl.id, m, sub)}
                                 className="btn-mono"
                                 style={{
-                                  padding: '5px 12px',
+                                  padding: '6px 14px',
                                   fontSize: '12px',
                                   fontWeight: 700,
                                   borderRadius: '8px',
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '4px',
+                                  gap: '6px',
                                   cursor: 'pointer',
                                 }}
                               >
-                                📝 {sub.grade != null ? 'Sửa điểm & Nhận xét' : 'Chấm điểm'}
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                </svg>
+                                {sub.grade != null ? 'Sửa điểm & Nhận xét' : 'Chấm điểm'}
                               </button>
                             </div>
                           )}
@@ -1241,28 +1300,34 @@ disabled={isSubmittingDeadline}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Điểm số (0 - 10):
+                Chọn điểm số (từ 1 đến 10 điểm):
               </label>
-              <input
-                type="number"
-                min="0"
-                max="10"
-                step="0.1"
+              <select
                 value={gradeInput}
                 onChange={(e) => setGradeInput(e.target.value)}
-                placeholder="Ví dụ: 9.5"
                 style={{
                   width: '100%',
-                  padding: '10px 14px',
+                  padding: '10px 36px 10px 14px',
                   borderRadius: '10px',
                   border: '1px solid var(--border)',
-                  background: 'var(--bg-input)',
+                  background: 'var(--bg-input) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888888\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 12px center / 16px',
                   color: 'var(--text-primary)',
                   fontSize: '14px',
+                  fontWeight: 600,
                   outline: 'none',
+                  cursor: 'pointer',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
                   boxSizing: 'border-box',
                 }}
-              />
+              >
+                <option value="" style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>-- Chọn điểm số --</option>
+                {[10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0].map((score) => (
+                  <option key={score} value={score} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
+                    {score} điểm
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -1680,6 +1745,113 @@ disabled={isSubmittingDeadline}
                 }}
               >
                 {isSubmitting ? 'Đang nộp...' : 'Xác nhận nộp bài'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full-screen Lightbox Image Preview Modal */}
+      {lightboxImg && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.88)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 9999999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+          }}
+          onClick={() => setLightboxImg(null)}
+        >
+          <div
+            style={{
+              position: 'relative',
+              maxWidth: '92vw',
+              maxHeight: '92vh',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxImg(null)}
+              style={{
+                position: 'absolute',
+                top: '-46px',
+                right: '0',
+                background: 'rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: '#fff',
+                fontSize: '18px',
+                cursor: 'pointer',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+              title="Đóng xem ảnh"
+            >
+              ✕
+            </button>
+            <img
+              src={lightboxImg}
+              alt="Chi tiết bài nộp"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '82vh',
+                objectFit: 'contain',
+                borderRadius: '12px',
+                boxShadow: '0 16px 50px rgba(0,0,0,0.8)',
+                border: '1px solid rgba(255,255,255,0.15)',
+              }}
+            />
+            <div style={{ marginTop: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <a
+                href={lightboxImg}
+                download="bai_nop_anh.webp"
+                className="btn-mono"
+                style={{
+                  padding: '7px 18px',
+                  fontSize: '13px',
+                  textDecoration: 'none',
+                  borderRadius: '8px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontWeight: 600,
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Tải ảnh về máy
+              </a>
+              <button
+                type="button"
+                onClick={() => setLightboxImg(null)}
+                style={{
+                  padding: '7px 16px',
+                  fontSize: '13px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                }}
+              >
+                Đóng
               </button>
             </div>
           </div>
