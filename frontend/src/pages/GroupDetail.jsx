@@ -353,7 +353,6 @@ export default function GroupDetail() {
 
         {/* ── Group Header Card ── */}
         <div className="group-header-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', marginBottom: '28px', overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
-          <div style={{ height: '4px', background: 'linear-gradient(90deg, var(--primary), var(--secondary))' }} />
           <div className="group-header-content" style={{ padding: '28px 32px' }}>
             {/* Role pills */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
@@ -554,9 +553,11 @@ export default function GroupDetail() {
             showSubmitModal={h.showSubmitModal} setShowSubmitModal={h.setShowSubmitModal}
             submitNote={h.submitNote} setSubmitNote={h.setSubmitNote}
             submitFile={h.submitFile} setSubmitFile={h.setSubmitFile}
+            submitImages={h.submitImages} setSubmitImages={h.setSubmitImages}
             isSubmitting={h.isSubmitting}
             showSubmissionsFor={h.showSubmissionsFor} setShowSubmissionsFor={h.setShowSubmissionsFor}
             handleSubmitAssignment={h.handleSubmitAssignment}
+            handleDeleteSubmission={h.handleDeleteSubmission}
             handleRemindDeadline={h.handleRemindDeadline}
             remindingIds={h.remindingIds}
             membersDetails={h.membersDetails}

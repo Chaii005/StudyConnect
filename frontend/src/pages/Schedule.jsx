@@ -107,12 +107,28 @@ export default function Schedule() {
 
   // Helper to check deadline visibility
   const isDeadlineVisibleForUser = useCallback((dl) => {
-    const groupIdStr = dl.group_id.toString();
+    const groupIdStr = (dl.group_id || dl.groupId)?.toString();
+    if (!groupIdStr) return false;
     const role = userGroupsRolesRef.current[groupIdStr];
     if (!role) return false;
     if (role === 'creator' || role === 'admin') return true;
-    if (!dl.assignee_id) return true;
-    return Number(dl.assignee_id) === Number(user?.id);
+
+    // Check assignee
+    const assigneeId = dl.assignee_id || dl.assigneeId;
+    if (assigneeId && assigneeId !== 'all' && Number(assigneeId) !== Number(user?.id)) {
+      return false;
+    }
+
+    // Check overdue condition for non-leaders: hide if overdue and user has not submitted
+    const dueDateStr = dl.due_date || dl.dueDate;
+    const due = new Date(dueDateStr).getTime();
+    const isOverdue = !dl.completed && due < Date.now();
+    if (isOverdue) {
+      const subCount = getSubmissionsCount(groupIdStr, dl.id);
+      if (subCount === 0) return false;
+    }
+
+    return true;
   }, [user?.id]);
 
   // Helper to resolve group name asynchronously
@@ -294,7 +310,8 @@ export default function Schedule() {
       setLoading(true);
       const { schedules: schedList, deadlines: deadList } = await getUserSchedulesAndDeadlines(user.id);
       setSchedules(schedList);
-      const processed = getProcessedDeadlines(deadList);
+      const visibleDeadlines = deadList.filter(isDeadlineVisibleForUser);
+      const processed = getProcessedDeadlines(visibleDeadlines);
       setDeadlines(processed);
       setUrgentCount(processed.filter(d => d.dueSoon).length);
     } catch (err) {
@@ -302,7 +319,7 @@ export default function Schedule() {
     } finally {
       setLoading(false);
     }
-  }, [user, addToast]);
+  }, [user, addToast, isDeadlineVisibleForUser]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

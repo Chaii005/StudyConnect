@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { SafeInput, SafeTextarea } from '../common/SafeInput';
 
 const format24h = (dateStr) => {
@@ -48,24 +48,68 @@ export default function GroupDeadlines({
   setSubmitNote,
   submitFile,
   setSubmitFile,
+  submitImages = [],
+  setSubmitImages,
   isSubmitting,
   showSubmissionsFor,
   setShowSubmissionsFor,
   handleSubmitAssignment,
+  handleDeleteSubmission,
   handleRemindDeadline,
   remindingIds,
   membersDetails = [],
 }) {
   const submitFileRef = useRef(null);
+  const bulkImagesRef = useRef(null);
+  const slotInputRefs = useRef([]);
   const deadlineListRef = useRef(null);
+
+  const [submitTab, setSubmitTab] = useState('images'); // 'images' or 'file'
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   const isLeader = String(user?.id) === String(group?.creatorId) || (group?.deputyIds ? group.deputyIds.some(id => String(id) === String(user?.id)) : String(user?.id) === String(group?.deputyId));
 
   const visibleDeadlines = deadlines.filter((d) => {
     if (isLeader) return true;
-    if (!d.assigneeId || d.assigneeId === 'all') return true;
-    return String(d.assigneeId) === String(user?.id);
+    const isAssigned = !d.assigneeId || d.assigneeId === 'all' || String(d.assigneeId) === String(user?.id);
+    if (!isAssigned) return false;
+
+    // Check overdue condition for non-leaders: hide if overdue and user has not submitted
+    const isOverdue = d.overdue || (d.dueDate && new Date(d.dueDate) < new Date());
+    if (isOverdue) {
+      const subs = submissions[d.id] || [];
+      const mySub = subs.find((s) => String(s.userId) === String(user?.id));
+      if (!mySub) return false;
+    }
+    return true;
   });
+
+  const handleBulkImagesChange = (e) => {
+    const files = Array.from(e.target.files || []).filter((f) => f.type?.startsWith('image/'));
+    if (files.length === 0) return;
+    if (files.length > 6) {
+      alert('Chỉ chọn được tối đa 6 tấm ảnh! Hệ thống đã tự chọn 6 tấm ảnh đầu tiên.');
+    }
+    const chosen = files.slice(0, 6);
+    setSubmitImages(chosen);
+    setSubmitFile(null);
+  };
+
+  const handleSlotImageChange = (slotIdx, e) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type?.startsWith('image/')) return;
+    const current = [...(submitImages || [])];
+    current[slotIdx] = file;
+    setSubmitImages(current.filter(Boolean));
+    setSubmitFile(null);
+  };
+
+  const handleCloseSubmitModal = () => {
+    setShowSubmitModal(null);
+    setSubmitFile(null);
+    if (setSubmitImages) setSubmitImages([]);
+    setSubmitNote('');
+  };
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '24px', width: '100%', overflow: 'hidden' }}>
@@ -240,247 +284,244 @@ export default function GroupDeadlines({
                     boxShadow: dueSoon ? '0 0 10px rgba(239, 68, 68, 0.1)' : 'none',
                     width: '100%',
                     boxSizing: 'border-box',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    transition: 'all 0.2s',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', overflow: 'hidden', width: '100%', minWidth: 0, flex: 1 }}>
-                    <input
-                      type="checkbox"
-                      checked={hasSubmitted}
-                      readOnly
-                      title={overdue && !hasSubmitted ? 'Quá hạn - chưa nộp bài' : ''}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        marginTop: '3px',
-                        cursor: 'not-allowed',
-                        accentColor: overdue && !hasSubmitted ? '#666' : 'var(--primary)',
-                        opacity: overdue && !hasSubmitted ? 0.5 : 1,
-                      }}
-                    />
-                    <div style={{ overflow: 'hidden', minWidth: 0, flex: 1 }}>
-                      <h4
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span
                         style={{
+                          fontWeight: 700,
                           fontSize: '15px',
-                          fontWeight: 600,
-                          color: hasSubmitted ? 'var(--text-muted)' : 'var(--text-primary)',
-                          margin: 0,
-                          textDecoration: hasSubmitted ? 'line-through' : 'none',
-                          textOverflow: 'ellipsis',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
+                          color: d.completed ? 'var(--text-muted)' : 'var(--text-primary)',
+                          textDecoration: d.completed ? 'line-through' : 'none',
                         }}
                       >
                         {d.title}
-                      </h4>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '4px 0 2px 0' }}>
+                      </span>
+                      {dueSoon && !d.completed && (
                         <span
                           style={{
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            color: 'var(--error)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
                             fontSize: '11px',
                             fontWeight: 700,
-                            padding: '2px 8px',
-                            borderRadius: '6px',
-                            background: d.assigneeId ? 'rgba(0,0,0,0.06)' : 'rgba(62,207,207,0.10)',
-                            color: 'var(--text-primary)',
-                            border: `1px solid ${
-                              d.assigneeId ? 'var(--border)' : 'rgba(62,207,207,0.25)'
-                            }`,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px'
                           }}
                         >
-                          {d.assigneeId ? (
-                            <>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                              </svg>
-                              {d.assigneeName || 'Cá nhân'}
-                            </>
-                          ) : (
-                            <>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                              </svg>
-                              Cả nhóm
-                            </>
-                          )}
-                        </span>
-                      </div>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '12px', margin: 0 }}>
-                      <span style={{ color: overdue ? 'var(--error)' : 'var(--text-muted)', fontWeight: overdue ? 600 : 400 }}>
-                        Hạn chót: {format24h(d.dueDate)}
-                      </span>
-                      {dueSoon && (
-                        <span style={{ color: 'var(--error)', marginLeft: '8px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                            <line x1="12" y1="9" x2="12" y2="13" />
-                            <line x1="12" y1="17" x2="12.01" y2="17" />
-                          </svg>
-                          Sắp hết hạn!
+                          Sắp hết hạn
                         </span>
                       )}
-                      {overdue && !hasSubmitted && (
-                        <span style={{ color: 'var(--text-muted)', marginLeft: '8px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
+                      {overdue && !d.completed && (
+                        <span
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            color: 'var(--text-muted)',
+                            border: '1px solid var(--border)',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                          }}
+                        >
                           Quá hạn
                         </span>
                       )}
-                    </p>
-                      {d.description && (
-                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '6px 0 0 0', lineHeight: 1.4 }}>
-                          {d.description}
-                        </p>
+                      {d.completed && (
+                        <span
+                          style={{
+                            background: 'rgba(34, 197, 94, 0.15)',
+                            color: '#22c55e',
+                            border: '1px solid rgba(34, 197, 94, 0.3)',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                          }}
+                        >
+                          Đã hoàn thành
+                        </span>
+                      )}
+                    </div>
+                    {d.description && (
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
+                        {d.description}
+                      </p>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', color: 'var(--text-muted)', flexWrap: 'wrap', marginTop: '2px' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Hạn: {format24h(d.dueDate)}
+                      </span>
+                      {d.assigneeName && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                          </svg>
+                          Giao cho: {d.assigneeName}
+                        </span>
                       )}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
-                    {isLeader && !hasSubmitted && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    {isLeader && (
                       <button
-                        onClick={() => handleRemindDeadline(d)}
-                        disabled={remindingIds[d.id]}
-                        className={remindingIds[d.id] ? "" : "btn-mono"}
+                        onClick={() => setShowSubmissionsFor(d.id)}
+                        className="btn-mono"
                         style={{
-                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : undefined,
-                          border: remindingIds[d.id] ? '1px solid rgba(255,255,255,0.1)' : undefined,
-                          color: remindingIds[d.id] ? 'var(--text-muted)' : undefined,
-                          cursor: remindingIds[d.id] ? 'default' : undefined,
-                          borderRadius: remindingIds[d.id] ? '24px' : undefined,
-                          padding: '5px 12px',
+                          padding: '6px 12px',
                           fontSize: '12px',
                           fontWeight: 600,
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {remindingIds[d.id] ? (
-                          'Đang nhắc...'
-                        ) : (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                            Nhắc nhở
-                          </span>
-                        )}
+                        Bài nộp ({subs.length})
+                      </button>
+                    )}
+
+                    {isLeader && !overdue && !d.completed && (
+                      <button
+                        onClick={() => handleRemindDeadline(d.id)}
+                        disabled={remindingIds[d.id]}
+                        style={{
+                          background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : 'rgba(234, 179, 8, 0.12)',
+                          border: '1px solid rgba(234, 179, 8, 0.3)',
+                          color: '#eab308',
+                          padding: '6px 12px',
+                          borderRadius: 'var(--radius-sm)',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: remindingIds[d.id] ? 'not-allowed' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          whiteSpace: 'nowrap',
+                          transition: 'all 0.2s',
+                        }}
+                        title="Gửi thông báo nhắc nhở làm deadline tới các thành viên"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        {remindingIds[d.id] ? 'Đang nhắc...' : 'Nhắc nhở'}
                       </button>
                     )}
 
                     {canDelete && (
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button
-                          onClick={() => openEditDeadline(d)}
-                          className="btn-mono"
-                          style={{
-                            padding: '5px 12px',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          onClick={() => handleDeadlineDelete(d.id)}
-                          className="btn-mono"
-                          style={{
-                            padding: '5px 12px',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            color: '#ef4444',
-                            borderColor: 'rgba(239, 68, 68, 0.3)',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = '#ef4444';
-                            e.currentTarget.style.borderColor = '#ef4444';
-                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = '#ef4444';
-                            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                            e.currentTarget.style.background = 'none';
-                          }}
-                        >
-                          Xóa
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => handleDeadlineDelete(d.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--text-muted)',
+                          cursor: 'pointer',
+                          padding: '6px',
+                          borderRadius: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'color 0.2s',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--error)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+                        title="Xóa deadline"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
                     )}
 
                     {(() => {
-                      if (isLeader) {
+                      if (hasSubmitted) {
                         return (
-                          <button
-                            onClick={() => setShowSubmissionsFor(d.id)}
-                            className="btn-mono"
-                            style={{
-                              padding: '5px 12px',
-                              fontSize: '12px',
-                              fontWeight: 600,
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="16" y1="13" x2="8" y2="13" />
-                                <line x1="16" y1="17" x2="8" y2="17" />
-                                <polyline points="10 9 9 9 8 9" />
-                              </svg>
-                              Bài nộp ({subs.length})
-                            </span>
-                          </button>
-                        );
-                      }
-                      return (
-                        <button
-                          onClick={() => {
-                            if (overdue && !mySubmission) return;
-                            setShowSubmitModal(d.id);
-                            setSubmitNote(mySubmission?.note || '');
-                            setSubmitFile(null);
-                          }}
-                          disabled={overdue && !mySubmission}
-                          title={overdue && !mySubmission ? 'Đã quá hạn, không thể nộp bài' : ''}
-                          className={mySubmission || overdue ? "" : "btn-mono"}
-                          style={{
-                            background: mySubmission
-                              ? 'rgba(34,197,94,0.08)'
-                              : overdue
-                              ? 'rgba(255,255,255,0.03)'
-                              : undefined,
-                            border: mySubmission
-                              ? '1px solid rgba(34,197,94,0.2)'
-                              : overdue
-                              ? '1px solid rgba(255,255,255,0.1)'
-                              : undefined,
-                            color: mySubmission ? '#22c55e' : overdue ? 'var(--text-muted)' : undefined,
-                            cursor: overdue && !mySubmission ? 'not-allowed' : 'pointer',
-                            borderRadius: mySubmission || overdue ? '24px' : undefined,
-                            padding: mySubmission ? '5px 12px' : '6px 14px',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            whiteSpace: 'nowrap',
-                            opacity: overdue && !mySubmission ? 0.5 : 1,
-                            boxShadow: 'none',
-                          }}
-                        >
-                          {mySubmission ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span
+                              style={{
+                                background: 'rgba(34, 197, 94, 0.12)',
+                                border: '1px solid rgba(34, 197, 94, 0.3)',
+                                color: '#22c55e',
+                                padding: '6px 12px',
+                                borderRadius: '24px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
                               Đã nộp
                             </span>
-                          ) : overdue ? (
+                            {!overdue && (
+                              <button
+                                onClick={() => handleDeleteSubmission(d.id)}
+                                style={{
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                                  color: 'var(--error)',
+                                  borderRadius: '24px',
+                                  padding: '5px 10px',
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '3px',
+                                  transition: 'all 0.2s',
+                                }}
+                                title="Xóa bài nộp hiện tại để nộp lại"
+                              >
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="3 6 5 6 21 6" />
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                                Xóa bài nộp
+                              </button>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <button
+                          onClick={() => {
+                            setShowSubmitModal(d.id);
+                            setSubmitNote('');
+                            setSubmitFile(null);
+                            if (setSubmitImages) setSubmitImages([]);
+                          }}
+                          disabled={overdue}
+                          title={overdue ? 'Đã quá hạn, không thể nộp bài' : ''}
+                          className={overdue ? "" : "btn-mono"}
+                          style={{
+                            background: overdue ? 'rgba(255,255,255,0.03)' : undefined,
+                            border: overdue ? '1px solid rgba(255,255,255,0.1)' : undefined,
+                            color: overdue ? 'var(--text-muted)' : undefined,
+                            cursor: overdue ? 'not-allowed' : 'pointer',
+                            borderRadius: overdue ? '24px' : undefined,
+                            padding: '6px 14px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            whiteSpace: 'nowrap',
+                            opacity: overdue ? 0.5 : 1,
+                            boxShadow: 'none',
+                          }}
+                        >
+                          {overdue ? (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -691,11 +732,7 @@ export default function GroupDeadlines({
             padding: '20px',
           }}
           onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowSubmitModal(null);
-              setSubmitFile(null);
-              setSubmitNote('');
-            }
+            if (e.target === e.currentTarget) handleCloseSubmitModal();
           }}
         >
           <div
@@ -703,89 +740,311 @@ export default function GroupDeadlines({
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
               borderRadius: '18px',
-              padding: '28px',
+              padding: '24px 28px',
               width: '100%',
-              maxWidth: '480px',
+              maxWidth: '520px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
               boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
             }}
           >
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
               Nộp bài tập
             </h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
               {deadlines.find((d) => d.id === showSubmitModal)?.title}
             </p>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
-                Tệp đính kèm (tuỳ chọn)
-              </label>
-              <div
-                onClick={() => submitFileRef.current?.click()}
+
+            {/* Mode Selector Tabs */}
+            <div style={{ display: 'flex', background: 'var(--bg-input)', padding: '4px', borderRadius: '10px', marginBottom: '16px', gap: '4px' }}>
+              <button
+                type="button"
+                onClick={() => setSubmitTab('images')}
                 style={{
-                  border: '2px dashed var(--border)',
-                  borderRadius: '12px',
-                  padding: '20px',
-                  textAlign: 'center',
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: submitTab === 'images' ? 'var(--bg-card)' : 'transparent',
+                  color: submitTab === 'images' ? 'var(--text-primary)' : 'var(--text-muted)',
+                  fontWeight: submitTab === 'images' ? 700 : 500,
+                  fontSize: '13px',
                   cursor: 'pointer',
-                  transition: 'border-color 0.2s',
-                  background: 'var(--bg-input)',
+                  boxShadow: submitTab === 'images' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--primary)')}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
               >
-                {submitFile ? (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-primary)' }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                      </svg>
-                    </div>
-                    <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>
-                      {submitFile.name}
-                    </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSubmitFile(null);
-                      }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: 'var(--text-muted)',
-                        fontSize: '16px',
-                        lineHeight: 1,
-                        padding: '0 4px',
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px', color: 'var(--text-muted)' }}>
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                      </svg>
-                    </div>
-                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Nhấn để chọn tệp</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                      PDF, Word, hình ảnh...
-                    </div>
-                  </div>
-                )}
-              </div>
-              <input
-                ref={submitFileRef}
-                type="file"
-                style={{ display: 'none' }}
-                onChange={(e) => setSubmitFile(e.target.files[0] || null)}
-              />
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                Hình ảnh bài làm (6 ô)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSubmitTab('file')}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: submitTab === 'file' ? 'var(--bg-card)' : 'transparent',
+                  color: submitTab === 'file' ? 'var(--text-primary)' : 'var(--text-muted)',
+                  fontWeight: submitTab === 'file' ? 700 : 500,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: submitTab === 'file' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                }}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                Tệp tài liệu (Word/PDF)
+              </button>
             </div>
+
+            {submitTab === 'images' ? (
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+                    Danh sách 6 ô chứa ảnh ({submitImages.length}/6 ảnh)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => bulkImagesRef.current?.click()}
+                    style={{
+                      background: 'rgba(59, 130, 246, 0.12)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      color: 'var(--primary)',
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <line x1="12" y1="8" x2="12" y2="16" />
+                      <line x1="8" y1="12" x2="16" y2="12" />
+                    </svg>
+                    Chọn chọn cùng lúc đến 6 ảnh
+                  </button>
+                  <input
+                    ref={bulkImagesRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleBulkImagesChange}
+                  />
+                </div>
+
+                {/* 6-Slot Grid Container */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  {[0, 1, 2, 3, 4, 5].map((slotIdx) => {
+                    const imgFile = submitImages[slotIdx];
+                    const objectUrl = imgFile
+                      ? (typeof imgFile === 'string' ? imgFile : URL.createObjectURL(imgFile))
+                      : null;
+
+                    return (
+                      <div
+                        key={slotIdx}
+                        style={{
+                          position: 'relative',
+                          height: '96px',
+                          borderRadius: '10px',
+                          border: objectUrl ? '1.5px solid var(--primary)' : '2px dashed var(--border)',
+                          background: 'var(--bg-input)',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                        onClick={() => {
+                          if (!objectUrl) {
+                            slotInputRefs.current[slotIdx]?.click();
+                          }
+                        }}
+                      >
+                        {objectUrl ? (
+                          <>
+                            <img
+                              src={objectUrl}
+                              alt={`Ảnh ${slotIdx + 1}`}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxImg(objectUrl);
+                              }}
+                            />
+                            <span
+                              style={{
+                                position: 'absolute',
+                                top: 4,
+                                left: 4,
+                                background: 'rgba(0,0,0,0.65)',
+                                color: '#fff',
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                              }}
+                            >
+                              Ảnh {slotIdx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const next = [...submitImages];
+                                next.splice(slotIdx, 1);
+                                setSubmitImages(next);
+                              }}
+                              style={{
+                                position: 'absolute',
+                                top: 4,
+                                right: 4,
+                                background: 'rgba(239, 68, 68, 0.85)',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '22px',
+                                height: '22px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                              }}
+                              title="Xóa tấm ảnh này"
+                            >
+                              ✕
+                            </button>
+                          </>
+                        ) : (
+                          <div style={{ textAlign: 'center', padding: '6px', color: 'var(--text-muted)' }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '2px' }}>
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                            <div style={{ fontSize: '11px', fontWeight: 600 }}>+ Ô ảnh {slotIdx + 1}</div>
+                          </div>
+                        )}
+                        <input
+                          ref={(el) => (slotInputRefs.current[slotIdx] = el)}
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={(e) => handleSlotImageChange(slotIdx, e)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
+                  💡 Bạn có thể chọn 1 lúc tối đa 6 tấm ảnh bằng nút bên trên, hoặc click từng ô để thêm ảnh đơn lẻ.
+                </p>
+              </div>
+            ) : (
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+                  Tệp đính kèm (Word, PDF, Zip...)
+                </label>
+                <div
+                  onClick={() => submitFileRef.current?.click()}
+                  style={{
+                    border: '2px dashed var(--border)',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.2s',
+                    background: 'var(--bg-input)',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+                >
+                  {submitFile ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-primary)' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                          <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                      </div>
+                      <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>
+                        {submitFile.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSubmitFile(null);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: 'var(--text-muted)',
+                          fontSize: '16px',
+                          lineHeight: 1,
+                          padding: '0 4px',
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px', color: 'var(--text-muted)' }}>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Nhấn để chọn tệp tài liệu</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        PDF, Word, Excel, Zip...
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <input
+                  ref={submitFileRef}
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    setSubmitFile(e.target.files[0] || null);
+                    setSubmitImages([]);
+                  }}
+                />
+              </div>
+            )}
+
             <div style={{ marginBottom: '20px' }}>
               <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
                 Ghi chú
@@ -814,11 +1073,8 @@ export default function GroupDeadlines({
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
-                onClick={() => {
-                  setShowSubmitModal(null);
-                  setSubmitFile(null);
-                  setSubmitNote('');
-                }}
+                type="button"
+                onClick={handleCloseSubmitModal}
                 className="btn-mono"
                 style={{
                   flex: 1,
@@ -831,18 +1087,19 @@ export default function GroupDeadlines({
                 Huỷ
               </button>
               <button
+                type="button"
                 onClick={handleSubmitAssignment}
-                disabled={isSubmitting || (!submitFile && !submitNote.trim())}
-                className={!submitFile && !submitNote.trim() ? "" : "btn-mono"}
+                disabled={isSubmitting || (!submitFile && submitImages.length === 0 && !submitNote.trim())}
+                className={!submitFile && submitImages.length === 0 && !submitNote.trim() ? "" : "btn-mono"}
                 style={{
                   flex: 2,
                   padding: '11px',
-                  background: !submitFile && !submitNote.trim() ? 'var(--bg-input)' : undefined,
-                  border: !submitFile && !submitNote.trim() ? '1px solid var(--border)' : undefined,
-                  color: !submitFile && !submitNote.trim() ? 'var(--text-muted)' : undefined,
+                  background: !submitFile && submitImages.length === 0 && !submitNote.trim() ? 'var(--bg-input)' : undefined,
+                  border: !submitFile && submitImages.length === 0 && !submitNote.trim() ? '1px solid var(--border)' : undefined,
+                  color: !submitFile && submitImages.length === 0 && !submitNote.trim() ? 'var(--text-muted)' : undefined,
                   fontWeight: 700,
-                  cursor: !submitFile && !submitNote.trim() ? 'not-allowed' : 'pointer',
-                  borderRadius: !submitFile && !submitNote.trim() ? '24px' : undefined,
+                  cursor: !submitFile && submitImages.length === 0 && !submitNote.trim() ? 'not-allowed' : 'pointer',
+                  borderRadius: !submitFile && submitImages.length === 0 && !submitNote.trim() ? '24px' : undefined,
                   fontFamily: 'inherit',
                   fontSize: '14px',
                   transition: 'all 0.2s',
@@ -891,6 +1148,7 @@ export default function GroupDeadlines({
                 Danh sách bài nộp
               </h3>
               <button
+                type="button"
                 onClick={() => setShowSubmissionsFor(null)}
                 style={{
                   background: 'none',
@@ -953,12 +1211,64 @@ export default function GroupDeadlines({
                         {format24h(s.submittedAt)}
                       </span>
                     </div>
+
                     {s.note && (
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 6px', lineHeight: 1.5 }}>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 8px', lineHeight: 1.5 }}>
                         {s.note}
                       </p>
                     )}
-                    {s.fileName && (
+
+                    {/* Multi-Image Submission Gallery */}
+                    {s.images && s.images.length > 0 ? (
+                      <div style={{ marginTop: '8px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                          </svg>
+                          {s.images.length} ảnh bài nộp (Nhấp để phóng to):
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
+                          {s.images.map((img, i) => (
+                            <div
+                              key={i}
+                              onClick={() => setLightboxImg(img.fileData)}
+                              style={{
+                                height: '76px',
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                                cursor: 'pointer',
+                                border: '1px solid var(--border)',
+                                position: 'relative',
+                                background: 'rgba(0,0,0,0.2)',
+                              }}
+                            >
+                              <img
+                                src={img.fileData}
+                                alt={img.fileName || `Ảnh ${i + 1}`}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              />
+                              <span
+                                style={{
+                                  position: 'absolute',
+                                  bottom: 2,
+                                  right: 2,
+                                  background: 'rgba(0,0,0,0.65)',
+                                  color: '#fff',
+                                  fontSize: '9px',
+                                  fontWeight: 700,
+                                  padding: '1px 5px',
+                                  borderRadius: '3px',
+                                }}
+                              >
+                                #{i + 1}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : s.fileName ? (
                       <a
                         href={s.fileData}
                         download={s.fileName}
@@ -985,7 +1295,7 @@ export default function GroupDeadlines({
                         </svg>
                         {s.fileName}
                       </a>
-                    )}
+                    ) : null}
                   </div>
                 ))
               )}

@@ -116,6 +116,7 @@ export default function useGroupDetail(groupId, user, addToast) {
   const [showSubmitModal, setShowSubmitModal] = useState(null);
   const [submitNote, setSubmitNote] = useState('');
   const [submitFile, setSubmitFile] = useState(null);
+  const [submitImages, setSubmitImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSubmissionsFor, setShowSubmissionsFor] = useState(null);
 
@@ -1397,7 +1398,53 @@ export default function useGroupDetail(groupId, user, addToast) {
     setIsSubmitting(true);
     try {
       let fileData = null, fileName = null;
-      if (submitFile) {
+      let uploadedImages = [];
+
+      const validImages = (submitImages || []).filter(Boolean).slice(0, 6);
+      if (validImages.length > 0) {
+        const MAX_SUBMIT_SIZE = 25 * 1024 * 1024;
+        for (let i = 0; i < validImages.length; i++) {
+          const imgFile = validImages[i];
+          if (imgFile.size > MAX_SUBMIT_SIZE) {
+            addToast(`Ảnh ${i + 1} quá lớn! Vui lòng chọn file <= 25MB.`, 'error');
+            setIsSubmitting(false);
+            return;
+          }
+          let fileToUpload = imgFile;
+          try {
+            fileToUpload = await compressImage(imgFile, { maxWidth: 1280, maxHeight: 1280, quality: 0.78 });
+          } catch {
+            fileToUpload = imgFile;
+          }
+          const rawName = fileToUpload.name || imgFile.name || `image_${i + 1}.jpg`;
+          const safeName = sanitizeForStorage(rawName);
+          const storageFileName = `submissions/${groupId}/${user.id}_${Date.now()}_img${i + 1}_${safeName}`;
+          const { error: uploadError } = await supabase.storage
+            .from('attachments')
+            .upload(storageFileName, fileToUpload, { cacheControl: '2592000', upsert: true });
+
+          if (uploadError) {
+            if (import.meta.env.DEV) {
+              console.error('[Submit] Storage image error:', uploadError.message);
+            }
+            throw new Error(`Không thể tải ảnh thứ ${i + 1} lên máy chủ.`);
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('attachments')
+            .getPublicUrl(storageFileName);
+
+          uploadedImages.push({
+            fileName: rawName,
+            fileData: publicUrl,
+          });
+        }
+
+        if (uploadedImages.length > 0) {
+          fileName = `${uploadedImages.length} ảnh bài làm`;
+          fileData = uploadedImages[0].fileData;
+        }
+      } else if (submitFile) {
         const MAX_SUBMIT_SIZE = 25 * 1024 * 1024; // 25MB
         if (submitFile.size > MAX_SUBMIT_SIZE) {
           addToast('File bài nộp quá lớn! Vui lòng chọn file nhỏ hơn hoặc bằng 25MB.', 'error');
@@ -1431,6 +1478,7 @@ export default function useGroupDetail(groupId, user, addToast) {
           .getPublicUrl(storageFileName);
         fileData = publicUrl;
       }
+
       const all = loadSubmissions();
       const list = all[showSubmitModal] || [];
       const existingIdx = list.findIndex(s => String(s.userId) === String(user.id));
@@ -1441,6 +1489,7 @@ export default function useGroupDetail(groupId, user, addToast) {
         note: submitNote.trim(),
         fileName,
         fileData,
+        images: uploadedImages.length > 0 ? uploadedImages : null,
         submittedAt: new Date().toISOString(),
       };
       if (existingIdx >= 0) list[existingIdx] = entry;
@@ -1458,10 +1507,38 @@ export default function useGroupDetail(groupId, user, addToast) {
       setShowSubmitModal(null);
       setSubmitNote('');
       setSubmitFile(null);
-    } catch {
-      addToast('Lỗi khi nộp bài', 'error');
+      setSubmitImages([]);
+    } catch (err) {
+      addToast(err.message || 'Lỗi khi nộp bài', 'error');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteSubmission = async (deadlineId) => {
+    if (!deadlineId || !user?.id) return;
+    const targetDl = deadlines.find(d => String(d.id) === String(deadlineId));
+    if (targetDl) {
+      const isOverdue = targetDl.overdue || new Date(targetDl.dueDate) < new Date();
+      if (isOverdue) {
+        addToast('Deadline đã quá hạn, không thể xóa bài nộp!', 'error');
+        return;
+      }
+    }
+    try {
+      const all = loadSubmissions();
+      const list = all[deadlineId] || [];
+      const updatedList = list.filter(s => String(s.userId) !== String(user.id));
+      all[deadlineId] = updatedList;
+      saveSubmissions(all);
+      setSubmissions({ ...all });
+      addToast('Đã xóa bài nộp! Bạn có thể chọn file để nộp lại.', 'success');
+      if (showSubmitModal === deadlineId) {
+        setSubmitNote('');
+        setSubmitFile(null);
+      }
+    } catch {
+      addToast('Lỗi khi xóa bài nộp', 'error');
     }
   };
 
@@ -1715,6 +1792,8 @@ export default function useGroupDetail(groupId, user, addToast) {
     setSubmitNote,
     submitFile,
     setSubmitFile,
+    submitImages,
+    setSubmitImages,
     isSubmitting,
     showSubmissionsFor,
     setShowSubmissionsFor,
@@ -1746,6 +1825,7 @@ export default function useGroupDetail(groupId, user, addToast) {
     handleDeadlineDelete,
     handleRemindDeadline,
     handleSubmitAssignment,
+    handleDeleteSubmission,
     handleMsgReact,
     handleMsgDelete,
     handleMsgPin,
