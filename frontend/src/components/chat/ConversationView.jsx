@@ -503,7 +503,7 @@ export default function ConversationView({
     }
 
     await markAsRead(user.id, friend.userId);
-  }, [user.id, friend.userId, nickname, friend.fullName, onNicknameChange, setChatBg]);
+  }, [user?.id, friend?.userId]);
 
   useEffect(() => {
     load();
