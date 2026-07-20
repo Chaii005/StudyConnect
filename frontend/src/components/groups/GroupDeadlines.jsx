@@ -384,132 +384,163 @@ export default function GroupDeadlines({
                     transition: 'all 0.2s',
                   }}
                 >
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <span
-                        style={{
-                          fontWeight: 700,
-                          fontSize: '15px',
-                          color: isDone ? 'var(--text-muted)' : 'var(--text-primary)',
-                          textDecoration: isDone ? 'line-through' : 'none',
-                        }}
-                      >
-                        {d.title}
-                      </span>
-                      {dueSoon && !isDone && (
+                  {/* Card Header & Content */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', width: '100%' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <span
                           style={{
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            color: 'var(--error)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
                             fontWeight: 700,
+                            fontSize: '15px',
+                            color: isDone ? 'var(--text-muted)' : 'var(--text-primary)',
+                            textDecoration: isDone ? 'line-through' : 'none',
                           }}
                         >
-                          Sắp hết hạn
+                          {d.title}
                         </span>
+                        {dueSoon && !isDone && (
+                          <span
+                            style={{
+                              background: 'rgba(239, 68, 68, 0.15)',
+                              color: 'var(--error)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            Sắp hết hạn
+                          </span>
+                        )}
+                        {overdue && !isDone && (
+                          <span
+                            style={{
+                              background: 'rgba(255,255,255,0.05)',
+                              color: 'var(--text-muted)',
+                              border: '1px solid var(--border)',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            Quá hạn
+                          </span>
+                        )}
+                        {isDone && (
+                          <span
+                            style={{
+                              background: 'rgba(34, 197, 94, 0.15)',
+                              color: '#22c55e',
+                              border: '1px solid rgba(34, 197, 94, 0.3)',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            Đã hoàn thành
+                          </span>
+                        )}
+                        {d.submissionType === 'image' && (
+                          <span
+                            style={{
+                              background: 'rgba(59, 130, 246, 0.12)',
+                              color: '#3b82f6',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            Hình ảnh
+                          </span>
+                        )}
+                        {d.submissionType === 'file' && (
+                          <span
+                            style={{
+                              background: 'rgba(168, 85, 247, 0.12)',
+                              color: '#a855f7',
+                              border: '1px solid rgba(168, 85, 247, 0.3)',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            Tệp
+                          </span>
+                        )}
+                        {(!d.submissionType || d.submissionType === 'all') && (
+                          <span
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.06)',
+                              color: 'var(--text-muted)',
+                              border: '1px solid var(--border)',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            Hình ảnh / file
+                          </span>
+                        )}
+                      </div>
+                      {d.description && (
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
+                          {d.description}
+                        </p>
                       )}
-                      {overdue && !isDone && (
-                        <span
-                          style={{
-                            background: 'rgba(255,255,255,0.05)',
-                            color: 'var(--text-muted)',
-                            border: '1px solid var(--border)',
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Quá hạn
-                        </span>
-                      )}
-                      {isDone && (
-                        <span
-                          style={{
-                            background: 'rgba(34, 197, 94, 0.15)',
-                            color: '#22c55e',
-                            border: '1px solid rgba(34, 197, 94, 0.3)',
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                          }}
-                        >
-                          Đã hoàn thành
-                        </span>
-                      )}
-                      {d.submissionType === 'image' && (
-                        <span
-                          style={{
-                            background: 'rgba(59, 130, 246, 0.12)',
-                            color: '#3b82f6',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                          }}
-                        >
-                          Hình ảnh
-                        </span>
-                      )}
-                      {d.submissionType === 'file' && (
-                        <span
-                          style={{
-                            background: 'rgba(168, 85, 247, 0.12)',
-                            color: '#a855f7',
-                            border: '1px solid rgba(168, 85, 247, 0.3)',
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                          }}
-                        >
-                          Tệp
-                        </span>
-                      )}
-                      {(!d.submissionType || d.submissionType === 'all') && (
-                        <span
-                          style={{
-                            background: 'rgba(255, 255, 255, 0.06)',
-                            color: 'var(--text-muted)',
-                            border: '1px solid var(--border)',
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Hình ảnh / file
-                        </span>
-                      )}
-                    </div>
-                    {d.description && (
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-                        {d.description}
-                      </p>
-                    )}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', color: 'var(--text-muted)', flexWrap: 'wrap', marginTop: '2px' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        Hạn: {format24h(d.dueDate)}
-                      </span>
-                      {d.assigneeName && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', color: 'var(--text-muted)', flexWrap: 'wrap', marginTop: '2px' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
                           </svg>
-                          Giao cho: {d.assigneeName}
+                          Hạn: {format24h(d.dueDate)}
                         </span>
-                      )}
+                        {d.assigneeName && (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                              <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            Giao cho: {d.assigneeName}
+                          </span>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Delete Deadline button for Leader/Creator on Top Right */}
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDeadlineDelete(d.id)}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.08)',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                          color: 'var(--error)',
+                          cursor: 'pointer',
+                          padding: '6px 8px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.18)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)')}
+                        title="Xóa deadline"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', width: '100%' }}>
@@ -561,7 +592,7 @@ export default function GroupDeadlines({
                     {(() => {
                       if (hasSubmitted) {
                         return (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                             <span
                               style={{
                                 background: 'rgba(34, 197, 94, 0.12)',
@@ -595,6 +626,7 @@ export default function GroupDeadlines({
                                   display: 'inline-flex',
                                   alignItems: 'center',
                                   gap: '4px',
+                                  whiteSpace: 'nowrap',
                                 }}
                                 title={mySubmission.feedback ? `Nhận xét: "${mySubmission.feedback}"` : 'Điểm đã chấm'}
                               >
@@ -609,18 +641,20 @@ export default function GroupDeadlines({
                                   border: '1px solid rgba(239, 68, 68, 0.25)',
                                   color: 'var(--error)',
                                   borderRadius: '24px',
-                                  padding: '5px 10px',
-                                  fontSize: '11px',
+                                  padding: '6px 12px',
+                                  fontSize: '12px',
                                   fontWeight: 600,
                                   cursor: 'pointer',
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '3px',
+                                  gap: '4px',
+                                  whiteSpace: 'nowrap',
+                                  flexShrink: 0,
                                   transition: 'all 0.2s',
                                 }}
                                 title="Xóa bài nộp hiện tại để nộp lại"
                               >
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                   <polyline points="3 6 5 6 21 6" />
                                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                 </svg>
@@ -677,33 +711,6 @@ export default function GroupDeadlines({
                         </button>
                       );
                     })()}
-
-                    {canDelete && (
-                      <button
-                        onClick={() => handleDeadlineDelete(d.id)}
-                        style={{
-                          marginLeft: 'auto',
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--text-muted)',
-                          cursor: 'pointer',
-                          padding: '6px',
-                          borderRadius: '6px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          transition: 'color 0.2s',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--error)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
-                        title="Xóa deadline"
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                      </button>
-                    )}
                   </div>
                 </div>
               );
