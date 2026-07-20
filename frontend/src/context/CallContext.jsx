@@ -167,7 +167,7 @@ export const CallProvider = ({ children }) => {
           }
           // Gửi tin nhắn vào chat + lưu thông báo chuông (bên gọi)
           if (outCall?.receiverId && user?.id) {
-            sendMessage(user.id, outCall.receiverId, '📵 Người nhận đang bận').catch(() => {});
+            sendMessage(user.id, outCall.receiverId, '📞 Người nhận đang bận').catch(() => {});
           }
         }
 
@@ -286,7 +286,7 @@ export const CallProvider = ({ children }) => {
       statusTimerRef.current = setTimeout(() => setCallStatus(null), 4000);
       // Gửi tin nhắn vào chat + lưu thông báo chuông (bên gọi)
       if (user?.id && receiverId) {
-        sendMessage(user.id, receiverId, '📵 Cuộc gọi nhỡ').catch(() => {});
+        sendMessage(user.id, receiverId, '📞 Cuộc gọi nhỡ').catch(() => {});
       }
     }, 30000);
 

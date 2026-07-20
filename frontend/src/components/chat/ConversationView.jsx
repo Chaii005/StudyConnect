@@ -1304,55 +1304,64 @@ export default function ConversationView({
             );
           }
 
-          if (m.content?.startsWith('📵') || m.content?.startsWith('📹')) {
-            const isMissed = m.content.startsWith('📵');
-            const labelText = m.content.replace(/^\S+\s*/, '');
+          if (
+            m.content && (
+              m.content.includes('Cuộc gọi') ||
+              m.content.startsWith('📵') || m.content.startsWith('🚫') ||
+              m.content.startsWith('📼') || m.content.startsWith('📹') ||
+              m.content.startsWith('📞') || m.content.startsWith('🔕')
+            )
+          ) {
+            const isMissed = m.content.includes('nhỡ') || m.content.includes('bận') || m.content.includes('hủy') ||
+                             m.content.startsWith('📵') || m.content.startsWith('🚫') || m.content.startsWith('🔕');
+            const cleanText = m.content.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F1E6}-\u{1F1FF}\s]+/gu, '').trim();
+
             return (
-              <div key={m.localId || m.id} style={{ textAlign: 'center', margin: '20px 0' }}>
+              <div key={m.localId || m.id} style={{ textAlign: 'center', margin: '18px 0' }}>
                 <span 
                   style={{
                     display: 'inline-flex', 
                     alignItems: 'center', 
                     gap: '10px',
                     padding: '8px 18px', 
-                    borderRadius: '20px',
+                    borderRadius: '22px',
                     background: 'var(--bg-input-chat)',
                     border: '1.5px solid var(--border-chat)',
                     fontSize: '12.5px', 
                     fontWeight: 700,
                     color: 'var(--text-primary-chat)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                   }}
                 >
                   <span 
                     style={{
-                      width: '28px', 
-                      height: '28px', 
+                      width: '30px', 
+                      height: '30px', 
                       borderRadius: '50%', 
-                      background: isMissed ? '#ef4444' : 'var(--primary)',
+                      background: isMissed ? 'rgba(239, 68, 68, 0.12)' : 'rgba(59, 130, 246, 0.12)',
+                      border: isMissed ? '1.5px solid rgba(239, 68, 68, 0.3)' : '1.5px solid rgba(59, 130, 246, 0.3)',
                       display: 'inline-flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      color: '#ffffff',
-                      boxShadow: 'none',
-                      border: '1.5px solid var(--border)',
+                      color: isMissed ? '#ef4444' : '#3b82f6',
                       flexShrink: 0,
                     }}
                   >
                     {isMissed ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
                         <line x1="23" y1="1" x2="1" y2="23" />
                       </svg>
                     ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="m22 8-6 4 6 4V8Z" />
                         <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
                       </svg>
                     )}
                   </span>
-                  {labelText}
+                  {cleanText || (isMissed ? 'Cuộc gọi nhỡ' : 'Cuộc gọi video đã kết thúc')}
                 </span>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted-chat)', marginTop: '6px', fontFamily: 'var(--font-mono, monospace)' }}>
+                <div style={{ fontSize: '10.5px', color: 'var(--text-muted-chat)', marginTop: '5px', fontFamily: 'var(--font-mono, monospace)' }}>
                   {fmtFull(m.createdAt)}
                 </div>
               </div>

@@ -760,7 +760,7 @@ export default function PrivateCall() {
     if (elapsedRef.current > 0 && user?.id && friendId) {
       const mm = String(Math.floor(elapsedRef.current / 60)).padStart(2, '0');
       const ss = String(elapsedRef.current % 60).padStart(2, '0');
-      const summary = `📹 Cuộc gọi video đã kết thúc · ${mm}:${ss}`;
+      const summary = `📞 Cuộc gọi video đã kết thúc · ${mm}:${ss}`;
       try { await sendMessage(user.id, friendId, summary); } catch { /* ignore */ }
     }
     navigate('/chat');
