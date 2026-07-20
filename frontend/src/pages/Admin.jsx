@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../layouts/AppLayout';
 import { adminLogin } from '../services/authService';
-import { adminGetUsers, adminCreateUser, adminUpdateUser, adminDeleteUser, adminGetGroups, adminCreateGroup, adminUpdateGroup, adminDeleteGroup } from '../services/adminService';
+import { adminGetUsers, adminCreateUser, adminUpdateUser, adminDeleteUser, adminResendVerification, adminGetGroups, adminCreateGroup, adminUpdateGroup, adminDeleteGroup } from '../services/adminService';
 import { getPendingFiles, getPendingPosts, approveFile, approvePost, deleteFile as adminDeleteFile, deletePost as adminDeletePost } from '../services/interactionService';
 import { supabase } from '../config/supabaseClient';
 import UserTable     from '@/components/admin/UserTable';
@@ -652,6 +652,15 @@ export default function Admin() {
     });
   };
 
+  const handleResendEmail = async (u) => {
+    try {
+      await adminResendVerification(u.email);
+      showToast(`Đã gửi lại email kích hoạt đến ${u.email}!`);
+    } catch (err) {
+      showToast(err.message || 'Gửi lại email kích hoạt thất bại', 'error');
+    }
+  };
+
   // ── Group handlers ───────────────────────────────────────────────
   const openCreateGroup = () => { setCurrentEditGroup(null); setGroupForm({ ...EMPTY_GROUP_FORM, creatorId: users[0]?.id || '' }); setLocationSearchVal(''); setSelectedLocation(null); setShowGroupModal(true); };
   const openEditGroup   = (g) => { setCurrentEditGroup(g); setGroupForm({ name: g.name || '', subject: g.subject || '', major: g.major || '', description: g.description || '', creatorId: g.creatorId || '', deputyId: g.deputyId || '', meetingMode: g.meetingMode || 'online' }); setLocationSearchVal(g.location ? (g.location.name + (g.location.address ? ` — ${g.location.address}` : '')) : ''); setSelectedLocation(g.location || null); setShowGroupModal(true); };
@@ -1014,7 +1023,7 @@ export default function Admin() {
           ) : (
             <div style={{ animation: 'slideUp 0.3s ease' }}>
               {activeTab === 'users' && (
-                <UserTable filteredUsers={filteredUsers} admin={admin} userSearch={userSearch} setUserSearch={setUserSearch} onEdit={openEditUser} onDelete={handleUserDelete} onCreateNew={openCreateUser} />
+                <UserTable filteredUsers={filteredUsers} admin={admin} userSearch={userSearch} setUserSearch={setUserSearch} onEdit={openEditUser} onDelete={handleUserDelete} onResendEmail={handleResendEmail} onCreateNew={openCreateUser} />
               )}
               {activeTab === 'groups' && (
                 <GroupTable filteredGroups={filteredGroups} groupSearch={groupSearch} setGroupSearch={setGroupSearch} users={users} onEdit={openEditGroup} onDelete={handleGroupDelete} onViewMembers={(g) => setSelectedGroupMembers(g)} onCreateNew={openCreateGroup} />

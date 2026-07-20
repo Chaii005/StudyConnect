@@ -223,6 +223,20 @@ export const adminDeleteUser = async (userId) => {
   if (error) throw new Error(`Xóa người dùng thất bại: ${error.message}`);
 };
 
+export const adminResendVerification = async (email) => {
+  const normalizedEmail = email.toLowerCase().trim();
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: normalizedEmail
+  });
+
+  if (error) {
+    throw new Error(`Gửi lại email xác thực thất bại: ${error.message}`);
+  }
+  return true;
+};
+
+
 // ─── QUẢN LÝ NHÓM HỌC ──────────────────────────────
 export const adminGetGroups = async () => {
   const { data, error } = await supabase

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { login, signInWithGoogle, signInWithGoogleNative } from '../services/authService';
+import { login, signInWithGoogle, signInWithGoogleNative, resendConfirmationEmail } from '../services/authService';
 import { SafeInput } from '@/components/common/SafeInput';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -18,6 +18,19 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleResendConfirmation = async () => {
+    if (!form.email) {
+      addToast('Vui lòng nhập email của bạn.', 'info');
+      return;
+    }
+    try {
+      await resendConfirmationEmail(form.email);
+      addToast('Đã gửi lại email kích hoạt! Vui lòng kiểm tra hòm thư của bạn.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Lỗi gửi lại email xác thực.', 'error');
+    }
+  };
 
   useEffect(() => {
     const errType = searchParams.get('error');
@@ -133,13 +146,35 @@ export default function Login() {
 
         {/* Error */}
         {error && (
-          <div className="alert alert-error" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" x2="12" y1="8" y2="12"/>
-              <line x1="12" x2="12.01" y1="16" y2="16"/>
-            </svg>
-            <span>{error}</span>
+          <div className="alert alert-error" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" x2="12" y1="8" y2="12"/>
+                <line x1="12" x2="12.01" y1="16" y2="16"/>
+              </svg>
+              <span>{error}</span>
+            </div>
+            {error.includes('xác thực') && (
+              <button
+                type="button"
+                onClick={handleResendConfirmation}
+                style={{
+                  alignSelf: 'flex-start',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '1px solid currentColor',
+                  color: 'inherit',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  marginTop: '4px'
+                }}
+              >
+                Gửi lại email kích hoạt
+              </button>
+            )}
           </div>
         )}
 

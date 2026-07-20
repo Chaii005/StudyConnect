@@ -136,12 +136,8 @@ export const login = async ({ email, password }) => {
   });
 
   if (authError) {
-    // Nếu chưa xác nhận email, chặn luôn
-    if (authError.message.includes('Email not confirmed') || authError.message.includes('email_not_confirmed')) {
-      throw new Error('Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư email (bao gồm cả spam) để kích hoạt tài khoản.');
-    }
-    
-    // Nếu lỗi đăng nhập khác (ví dụ: người dùng cũ chưa có trong Supabase Auth), ta check tương thích ngược
+    // Nếu có lỗi đăng nhập ở Supabase Auth (bao gồm cả trường hợp Email not confirmed hoặc Admin tạo chưa kích hoạt),
+    // ta kiểm tra tương thích trong bảng public.users dựa trên mật khẩu khớp
     const hashedPassword = await hashPassword(password, normalizedEmail);
     const { data: legacyUser, error: legacyError } = await supabase
       .from('users')
@@ -149,72 +145,73 @@ export const login = async ({ email, password }) => {
       .eq('email', normalizedEmail)
       .maybeSingle();
 
-    if (legacyError || !legacyUser) {
-      throw new Error('Email hoặc mật khẩu không đúng.');
-    }
+    if (legacyUser) {
+      const isLegacyMatch = legacyUser.password === password;
+      const isHashMatch = legacyUser.password === hashedPassword;
 
-    const isLegacyMatch = legacyUser.password === password;
-    const isHashMatch = legacyUser.password === hashedPassword;
-
-    if (!isLegacyMatch && !isHashMatch) {
-      throw new Error('Email hoặc mật khẩu không đúng.');
-    }
-
-    if (legacyUser.is_banned) {
-      throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống do vi phạm chính sách nội dung khiêu dâm.');
-    }
-
-    // Đây là người dùng cũ đăng nhập đúng mật khẩu:
-    // Tự động đồng bộ Supabase Auth trong nền (không chặn đăng nhập)
-    if (!legacyUser.supabase_uid) {
-      try {
-        const { data: newAuth, error: signUpError } = await supabase.auth.signUp({
-          email: normalizedEmail,
-          password: password,
-          options: {
-            data: { full_name: legacyUser.full_name }
-          }
-        });
-        
-        if (!signUpError && newAuth?.user) {
-          await supabase
-            .from('users')
-            .update({ supabase_uid: newAuth.user.id })
-            .eq('id', legacyUser.id);
+      if (isLegacyMatch || isHashMatch) {
+        if (legacyUser.is_banned) {
+          throw new Error('Tài khoản này đã bị khóa vĩnh viễn khỏi hệ thống.');
         }
-      } catch (syncErr) {
-        if (import.meta.env.DEV) console.warn('[Auth] Background Supabase Auth sync failed:', syncErr);
+
+        // Người dùng nhập ĐÚNG mật khẩu! Cho phép đăng nhập thành công vào app/web:
+        if (!legacyUser.supabase_uid) {
+          try {
+            const { data: newAuth, error: signUpError } = await supabase.auth.signUp({
+              email: normalizedEmail,
+              password: password,
+              options: {
+                data: { full_name: legacyUser.full_name }
+              }
+            });
+            
+            if (!signUpError && newAuth?.user) {
+              await supabase
+                .from('users')
+                .update({ supabase_uid: newAuth.user.id })
+                .eq('id', legacyUser.id);
+            }
+          } catch (syncErr) {
+            if (import.meta.env.DEV) console.warn('[Auth] Background Supabase Auth sync failed:', syncErr);
+          }
+        }
+
+        // Nâng cấp mật khẩu legacy lên Salted SHA-256 nếu cần
+        if (isLegacyMatch && !isHashMatch) {
+          try {
+            const newHash = await hashPassword(password, normalizedEmail);
+            await supabase
+              .from('users')
+              .update({ password: newHash })
+              .eq('id', legacyUser.id);
+          } catch (upgradeErr) {
+            if (import.meta.env.DEV) console.warn('[Auth] Password upgrade failed:', upgradeErr);
+          }
+        }
+
+        const safeUser = {
+          id: legacyUser.id,
+          fullName: legacyUser.full_name,
+          email: legacyUser.email,
+          role: legacyUser.role,
+          university: legacyUser.university || '',
+          major: legacyUser.major || '',
+          avatar: legacyUser.avatar || '',
+          bio: legacyUser.bio || '',
+          createdAt: legacyUser.created_at,
+        };
+
+        saveSession(safeUser);
+        return { user: safeUser };
       }
     }
 
-    // Nâng cấp mật khẩu legacy lên Salted SHA-256 nếu cần
-    if (isLegacyMatch && !isHashMatch) {
-      try {
-        const newHash = await hashPassword(password, normalizedEmail);
-        await supabase
-          .from('users')
-          .update({ password: newHash })
-          .eq('id', legacyUser.id);
-      } catch (upgradeErr) {
-        if (import.meta.env.DEV) console.warn('[Auth] Password upgrade failed:', upgradeErr);
-      }
+    // Nếu gõ SAI mật khẩu hoặc không tồn tại trong public.users, thông báo lỗi chính xác
+    if (authError.message.includes('Email not confirmed') || authError.message.includes('email_not_confirmed')) {
+      throw new Error('Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư email (bao gồm cả spam) để kích hoạt tài khoản.');
     }
 
-    // Cho phép đăng nhập ngay với dữ liệu từ public.users
-    const safeUser = {
-      id: legacyUser.id,
-      fullName: legacyUser.full_name,
-      email: legacyUser.email,
-      role: legacyUser.role,
-      university: legacyUser.university || '',
-      major: legacyUser.major || '',
-      avatar: legacyUser.avatar || '',
-      bio: legacyUser.bio || '',
-      createdAt: legacyUser.created_at,
-    };
-
-    saveSession(safeUser);
-    return { user: safeUser };
+    throw new Error('Email hoặc mật khẩu không đúng.');
   }
 
   // 2. Đăng nhập Supabase Auth thành công -> Lấy thông tin user có BIGINT ID tương ứng từ public.users
@@ -720,6 +717,19 @@ export const changePassword = async ({ id, currentPassword, newPassword }) => {
 };
 
 // ─── HELPERS ─────────────────────────────────────────
+export const resendConfirmationEmail = async (email) => {
+  const normalizedEmail = email.toLowerCase().trim();
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: normalizedEmail
+  });
+  if (error) {
+    throw new Error(`Gửi lại email xác thực thất bại: ${error.message}`);
+  }
+  return { success: true, message: 'Email xác thực đã được gửi lại thành công.' };
+};
+
 export const getCurrentUser = () => getSession();
 export const isAuthenticated = () => !!getSession();
+
 
