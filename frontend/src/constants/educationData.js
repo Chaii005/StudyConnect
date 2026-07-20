@@ -114,11 +114,11 @@ export const MAJORS = [
   'Ngành khác...'
 ];
 
-// Danh sách ngành kèm Major ID chuẩn (An toàn thông tin = ID "000")
+// Danh sách ngành kèm Major ID chuẩn (An toàn thông tin = ID "001")
 export const MAJOR_ITEMS = MAJORS.map((name, index) => ({
-  id: String(index).padStart(3, '0'),
-  code: String(index).padStart(3, '0'),
-  numericId: index,
+  id: String(index + 1).padStart(3, '0'),
+  code: String(index + 1).padStart(3, '0'),
+  numericId: index + 1,
   name
 }));
 
