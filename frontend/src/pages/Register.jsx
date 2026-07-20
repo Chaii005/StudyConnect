@@ -656,7 +656,7 @@ export default function Register() {
                       <circle cx="12" cy="10" r="3"/>
                     </svg>
                     Khu vực sinh sống
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>(Không bắt buộc — quyền riêng tư)</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>(Không bắt buộc)</span>
                   </label>
                 </div>
                 
