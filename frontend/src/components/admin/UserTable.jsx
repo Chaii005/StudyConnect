@@ -1,4 +1,5 @@
 import { SafeInput } from '@/components/common/SafeInput';
+import { getMajorIdByName } from '@/constants/educationData';
 
 // User management table for Admin panel
 export default function UserTable({ filteredUsers, admin, userSearch, setUserSearch, onEdit, onDelete }) {
@@ -40,6 +41,8 @@ export default function UserTable({ filteredUsers, admin, userSearch, setUserSea
               filteredUsers.map((u) => {
                 const userInitials = u.fullName?.split(' ').map((w) => w[0]).slice(-2).join('').toUpperCase() || '?';
                 const isSelf = u.id === admin.id;
+                const majorId = getMajorIdByName(u.major);
+
                 return (
                   <tr key={u.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '14.5px', transition: 'var(--transition)' }} className="table-row-hover">
                     <td style={{ padding: '16px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -62,12 +65,19 @@ export default function UserTable({ filteredUsers, admin, userSearch, setUserSea
                       </div>
                     </td>
                     <td style={{ padding: '16px 16px', color: 'var(--text-secondary)' }}>
-                      {u.university ? (
-                        <div>
-                          <div>{u.university}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{u.major}</div>
-                        </div>
-                      ) : <span>-</span>}
+                      <div>
+                        {u.university && <div>{u.university}</div>}
+                        {u.major ? (
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: 2 }}>
+                            <span>{u.major}</span>
+                            {majorId ? (
+                              <span style={{ fontSize: '11px', background: 'rgba(42, 117, 118, 0.1)', color: 'var(--primary)', border: '1px solid rgba(42, 117, 118, 0.25)', borderRadius: '6px', padding: '1px 6px', fontWeight: 700 }}>
+                                ID: #{majorId}
+                              </span>
+                            ) : null}
+                          </div>
+                        ) : (!u.university && <span>-</span>)}
+                      </div>
                     </td>
                     <td style={{ padding: '16px 16px', whiteSpace: 'nowrap' }}>
                       <span style={{

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { HCM_UNIVERSITIES, MAJORS } from '@/constants/educationData';
+import { HCM_UNIVERSITIES, MAJORS, getMajorIdByName } from '@/constants/educationData';
 import { SafeInput, SafeTextarea } from '@/components/common/SafeInput';
 
 const IS = { // inputStyle shorthand
@@ -209,11 +209,24 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
 
           {/* Major */}
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Ngành học</label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ngành học</label>
+              {userForm.major && getMajorIdByName(userForm.major) && (
+                <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--primary)', background: 'rgba(42,117,118,0.1)', padding: '1px 8px', borderRadius: '6px', border: '1px solid rgba(42,117,118,0.25)' }}>
+                  Mã Ngành Admin: #{getMajorIdByName(userForm.major)}
+                </span>
+              )}
+            </div>
             <CustomSelect
-              value={userForm.major}
-              onChange={(val) => setUserForm({ ...userForm, major: val })}
-              options={MAJORS}
+              value={userForm.major ? (getMajorIdByName(userForm.major) ? `${userForm.major} (ID: #${getMajorIdByName(userForm.major)})` : userForm.major) : ''}
+              onChange={(val) => {
+                const cleanMajor = val ? val.replace(/\s*\(ID:\s*#\d+\)$/, '') : '';
+                setUserForm({ ...userForm, major: cleanMajor });
+              }}
+              options={MAJORS.map(m => {
+                const mId = getMajorIdByName(m);
+                return mId ? `${m} (ID: #${mId})` : m;
+              })}
               placeholder="-- Chọn ngành học --"
             />
             {userForm.major === 'Ngành khác...' && (

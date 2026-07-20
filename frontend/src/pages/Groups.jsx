@@ -1040,7 +1040,7 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                       </span>
                       {group.sameMajor && (
                         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', borderRadius: 20, padding: '2px 9px', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                          ✨ Cùng ngành {group.majorId ? `(ID: #${group.majorId})` : ''}
+                          ✨ Cùng ngành
                         </span>
                       )}
                       {distanceText && (
@@ -1965,15 +1965,11 @@ export default function Groups() {
           {isDeputy && <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(0,0,0,0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>Phó nhóm</span>}
 
           {/* Major Badge */}
-          {isSameMajor ? (
+          {isSameMajor && (
             <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(17, 24, 39, 0.04)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>
-              ✨ Cùng ngành (ID: #{groupMajorId})
+              ✨ Cùng ngành
             </span>
-          ) : groupMajorId ? (
-            <span style={{ fontSize: 11, fontWeight: 600, background: 'var(--bg-input)', color: 'var(--text-muted)', padding: '4px 10px', borderRadius: 10, border: '1px solid var(--border)' }}>
-              ID ngành: #{groupMajorId}
-            </span>
-          ) : null}
+          )}
         </div>
 
         <div 
@@ -2396,7 +2392,7 @@ export default function Groups() {
                     : '0 2px 8px rgba(42,117,118,0.12)';
                 }}
               >
-                {showOnlyMyMajor ? 'Xem tất cả' : (userMajorId ? `Nhóm cùng ngành (ID: #${userMajorId})` : 'Nhóm cùng ngành')}
+                {showOnlyMyMajor ? 'Xem tất cả' : 'Nhóm cùng ngành'}
               </button>
             )}
           </div>
@@ -2435,7 +2431,7 @@ export default function Groups() {
                   <div style={{ width: 4, height: 20, background: 'var(--primary, #2A7576)', borderRadius: 4, flexShrink: 0 }} />
                   <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>Dành cho bạn</h3>
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary, #2A7576)', background: 'rgba(42,117,118,0.09)', border: '1.5px solid rgba(42,117,118,0.25)', borderRadius: 20, padding: '2px 9px', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {user.major} {userMajorId ? `(ID: #${userMajorId})` : ''}
+                    {user.major}
                   </span>
                 </div>
 
