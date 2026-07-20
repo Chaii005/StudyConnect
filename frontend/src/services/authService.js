@@ -136,11 +136,6 @@ export const login = async ({ email, password }) => {
   });
 
   if (authError) {
-    // Nếu chưa xác nhận email trong Supabase Auth -> Chặn luôn và thông báo kích hoạt
-    if (authError.message.includes('Email not confirmed') || authError.message.includes('email_not_confirmed')) {
-      throw new Error('Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư email (bao gồm cả spam) để kích hoạt tài khoản.');
-    }
-
     // Kiểm tra tương thích người dùng trong public.users
     const hashedPassword = await hashPassword(password, normalizedEmail);
     const { data: legacyUser } = await supabase

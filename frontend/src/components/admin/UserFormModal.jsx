@@ -205,16 +205,7 @@ export default function UserFormModal({ show, onClose, currentEditUser, userForm
                 value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} required={!currentEditUser} />
             </div>
           </div>
-          {!currentEditUser && (
-            <div style={{ fontSize: '11.5px', color: 'var(--text-primary)', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '10px', padding: '9px 13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12.01" y2="8" />
-              </svg>
-              <span>Hệ thống sẽ tự động gửi <strong>email xác thực kích hoạt</strong> đến địa chỉ email này sau khi tạo.</span>
-            </div>
-          )}
+
 
           {/* Major */}
           <div>
