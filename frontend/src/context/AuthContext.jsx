@@ -77,6 +77,46 @@ export const AuthProvider = ({ children }) => {
     // Verify immediately on mount or route transition
     verifyUser();
 
+    // Realtime subscription for logged-in user's profile updates (e.g. when major is updated by Admin or self)
+    const selfChannel = supabase
+      .channel(`user-self-realtime-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'users',
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            const data = payload.new;
+            if (data.is_banned) {
+              serviceLogout();
+              setUser(null);
+              window.location.href = '/login';
+              return;
+            }
+            setUser((prev) => {
+              if (!prev) return null;
+              const updated = {
+                ...prev,
+                fullName: data.full_name || prev.fullName,
+                major: data.major || '',
+                bio: data.bio || '',
+                university: data.university || '',
+                avatar: data.avatar || '',
+              };
+              try {
+                localStorage.setItem('sc_session', JSON.stringify(updated));
+              } catch { /* ignore */ }
+              return updated;
+            });
+          }
+        }
+      )
+      .subscribe();
+
     // Verify periodically every 30 seconds when the app is visible
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
@@ -86,6 +126,7 @@ export const AuthProvider = ({ children }) => {
 
     return () => {
       active = false;
+      supabase.removeChannel(selfChannel);
       clearInterval(interval);
     };
   }, [user?.id, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -380,6 +380,17 @@ export default function Friends() {
           await loadAll();
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'users',
+        },
+        async () => {
+          await loadAll();
+        }
+      )
       .subscribe();
 
     return () => {
