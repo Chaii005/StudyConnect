@@ -71,13 +71,12 @@ function MembersModal({ group, users, onClose }) {
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', background: 'rgba(255,255,255,0.02)' }}>
                 <th style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>Họ và tên</th>
-                <th style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>Email</th>
                 <th style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>Vai trò</th>
               </tr>
             </thead>
             <tbody>
               {list.length === 0 ? (
-                <tr><td colSpan="3" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Không có thành viên nào.</td></tr>
+                <tr><td colSpan="2" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Không có thành viên nào.</td></tr>
               ) : list.map((m) => (
                 <tr key={m.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '13.5px' }}>
                   <td style={{ padding: '12px 14px', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
@@ -87,7 +86,6 @@ function MembersModal({ group, users, onClose }) {
                       {m.id === group.deputyId  && <span style={{ fontSize: '11px', color: '#34d399', background: 'rgba(52,211,153,0.1)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap', display: 'inline-block', flexShrink: 0 }}>Phó nhóm</span>}
                     </div>
                   </td>
-                  <td style={{ padding: '12px 14px', color: 'var(--text-secondary)', fontSize: '12.5px', whiteSpace: 'nowrap' }}>{m.email}</td>
                   <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: '11px', fontWeight: 650, padding: '3px 10px', borderRadius: '4px', background: m.role === 'admin' ? 'rgba(239,68,68,0.1)' : 'rgba(0,0,0,0.06)', color: m.role === 'admin' ? 'var(--error)' : 'var(--text-primary)', whiteSpace: 'nowrap', display: 'inline-block' }}>
                       {m.role === 'admin' ? 'Admin' : 'Học sinh'}

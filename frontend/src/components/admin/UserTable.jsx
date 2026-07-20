@@ -61,7 +61,7 @@ export default function UserTable({ filteredUsers, admin, userSearch, setUserSea
                         <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                           {u.fullName}{isSelf && <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '8px', color: 'var(--text-muted)', fontWeight: 500, marginLeft: 6 }}>(Tôi)</span>}
                         </div>
-                        <div style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>{u.email}</div>
+                        {isSelf && <div style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>{u.email}</div>}
                       </div>
                     </td>
                     <td style={{ padding: '16px 16px', color: 'var(--text-secondary)' }}>

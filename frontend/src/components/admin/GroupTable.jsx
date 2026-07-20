@@ -141,10 +141,7 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
                   {creator ? (
                     <div>
                       <div style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {creator.fullName || creator.email}
-                      </div>
-                      <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {creator.email}
+                        {creator.fullName || '—'}
                       </div>
                     </div>
                   ) : (
@@ -157,10 +154,7 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
                   {groupDeputies.length > 0 ? (
                     <div>
                       <div style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {groupDeputies[0].fullName || groupDeputies[0].email}
-                      </div>
-                      <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {groupDeputies[0].email}
+                        {groupDeputies[0].fullName || '—'}
                       </div>
                       {groupDeputies.length > 1 && (
                         <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '1px' }}>+{groupDeputies.length - 1} khác</div>

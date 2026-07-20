@@ -440,7 +440,6 @@ export default function FriendDetail() {
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
             {friendData?.full_name}
           </h2>
-          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>@{friendData?.email?.split('@')[0]}</span>
           
           {(friendData?.university || friendData?.major) && (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '8px' }}>
@@ -677,7 +676,6 @@ export default function FriendDetail() {
             </div>
 
             <h1 className="profile-name" style={{ fontSize: '18px', fontWeight: 800 }}>{friendData.full_name}</h1>
-            <p className="profile-email" style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 8px', wordBreak: 'break-all' }}>{friendData.email}</p>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '6px' }}>
               <span className="profile-badge" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', fontSize: '10px' }}>
