@@ -1499,20 +1499,14 @@ export default function useGroupDetail(groupId, user, addToast) {
         fileData,
         images: uploadedImages.length > 0 ? uploadedImages : null,
         submittedAt: new Date().toISOString(),
+        grade: existingIdx >= 0 ? list[existingIdx].grade : null,
+        feedback: existingIdx >= 0 ? list[existingIdx].feedback : null,
       };
       if (existingIdx >= 0) list[existingIdx] = entry;
       else list.push(entry);
       all[showSubmitModal] = list;
       saveSubmissions(all);
       setSubmissions({ ...all });
-      const targetDl = deadlines.find(d => String(d.id) === String(showSubmitModal));
-      if (targetDl && !targetDl.completed) {
-        try {
-          await toggleDeadline(showSubmitModal);
-        } catch {
-          // Safe check
-        }
-      }
       fetchGroupDeadlines();
       addToast('Nộp bài thành công! ✅', 'success');
       setShowSubmitModal(null);
@@ -1543,15 +1537,7 @@ export default function useGroupDetail(groupId, user, addToast) {
       all[deadlineId] = updatedList;
       saveSubmissions(all);
       setSubmissions({ ...all });
-
-      if (targetDl && targetDl.completed) {
-        try {
-          await toggleDeadline(deadlineId);
-        } catch {
-          // Safe check
-        }
-        await fetchGroupDeadlines();
-      }
+      await fetchGroupDeadlines();
 
       addToast('Đã xóa bài nộp! Bạn có thể chọn file để nộp lại.', 'success');
       if (showSubmitModal === deadlineId) {
@@ -1561,6 +1547,25 @@ export default function useGroupDetail(groupId, user, addToast) {
       }
     } catch {
       addToast('Lỗi khi xóa bài nộp', 'error');
+    }
+  };
+
+  const handleSaveGrade = (deadlineId, targetUserId, grade, feedback) => {
+    try {
+      const all = loadSubmissions();
+      const list = all[deadlineId] || [];
+      const idx = list.findIndex(s => String(s.userId) === String(targetUserId));
+      if (idx >= 0) {
+        list[idx].grade = grade;
+        list[idx].feedback = feedback;
+        list[idx].gradedAt = new Date().toISOString();
+        all[deadlineId] = list;
+        saveSubmissions(all);
+        setSubmissions({ ...all });
+        addToast(`Đã lưu điểm và nhận xét cho ${list[idx].userName || 'thành viên'}!`, 'success');
+      }
+    } catch {
+      addToast('Lỗi khi lưu điểm bài nộp', 'error');
     }
   };
 
@@ -1852,6 +1857,7 @@ export default function useGroupDetail(groupId, user, addToast) {
     handleRemindDeadline,
     handleSubmitAssignment,
     handleDeleteSubmission,
+    handleSaveGrade,
     handleMsgReact,
     handleMsgDelete,
     handleMsgPin,

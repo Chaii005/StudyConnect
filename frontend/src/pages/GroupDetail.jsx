@@ -560,6 +560,7 @@ export default function GroupDetail() {
             showSubmissionsFor={h.showSubmissionsFor} setShowSubmissionsFor={h.setShowSubmissionsFor}
             handleSubmitAssignment={h.handleSubmitAssignment}
             handleDeleteSubmission={h.handleDeleteSubmission}
+            handleSaveGrade={h.handleSaveGrade}
             handleRemindDeadline={h.handleRemindDeadline}
             remindingIds={h.remindingIds}
             membersDetails={h.membersDetails}

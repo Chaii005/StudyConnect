@@ -59,6 +59,7 @@ export default function GroupDeadlines({
   setShowSubmissionsFor,
   handleSubmitAssignment,
   handleDeleteSubmission,
+  handleSaveGrade,
   handleRemindDeadline,
   remindingIds,
   membersDetails = [],
@@ -71,7 +72,58 @@ export default function GroupDeadlines({
   const [submitTab, setSubmitTab] = useState('images'); // 'images' or 'file'
   const [lightboxImg, setLightboxImg] = useState(null);
 
+  // State for grading modal
+  const [gradingTarget, setGradingTarget] = useState(null); // { deadlineId, member, submission }
+  const [gradeInput, setGradeInput] = useState('');
+  const [feedbackInput, setFeedbackInput] = useState('');
+
   const isLeader = String(user?.id) === String(group?.creatorId) || (group?.deputyIds ? group.deputyIds.some(id => String(id) === String(user?.id)) : String(user?.id) === String(group?.deputyId));
+
+  const getSubmissionTiming = (submittedAt, dueDate) => {
+    if (!submittedAt || !dueDate) return null;
+    const subTime = new Date(submittedAt).getTime();
+    const dueTime = new Date(dueDate).getTime();
+    const diffMs = dueTime - subTime;
+    const isEarly = diffMs >= 0;
+    const absDiff = Math.abs(diffMs);
+
+    const minutes = Math.floor(absDiff / (60 * 1000));
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    let timeStr = '';
+    if (days > 0) {
+      const remHours = hours % 24;
+      timeStr = `${days} ngày${remHours > 0 ? ` ${remHours} giờ` : ''}`;
+    } else if (hours > 0) {
+      const remMins = minutes % 60;
+      timeStr = `${hours} giờ${remMins > 0 ? ` ${remMins} phút` : ''}`;
+    } else if (minutes > 0) {
+      timeStr = `${minutes} phút`;
+    } else {
+      timeStr = 'đúng hạn';
+    }
+
+    return {
+      isEarly,
+      label: timeStr === 'đúng hạn' ? 'Nộp đúng hạn' : (isEarly ? `Nộp sớm ${timeStr}` : `Nộp trễ ${timeStr}`)
+    };
+  };
+
+  const openGradingModal = (deadlineId, member, submission) => {
+    setGradingTarget({ deadlineId, member, submission });
+    setGradeInput(submission?.grade != null ? String(submission.grade) : '');
+    setFeedbackInput(submission?.feedback || '');
+  };
+
+  const handleSaveGradeClick = () => {
+    if (!gradingTarget) return;
+    const { deadlineId, member } = gradingTarget;
+    if (handleSaveGrade) {
+      handleSaveGrade(deadlineId, member.id, gradeInput.trim(), feedbackInput.trim());
+    }
+    setGradingTarget(null);
+  };
 
   const visibleDeadlines = deadlines.filter((d) => {
     if (isLeader) return true;
@@ -306,7 +358,8 @@ export default function GroupDeadlines({
               const subs = submissions[d.id] || [];
               const mySubmission = subs.find((s) => String(s.userId) === String(user.id));
               const hasSubmitted = !!mySubmission;
-              const isDone = d.completed && hasSubmitted;
+              const isDone = hasSubmitted;
+              const totalAssigned = d.assigneeId && d.assigneeId !== 'all' ? 1 : (membersDetails.length || group?.members?.length || 1);
 
               return (
                 <div
@@ -472,7 +525,7 @@ export default function GroupDeadlines({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        Bài nộp ({subs.length})
+                        Bài nộp ({subs.length}/{totalAssigned})
                       </button>
                     )}
 
@@ -508,7 +561,7 @@ export default function GroupDeadlines({
                     {(() => {
                       if (hasSubmitted) {
                         return (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                             <span
                               style={{
                                 background: 'rgba(34, 197, 94, 0.12)',
@@ -527,8 +580,27 @@ export default function GroupDeadlines({
                               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
-                              Đã nộp
+                              Đã nộp bài
                             </span>
+                            {mySubmission?.grade != null && (
+                              <span
+                                style={{
+                                  background: 'rgba(234, 179, 8, 0.15)',
+                                  border: '1px solid rgba(234, 179, 8, 0.4)',
+                                  color: '#eab308',
+                                  padding: '5px 10px',
+                                  borderRadius: '24px',
+                                  fontSize: '12px',
+                                  fontWeight: 800,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                title={mySubmission.feedback ? `Nhận xét: "${mySubmission.feedback}"` : 'Điểm đã chấm'}
+                              >
+                                ⭐ Điểm: {mySubmission.grade}/10
+                              </span>
+                            )}
                             {!overdue && (
                               <button
                                 onClick={() => handleDeleteSubmission(d.id)}
@@ -819,7 +891,7 @@ export default function GroupDeadlines({
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmittingDeadline}
+disabled={isSubmittingDeadline}
                   className="btn-mono"
                   style={{
                     padding: '10px 24px',
@@ -832,6 +904,424 @@ export default function GroupDeadlines({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Leader Submissions & Member Progress modal */}
+      {showSubmissionsFor && (() => {
+        const currDl = deadlines.find((d) => String(d.id) === String(showSubmissionsFor));
+        const dlSubmissions = submissions[showSubmissionsFor] || [];
+        
+        // Determine assigned member list
+        let assignedMembers = [];
+        if (currDl?.assigneeId && currDl.assigneeId !== 'all') {
+          const m = membersDetails.find((mem) => String(mem.id) === String(currDl.assigneeId));
+          assignedMembers = m ? [m] : [{ id: currDl.assigneeId, fullName: currDl.assigneeName || 'Thành viên' }];
+        } else {
+          assignedMembers = membersDetails.length > 0 ? membersDetails : (group?.members || []).map((mId) => ({ id: mId, fullName: mId }));
+        }
+
+        const submittedCount = assignedMembers.filter(m => dlSubmissions.some(s => String(s.userId) === String(m.id))).length;
+
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.65)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+            }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowSubmissionsFor(null);
+            }}
+          >
+            <div
+              style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: '18px',
+                padding: '20px 24px',
+                width: '100%',
+                maxWidth: '640px',
+                maxHeight: 'calc(100vh - 80px)',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
+                boxSizing: 'border-box',
+              }}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                    Danh sách bài nộp & Tiến độ
+                  </h3>
+                  <span style={{ fontSize: '12px', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '2px 10px', borderRadius: '12px', fontWeight: 700 }}>
+                    {submittedCount}/{assignedMembers.length} đã nộp
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSubmissionsFor(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-muted)',
+                    fontSize: '20px',
+                    lineHeight: 1,
+                    padding: '4px 8px',
+                    borderRadius: '8px',
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px', fontWeight: 500 }}>
+                Deadline: <strong style={{ color: 'var(--text-primary)' }}>{currDl?.title}</strong> (Hạn: {format24h(currDl?.dueDate)})
+              </p>
+
+              {/* Members submission list */}
+              <div style={{ overflowY: 'auto', overscrollBehavior: 'contain', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', paddingRight: '4px' }}>
+                {assignedMembers.map((m) => {
+                  const sub = dlSubmissions.find((s) => String(s.userId) === String(m.id));
+                  const timing = sub ? getSubmissionTiming(sub.submittedAt, currDl?.dueDate) : null;
+                  const isUserLeader = String(m.id) === String(group?.creatorId);
+                  const isUserDeputy = group?.deputyIds ? group.deputyIds.some(id => String(id) === String(m.id)) : String(m.id) === String(group?.deputyId);
+
+                  return (
+                    <div
+                      key={m.id}
+                      style={{
+                        background: 'var(--bg-input)',
+                        border: sub ? '1px solid var(--border)' : '1px dashed var(--border)',
+                        borderRadius: '14px',
+                        padding: '14px 16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                      }}
+                    >
+                      {/* Top row: Member Info & Submission timing status */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          {m.avatar ? (
+                            <img src={m.avatar} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                          ) : (
+                            <div
+                              style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, var(--text-muted), #666)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '13px',
+                                fontWeight: 700,
+                                color: 'white',
+                                flexShrink: 0,
+                              }}
+                            >
+                              {m.fullName ? m.fullName.charAt(0).toUpperCase() : (sub?.userInitial || '?')}
+                            </div>
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {m.fullName || sub?.userName || 'Thành viên'}
+                              {isUserLeader && <span style={{ fontSize: '10px', background: 'rgba(234, 179, 8, 0.2)', color: '#eab308', padding: '1px 6px', borderRadius: '6px' }}>Trưởng nhóm</span>}
+                              {isUserDeputy && <span style={{ fontSize: '10px', background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6', padding: '1px 6px', borderRadius: '6px' }}>Phó nhóm</span>}
+                            </div>
+                            {sub && <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Thời gian nộp: {format24h(sub.submittedAt)}</div>}
+                          </div>
+                        </div>
+
+                        {/* Status badges */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          {sub ? (
+                            <>
+                              <span style={{ fontSize: '11px', background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                                Đã nộp
+                              </span>
+                              {timing && (
+                                <span style={{
+                                  fontSize: '11px',
+                                  background: timing.isEarly ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                  color: timing.isEarly ? '#22c55e' : '#ef4444',
+                                  border: timing.isEarly ? '1px solid rgba(34, 197, 94, 0.25)' : '1px solid rgba(239, 68, 68, 0.25)',
+                                  padding: '3px 8px',
+                                  borderRadius: '12px',
+                                  fontWeight: 600
+                                }}>
+                                  {timing.label}
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span style={{ fontSize: '11px', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-muted)', border: '1px solid var(--border)', padding: '3px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                              Chưa nộp bài
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Submission Content Details */}
+                      {sub && (
+                        <div style={{ background: 'rgba(0,0,0,0.15)', padding: '10px 12px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {/* File / Image Summary badge */}
+                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                            {sub.images && sub.images.length > 0 ? (
+                              <span>📷 {sub.images.length} ảnh bài làm</span>
+                            ) : sub.fileName ? (
+                              <span>📄 Tệp: {sub.fileName}</span>
+                            ) : (
+                              <span>📝 Bài làm văn bản</span>
+                            )}
+                          </div>
+
+                          {sub.note && (
+                            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
+                              <strong>Ghi chú:</strong> {sub.note}
+                            </p>
+                          )}
+
+                          {/* Images gallery */}
+                          {sub.images && sub.images.length > 0 && (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))', gap: '6px', marginTop: '4px' }}>
+                              {sub.images.map((img, i) => (
+                                <div
+                                  key={i}
+                                  onClick={() => setLightboxImg(img.fileData)}
+                                  style={{
+                                    height: '65px',
+                                    borderRadius: '6px',
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    border: '1px solid var(--border)',
+                                    position: 'relative',
+                                  }}
+                                >
+                                  <img src={img.fileData} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* File download link */}
+                          {sub.fileName && sub.fileData && (
+                            <div>
+                              <a
+                                href={sub.fileData}
+                                download={sub.fileName}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  background: 'rgba(255,255,255,0.06)',
+                                  border: '1px solid var(--border)',
+                                  borderRadius: '6px',
+                                  padding: '4px 10px',
+                                  fontSize: '12px',
+                                  color: 'var(--text-primary)',
+                                  textDecoration: 'none',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                📥 Tải về: {sub.fileName}
+                              </a>
+                            </div>
+                          )}
+
+                          {/* Grade & Feedback Display if graded */}
+                          {sub.grade != null && (
+                            <div style={{ marginTop: '4px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '8px 12px', borderRadius: '8px' }}>
+                              <div style={{ fontSize: '13px', fontWeight: 800, color: '#eab308' }}>
+                                ⭐ Điểm số: {sub.grade}/10
+                              </div>
+                              {sub.feedback && (
+                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                                  💬 Nhận xét: "{sub.feedback}"
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Grading Button for Leader/Deputy */}
+                          {isLeader && (
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                              <button
+                                type="button"
+                                onClick={() => openGradingModal(currDl.id, m, sub)}
+                                className="btn-mono"
+                                style={{
+                                  padding: '5px 12px',
+                                  fontSize: '12px',
+                                  fontWeight: 700,
+                                  borderRadius: '8px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                📝 {sub.grade != null ? 'Sửa điểm & Nhận xét' : 'Chấm điểm'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Leader Grading Modal */}
+      {gradingTarget && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.7)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setGradingTarget(null);
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: '18px',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '460px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                Chấm điểm bài nộp
+              </h3>
+              <button
+                type="button"
+                onClick={() => setGradingTarget(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+              Thành viên: <strong style={{ color: 'var(--text-primary)' }}>{gradingTarget.member.fullName}</strong>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Điểm số (0 - 10):
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="10"
+                step="0.1"
+                value={gradeInput}
+                onChange={(e) => setGradeInput(e.target.value)}
+                placeholder="Ví dụ: 9.5"
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-input)',
+                  color: 'var(--text-primary)',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Nhận xét & Góp ý:
+              </label>
+              <textarea
+                rows={3}
+                value={feedbackInput}
+                onChange={(e) => setFeedbackInput(e.target.value)}
+                placeholder="Nhập lời nhận xét chi tiết..."
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-input)',
+                  color: 'var(--text-primary)',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                  resize: 'vertical',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setGradingTarget(null)}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-input)',
+                  color: 'var(--text-primary)',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                }}
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveGradeClick}
+                className="btn-mono"
+                style={{
+                  padding: '9px 20px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                }}
+              >
+                Lưu điểm
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1191,199 +1681,6 @@ export default function GroupDeadlines({
               >
                 {isSubmitting ? 'Đang nộp...' : 'Xác nhận nộp bài'}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Leader Submissions modal */}
-      {showSubmissionsFor && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px',
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowSubmissionsFor(null);
-          }}
-        >
-          <div
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: '18px',
-              padding: '20px 24px',
-              width: '100%',
-              maxWidth: '560px',
-              maxHeight: 'calc(100vh - 80px)',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
-              boxSizing: 'border-box',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                Danh sách bài nộp
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowSubmissionsFor(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--text-muted)',
-                  fontSize: '20px',
-                  lineHeight: 1,
-                  padding: '4px 8px',
-                  borderRadius: '8px',
-                }}
-              >
-                ✕
-              </button>
-            </div>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-              {deadlines.find((d) => d.id === showSubmissionsFor)?.title}
-            </p>
-            <div style={{ overflowY: 'auto', overscrollBehavior: 'contain', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {(submissions[showSubmissionsFor] || []).length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', color: 'var(--text-muted)' }}>
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                      <polyline points="22,6 12,13 2,6" />
-                    </svg>
-                  </div>
-                  <div>Chưa có thành viên nào nộp bài.</div>
-                </div>
-              ) : (
-                (submissions[showSubmissionsFor] || []).map((s, idx) => (
-                  <div
-                    key={idx}
-                    style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 16px' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div
-                          style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: '50%',
-                            background: 'linear-gradient(135deg, var(--text-muted), #666)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            color: 'white',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {s.userInitial}
-                        </div>
-                        <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>
-                          {s.userName}
-                        </span>
-                      </div>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {format24h(s.submittedAt)}
-                      </span>
-                    </div>
-
-                    {s.note && (
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 8px', lineHeight: 1.5 }}>
-                        {s.note}
-                      </p>
-                    )}
-
-                    {/* Multi-Image Submission Gallery */}
-                    {s.images && s.images.length > 0 ? (
-                      <div style={{ marginTop: '8px' }}>
-                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <polyline points="21 15 16 10 5 21" />
-                          </svg>
-                          {s.images.length} ảnh bài nộp (Nhấp để phóng to):
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
-                          {s.images.map((img, i) => (
-                            <div
-                              key={i}
-                              onClick={() => setLightboxImg(img.fileData)}
-                              style={{
-                                height: '76px',
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                cursor: 'pointer',
-                                border: '1px solid var(--border)',
-                                position: 'relative',
-                                background: 'rgba(0,0,0,0.2)',
-                              }}
-                            >
-                              <img
-                                src={img.fileData}
-                                alt={img.fileName || `Ảnh ${i + 1}`}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              />
-                              <span
-                                style={{
-                                  position: 'absolute',
-                                  bottom: 2,
-                                  right: 2,
-                                  background: 'rgba(0,0,0,0.65)',
-                                  color: '#fff',
-                                  fontSize: '9px',
-                                  fontWeight: 700,
-                                  padding: '1px 5px',
-                                  borderRadius: '3px',
-                                }}
-                              >
-                                #{i + 1}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : s.fileName ? (
-                      <a
-                        href={s.fileData}
-                        download={s.fileName}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          background: 'rgba(0,0,0,0.06)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '8px',
-                          padding: '5px 12px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color: 'var(--text-primary)',
-                          textDecoration: 'none',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.1)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.06)')}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        {s.fileName}
-                      </a>
-                    ) : null}
-                  </div>
-                ))
-              )}
             </div>
           </div>
         </div>
