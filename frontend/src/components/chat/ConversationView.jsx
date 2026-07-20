@@ -526,7 +526,24 @@ export default function ConversationView({
         async (payload) => {
           const msg = payload.new;
           if (String(msg.sender_id) === String(friend.userId)) {
-            await load();
+            const formattedMsg = {
+              id: String(msg.id),
+              localId: String(msg.id),
+              fromUserId: String(msg.sender_id),
+              toUserId: String(msg.receiver_id),
+              content: msg.content,
+              fileAttachment: msg.file_attachment,
+              type: msg.file_attachment ? (msg.file_attachment.match(/\.(jpeg|jpg|gif|png|webp)/i) ? 'image' : 'file') : 'text',
+              createdAt: msg.created_at,
+              read: true
+            };
+            setMessages(prev => {
+              if (prev.some(m => String(m.id) === String(msg.id) || (m.localId && String(m.localId) === String(msg.id)))) {
+                return prev;
+              }
+              return [...prev, formattedMsg];
+            });
+            markAsRead(user.id, friend.userId).catch(() => {});
           }
         }
       )
@@ -535,7 +552,7 @@ export default function ConversationView({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, friend?.userId, load]);
+  }, [user?.id, friend?.userId]);
 
   // Handle auto scroll on new messages
   useEffect(() => {

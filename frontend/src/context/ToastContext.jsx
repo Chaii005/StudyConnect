@@ -73,12 +73,15 @@ export const ToastProvider = ({ children }) => {
                           msgLower.includes('xóa') || msgLower.includes('hủy') || msgLower.includes('từ chối') || msgLower.includes('lỗi') || msgLower.includes('thất bại');
           const isSuccess = toast.type === 'success' || toast.type === 'approve' || toast.type === 'accept' ||
                             msgLower.includes('duyệt') || msgLower.includes('thành công') || msgLower.includes('chấp nhận');
+          const isMessage = toast.type === 'message';
           
           let borderLeftColor = '#000000';
           if (isError) {
             borderLeftColor = '#ef4444';
           } else if (isSuccess) {
             borderLeftColor = '#22c55e';
+          } else if (isMessage) {
+            borderLeftColor = '#3b82f6';
           }
 
           return (
@@ -97,6 +100,7 @@ export const ToastProvider = ({ children }) => {
                 }
               }}
             >
+              {isMessage && <span style={{ fontSize: '16px', marginRight: '4px' }}>💬</span>}
               <span style={{ flex: 1, lineHeight: 1.4 }}>{stripEmojis(toast.message)}</span>
               <button
                 onClick={(e) => {
