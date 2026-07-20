@@ -77,7 +77,9 @@ export default function GroupDeadlines({
   const [gradeInput, setGradeInput] = useState('');
   const [feedbackInput, setFeedbackInput] = useState('');
 
-  const isLeader = String(user?.id) === String(group?.creatorId) || (group?.deputyIds ? group.deputyIds.some(id => String(id) === String(user?.id)) : String(user?.id) === String(group?.deputyId));
+  const isGroupCreator = String(user?.id) === String(group?.creatorId);
+  const isDeputy = group?.deputyIds ? group.deputyIds.some(id => String(id) === String(user?.id)) : String(user?.id) === String(group?.deputyId);
+  const isLeader = isGroupCreator || isDeputy;
 
   const getSubmissionTiming = (submittedAt, dueDate) => {
     if (!submittedAt || !dueDate) return null;
@@ -359,7 +361,8 @@ export default function GroupDeadlines({
               const mySubmission = subs.find((s) => String(s.userId) === String(user.id));
               const hasSubmitted = !!mySubmission;
               const isDone = hasSubmitted;
-              const totalAssigned = d.assigneeId && d.assigneeId !== 'all' ? 1 : (membersDetails.length || group?.members?.length || 1);
+              const nonCreatorMembersCount = (group?.members || []).filter((mId) => String(mId) !== String(group?.creatorId)).length || 1;
+              const totalAssigned = d.assigneeId && d.assigneeId !== 'all' ? 1 : nonCreatorMembersCount;
 
               return (
                 <div
@@ -589,7 +592,7 @@ export default function GroupDeadlines({
                       </button>
                     )}
 
-                    {(() => {
+                    {!isGroupCreator && (() => {
                       if (hasSubmitted) {
                         return (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
