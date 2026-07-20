@@ -100,27 +100,27 @@ export const ToastProvider = ({ children }) => {
                 }
               }}
             >
-              {isMessage && <span style={{ fontSize: '16px', marginRight: '4px' }}>💬</span>}
               <span style={{ flex: 1, lineHeight: 1.4 }}>{stripEmojis(toast.message)}</span>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent trigger link navigation on click close
+                  e.stopPropagation();
                   removeToast(toast.id);
                 }}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--text-secondary)',
+                  color: 'var(--text-muted)',
                   cursor: 'pointer',
-                  fontSize: '16px',
-                  padding: '0 4px',
-                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  padding: '2px 4px',
+                  fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'opacity 0.2s'
+                  transition: 'opacity 0.2s',
+                  lineHeight: 1,
                 }}
-                onMouseEnter={e => { e.currentTarget.style.opacity = 0.7; }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = 0.6; }}
                 onMouseLeave={e => { e.currentTarget.style.opacity = 1; }}
               >
                 ✕
