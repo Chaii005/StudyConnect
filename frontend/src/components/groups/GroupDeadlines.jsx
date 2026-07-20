@@ -234,9 +234,9 @@ export default function GroupDeadlines({
                     boxSizing: 'border-box',
                   }}
                 >
-                  <option value="all">📁 Cả 2 dạng (Ảnh hoặc Tài liệu)</option>
-                  <option value="image">🖼️ Hình ảnh bài làm (Ảnh 6 ô)</option>
-                  <option value="file">📄 Tệp tài liệu (Word/PDF/Zip)</option>
+                  <option value="all">Cả 2 dạng (Ảnh hoặc Tài liệu)</option>
+                  <option value="image">Hình ảnh bài làm (Ảnh 6 ô)</option>
+                  <option value="file">Tệp tài liệu (Word/PDF/Zip)</option>
                 </select>
               </div>
             </div>
@@ -399,7 +399,7 @@ export default function GroupDeadlines({
                             fontWeight: 700,
                           }}
                         >
-                          🖼️ Nộp ảnh (6 ô)
+                          Nộp ảnh (6 ô)
                         </span>
                       )}
                       {d.submissionType === 'file' && (
@@ -414,7 +414,7 @@ export default function GroupDeadlines({
                             fontWeight: 700,
                           }}
                         >
-                          📄 Nộp file tài liệu
+                          Nộp file tài liệu
                         </span>
                       )}
                       {(!d.submissionType || d.submissionType === 'all') && (
@@ -429,7 +429,7 @@ export default function GroupDeadlines({
                             fontWeight: 600,
                           }}
                         >
-                          📁 Nộp ảnh / file
+                          Nộp ảnh / file
                         </span>
                       )}
                     </div>
@@ -792,9 +792,9 @@ export default function GroupDeadlines({
                     boxSizing: 'border-box',
                   }}
                 >
-                  <option value="all">📁 Cả 2 dạng (Ảnh hoặc Tài liệu)</option>
-                  <option value="image">🖼️ Hình ảnh bài làm (Ảnh 6 ô)</option>
-                  <option value="file">📄 Tệp tài liệu (Word/PDF/Zip)</option>
+                  <option value="all">Cả 2 dạng (Ảnh hoặc Tài liệu)</option>
+                  <option value="image">Hình ảnh bài làm (Ảnh 6 ô)</option>
+                  <option value="file">Tệp tài liệu (Word/PDF/Zip)</option>
                 </select>
               </div>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
@@ -837,11 +837,11 @@ export default function GroupDeadlines({
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.6)',
-            zIndex: 1000,
+            zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '20px',
+            padding: '16px',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) handleCloseSubmitModal();
@@ -852,122 +852,112 @@ export default function GroupDeadlines({
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
               borderRadius: '18px',
-              padding: '24px 28px',
+              padding: '20px 24px',
               width: '100%',
               maxWidth: '520px',
-              maxHeight: '90vh',
+              maxHeight: 'calc(100vh - 110px)',
+              marginBottom: '40px',
               overflowY: 'auto',
               boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+              boxSizing: 'border-box',
             }}
           >
             <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
               Nộp bài tập
             </h3>
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-              {deadlines.find((d) => d.id === showSubmitModal)?.title}
+              {deadlines.find((d) => String(d.id) === String(showSubmitModal))?.title}
             </p>
 
-            {/* Mode Selector Tabs */}
+            {/* Mode Selector Tabs / Locked Mode Header */}
             {(() => {
-              const currentDl = deadlines.find((d) => d.id === showSubmitModal);
+              const currentDl = deadlines.find((d) => String(d.id) === String(showSubmitModal));
               const allowedType = currentDl?.submissionType || 'all';
 
-              return (
-                <>
-                  <div style={{ display: 'flex', background: 'var(--bg-input)', padding: '4px', borderRadius: '10px', marginBottom: '16px', gap: '4px' }}>
-                    {(allowedType === 'all' || allowedType === 'image') && (
-                      <button
-                        type="button"
-                        onClick={() => setSubmitTab('images')}
-                        style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          border: 'none',
-                          background: submitTab === 'images' ? 'var(--bg-card)' : 'transparent',
-                          color: submitTab === 'images' ? 'var(--text-primary)' : 'var(--text-muted)',
-                          fontWeight: submitTab === 'images' ? 700 : 500,
-                          fontSize: '13px',
-                          cursor: 'pointer',
-                          boxShadow: submitTab === 'images' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
-                          transition: 'all 0.2s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                        }}
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                        Hình ảnh bài làm (6 ô)
-                      </button>
-                    )}
-                    {(allowedType === 'all' || allowedType === 'file') && (
-                      <button
-                        type="button"
-                        onClick={() => setSubmitTab('file')}
-                        style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          border: 'none',
-                          background: submitTab === 'file' ? 'var(--bg-card)' : 'transparent',
-                          color: submitTab === 'file' ? 'var(--text-primary)' : 'var(--text-muted)',
-                          fontWeight: submitTab === 'file' ? 700 : 500,
-                          fontSize: '13px',
-                          cursor: 'pointer',
-                          boxShadow: submitTab === 'file' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
-                          transition: 'all 0.2s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                        }}
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
-                        </svg>
-                        Tệp tài liệu (Word/PDF)
-                      </button>
-                    )}
+              if (allowedType === 'image') {
+                return (
+                  <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
+                    Yêu cầu bài nộp: Hình ảnh bài làm (6 ô)
                   </div>
-                </>
+                );
+              }
+
+              if (allowedType === 'file') {
+                return (
+                  <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
+                    Yêu cầu bài nộp: Tệp tài liệu (Word/PDF/Zip)
+                  </div>
+                );
+              }
+
+              return (
+                <div style={{ display: 'flex', background: 'var(--bg-input)', padding: '4px', borderRadius: '10px', marginBottom: '16px', gap: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setSubmitTab('images')}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      background: submitTab === 'images' ? 'var(--bg-card)' : 'transparent',
+                      color: submitTab === 'images' ? 'var(--text-primary)' : 'var(--text-muted)',
+                      fontWeight: submitTab === 'images' ? 700 : 500,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      boxShadow: submitTab === 'images' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
+                      transition: 'all 0.2s',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Hình ảnh bài làm (6 ô)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSubmitTab('file')}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      background: submitTab === 'file' ? 'var(--bg-card)' : 'transparent',
+                      color: submitTab === 'file' ? 'var(--text-primary)' : 'var(--text-muted)',
+                      fontWeight: submitTab === 'file' ? 700 : 500,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      boxShadow: submitTab === 'file' ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
+                      transition: 'all 0.2s',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Tệp tài liệu (Word/PDF)
+                  </button>
+                </div>
               );
             })()}
 
             {submitTab === 'images' ? (
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px', flexWrap: 'wrap' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
                     Danh sách 6 ô chứa ảnh ({submitImages.length}/6 ảnh)
                   </label>
                   <label
                     htmlFor="bulk-images-upload-input"
                     style={{
-                      background: 'rgba(59, 130, 246, 0.12)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      color: 'var(--primary)',
+                      background: 'var(--bg-input)',
+                      border: '1px solid var(--border)',
+                      color: 'var(--text-primary)',
                       padding: '6px 12px',
                       borderRadius: '6px',
                       fontSize: '12px',
                       fontWeight: 700,
                       cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
+                      display: 'inline-block',
                       margin: 0,
                       userSelect: 'none',
                     }}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <line x1="12" y1="8" x2="12" y2="16" />
-                      <line x1="8" y1="12" x2="16" y2="12" />
-                    </svg>
                     Chọn cùng lúc 1 - 6 ảnh
                   </label>
                   <input
@@ -982,7 +972,7 @@ export default function GroupDeadlines({
                 </div>
 
                 {/* 6-Slot Grid Container */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                   {[0, 1, 2, 3, 4, 5].map((slotIdx) => {
                     const imgFile = submitImages[slotIdx];
                     const objectUrl = imgFile
@@ -994,7 +984,7 @@ export default function GroupDeadlines({
                         key={slotIdx}
                         style={{
                           position: 'relative',
-                          height: '96px',
+                          height: '84px',
                           borderRadius: '10px',
                           border: objectUrl ? '1.5px solid var(--primary)' : '2px dashed var(--border)',
                           background: 'var(--bg-input)',
@@ -1071,12 +1061,7 @@ export default function GroupDeadlines({
                           </>
                         ) : (
                           <div style={{ textAlign: 'center', padding: '6px', color: 'var(--text-muted)' }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '2px' }}>
-                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                              <circle cx="8.5" cy="8.5" r="1.5" />
-                              <polyline points="21 15 16 10 5 21" />
-                            </svg>
-                            <div style={{ fontSize: '11px', fontWeight: 600 }}>+ Ô ảnh {slotIdx + 1}</div>
+                            <div style={{ fontSize: '12px', fontWeight: 600 }}>+ Ô ảnh {slotIdx + 1}</div>
                           </div>
                         )}
                         <input
@@ -1091,12 +1076,12 @@ export default function GroupDeadlines({
                   })}
                 </div>
                 <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
-                  💡 Bạn có thể chọn 1 lúc tối đa 6 tấm ảnh bằng nút bên trên, hoặc click từng ô để thêm ảnh đơn lẻ.
+                  💡 Chọn 1 lúc tối đa 6 tấm ảnh bằng nút bên trên, hoặc click từng ô để thêm ảnh đơn lẻ.
                 </p>
               </div>
             ) : (
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
                   Tệp đính kèm (Word, PDF, Zip...)
                 </label>
                 <div
@@ -1104,7 +1089,7 @@ export default function GroupDeadlines({
                   style={{
                     border: '2px dashed var(--border)',
                     borderRadius: '12px',
-                    padding: '20px',
+                    padding: '16px',
                     textAlign: 'center',
                     cursor: 'pointer',
                     transition: 'border-color 0.2s',
@@ -1115,15 +1100,6 @@ export default function GroupDeadlines({
                 >
                   {submitFile ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-primary)' }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
-                          <line x1="16" y1="13" x2="8" y2="13" />
-                          <line x1="16" y1="17" x2="8" y2="17" />
-                          <polyline points="10 9 9 9 8 9" />
-                        </svg>
-                      </div>
                       <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>
                         {submitFile.name}
                       </span>
@@ -1148,12 +1124,7 @@ export default function GroupDeadlines({
                     </div>
                   ) : (
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px', color: 'var(--text-muted)' }}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                        </svg>
-                      </div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Nhấn để chọn tệp tài liệu</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Nhấn để chọn tệp tài liệu</div>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
                         PDF, Word, Excel, Zip...
                       </div>
@@ -1172,21 +1143,21 @@ export default function GroupDeadlines({
               </div>
             )}
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
                 Ghi chú
               </label>
               <SafeTextarea
                 value={submitNote}
                 onChange={(e) => setSubmitNote(e.target.value)}
                 placeholder="Thêm ghi chú cho trưởng nhóm..."
-                rows={3}
+                rows={2}
                 style={{
                   width: '100%',
                   background: 'var(--bg-input)',
                   border: '1px solid var(--border)',
                   borderRadius: '10px',
-                  padding: '10px 14px',
+                  padding: '8px 12px',
                   color: 'var(--text-primary)',
                   fontSize: '13px',
                   fontFamily: 'inherit',
@@ -1194,8 +1165,6 @@ export default function GroupDeadlines({
                   outline: 'none',
                   boxSizing: 'border-box',
                 }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--primary)')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
               />
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -1205,7 +1174,7 @@ export default function GroupDeadlines({
                 className="btn-mono"
                 style={{
                   flex: 1,
-                  padding: '11px',
+                  padding: '10px',
                   fontWeight: 600,
                   fontFamily: 'inherit',
                   fontSize: '14px',
@@ -1220,7 +1189,7 @@ export default function GroupDeadlines({
                 className={!submitFile && submitImages.length === 0 && !submitNote.trim() ? "" : "btn-mono"}
                 style={{
                   flex: 2,
-                  padding: '11px',
+                  padding: '10px',
                   background: !submitFile && submitImages.length === 0 && !submitNote.trim() ? 'var(--bg-input)' : undefined,
                   border: !submitFile && submitImages.length === 0 && !submitNote.trim() ? '1px solid var(--border)' : undefined,
                   color: !submitFile && submitImages.length === 0 && !submitNote.trim() ? 'var(--text-muted)' : undefined,
@@ -1246,11 +1215,11 @@ export default function GroupDeadlines({
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.6)',
-            zIndex: 1000,
+            zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '20px',
+            padding: '16px',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowSubmissionsFor(null);
@@ -1261,13 +1230,15 @@ export default function GroupDeadlines({
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
               borderRadius: '18px',
-              padding: '28px',
+              padding: '20px 24px',
               width: '100%',
               maxWidth: '560px',
-              maxHeight: '80vh',
+              maxHeight: 'calc(100vh - 110px)',
+              marginBottom: '40px',
               display: 'flex',
               flexDirection: 'column',
               boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+              boxSizing: 'border-box',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>

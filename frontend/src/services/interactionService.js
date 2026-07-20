@@ -819,6 +819,29 @@ export const updateSchedule = async (scheduleId, { topic, dateTime, location, de
 };
 
 // ─── DEADLINE ──────────────────────────────────────────
+const parseDeadlineItem = (d, fallbackType = 'all') => {
+  let subType = d.submission_type || d.submissionType || fallbackType || 'all';
+  let desc = d.description || '';
+  const match = desc.match(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i);
+  if (match) {
+    subType = match[1].toLowerCase();
+    desc = desc.replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
+  }
+  return {
+    id: d.id.toString(),
+    groupId: d.group_id ? d.group_id.toString() : (d.groupId ? d.groupId.toString() : ''),
+    title: d.title,
+    dueDate: d.due_date || d.dueDate,
+    description: desc,
+    creatorId: d.creator_id || d.creatorId,
+    assigneeId: d.assignee_id || d.assigneeId || null,
+    assigneeName: d.users?.full_name || d.assignee_name || d.assigneeName || null,
+    completed: d.completed || false,
+    submissionType: subType,
+    createdAt: d.created_at || d.createdAt
+  };
+};
+
 export const getDeadlines = async (groupId) => {
   const { data, error } = await supabase
     .from('deadlines')
@@ -835,46 +858,26 @@ export const getDeadlines = async (groupId) => {
   if (error) {
     // Fallback if relation or column not supported
     const { data: fbData } = await supabase.from('deadlines').select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at').eq('group_id', parseInt(groupId, 10)).limit(50);
-    return (fbData || []).map(d => ({
-      id: d.id.toString(),
-      groupId: d.group_id.toString(),
-      title: d.title,
-      dueDate: d.due_date,
-      description: d.description || '',
-      creatorId: d.creator_id,
-      assigneeId: d.assignee_id || null,
-      assigneeName: d.assignee_name || null,
-      completed: d.completed || false,
-      submissionType: d.submission_type || d.submissionType || 'all',
-      createdAt: d.created_at
-    }));
+    return (fbData || []).map(d => parseDeadlineItem(d));
   }
 
-  return (data || []).map(d => ({
-    id: d.id.toString(),
-    groupId: d.group_id.toString(),
-    title: d.title,
-    dueDate: d.due_date,
-    description: d.description || '',
-    creatorId: d.creator_id,
-    assigneeId: d.assignee_id || null,
-    assigneeName: d.users?.full_name || null,
-    completed: d.completed || false,
-    submissionType: d.submission_type || d.submissionType || 'all',
-    createdAt: d.created_at
-  }));
+  return (data || []).map(d => parseDeadlineItem(d));
 };
 
 export const createDeadline = async (groupId, { title, dueDate, description, creatorId, assigneeId, submissionType = 'all' }) => {
+  const cleanType = submissionType || 'all';
+  const cleanDesc = (description || '').replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
+  const encodedDesc = cleanType !== 'all' ? `${cleanDesc} [SUBTYPE:${cleanType}]` : cleanDesc;
+
   const insertPayload = {
     group_id: parseInt(groupId, 10),
     title,
     due_date: dueDate,
-    description: description || '',
+    description: encodedDesc,
     creator_id: parseInt(creatorId, 10),
     assignee_id: assigneeId ? parseInt(assigneeId, 10) : null,
     completed: false,
-    submission_type: submissionType || 'all',
+    submission_type: cleanType,
   };
 
   let deadline;
@@ -910,19 +913,7 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
     deadline = data;
   }
 
-  return {
-    id: deadline.id.toString(),
-    groupId: deadline.group_id.toString(),
-    title: deadline.title,
-    dueDate: deadline.due_date,
-    description: deadline.description,
-    creatorId: deadline.creator_id,
-    assigneeId: deadline.assignee_id,
-    assigneeName: deadline.users?.full_name || null,
-    completed: deadline.completed,
-    submissionType: deadline.submission_type || submissionType || 'all',
-    createdAt: deadline.created_at
-  };
+  return parseDeadlineItem(deadline, cleanType);
 };
 
 export const toggleDeadline = async (deadlineId) => {
@@ -944,17 +935,7 @@ export const toggleDeadline = async (deadlineId) => {
 
   if (updateError) throw new Error('Lỗi cập nhật trạng thái deadline.');
 
-  return {
-    id: deadline.id.toString(),
-    groupId: deadline.group_id.toString(),
-    title: deadline.title,
-    dueDate: deadline.due_date,
-    description: deadline.description || '',
-    creatorId: deadline.creator_id,
-    assigneeId: deadline.assignee_id || null,
-    completed: deadline.completed,
-    createdAt: deadline.created_at
-  };
+  return parseDeadlineItem(deadline);
 };
 
 export const deleteDeadline = async (deadlineId) => {
@@ -969,12 +950,16 @@ export const deleteDeadline = async (deadlineId) => {
 };
 
 export const updateDeadline = async (deadlineId, { title, dueDate, description, assigneeId, submissionType = 'all' }) => {
+  const cleanType = submissionType || 'all';
+  const cleanDesc = (description || '').replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
+  const encodedDesc = cleanType !== 'all' ? `${cleanDesc} [SUBTYPE:${cleanType}]` : cleanDesc;
+
   const updatePayload = {
     title,
     due_date: dueDate,
-    description: description || '',
+    description: encodedDesc,
     assignee_id: assigneeId ? parseInt(assigneeId, 10) : null,
-    submission_type: submissionType || 'all',
+    submission_type: cleanType,
   };
 
   let deadline;
@@ -1011,19 +996,7 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
     deadline = data;
   }
 
-  return {
-    id: deadline.id.toString(),
-    groupId: deadline.group_id.toString(),
-    title: deadline.title,
-    dueDate: deadline.due_date,
-    description: deadline.description,
-    creatorId: deadline.creator_id,
-    assigneeId: deadline.assignee_id,
-    assigneeName: deadline.users?.full_name || null,
-    completed: deadline.completed,
-    submissionType: deadline.submission_type || submissionType || 'all',
-    createdAt: deadline.created_at
-  };
+  return parseDeadlineItem(deadline, cleanType);
 };
 
 // ─── GLOBAL SCHEDULING (FOR USER DASHBOARD) ────────────
