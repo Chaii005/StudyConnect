@@ -168,13 +168,21 @@ export default function Schedule() {
           if (!isDeadlineVisibleForUser(newDl)) return;
 
           getGroupNameAsync(newDl.group_id).then(gName => {
+            let subType = newDl.submission_type || newDl.submissionType || 'all';
+            let desc = newDl.description || '';
+            const match = desc.match(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i);
+            if (match) {
+              subType = match[1].toLowerCase();
+              desc = desc.replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
+            }
             const formatted = {
               id: newDl.id.toString(),
               groupId: newDl.group_id.toString(),
               groupName: gName,
               title: newDl.title,
               dueDate: newDl.due_date,
-              description: newDl.description || '',
+              description: desc,
+              submissionType: subType,
               completed: newDl.completed || false
             };
             setDeadlines(prev => {
@@ -206,13 +214,21 @@ export default function Schedule() {
           }
 
           getGroupNameAsync(updatedDl.group_id).then(gName => {
+            let subType = updatedDl.submission_type || updatedDl.submissionType || 'all';
+            let desc = updatedDl.description || '';
+            const match = desc.match(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i);
+            if (match) {
+              subType = match[1].toLowerCase();
+              desc = desc.replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
+            }
             const formatted = {
               id: updatedDl.id.toString(),
               groupId: updatedDl.group_id.toString(),
               groupName: gName,
               title: updatedDl.title,
               dueDate: updatedDl.due_date,
-              description: updatedDl.description || '',
+              description: desc,
+              submissionType: subType,
               completed: updatedDl.completed || false
             };
             setDeadlines(prev => {
@@ -529,6 +545,16 @@ export default function Schedule() {
                             </svg>
                             {new Date(d.dueDate).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                           </span>
+                          {d.submissionType === 'image' && (
+                            <span style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 700 }}>
+                              Yêu cầu: Hình ảnh
+                            </span>
+                          )}
+                          {d.submissionType === 'file' && (
+                            <span style={{ background: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 700 }}>
+                              Yêu cầu: Tệp
+                            </span>
+                          )}
                           {d.dueSoon && <span style={{ background: 'rgba(239,68,68,0.2)', color: 'var(--text-primary)', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>&lt; 24h</span>}
                           {d.overdue && <span style={{ background: 'rgba(100,100,120,0.3)', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>Quá hạn</span>}
                         </div>

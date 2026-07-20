@@ -1064,13 +1064,21 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
       return Number(d.assignee_id) === uid;
     })
     .map(d => {
+      let subType = d.submission_type || d.submissionType || 'all';
+      let desc = d.description || '';
+      const match = desc.match(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i);
+      if (match) {
+        subType = match[1].toLowerCase();
+        desc = desc.replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
+      }
       return {
         id: d.id.toString(),
         groupId: d.group_id.toString(),
         groupName: d.study_groups?.name || 'Nhóm học',
         title: d.title,
         dueDate: d.due_date,
-        description: d.description || '',
+        description: desc,
+        submissionType: subType,
         completed: d.completed || false
       };
     });
