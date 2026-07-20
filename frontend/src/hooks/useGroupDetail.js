@@ -1346,7 +1346,9 @@ export default function useGroupDetail(groupId, user, addToast) {
       });
       addToast('Thêm deadline mới thành công!', 'success');
       setNewDeadlineTitle('');
-      setNewDeadlineDueDate('');
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      setNewDeadlineDueDate(now.toISOString().slice(0, 16));
       setNewDeadlineDesc('');
       setNewDeadlineAssignee('all');
       setNewDeadlineSubmissionType('image');

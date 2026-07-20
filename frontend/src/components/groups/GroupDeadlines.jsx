@@ -319,17 +319,15 @@ export default function GroupDeadlines({
                       : overdue
                       ? '1.5px solid var(--text-muted)'
                       : '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '16px 20px',
+                    borderRadius: '16px',
+                    padding: '16px 18px',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '16px',
+                    flexDirection: 'column',
+                    gap: '10px',
                     opacity: isDone ? 0.7 : 1,
                     boxShadow: dueSoon ? '0 0 10px rgba(239, 68, 68, 0.1)' : 'none',
                     width: '100%',
                     boxSizing: 'border-box',
-                    overflow: 'hidden',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -402,7 +400,7 @@ export default function GroupDeadlines({
                             fontWeight: 700,
                           }}
                         >
-                          Nộp ảnh (6 ô)
+                          Nộp ảnh
                         </span>
                       )}
                       {d.submissionType === 'file' && (
@@ -461,7 +459,7 @@ export default function GroupDeadlines({
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', width: '100%' }}>
                     {isLeader && (
                       <button
                         onClick={() => setShowSubmissionsFor(d.id)}
@@ -470,6 +468,7 @@ export default function GroupDeadlines({
                           padding: '6px 12px',
                           fontSize: '12px',
                           fontWeight: 600,
+                          borderRadius: '8px',
                           whiteSpace: 'nowrap',
                         }}
                       >
@@ -486,7 +485,7 @@ export default function GroupDeadlines({
                           border: '1px solid rgba(234, 179, 8, 0.3)',
                           color: '#eab308',
                           padding: '6px 12px',
-                          borderRadius: 'var(--radius-sm)',
+                          borderRadius: '8px',
                           fontSize: '12px',
                           fontWeight: 600,
                           cursor: remindingIds[d.id] ? 'not-allowed' : 'pointer',
@@ -503,32 +502,6 @@ export default function GroupDeadlines({
                           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
                         {remindingIds[d.id] ? 'Đang nhắc...' : 'Nhắc nhở'}
-                      </button>
-                    )}
-
-                    {canDelete && (
-                      <button
-                        onClick={() => handleDeadlineDelete(d.id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--text-muted)',
-                          cursor: 'pointer',
-                          padding: '6px',
-                          borderRadius: '6px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          transition: 'color 0.2s',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--error)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
-                        title="Xóa deadline"
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
                       </button>
                     )}
 
@@ -632,6 +605,33 @@ export default function GroupDeadlines({
                         </button>
                       );
                     })()}
+
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDeadlineDelete(d.id)}
+                        style={{
+                          marginLeft: 'auto',
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--text-muted)',
+                          cursor: 'pointer',
+                          padding: '6px',
+                          borderRadius: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'color 0.2s',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--error)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+                        title="Xóa deadline"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -842,12 +842,13 @@ export default function GroupDeadlines({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.6)',
+            background: 'rgba(0,0,0,0.65)',
             zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '16px',
+            padding: '24px',
+            boxSizing: 'border-box',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) handleCloseSubmitModal();
@@ -857,285 +858,317 @@ export default function GroupDeadlines({
             style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
-              borderRadius: '18px',
-              padding: '20px 24px',
+              borderRadius: '20px',
+              padding: '24px',
               width: '100%',
               maxWidth: '520px',
-              maxHeight: 'calc(100vh - 80px)',
-              overflowY: 'auto',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
+              maxHeight: 'calc(100vh - 48px)',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
               boxSizing: 'border-box',
             }}
           >
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
-              Nộp bài tập
-            </h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-              {deadlines.find((d) => String(d.id) === String(showSubmitModal))?.title}
-            </p>
+            {/* 1. Header (Fixed Top) */}
+            <div style={{ flexShrink: 0, marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                  Nộp bài tập
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleCloseSubmitModal}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-muted)',
+                    fontSize: '18px',
+                    lineHeight: 1,
+                    padding: '4px 8px',
+                    borderRadius: '6px',
+                  }}
+                  title="Đóng modal"
+                >
+                  ✕
+                </button>
+              </div>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '4px 0 0' }}>
+                {deadlines.find((d) => String(d.id) === String(showSubmitModal))?.title}
+              </p>
+            </div>
 
-            {/* Mode Header */}
-            {(() => {
-              const currentDl = deadlines.find((d) => String(d.id) === String(showSubmitModal));
-              const allowedType = currentDl?.submissionType || 'image';
+            {/* 2. Middle Body (Scrollable if needed) */}
+            <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column' }}>
+              {/* Mode Header */}
+              {(() => {
+                const currentDl = deadlines.find((d) => String(d.id) === String(showSubmitModal));
+                const allowedType = currentDl?.submissionType || 'image';
 
-              if (allowedType === 'file') {
+                if (allowedType === 'file') {
+                  return (
+                    <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
+                      Yêu cầu bài nộp: Tệp tài liệu (Word, PDF, ZIP)
+                    </div>
+                  );
+                }
+
                 return (
                   <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
-                    Yêu cầu bài nộp: Tệp tài liệu (Word, PDF, ZIP)
+                    Yêu cầu bài nộp: Hình ảnh bài làm
                   </div>
                 );
-              }
+              })()}
 
-              return (
-                <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'center' }}>
-                  Yêu cầu bài nộp: Hình ảnh bài làm
+              {submitTab === 'images' ? (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px', flexWrap: 'wrap' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+                      Danh sách hình ảnh ({submitImages.length}/6)
+                    </label>
+                    <label
+                      htmlFor="bulk-images-upload-input"
+                      style={{
+                        background: 'var(--bg-input)',
+                        border: '1px solid var(--border)',
+                        color: 'var(--text-primary)',
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'inline-block',
+                        margin: 0,
+                        userSelect: 'none',
+                      }}
+                    >
+                      Chọn ảnh bài làm
+                    </label>
+                    <input
+                      id="bulk-images-upload-input"
+                      ref={bulkImagesRef}
+                      type="file"
+                      multiple
+                      accept="image/*,image/png,image/jpeg,image/jpg,image/webp,image/heic"
+                      style={{ display: 'none' }}
+                      onChange={handleBulkImagesChange}
+                    />
+                  </div>
+
+                  {/* 6 Slot Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                    {[0, 1, 2, 3, 4, 5].map((slotIdx) => {
+                      const imgFile = submitImages[slotIdx];
+                      const objectUrl = imgFile
+                        ? (typeof imgFile === 'string' ? imgFile : URL.createObjectURL(imgFile))
+                        : null;
+
+                      return (
+                        <div
+                          key={slotIdx}
+                          style={{
+                            position: 'relative',
+                            height: '84px',
+                            borderRadius: '10px',
+                            border: objectUrl ? '1.5px solid var(--primary)' : '2px dashed var(--border)',
+                            background: 'var(--bg-input)',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                          }}
+                          onClick={() => {
+                            if (!objectUrl) {
+                              slotInputRefs.current[slotIdx]?.click();
+                            }
+                          }}
+                        >
+                          {objectUrl ? (
+                            <>
+                              <img
+                                src={objectUrl}
+                                alt={`Ảnh ${slotIdx + 1}`}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setLightboxImg(objectUrl);
+                                }}
+                              />
+                              <span
+                                style={{
+                                  position: 'absolute',
+                                  top: 4,
+                                  left: 4,
+                                  background: 'rgba(0,0,0,0.65)',
+                                  color: '#fff',
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                }}
+                              >
+                                Ảnh {slotIdx + 1}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const next = [...submitImages];
+                                  next.splice(slotIdx, 1);
+                                  setSubmitImages(next);
+                                }}
+                                style={{
+                                  position: 'absolute',
+                                  top: 4,
+                                  right: 4,
+                                  background: 'rgba(239, 68, 68, 0.85)',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: '50%',
+                                  width: '22px',
+                                  height: '22px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '12px',
+                                  fontWeight: 700,
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                }}
+                                title="Xóa tấm ảnh này"
+                              >
+                                ✕
+                              </button>
+                            </>
+                          ) : (
+                            <div style={{ textAlign: 'center', padding: '6px', color: 'var(--text-muted)' }}>
+                              <div style={{ fontSize: '12px', fontWeight: 600 }}>+ Ảnh {slotIdx + 1}</div>
+                            </div>
+                          )}
+                          <input
+                            ref={(el) => (slotInputRefs.current[slotIdx] = el)}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={(e) => handleSlotImageChange(slotIdx, e)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
+                    💡 Chọn tối đa 6 tấm ảnh bằng nút bên trên, hoặc nhấp trực tiếp từng ô để chọn lẻ.
+                  </p>
                 </div>
-              );
-            })()}
-
-            {submitTab === 'images' ? (
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px', flexWrap: 'wrap' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
-                    Danh sách hình ảnh ({submitImages.length}/6)
+              ) : (
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+                    Tệp đính kèm (Word, PDF, ZIP...)
                   </label>
-                  <label
-                    htmlFor="bulk-images-upload-input"
+                  <div
+                    onClick={() => submitFileRef.current?.click()}
                     style={{
-                      background: 'var(--bg-input)',
-                      border: '1px solid var(--border)',
-                      color: 'var(--text-primary)',
-                      padding: '6px 12px',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      fontWeight: 700,
+                      border: '2px dashed var(--border)',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      textAlign: 'center',
                       cursor: 'pointer',
-                      display: 'inline-block',
-                      margin: 0,
-                      userSelect: 'none',
+                      transition: 'border-color 0.2s',
+                      background: 'var(--bg-input)',
                     }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
                   >
-                    Chọn ảnh bài làm
-                  </label>
+                    {submitFile ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>
+                          {submitFile.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSubmitFile(null);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: 'var(--text-muted)',
+                            fontSize: '16px',
+                            lineHeight: 1,
+                            padding: '0 4px',
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Nhấn để chọn tệp tài liệu</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          PDF, Word, Excel, ZIP...
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <input
-                    id="bulk-images-upload-input"
-                    ref={bulkImagesRef}
+                    ref={submitFileRef}
                     type="file"
-                    multiple
-                    accept="image/*,image/png,image/jpeg,image/jpg,image/webp,image/heic"
                     style={{ display: 'none' }}
-                    onChange={handleBulkImagesChange}
+                    onChange={(e) => {
+                      setSubmitFile(e.target.files[0] || null);
+                      setSubmitImages([]);
+                    }}
                   />
                 </div>
+              )}
 
-                {/* 6-Slot Grid Container */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                  {[0, 1, 2, 3, 4, 5].map((slotIdx) => {
-                    const imgFile = submitImages[slotIdx];
-                    const objectUrl = imgFile
-                      ? (typeof imgFile === 'string' ? imgFile : URL.createObjectURL(imgFile))
-                      : null;
-
-                    return (
-                      <div
-                        key={slotIdx}
-                        style={{
-                          position: 'relative',
-                          height: '84px',
-                          borderRadius: '10px',
-                          border: objectUrl ? '1.5px solid var(--primary)' : '2px dashed var(--border)',
-                          background: 'var(--bg-input)',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                        }}
-                        onClick={() => {
-                          if (!objectUrl) {
-                            slotInputRefs.current[slotIdx]?.click();
-                          }
-                        }}
-                      >
-                        {objectUrl ? (
-                          <>
-                            <img
-                              src={objectUrl}
-                              alt={`Ảnh ${slotIdx + 1}`}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLightboxImg(objectUrl);
-                              }}
-                            />
-                            <span
-                              style={{
-                                position: 'absolute',
-                                top: 4,
-                                left: 4,
-                                background: 'rgba(0,0,0,0.65)',
-                                color: '#fff',
-                                fontSize: '10px',
-                                fontWeight: 700,
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                              }}
-                            >
-                              Ảnh {slotIdx + 1}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const next = [...submitImages];
-                                next.splice(slotIdx, 1);
-                                setSubmitImages(next);
-                              }}
-                              style={{
-                                position: 'absolute',
-                                top: 4,
-                                right: 4,
-                                background: 'rgba(239, 68, 68, 0.85)',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '50%',
-                                width: '22px',
-                                height: '22px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '12px',
-                                fontWeight: 700,
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                              }}
-                              title="Xóa tấm ảnh này"
-                            >
-                              ✕
-                            </button>
-                          </>
-                        ) : (
-                          <div style={{ textAlign: 'center', padding: '6px', color: 'var(--text-muted)' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 600 }}>+ Ảnh {slotIdx + 1}</div>
-                          </div>
-                        )}
-                        <input
-                          ref={(el) => (slotInputRefs.current[slotIdx] = el)}
-                          type="file"
-                          accept="image/*"
-                          style={{ display: 'none' }}
-                          onChange={(e) => handleSlotImageChange(slotIdx, e)}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
-                  💡 Chọn tối đa 6 tấm ảnh bằng nút bên trên, hoặc nhấp trực tiếp từng ô để chọn lẻ.
-                </p>
-              </div>
-            ) : (
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
-                  Tệp đính kèm (Word, PDF, Zip...)
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
+                  Ghi chú
                 </label>
-                <div
-                  onClick={() => submitFileRef.current?.click()}
+                <SafeTextarea
+                  value={submitNote}
+                  onChange={(e) => setSubmitNote(e.target.value)}
+                  placeholder="Thêm ghi chú cho trưởng nhóm..."
+                  rows={2}
                   style={{
-                    border: '2px dashed var(--border)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.2s',
+                    width: '100%',
                     background: 'var(--bg-input)',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--primary)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
-                >
-                  {submitFile ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>
-                        {submitFile.name}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSubmitFile(null);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: 'var(--text-muted)',
-                          fontSize: '16px',
-                          lineHeight: 1,
-                          padding: '0 4px',
-                        }}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Nhấn để chọn tệp tài liệu</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                        PDF, Word, Excel, Zip...
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <input
-                  ref={submitFileRef}
-                  type="file"
-                  style={{ display: 'none' }}
-                  onChange={(e) => {
-                    setSubmitFile(e.target.files[0] || null);
-                    setSubmitImages([]);
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    padding: '8px 12px',
+                    color: 'var(--text-primary)',
+                    fontSize: '13px',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    outline: 'none',
+                    boxSizing: 'border-box',
                   }}
                 />
               </div>
-            )}
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
-                Ghi chú
-              </label>
-              <SafeTextarea
-                value={submitNote}
-                onChange={(e) => setSubmitNote(e.target.value)}
-                placeholder="Thêm ghi chú cho trưởng nhóm..."
-                rows={2}
-                style={{
-                  width: '100%',
-                  background: 'var(--bg-input)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '10px',
-                  padding: '8px 12px',
-                  color: 'var(--text-primary)',
-                  fontSize: '13px',
-                  fontFamily: 'inherit',
-                  resize: 'vertical',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                }}
-              />
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
+
+            {/* 3. Footer (Fixed Bottom, Always Visible) */}
+            <div style={{ flexShrink: 0, paddingTop: '16px', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px', marginTop: '8px' }}>
               <button
                 type="button"
                 onClick={handleCloseSubmitModal}
-                className="btn-mono"
                 style={{
                   flex: 1,
                   padding: '10px',
                   fontWeight: 600,
                   fontFamily: 'inherit',
                   fontSize: '14px',
+                  background: 'var(--bg-input)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
                 }}
               >
                 Huỷ
@@ -1153,7 +1186,7 @@ export default function GroupDeadlines({
                   color: !submitFile && submitImages.length === 0 && !submitNote.trim() ? 'var(--text-muted)' : undefined,
                   fontWeight: 700,
                   cursor: !submitFile && submitImages.length === 0 && !submitNote.trim() ? 'not-allowed' : 'pointer',
-                  borderRadius: !submitFile && submitImages.length === 0 && !submitNote.trim() ? '24px' : undefined,
+                  borderRadius: '10px',
                   fontFamily: 'inherit',
                   fontSize: '14px',
                   transition: 'all 0.2s',
