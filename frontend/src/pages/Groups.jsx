@@ -2347,6 +2347,7 @@ export default function Groups() {
                 style={{
                   padding: '0 18px',
                   height: '38px',
+                  minWidth: '148px',
                   boxSizing: 'border-box',
                   whiteSpace: 'nowrap',
                   flexShrink: 0,
