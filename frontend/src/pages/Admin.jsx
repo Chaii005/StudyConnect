@@ -70,9 +70,9 @@ function MembersModal({ group, users, onClose }) {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', background: 'rgba(255,255,255,0.02)' }}>
-                <th style={{ padding: '10px 14px' }}>Họ và tên</th>
-                <th style={{ padding: '10px 14px' }}>Email</th>
-                <th style={{ padding: '10px 14px' }}>Vai trò</th>
+                <th style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>Họ và tên</th>
+                <th style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>Email</th>
+                <th style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>Vai trò</th>
               </tr>
             </thead>
             <tbody>
@@ -80,14 +80,16 @@ function MembersModal({ group, users, onClose }) {
                 <tr><td colSpan="3" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Không có thành viên nào.</td></tr>
               ) : list.map((m) => (
                 <tr key={m.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '13.5px' }}>
-                  <td style={{ padding: '12px 14px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {m.fullName}
-                    {m.id === group.creatorId && <span style={{ fontSize: '11px', color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Trưởng nhóm</span>}
-                    {m.id === group.deputyId  && <span style={{ fontSize: '11px', color: '#34d399',         background: 'rgba(52,211,153,0.1)',  padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Phó nhóm</span>}
+                  <td style={{ padding: '12px 14px', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'nowrap' }}>
+                      <span>{m.fullName}</span>
+                      {m.id === group.creatorId && <span style={{ fontSize: '11px', color: 'var(--text-primary)', background: 'rgba(17, 24, 39, 0.04)', border: '1px solid var(--border)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap', display: 'inline-block', flexShrink: 0 }}>Trưởng nhóm</span>}
+                      {m.id === group.deputyId  && <span style={{ fontSize: '11px', color: '#34d399', background: 'rgba(52,211,153,0.1)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap', display: 'inline-block', flexShrink: 0 }}>Phó nhóm</span>}
+                    </div>
                   </td>
-                  <td style={{ padding: '12px 14px', color: 'var(--text-secondary)', fontSize: '12.5px' }}>{m.email}</td>
-                  <td style={{ padding: '12px 14px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 650, padding: '2px 8px', borderRadius: '4px', background: m.role === 'admin' ? 'rgba(239,68,68,0.1)' : 'rgba(0,0,0,0.06)', color: m.role === 'admin' ? 'var(--error)' : 'var(--text-primary)' }}>
+                  <td style={{ padding: '12px 14px', color: 'var(--text-secondary)', fontSize: '12.5px', whiteSpace: 'nowrap' }}>{m.email}</td>
+                  <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 650, padding: '3px 10px', borderRadius: '4px', background: m.role === 'admin' ? 'rgba(239,68,68,0.1)' : 'rgba(0,0,0,0.06)', color: m.role === 'admin' ? 'var(--error)' : 'var(--text-primary)', whiteSpace: 'nowrap', display: 'inline-block' }}>
                       {m.role === 'admin' ? 'Admin' : 'Học sinh'}
                     </span>
                   </td>

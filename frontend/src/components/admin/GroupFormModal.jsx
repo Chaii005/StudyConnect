@@ -354,7 +354,9 @@ export default function GroupFormModal({
 
           {/* Ngành học / Lĩnh vực */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', display: 'block', fontWeight: 700, color: 'var(--text-secondary)' }}>Ngành học *</label>
+            <label className="form-label" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', display: 'block', fontWeight: 700, color: 'var(--text-secondary)' }}>
+              Ngành học * {currentEditGroup && <span style={{ fontSize: '11px', textTransform: 'none', color: 'var(--text-muted)', fontWeight: 400 }}>(Mặc định, không thể sửa)</span>}
+            </label>
             <div className="form-input-wrap" style={{ position: 'relative' }}>
               <CustomSelect
                 value={groupForm.major}
@@ -364,6 +366,7 @@ export default function GroupFormModal({
                 }}
                 options={['Chung', ...MAJORS]}
                 placeholder="-- Chọn ngành học --"
+                disabled={!!currentEditGroup}
               />
             </div>
           </div>
