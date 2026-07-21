@@ -1328,7 +1328,8 @@ export const getDeadlineSubmissions = async (groupId) => {
   if (gError || !gDeadlines || gDeadlines.length === 0) return {};
   const deadlineIds = gDeadlines.map(d => d.id);
 
-  const { data, error } = await supabase
+  let data = null;
+  let { data: joinData, error } = await supabase
     .from('deadline_submissions')
     .select(`
       id,
@@ -1341,16 +1342,21 @@ export const getDeadlineSubmissions = async (groupId) => {
       submitted_at,
       grade,
       feedback,
-      graded_at
+      graded_at,
+      users:users!user_id(full_name)
     `)
     .in('deadline_id', deadlineIds)
     .limit(300);
 
   if (error) {
-    if (import.meta.env.DEV) {
-      console.error('[getDeadlineSubmissions] Error fetching from Supabase:', error.message);
-    }
-    return {};
+    const { data: plainData } = await supabase
+      .from('deadline_submissions')
+      .select('id, deadline_id, user_id, note, file_name, file_data, images, submitted_at, grade, feedback, graded_at')
+      .in('deadline_id', deadlineIds)
+      .limit(300);
+    data = plainData;
+  } else {
+    data = joinData;
   }
 
   // Map to { [deadlineId]: [ { ... }, { ... } ] } format
@@ -1360,10 +1366,11 @@ export const getDeadlineSubmissions = async (groupId) => {
     if (!submissionsDict[dId]) {
       submissionsDict[dId] = [];
     }
+    const name = sub.users?.full_name || sub.userName || 'Thành viên';
     submissionsDict[dId].push({
       userId: sub.user_id,
-      userName: sub.userName || 'Thành viên',
-      userInitial: 'U',
+      userName: name,
+      userInitial: (name || 'U')[0].toUpperCase(),
       note: sub.note,
       fileName: sub.file_name,
       fileData: sub.file_data,

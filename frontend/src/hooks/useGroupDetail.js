@@ -759,7 +759,7 @@ export default function useGroupDetail(groupId, user, addToast) {
         const freshSubmissions = await getDeadlineSubmissions(groupId);
         setSubmissions(freshSubmissions || {});
       } catch { /* ignore */ }
-    }, 10000);
+    }, 1500);
 
     return () => {
       clearInterval(pollInterval);
@@ -1570,6 +1570,8 @@ export default function useGroupDetail(groupId, user, addToast) {
       });
 
       await fetchGroupDeadlines();
+      const freshSubs = await getDeadlineSubmissions(groupId);
+      setSubmissions(freshSubs || {});
       window.dispatchEvent(new CustomEvent('sc-deadline-submission-updated', { detail: { groupId, deadlineId: showSubmitModal } }));
       addToast('Nộp bài thành công! ✅', 'success');
       setShowSubmitModal(null);
@@ -1596,6 +1598,8 @@ export default function useGroupDetail(groupId, user, addToast) {
     try {
       await deleteDeadlineAssignment(deadlineId, user.id);
       await fetchGroupDeadlines();
+      const freshSubs = await getDeadlineSubmissions(groupId);
+      setSubmissions(freshSubs || {});
       window.dispatchEvent(new CustomEvent('sc-deadline-submission-updated', { detail: { groupId, deadlineId } }));
 
       addToast('Đã xóa bài nộp! Bạn có thể chọn file để nộp lại.', 'success');
@@ -1613,6 +1617,8 @@ export default function useGroupDetail(groupId, user, addToast) {
     try {
       await saveDeadlineGrade(deadlineId, targetUserId, grade, feedback);
       await fetchGroupDeadlines();
+      const freshSubs = await getDeadlineSubmissions(groupId);
+      setSubmissions(freshSubs || {});
       addToast('Đã lưu điểm và nhận xét thành công!', 'success');
     } catch (err) {
       addToast(err.message || 'Lỗi khi lưu điểm bài nộp', 'error');
