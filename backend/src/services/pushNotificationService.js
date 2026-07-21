@@ -33,6 +33,16 @@ const sendPushToUsers = async (userIds, { title, body, data = {} }) => {
     const isCall = data && data.type === 'incoming_call';
     const channelId = isCall ? 'calls' : 'default';
 
+    // Ensure all data payload values are stringified for FCM specification compliance
+    const stringifiedData = {};
+    if (data && typeof data === 'object') {
+      Object.keys(data).forEach(key => {
+        if (data[key] !== undefined && data[key] !== null) {
+          stringifiedData[key] = String(data[key]);
+        }
+      });
+    }
+
     // Build FCM multicast message
     const message = {
       notification: {
@@ -40,7 +50,7 @@ const sendPushToUsers = async (userIds, { title, body, data = {} }) => {
         body
       },
       data: {
-        ...data,
+        ...stringifiedData,
         click_action: 'FLUTTER_NOTIFICATION_CLICK', // standard compatibility
       },
       android: {
