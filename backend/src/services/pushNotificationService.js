@@ -53,7 +53,6 @@ const sendPushToUsers = async (userIds, { title, body, data = {} }) => {
           priority: isCall ? 'MAX' : 'HIGH',
           visibility: 'PUBLIC',
           ...(isCall ? {
-            category: 'call',
             sticky: true,
             // Android vibration pattern for calls: 1s vibrate, 0.5s pause
             vibrateTimings: ['0s', '1s', '0.5s', '1s', '0.5s', '1s', '0.5s', '1s', '0.5s', '1s']

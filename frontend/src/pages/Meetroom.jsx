@@ -299,6 +299,7 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
   const localRef          = useRef(null);
   const channelRef        = useRef(null);
   const iceCandidateQueues = useRef({}); // { peerId: RTCIceCandidate[] } — queue ICE trước khi setRemoteDescription
+  const joinIntervalRef   = useRef(null);
 
   // Dùng ref để các callbacks đọc được giá trị mới nhất mà không cần recreate effect
   const micOnRef        = useRef(micOn);
@@ -724,16 +725,25 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
 
       ch.subscribe((status) => {
         if (status === 'SUBSCRIBED' && !cancelled) {
-          ch.send({
-            type: 'broadcast', event: 'signal',
-            payload: {
-              type: 'join', from: myId.current,
-              name: userRef.current?.fullName || 'Người dùng',
-              avatar: userRef.current?.avatar || '',
-              room: roomId,
-              camOn: camOnRef.current, micOn: micOnRef.current,
-            }
-          });
+          const sendJoin = () => {
+            if (cancelled || !ch) return;
+            ch.send({
+              type: 'broadcast', event: 'signal',
+              payload: {
+                type: 'join', from: myId.current,
+                name: userRef.current?.fullName || 'Người dùng',
+                avatar: userRef.current?.avatar || '',
+                room: roomId,
+                camOn: camOnRef.current, micOn: micOnRef.current,
+              }
+            });
+          };
+
+          sendJoin();
+
+          if (!joinIntervalRef.current) {
+            joinIntervalRef.current = setInterval(sendJoin, 4000);
+          }
         }
       });
     };
@@ -742,6 +752,10 @@ function useWebRTC({ roomId, user, micOn, camOn, onForceMute }) {
 
     return () => {
       cancelled = true;
+      if (joinIntervalRef.current) {
+        clearInterval(joinIntervalRef.current);
+        joinIntervalRef.current = null;
+      }
       if (ch) {
         ch.send({
           type: 'broadcast', event: 'signal',

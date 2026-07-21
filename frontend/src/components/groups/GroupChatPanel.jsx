@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { formatBytes } from '../../utils';
 import MessageMenu from './MessageMenu';
 import { SafeInput } from '../common/SafeInput';
+import { sendChatMessage } from '../../services/interactionService';
 
 const EMOJI_LIST = [
   '😊','😂','🥰','😎','🤔','😅','🙏','👍','❤️','🔥','✨','🎉',
@@ -172,6 +173,27 @@ export default function GroupChatPanel({
     setMentionQuery('');
   };
 
+  const handleStartGroupCall = async () => {
+    const gId = group?.id || '5';
+    const roomCode = `room-g${gId}-${Date.now().toString(36)}`;
+    const meetroomMsg = `[meetroom:${roomCode}] 🎥 Cuộc gọi video nhóm học tập đã bắt đầu. Nhấn để tham gia!`;
+    try {
+      if (group?.id && user?.id) {
+        await sendChatMessage(group.id, {
+          content: meetroomMsg,
+          fileAttachment: null,
+          userId: user.id,
+          userFullName: user.fullName || 'Người dùng',
+          userAvatar: user.avatar || '',
+        });
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) console.error('Failed to send group meetroom chat message:', e);
+    }
+    const roomUrl = `/room/${roomCode}?group=${encodeURIComponent(group?.name || 'Nhóm học')}&groupId=${gId}`;
+    window.open(roomUrl, '_blank');
+  };
+
   return (
     <div
       ref={chatContainerRef}
@@ -205,18 +227,53 @@ export default function GroupChatPanel({
           </h3>
           <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', margin: '2px 0 0 0' }} />
         </div>
-        <span
-          style={{
-            fontSize: '12px',
-            background: 'rgba(74,222,128,0.15)',
-            color: '#4ade80',
-            padding: '4px 10px',
-            borderRadius: '12px',
-            fontWeight: 600,
-          }}
-        >
-          ● Trực tuyến
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={handleStartGroupCall}
+            title="Tạo cuộc gọi video nhóm học tập"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
+              color: '#ffffff',
+              border: 'none',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(42, 117, 118, 0.25)',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(42, 117, 118, 0.35)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(42, 117, 118, 0.25)';
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 7l-7 5 7 5V7z" />
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+            </svg>
+            <span>Tạo cuộc gọi nhóm</span>
+          </button>
+          <span
+            style={{
+              fontSize: '12px',
+              background: 'rgba(74,222,128,0.15)',
+              color: '#4ade80',
+              padding: '4px 10px',
+              borderRadius: '12px',
+              fontWeight: 600,
+            }}
+          >
+            ● Trực tuyến
+          </span>
+        </div>
       </div>
 
       <style>{`
