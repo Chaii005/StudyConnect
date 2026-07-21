@@ -90,12 +90,12 @@ export default function Schedule() {
     const groupIdStr = (dl.group_id || dl.groupId)?.toString();
     if (!groupIdStr) return false;
     const role = userGroupsRolesRef.current[groupIdStr];
-    if (!role) return false;
+    if (!role) return true;
     if (role === 'creator' || role === 'admin') return true;
 
     // Check assignee
     const assigneeId = dl.assignee_id || dl.assigneeId;
-    if (assigneeId && assigneeId !== 'all' && Number(assigneeId) !== Number(user?.id)) {
+    if (assigneeId && assigneeId !== 'all' && String(assigneeId) !== String(user?.id)) {
       return false;
     }
 
@@ -121,6 +121,37 @@ export default function Schedule() {
       return 'Nhóm học';
     }
   }, []);
+
+  const fetchAllData = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      setLoading(true);
+      // Fetch user groups and roles first to avoid race condition in filtering
+      const { data: memberData } = await supabase
+        .from('group_members')
+        .select('group_id, role')
+        .eq('user_id', parseInt(user.id, 10));
+      
+      const roles = {};
+      if (memberData) {
+        memberData.forEach(m => {
+          roles[m.group_id.toString()] = m.role;
+        });
+      }
+      userGroupsRolesRef.current = roles;
+
+      const { schedules: schedList, deadlines: deadList } = await getUserSchedulesAndDeadlines(user.id);
+      setSchedules(schedList);
+      const visibleDeadlines = deadList.filter(isDeadlineVisibleForUser);
+      const processed = getProcessedDeadlines(visibleDeadlines);
+      setDeadlines(processed);
+      setUrgentCount(processed.filter(d => d.dueSoon).length);
+    } catch (err) {
+      addToast(err.message || 'Lỗi khi tải lịch học và deadline', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [user, addToast, isDeadlineVisibleForUser]);
 
   // Realtime subscription for overview
   useEffect(() => {
@@ -291,36 +322,7 @@ export default function Schedule() {
     };
   }, [user?.id, isDeadlineVisibleForUser, getGroupNameAsync]);
 
-  const fetchAllData = useCallback(async () => {
-    if (!user?.id) return;
-    try {
-      setLoading(true);
-      // Fetch user groups and roles first to avoid race condition in filtering
-      const { data: memberData } = await supabase
-        .from('group_members')
-        .select('group_id, role')
-        .eq('user_id', parseInt(user.id, 10));
-      
-      const roles = {};
-      if (memberData) {
-        memberData.forEach(m => {
-          roles[m.group_id.toString()] = m.role;
-        });
-      }
-      userGroupsRolesRef.current = roles;
 
-      const { schedules: schedList, deadlines: deadList } = await getUserSchedulesAndDeadlines(user.id);
-      setSchedules(schedList);
-      const visibleDeadlines = deadList.filter(isDeadlineVisibleForUser);
-      const processed = getProcessedDeadlines(visibleDeadlines);
-      setDeadlines(processed);
-      setUrgentCount(processed.filter(d => d.dueSoon).length);
-    } catch (err) {
-      addToast(err.message || 'Lỗi khi tải lịch học và deadline', 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [user, addToast, isDeadlineVisibleForUser]);
 
   useEffect(() => {
     fetchAllData();
