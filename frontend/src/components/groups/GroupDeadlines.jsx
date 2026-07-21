@@ -70,7 +70,38 @@ export default function GroupDeadlines({
   const deadlineListRef = useRef(null);
 
   const [submitTab, setSubmitTab] = useState('images'); // 'images' or 'file'
-  const [lightboxImg, setLightboxImg] = useState(null);
+  const [lightboxImages, setLightboxImages] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [gradeDropdownOpen, setGradeDropdownOpen] = useState(false);
+
+  const openLightbox = (imgs, idx = 0) => {
+    if (Array.isArray(imgs)) {
+      setLightboxImages(imgs);
+    } else if (typeof imgs === 'string') {
+      setLightboxImages([imgs]);
+    }
+    setLightboxIndex(idx);
+  };
+
+  const closeLightbox = () => {
+    setLightboxImages([]);
+    setLightboxIndex(0);
+  };
+
+  useEffect(() => {
+    if (lightboxImages.length === 0) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') {
+        setLightboxIndex((prev) => (prev > 0 ? prev - 1 : lightboxImages.length - 1));
+      } else if (e.key === 'ArrowRight') {
+        setLightboxIndex((prev) => (prev < lightboxImages.length - 1 ? prev + 1 : 0));
+      } else if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxImages.length]);
 
   // State for grading modal
   const [gradingTarget, setGradingTarget] = useState(null); // { deadlineId, member, submission }
@@ -1186,7 +1217,7 @@ disabled={isSubmittingDeadline}
                                 {sub.images.map((img, i) => (
                                   <div
                                     key={i}
-                                    onClick={() => setLightboxImg(img.fileData)}
+                                    onClick={() => openLightbox(sub.images.map((im) => im.fileData), i)}
                                     style={{
                                       height: '75px',
                                       borderRadius: '8px',
@@ -1204,7 +1235,7 @@ disabled={isSubmittingDeadline}
                               </div>
                               <button
                                 type="button"
-                                onClick={() => setLightboxImg(sub.images[0].fileData)}
+                                onClick={() => openLightbox(sub.images.map((im) => im.fileData), 0)}
                                 style={{
                                   alignSelf: 'flex-start',
                                   display: 'inline-flex',
@@ -1367,36 +1398,106 @@ disabled={isSubmittingDeadline}
               Thành viên: <strong style={{ color: 'var(--text-primary)' }}>{gradingTarget.member.fullName}</strong>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', position: 'relative' }}>
               <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
                 Chọn điểm số (từ 1 đến 10 điểm):
               </label>
-              <select
-                value={gradeInput}
-                onChange={(e) => setGradeInput(e.target.value)}
+
+              {/* Custom Dropdown Trigger */}
+              <button
+                type="button"
+                onClick={() => setGradeDropdownOpen(!gradeDropdownOpen)}
                 style={{
                   width: '100%',
-                  padding: '10px 36px 10px 14px',
+                  padding: '10px 14px',
                   borderRadius: '10px',
                   border: '1px solid var(--border)',
-                  background: 'var(--bg-input) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888888\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 12px center / 16px',
-                  color: 'var(--text-primary)',
+                  background: 'var(--bg-input)',
+                  color: gradeInput !== '' ? 'var(--text-primary)' : 'var(--text-muted)',
                   fontSize: '14px',
                   fontWeight: 600,
-                  outline: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                   cursor: 'pointer',
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
+                  outline: 'none',
                   boxSizing: 'border-box',
                 }}
               >
-                <option value="" style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>-- Chọn điểm số --</option>
-                {[10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0].map((score) => (
-                  <option key={score} value={score} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
-                    {score} điểm
-                  </option>
-                ))}
-              </select>
+                <span>{gradeInput !== '' ? `${gradeInput} điểm` : '-- Chọn điểm số --'}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.2s', transform: gradeDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+
+              {/* Custom Dropdown Options List - rendered BELOW, max ~4 items visible */}
+              {gradeDropdownOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    marginTop: '4px',
+                    maxHeight: '160px',
+                    overflowY: 'auto',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.5)',
+                    zIndex: 99999,
+                    padding: '4px',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <div
+                    onClick={() => { setGradeInput(''); setGradeDropdownOpen(false); }}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      background: gradeInput === '' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    }}
+                  >
+                    -- Chọn điểm số --
+                  </div>
+                  {[10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0].map((score) => (
+                    <div
+                      key={score}
+                      onClick={() => { setGradeInput(String(score)); setGradeDropdownOpen(false); }}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: String(gradeInput) === String(score) ? '#eab308' : 'var(--text-primary)',
+                        background: String(gradeInput) === String(score) ? 'rgba(234, 179, 8, 0.15)' : 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (String(gradeInput) !== String(score)) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (String(gradeInput) !== String(score)) e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <span>{score} điểm</span>
+                      {String(gradeInput) === String(score) && (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -1627,7 +1728,10 @@ disabled={isSubmittingDeadline}
                               src={objectUrl}
                               alt={`Ảnh ${slotIdx + 1}`}
                               style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }}
-                              onClick={() => setLightboxImg(objectUrl)}
+                              onClick={() => {
+                                const allUrls = submitImages.map(f => typeof f === 'string' ? f : URL.createObjectURL(f));
+                                openLightbox(allUrls, slotIdx);
+                              }}
                             />
                             <span
                               style={{
@@ -1820,21 +1924,21 @@ disabled={isSubmittingDeadline}
         </div>
       )}
 
-      {/* Full-screen Lightbox Image Preview Modal */}
-      {lightboxImg && (
+      {/* Full-screen Lightbox Image Preview Modal with Navigation */}
+      {lightboxImages.length > 0 && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.88)',
-            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.92)',
+            backdropFilter: 'blur(10px)',
             zIndex: 9999999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '24px',
           }}
-          onClick={() => setLightboxImg(null)}
+          onClick={closeLightbox}
         >
           <div
             style={{
@@ -1847,46 +1951,137 @@ disabled={isSubmittingDeadline}
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              type="button"
-              onClick={() => setLightboxImg(null)}
+            {/* Top Close Button & Image Counter */}
+            <div
               style={{
                 position: 'absolute',
                 top: '-46px',
-                right: '0',
-                background: 'rgba(255,255,255,0.15)',
-                border: '1px solid rgba(255,255,255,0.3)',
-                color: '#fff',
-                fontSize: '18px',
-                cursor: 'pointer',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
+                left: 0,
+                right: 0,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s',
+                justifyContent: 'space-between',
               }}
-              title="Đóng xem ảnh"
             >
-              ✕
-            </button>
+              <div
+                style={{
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  padding: '4px 14px',
+                  borderRadius: '20px',
+                  backdropFilter: 'blur(4px)',
+                }}
+              >
+                Ảnh {lightboxIndex + 1} / {lightboxImages.length}
+              </div>
+
+              <button
+                type="button"
+                onClick={closeLightbox}
+                style={{
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                }}
+                title="Đóng xem ảnh (Esc)"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Left Arrow Button */}
+            {lightboxImages.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setLightboxIndex((prev) => (prev > 0 ? prev - 1 : lightboxImages.length - 1))}
+                style={{
+                  position: 'absolute',
+                  left: '-24px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(0,0,0,0.75)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  fontSize: '22px',
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  transition: 'all 0.2s',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                }}
+                title="Ảnh trước (Mũi tên trái)"
+              >
+                ❮
+              </button>
+            )}
+
+            {/* Main Image */}
             <img
-              src={lightboxImg}
-              alt="Chi tiết bài nộp"
+              src={lightboxImages[lightboxIndex]}
+              alt={`Ảnh ${lightboxIndex + 1}`}
               style={{
                 maxWidth: '100%',
-                maxHeight: '82vh',
+                maxHeight: '80vh',
                 objectFit: 'contain',
                 borderRadius: '12px',
                 boxShadow: '0 16px 50px rgba(0,0,0,0.8)',
                 border: '1px solid rgba(255,255,255,0.15)',
               }}
             />
+
+            {/* Right Arrow Button */}
+            {lightboxImages.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setLightboxIndex((prev) => (prev < lightboxImages.length - 1 ? prev + 1 : 0))}
+                style={{
+                  position: 'absolute',
+                  right: '-24px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(0,0,0,0.75)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  fontSize: '22px',
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  transition: 'all 0.2s',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                }}
+                title="Ảnh tiếp theo (Mũi tên phải)"
+              >
+                ❯
+              </button>
+            )}
+
+            {/* Bottom Actions Bar */}
             <div style={{ marginTop: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
               <a
-                href={lightboxImg}
-                download="bai_nop_anh.webp"
+                href={lightboxImages[lightboxIndex]}
+                download={`bai_nop_anh_${lightboxIndex + 1}.webp`}
                 className="btn-mono"
                 style={{
                   padding: '7px 18px',
@@ -1904,11 +2099,11 @@ disabled={isSubmittingDeadline}
                   <polyline points="7 10 12 15 17 10" />
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
-                Tải ảnh về máy
+                Tải ảnh này về máy
               </a>
               <button
                 type="button"
-                onClick={() => setLightboxImg(null)}
+                onClick={closeLightbox}
                 style={{
                   padding: '7px 16px',
                   fontSize: '13px',

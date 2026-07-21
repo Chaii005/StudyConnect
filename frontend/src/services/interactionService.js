@@ -1031,15 +1031,10 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
     };
   });
 
-  // Fetch deadlines for these groups with study_groups joined
+  // Fetch deadlines for these groups
   const { data: deadlinesData } = await supabase
     .from('deadlines')
-    .select(`
-      id, title, due_date, group_id, completed, description, assignee_id,
-      study_groups (
-        name
-      )
-    `)
+    .select('id, title, due_date, group_id, completed, description, assignee_id')
     .in('group_id', joinedGroupIds)
     .order('due_date', { ascending: true })
     .limit(100);
@@ -1078,10 +1073,11 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
       }
       const hasSubmitted = userSubIds.has(String(d.id));
       const isCompletedForUser = Boolean(d.completed || hasSubmitted);
+      const membership = joinedMemberships.find(m => m.group_id === d.group_id);
       return {
         id: d.id.toString(),
         groupId: d.group_id.toString(),
-        groupName: d.study_groups?.name || 'Nhóm học',
+        groupName: membership?.study_groups?.name || 'Nhóm học',
         title: d.title,
         dueDate: d.due_date,
         description: desc,

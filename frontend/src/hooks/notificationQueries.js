@@ -161,18 +161,20 @@ export async function fetchAllNotifications(uid, cutoff, now, ONE_DAY_MS, groupN
     }).catch(() => {}));
 
     // Deadlines
-    wave2Promises.push(supabase.from('deadlines').select('id, group_id, title, due_date, assignee_id, created_at, study_groups(name)').in('group_id', joinedIds).eq('completed', false).limit(50).then(({ data, error }) => {
+    wave2Promises.push(supabase.from('deadlines').select('id, group_id, title, due_date, assignee_id, created_at').in('group_id', joinedIds).eq('completed', false).limit(50).then(({ data, error }) => {
       if (!error && data) {
         data.filter(d => { if ((now - new Date(d.created_at)) >= ONE_DAY_MS) return false; return !d.assignee_id || String(d.assignee_id) === String(uid); }).forEach(d => {
           const isPersonal = d.assignee_id;
-          notifsList.push({ key: `deadline:${d.id}`, type: 'deadline', title: 'H\u1ea1n\u0020n\u1ed9p\u0020m\u1edbi', body: `${isPersonal ? 'Giao\u0020ri\u00eang\u0020cho\u0020b\u1ea1n' : 'C\u1ea3\u0020nh\u00f3m\u0020' + (d.study_groups?.name || '')}\u0020\u00b7\u0020${d.title}\u0020(H\u1ea1n:\u0020${new Date(d.due_date).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })})`, createdAt: d.created_at, groupId: d.group_id.toString() });
+          const gName = groupNamesRef.current[Number(d.group_id)] || '';
+          notifsList.push({ key: `deadline:${d.id}`, type: 'deadline', title: 'H\u1ea1n\u0020n\u1ed9p\u0020m\u1edbi', body: `${isPersonal ? 'Giao\u0020ri\u00eang\u0020cho\u0020b\u1ea1n' : 'C\u1ea3\u0020nh\u00f3m\u0020' + gName}\u0020\u00b7\u0020${d.title}\u0020(H\u1ea1n:\u0020${new Date(d.due_date).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })})`, createdAt: d.created_at, groupId: d.group_id.toString() });
         });
         // Urgent deadlines
         data.filter(d => { const due = new Date(d.due_date).getTime(); const tl = due - now.getTime(); if (!(tl > 0 && tl <= ONE_DAY_MS)) return false; return !d.assignee_id || String(d.assignee_id) === String(uid); }).forEach(d => {
           const due = new Date(d.due_date).getTime(); const tl = due - now.getTime();
           const h = Math.floor(tl / 3600000); const m = Math.floor((tl % 3600000) / 60000);
           const ts = h > 0 ? `${h}\u0020gi\u1edd\u0020${m}\u0020ph\u00fat` : `${m}\u0020ph\u00fat`;
-          notifsList.push({ key: `deadline-urgent:${d.id}`, type: 'deadline-urgent', title: 'S\u1eafp\u0020t\u1edbi\u0020h\u1ea1n', body: `C\u00f2n\u0020${ts}\u0020\u0111\u1ec3\u0020n\u1ed9p\u0020"${d.title}"\u0020${d.assignee_id ? '(giao\u0020ri\u00eang\u0020cho\u0020b\u1ea1n)' : 'trong\u0020nh\u00f3m\u0020' + (d.study_groups?.name || 'H\u1ecdc\u0020t\u1eadp')}.`, createdAt: new Date(due - ONE_DAY_MS).toISOString(), groupId: d.group_id.toString(), deadlineId: d.id.toString(), dueDate: d.due_date });
+          const gName = groupNamesRef.current[Number(d.group_id)] || 'H\u1ecdc\u0020t\u1eadp';
+          notifsList.push({ key: `deadline-urgent:${d.id}`, type: 'deadline-urgent', title: 'S\u1eafp\u0020t\u1edbi\u0020h\u1ea1n', body: `C\u00f2n\u0020${ts}\u0020\u0111\u1ec3\u0020n\u1ed9p\u0020"${d.title}"\u0020${d.assignee_id ? '(giao\u0020ri\u00eang\u0020cho\u0020b\u1ea1n)' : 'trong\u0020nh\u00f3m\u0020' + gName}.`, createdAt: new Date(due - ONE_DAY_MS).toISOString(), groupId: d.group_id.toString(), deadlineId: d.id.toString(), dueDate: d.due_date });
         });
       }
     }).catch(() => {}));
