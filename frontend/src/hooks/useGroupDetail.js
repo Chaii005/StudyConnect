@@ -65,6 +65,10 @@ export default function useGroupDetail(groupId, user, addToast) {
   const [joinRequestStatus, setJoinRequestStatus] = useState(null);
   const [joining, setJoining] = useState(false);
 
+  const isGroupCreator = String(user?.id) === String(group?.creatorId);
+  const isDeputy = group?.deputyIds ? group.deputyIds.some(id => String(id) === String(user?.id)) : String(user?.id) === String(group?.deputyId);
+  const isLeader = isGroupCreator || isDeputy;
+
   // Members management state
   const [isAssigningDeputy, setIsAssigningDeputy] = useState(false);
   const [friendRequestingIds, setFriendRequestingIds] = useState({});
@@ -1891,5 +1895,8 @@ export default function useGroupDetail(groupId, user, addToast) {
     joinRequestStatus,
     joining,
     handleJoinGroup,
+    isLeader,
+    isGroupCreator,
+    isDeputy,
   };
 }
