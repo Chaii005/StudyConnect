@@ -66,26 +66,6 @@ export default function Schedule() {
   const userGroupsRolesRef = useRef({});
   const groupNamesCacheRef = useRef({});
 
-  // Realtime subscription for member changes to update roles/deadlines
-  useEffect(() => {
-    if (!user?.id) return;
-    const channelName = `user-groups-roles-realtime-${user.id}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${user.id}` },
-        () => {
-          fetchAllData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, fetchAllData]);
-
   const isDeadlineVisibleForUser = useCallback((dl) => {
     const groupIdStr = (dl.group_id || dl.groupId)?.toString();
     if (!groupIdStr) return false;
@@ -152,6 +132,26 @@ export default function Schedule() {
       setLoading(false);
     }
   }, [user, addToast, isDeadlineVisibleForUser]);
+
+  // Realtime subscription for member changes to update roles/deadlines
+  useEffect(() => {
+    if (!user?.id) return;
+    const channelName = `user-groups-roles-realtime-${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'group_members', filter: `user_id=eq.${user.id}` },
+        () => {
+          fetchAllData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, fetchAllData]);
 
   // Realtime subscription for overview
   useEffect(() => {
