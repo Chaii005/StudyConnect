@@ -1343,7 +1343,6 @@ export const getDeadlineSubmissions = async (groupId) => {
       id,
       deadline_id,
       user_id,
-      user_name,
       note,
       file_name,
       file_data,
@@ -1372,8 +1371,8 @@ export const getDeadlineSubmissions = async (groupId) => {
     }
     submissionsDict[dId].push({
       userId: sub.user_id,
-      userName: sub.user_name,
-      userInitial: (sub.user_name || 'U')[0].toUpperCase(),
+      userName: sub.userName || 'Thành viên',
+      userInitial: 'U',
       note: sub.note,
       fileName: sub.file_name,
       fileData: sub.file_data,
@@ -1394,7 +1393,6 @@ export const submitDeadlineAssignment = async (deadlineId, { userId, userName, u
       {
         deadline_id: parseInt(deadlineId, 10),
         user_id: parseInt(userId, 10),
-        user_name: userName,
         note: note || '',
         file_name: fileName || '',
         file_data: fileData || '',

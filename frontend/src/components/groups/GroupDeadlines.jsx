@@ -602,33 +602,6 @@ export default function GroupDeadlines({
                       </div>
                     </div>
 
-                    {/* Delete Deadline button for Leader/Creator on Top Right */}
-                    {canDelete && (
-                      <button
-                        onClick={() => handleDeadlineDelete(d.id)}
-                        style={{
-                          background: 'rgba(239, 68, 68, 0.08)',
-                          border: '1px solid rgba(239, 68, 68, 0.2)',
-                          color: 'var(--error)',
-                          cursor: 'pointer',
-                          padding: '6px 8px',
-                          borderRadius: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                          transition: 'all 0.2s',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.18)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)')}
-                        title="Xóa deadline"
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                      </button>
-                    )}
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', width: '100%' }}>
@@ -637,11 +610,12 @@ export default function GroupDeadlines({
                         onClick={() => setShowSubmissionsFor(d.id)}
                         className="btn-mono"
                         style={{
-                          padding: '6px 12px',
+                          padding: '6px 14px',
                           fontSize: '12px',
                           fontWeight: 600,
                           borderRadius: '8px',
                           whiteSpace: 'nowrap',
+                          flex: '0 0 auto',
                         }}
                       >
                         Bài nộp ({subs.length}/{totalAssigned})
@@ -656,15 +630,16 @@ export default function GroupDeadlines({
                           background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : 'rgba(234, 179, 8, 0.12)',
                           border: '1px solid rgba(234, 179, 8, 0.3)',
                           color: '#eab308',
-                          padding: '6px 12px',
+                          padding: '6px 14px',
                           borderRadius: '8px',
                           fontSize: '12px',
                           fontWeight: 600,
                           cursor: remindingIds[d.id] ? 'not-allowed' : 'pointer',
-                          display: 'flex',
+                          display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px',
                           whiteSpace: 'nowrap',
+                          flex: '0 0 auto',
                           transition: 'all 0.2s',
                         }}
                         title="Gửi thông báo nhắc nhở làm deadline tới các thành viên"
@@ -674,6 +649,31 @@ export default function GroupDeadlines({
                           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
                         {remindingIds[d.id] ? 'Đang nhắc...' : 'Nhắc nhở'}
+                      </button>
+                    )}
+
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDeadlineDelete(d.id)}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          color: '#ef4444',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          whiteSpace: 'nowrap',
+                          flex: '0 0 auto',
+                          transition: 'all 0.2s',
+                        }}
+                        title="Xóa deadline"
+                      >
+                        Xóa
                       </button>
                     )}
 
