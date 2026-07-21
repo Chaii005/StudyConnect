@@ -845,19 +845,17 @@ const parseDeadlineItem = (d, fallbackType = 'all') => {
 export const getDeadlines = async (groupId) => {
   const { data, error } = await supabase
     .from('deadlines')
-    .select(`
-      id, title, due_date, group_id, creator_id, description, assignee_id, completed, submission_type, created_at,
-      users:users!assignee_id (
-        full_name
-      )
-    `)
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, submission_type, created_at')
     .eq('group_id', parseInt(groupId, 10))
     .order('due_date', { ascending: true })
     .limit(50);
 
   if (error) {
-    // Fallback if relation or column not supported
-    const { data: fbData } = await supabase.from('deadlines').select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at').eq('group_id', parseInt(groupId, 10)).limit(50);
+    const { data: fbData } = await supabase
+      .from('deadlines')
+      .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at')
+      .eq('group_id', parseInt(groupId, 10))
+      .limit(50);
     return (fbData || []).map(d => parseDeadlineItem(d));
   }
 
@@ -884,12 +882,7 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
   let { data, error } = await supabase
     .from('deadlines')
     .insert([insertPayload])
-    .select(`
-      id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at,
-      users:users!assignee_id (
-        full_name
-      )
-    `)
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, submission_type, created_at')
     .single();
 
   if (error) {
@@ -898,12 +891,7 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
     const fbRes = await supabase
       .from('deadlines')
       .insert([insertPayload])
-      .select(`
-        id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at,
-        users:users!assignee_id (
-          full_name
-        )
-      `)
+      .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at')
       .single();
     if (fbRes.error) {
       throw new Error(`Tạo deadline thất bại: ${fbRes.error.message}`);
@@ -967,12 +955,7 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
     .from('deadlines')
     .update(updatePayload)
     .eq('id', parseInt(deadlineId, 10))
-    .select(`
-      id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at,
-      users:users!assignee_id (
-        full_name
-      )
-    `)
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, submission_type, created_at')
     .single();
 
   if (error) {
@@ -981,12 +964,7 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
       .from('deadlines')
       .update(updatePayload)
       .eq('id', parseInt(deadlineId, 10))
-      .select(`
-        id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at,
-        users:users!assignee_id (
-          full_name
-        )
-      `)
+      .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at')
       .single();
     if (fbRes.error) {
       throw new Error(`Cập nhật deadline thất bại: ${fbRes.error.message}`);
