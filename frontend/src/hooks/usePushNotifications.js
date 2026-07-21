@@ -17,6 +17,8 @@ export default function usePushNotifications(user) {
 
   const saveTokenToDatabase = async (tokenValue, userId) => {
     if (!tokenValue || !userId) return;
+
+    // 1. Save via Supabase client (direct table upsert)
     try {
       const { error } = await supabase
         .from('user_push_tokens')
@@ -27,12 +29,42 @@ export default function usePushNotifications(user) {
         }, { onConflict: 'device_token' });
 
       if (error) {
-        if (import.meta.env.DEV) console.error('[Push] Failed to save token to database:', error.message);
+        if (import.meta.env.DEV) console.error('[Push] Supabase token upsert error:', error.message);
       } else {
-        if (import.meta.env.DEV) console.log('[Push] Token saved/synced to database successfully');
+        if (import.meta.env.DEV) console.log('[Push] Token saved to Supabase successfully');
       }
     } catch (dbErr) {
-      if (import.meta.env.DEV) console.error('[Push] Database error saving token:', dbErr);
+      if (import.meta.env.DEV) console.error('[Push] Supabase DB error saving token:', dbErr);
+    }
+
+    // 2. Save via Backend REST API (Render endpoint)
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://studyconnect-backend-ylyu.onrender.com';
+      let token = null;
+      try {
+        const sessionStr = localStorage.getItem('sc_session');
+        if (sessionStr) {
+          const sess = JSON.parse(sessionStr);
+          token = sess?.access_token || sess?.token;
+        }
+      } catch (e) {
+        // ignore parse error
+      }
+
+      await fetch(`${backendUrl}/api/users/push-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          deviceToken: tokenValue,
+          platform: Capacitor.getPlatform()
+        })
+      });
+      if (import.meta.env.DEV) console.log('[Push] Token synced to Backend API successfully');
+    } catch (apiErr) {
+      if (import.meta.env.DEV) console.warn('[Push] Backend API token sync error:', apiErr);
     }
   };
 
