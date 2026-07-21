@@ -129,7 +129,25 @@ function usePrivateWebRTC({ callId, user, mode, micOn, camOn, setMicOn, setCamOn
         setError('Trình duyệt yêu cầu kết nối HTTPS để truy cập Camera/Microphone.');
         return null;
       }
-      if (import.meta.env.DEV) console.warn('[PrivateCall] Full media failed, trying audio only:', err);
+      if (import.meta.env.DEV) console.warn('[PrivateCall] Full media failed, trying basic constraints:', err);
+      
+      // Fallback 1: Try basic constraints without resolution ideals
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('SecureContextError');
+        }
+        const simpleStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localRef.current = simpleStream;
+        setLocalStream(simpleStream);
+        simpleStream.getAudioTracks().forEach(t => { t.enabled = micOnRef.current; });
+        simpleStream.getVideoTracks().forEach(t => { t.enabled = camOnRef.current; });
+        if (setCamOn) setCamOn(simpleStream.getVideoTracks().length > 0);
+        if (setMicOn) setMicOn(simpleStream.getAudioTracks().length > 0);
+        return simpleStream;
+      } catch (errFallback) {
+        if (import.meta.env.DEV) console.warn('[PrivateCall] Basic media failed, trying audio only:', errFallback);
+      }
+
       if (setCamOn) setCamOn(false);
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -654,41 +672,19 @@ export default function PrivateCall() {
   // Đọc callStatus và cancelCall từ CallContext (hiển thị khi timeout / bị hủy)
   const { callStatus, cancelCall } = useCall();
 
-  // Lắng nghe kênh global để bắt 'no_answer'/'cancel' khi người gọi timeout
-  // QUAN TRỌNG: phải dùng đúng tên channel 'private_calls_global' — cùng channel CallContext dùng để broadcast
+  // Khi callStatus thay đổi trong context (cho cả caller và callee)
   useEffect(() => {
-    if (!user?.id || !callId) return;
-    const ch = supabase.channel('private_calls_global', {
-      config: { broadcast: { self: false } }
-    });
-    ch.on('broadcast', { event: 'call_signal' }, ({ payload }) => {
-      if (!payload) return;
-      if (
-        (payload.type === 'cancel' || payload.type === 'no_answer') &&
-        payload.callId === callId
-      ) {
-        setCallEndedMsg('cancelled');
-        setTimeout(() => navigate('/chat'), 1500);
-      }
-    });
-    ch.subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [user?.id, callId, navigate]);
-
-  // Khi callStatus thay đổi trong context (bên caller)
-  useEffect(() => {
-    if (mode !== 'caller') return;
-
     if (callStatus === 'no_answer') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCallEndedMsg('no_answer');
       setTimeout(() => navigate('/chat'), 2000);
-    }
-    if (callStatus === 'rejected') {
+    } else if (callStatus === 'rejected') {
       setCallEndedMsg('rejected');
       setTimeout(() => navigate('/chat'), 2000);
+    } else if (callStatus === 'missed') {
+      setCallEndedMsg('cancelled');
+      setTimeout(() => navigate('/chat'), 2000);
     }
-  }, [callStatus, mode, navigate]);
+  }, [callStatus, navigate]);
 
   const { localStream, remoteStream, connected, error, hangup, remoteCamOn, remoteMicOn } = usePrivateWebRTC({
     callId, user, mode, micOn, camOn, setMicOn, setCamOn,

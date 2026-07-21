@@ -296,22 +296,29 @@ export const CallProvider = ({ children }) => {
 
   // ── Chấp nhận cuộc gọi ──────────────────────────────────────────
   const acceptCall = useCallback(async () => {
-    const call = incomingCallRef.current;
+    const call = incomingCallRef.current || incomingCall;
     if (!call) return;
 
     clearTimeout(ringTimerRef.current);
+    ringTimerRef.current = null;
+    clearTimeout(statusTimerRef.current);
+    statusTimerRef.current = null;
     setCallStatus(null);
 
-    await channelRef.current?.send({
-      type: 'broadcast',
-      event: 'call_signal',
-      payload: { type: 'accept', callId: call.callId, receiverId: user?.id },
-    });
+    try {
+      await channelRef.current?.send({
+        type: 'broadcast',
+        event: 'call_signal',
+        payload: { type: 'accept', callId: call.callId, receiverId: user?.id },
+      });
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn('[CallContext] Error sending accept signal:', e);
+    }
 
     incomingCallRef.current = null;
     setIncomingCall(null);
-    navigate(`/call/${call.callId}?mode=callee&friendName=${encodeURIComponent(call.callerName)}&friendAvatar=${encodeURIComponent(call.callerAvatar || '')}&friendId=${call.callerId}`);
-  }, [user, navigate]);
+    navigate(`/call/${call.callId}?mode=callee&friendName=${encodeURIComponent(call.callerName || '')}&friendAvatar=${encodeURIComponent(call.callerAvatar || '')}&friendId=${call.callerId}`);
+  }, [user, navigate, incomingCall]);
 
   // ── Từ chối cuộc gọi ────────────────────────────────────────────
   const rejectCall = useCallback(async () => {
