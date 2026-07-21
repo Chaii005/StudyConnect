@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { SafeInput, SafeTextarea } from '../common/SafeInput';
 
 const format24h = (dateStr) => {
@@ -689,14 +690,15 @@ export default function GroupDeadlines({
                                 background: 'rgba(34, 197, 94, 0.12)',
                                 border: '1px solid rgba(34, 197, 94, 0.3)',
                                 color: '#22c55e',
-                                padding: '6px 12px',
-                                borderRadius: '24px',
+                                padding: '5px 12px',
+                                borderRadius: '20px',
                                 fontSize: '12px',
                                 fontWeight: 700,
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '4px',
                                 whiteSpace: 'nowrap',
+                                flex: '0 0 auto',
                               }}
                             >
                               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -711,8 +713,8 @@ export default function GroupDeadlines({
                                   background: 'rgba(239, 68, 68, 0.1)',
                                   border: '1px solid rgba(239, 68, 68, 0.3)',
                                   color: '#ef4444',
-                                  padding: '6px 14px',
-                                  borderRadius: '24px',
+                                  padding: '5px 12px',
+                                  borderRadius: '20px',
                                   fontSize: '12px',
                                   fontWeight: 600,
                                   cursor: 'pointer',
@@ -720,6 +722,9 @@ export default function GroupDeadlines({
                                   alignItems: 'center',
                                   gap: '4px',
                                   whiteSpace: 'nowrap',
+                                  flex: '0 0 auto',
+                                  width: 'auto',
+                                  maxWidth: 'fit-content',
                                   transition: 'all 0.2s',
                                 }}
                                 title="Xóa bài nộp để nộp lại"
@@ -738,13 +743,14 @@ export default function GroupDeadlines({
                                   border: '1px solid rgba(234, 179, 8, 0.4)',
                                   color: '#eab308',
                                   padding: '5px 10px',
-                                  borderRadius: '24px',
+                                  borderRadius: '20px',
                                   fontSize: '12px',
                                   fontWeight: 800,
                                   display: 'inline-flex',
                                   alignItems: 'center',
                                   gap: '4px',
                                   whiteSpace: 'nowrap',
+                                  flex: '0 0 auto',
                                 }}
                                 title={mySubmission.feedback ? `Nhận xét: "${mySubmission.feedback}"` : 'Điểm đã chấm'}
                               >
@@ -1924,82 +1930,89 @@ disabled={isSubmittingDeadline}
       )}
 
       {/* Full-screen Lightbox Image Preview Modal with Navigation */}
-      {lightboxImages.length > 0 && (
+      {lightboxImages.length > 0 && createPortal(
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.92)',
-            backdropFilter: 'blur(10px)',
-            zIndex: 9999999,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0, 0, 0, 0.94)',
+            backdropFilter: 'blur(12px)',
+            zIndex: 99999999,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '24px',
+            padding: '75px 16px 24px 16px',
+            boxSizing: 'border-box',
           }}
           onClick={closeLightbox}
         >
+          {/* Top Bar inside modal flow */}
           <div
             style={{
-              position: 'relative',
-              maxWidth: '92vw',
-              maxHeight: '92vh',
+              width: '100%',
+              maxWidth: '850px',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '12px',
+              padding: '0 4px',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top Close Button & Image Counter */}
             <div
               style={{
-                position: 'absolute',
-                top: '-46px',
-                left: 0,
-                right: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                background: 'rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: '#fff',
+                fontSize: '13px',
+                fontWeight: 700,
+                padding: '4px 14px',
+                borderRadius: '20px',
+                backdropFilter: 'blur(4px)',
               }}
             >
-              <div
-                style={{
-                  background: 'rgba(255,255,255,0.15)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: '#fff',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  padding: '4px 14px',
-                  borderRadius: '20px',
-                  backdropFilter: 'blur(4px)',
-                }}
-              >
-                Ảnh {lightboxIndex + 1} / {lightboxImages.length}
-              </div>
-
-              <button
-                type="button"
-                onClick={closeLightbox}
-                style={{
-                  background: 'rgba(255,255,255,0.15)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: '#fff',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  borderRadius: '50%',
-                  width: '36px',
-                  height: '36px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s',
-                }}
-                title="Đóng xem ảnh (Esc)"
-              >
-                ✕
-              </button>
+              Ảnh {lightboxIndex + 1} / {lightboxImages.length}
             </div>
 
+            <button
+              type="button"
+              onClick={closeLightbox}
+              style={{
+                background: 'rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.4)',
+                color: '#fff',
+                fontSize: '18px',
+                cursor: 'pointer',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+              title="Đóng xem ảnh (Esc)"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Main Image Container */}
+          <div
+            style={{
+              position: 'relative',
+              maxWidth: '850px',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Left Arrow Button */}
             {lightboxImages.length > 1 && (
               <button
@@ -2007,7 +2020,7 @@ disabled={isSubmittingDeadline}
                 onClick={() => setLightboxIndex((prev) => (prev > 0 ? prev - 1 : lightboxImages.length - 1))}
                 style={{
                   position: 'absolute',
-                  left: '-24px',
+                  left: '8px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'rgba(0,0,0,0.75)',
@@ -2037,7 +2050,7 @@ disabled={isSubmittingDeadline}
               alt={`Ảnh ${lightboxIndex + 1}`}
               style={{
                 maxWidth: '100%',
-                maxHeight: '80vh',
+                maxHeight: 'calc(100vh - 200px)',
                 objectFit: 'contain',
                 borderRadius: '12px',
                 boxShadow: '0 16px 50px rgba(0,0,0,0.8)',
@@ -2052,7 +2065,7 @@ disabled={isSubmittingDeadline}
                 onClick={() => setLightboxIndex((prev) => (prev < lightboxImages.length - 1 ? prev + 1 : 0))}
                 style={{
                   position: 'absolute',
-                  right: '-24px',
+                  right: '8px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'rgba(0,0,0,0.75)',
@@ -2075,50 +2088,54 @@ disabled={isSubmittingDeadline}
                 ❯
               </button>
             )}
-
-            {/* Bottom Actions Bar */}
-            <div style={{ marginTop: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <a
-                href={lightboxImages[lightboxIndex]}
-                download={`bai_nop_anh_${lightboxIndex + 1}.webp`}
-                className="btn-mono"
-                style={{
-                  padding: '7px 18px',
-                  fontSize: '13px',
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontWeight: 600,
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Tải ảnh này về máy
-              </a>
-              <button
-                type="button"
-                onClick={closeLightbox}
-                style={{
-                  padding: '7px 16px',
-                  fontSize: '13px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#fff',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                }}
-              >
-                Đóng
-              </button>
-            </div>
           </div>
-        </div>
+
+          {/* Bottom Actions Bar */}
+          <div
+            style={{ marginTop: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <a
+              href={lightboxImages[lightboxIndex]}
+              download={`bai_nop_anh_${lightboxIndex + 1}.webp`}
+              className="btn-mono"
+              style={{
+                padding: '7px 18px',
+                fontSize: '13px',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontWeight: 600,
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Tải ảnh này về máy
+            </a>
+            <button
+              type="button"
+              onClick={closeLightbox}
+              style={{
+                padding: '7px 16px',
+                fontSize: '13px',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 500,
+              }}
+            >
+              Đóng
+            </button>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );
