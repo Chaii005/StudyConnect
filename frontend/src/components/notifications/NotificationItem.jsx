@@ -77,9 +77,9 @@ export default function NotificationItem({
             marginTop: 8,
             padding: '5px 14px',
             borderRadius: 8,
-            border: 'none',
-            background: 'rgba(239,68,68,0.85)',
-            color: '#fff',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            background: 'rgba(239, 68, 68, 0.12)',
+            color: '#ef4444',
             fontWeight: 700,
             fontSize: 12,
             cursor: 'pointer',
@@ -96,9 +96,10 @@ export default function NotificationItem({
             onClick={(e) => { e.stopPropagation(); onAccept(n); }}
             disabled={!!isProcessing}
             style={{
-              padding: '5px 14px', borderRadius: 8, border: 'none',
-              background: isProcessing === 'accepting' ? 'rgba(34,197,94,0.4)' : 'rgba(34,197,94,0.85)',
-              color: '#fff', fontWeight: 700, fontSize: 12,
+              padding: '5px 14px', borderRadius: 8,
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              background: 'rgba(34, 197, 94, 0.12)',
+              color: '#22c55e', fontWeight: 700, fontSize: 12,
               cursor: isProcessing ? 'not-allowed' : 'pointer',
               opacity: isProcessing ? 0.7 : 1, transition: 'all 0.15s', fontFamily: 'inherit',
             }}
@@ -109,8 +110,9 @@ export default function NotificationItem({
             onClick={(e) => { e.stopPropagation(); onDecline(n); }}
             disabled={!!isProcessing}
             style={{
-              padding: '5px 14px', borderRadius: 8, border: '1px solid var(--border)',
-              background: 'transparent', color: 'var(--text-secondary)', fontWeight: 600, fontSize: 12,
+              padding: '5px 14px', borderRadius: 8,
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', fontWeight: 700, fontSize: 12,
               cursor: isProcessing ? 'not-allowed' : 'pointer',
               opacity: isProcessing ? 0.7 : 1, transition: 'all 0.15s', fontFamily: 'inherit',
             }}
@@ -126,9 +128,10 @@ export default function NotificationItem({
             onClick={(e) => { e.stopPropagation(); onAcceptFriend(n); }}
             disabled={!!isProcessing}
             style={{
-              padding: '5px 14px', borderRadius: 8, border: 'none',
-              background: isProcessing === 'accepting' ? 'rgba(34,197,94,0.4)' : 'rgba(34,197,94,0.85)',
-              color: '#fff', fontWeight: 700, fontSize: 12,
+              padding: '5px 14px', borderRadius: 8,
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              background: 'rgba(34, 197, 94, 0.12)',
+              color: '#22c55e', fontWeight: 700, fontSize: 12,
               cursor: isProcessing ? 'not-allowed' : 'pointer',
               opacity: isProcessing ? 0.7 : 1, transition: 'all 0.15s', fontFamily: 'inherit',
             }}
@@ -139,8 +142,9 @@ export default function NotificationItem({
             onClick={(e) => { e.stopPropagation(); onDeclineFriend(n); }}
             disabled={!!isProcessing}
             style={{
-              padding: '5px 14px', borderRadius: 8, border: '1px solid var(--border)',
-              background: 'transparent', color: 'var(--text-secondary)', fontWeight: 600, fontSize: 12,
+              padding: '5px 14px', borderRadius: 8,
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', fontWeight: 700, fontSize: 12,
               cursor: isProcessing ? 'not-allowed' : 'pointer',
               opacity: isProcessing ? 0.7 : 1, transition: 'all 0.15s', fontFamily: 'inherit',
             }}
@@ -156,9 +160,10 @@ export default function NotificationItem({
             onClick={(e) => { e.stopPropagation(); onAcceptJoinRequest(n); }}
             disabled={!!isProcessing}
             style={{
-              padding: '5px 14px', borderRadius: 8, border: 'none',
-              background: isProcessing === 'accepting' ? 'rgba(34,197,94,0.4)' : 'rgba(34,197,94,0.85)',
-              color: '#fff', fontWeight: 700, fontSize: 12,
+              padding: '5px 14px', borderRadius: 8,
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              background: 'rgba(34, 197, 94, 0.12)',
+              color: '#22c55e', fontWeight: 700, fontSize: 12,
               cursor: isProcessing ? 'not-allowed' : 'pointer',
               opacity: isProcessing ? 0.7 : 1, transition: 'all 0.15s', fontFamily: 'inherit',
             }}
@@ -169,8 +174,9 @@ export default function NotificationItem({
             onClick={(e) => { e.stopPropagation(); onDeclineJoinRequest(n); }}
             disabled={!!isProcessing}
             style={{
-              padding: '5px 14px', borderRadius: 8, border: '1px solid var(--border)',
-              background: 'transparent', color: 'var(--text-secondary)', fontWeight: 600, fontSize: 12,
+              padding: '5px 14px', borderRadius: 8,
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', fontWeight: 700, fontSize: 12,
               cursor: isProcessing ? 'not-allowed' : 'pointer',
               opacity: isProcessing ? 0.7 : 1, transition: 'all 0.15s', fontFamily: 'inherit',
             }}

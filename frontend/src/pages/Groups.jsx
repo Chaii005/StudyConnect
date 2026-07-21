@@ -848,7 +848,7 @@ function InviteFriendsModal({ group, currentUser, onClose, addToast }) {
                       <button
                         onClick={() => handleInvite(friend)}
                         disabled={isInviting}
-                        style={{ flexShrink: 0, padding: '6px 14px', borderRadius: 8, border: '1px solid var(--border)', background: isInviting ? 'rgba(0,0,0,0.03)' : 'rgba(0,0,0,0.06)', color: 'var(--text-primary)', fontWeight: 700, fontSize: 12, cursor: isInviting ? 'not-allowed' : 'pointer', opacity: isInviting ? 0.6 : 1, transition: 'all 0.15s', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                        style={{ flexShrink: 0, padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(34, 197, 94, 0.3)', background: isInviting ? 'rgba(34, 197, 94, 0.05)' : 'rgba(34, 197, 94, 0.12)', color: '#22c55e', fontWeight: 700, fontSize: 12, cursor: isInviting ? 'not-allowed' : 'pointer', opacity: isInviting ? 0.6 : 1, transition: 'all 0.15s', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                       >
                         {isInviting ? '...' : '+ Mời'}
                       </button>
@@ -1051,20 +1051,16 @@ function NearbyGroupsModal({ groups, user, onClose, addToast, joinRequestStatus,
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       {isMember ? (
                         <button onClick={() => { onClose(); navigate(`/groups/${group.id}`); }}
-                          style={{ padding: '5px 14px', fontSize: 12, fontWeight: 600, borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                          style={{ padding: '5px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: '1px solid rgba(59, 130, 246, 0.35)', background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
                         >Vào nhóm</button>
                       ) : (() => {
                         const reqStatus = joinRequestStatus[group.id];
                         if (group.isPrivate && reqStatus === 'pending') {
-                          return <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>Đang chờ duyệt</span>;
+                          return <span style={{ fontSize: 11, color: '#eab308', fontWeight: 600, whiteSpace: 'nowrap' }}>Đang chờ duyệt</span>;
                         }
                         return (
                           <button onClick={() => handleJoin(group)}
-                            style={{ padding: '5px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: 'none', background: 'var(--text-primary)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}
-                            onMouseEnter={e => { e.currentTarget.style.opacity = '0.82'; }}
-                            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                            style={{ padding: '5px 14px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: '1px solid rgba(34, 197, 94, 0.35)', background: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
                           >
                             {group.isPrivate ? 'Yêu cầu tham gia' : 'Tham gia'}
                           </button>
@@ -2050,30 +2046,13 @@ export default function Groups() {
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <Link 
                   to={`/groups/${group.id}`} 
+                  className="btn btn-join"
                   style={{ 
                     flex: 1, 
                     height: '38px',
                     boxSizing: 'border-box',
-                    textAlign: 'center', 
-                    textDecoration: 'none', 
                     fontSize: '13px', 
-                    fontWeight: 700, 
                     borderRadius: '8px', 
-                    color: '#fff', 
-                    background: 'var(--text-primary)', 
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', 
-                    transition: 'all 0.2s ease',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.35)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
                   }}
                 >
                   Vào nhóm
@@ -2084,11 +2063,11 @@ export default function Groups() {
                     padding: '0 18px',
                     boxSizing: 'border-box',
                     fontSize: '13px', 
-                    fontWeight: 600, 
+                    fontWeight: 700, 
                     borderRadius: '8px', 
-                    background: 'var(--bg-card)', 
-                    color: 'var(--text-primary)', 
-                    border: '1px solid var(--border)', 
+                    background: 'rgba(239, 68, 68, 0.1)', 
+                    color: '#ef4444', 
+                    border: '1px solid rgba(239, 68, 68, 0.3)', 
                     cursor: 'pointer', 
                     transition: 'all 0.2s ease',
                     display: 'inline-flex',
@@ -2097,11 +2076,11 @@ export default function Groups() {
                   }} 
                   onClick={() => handleLeave(group)}
                   onMouseEnter={e => {
-                    e.currentTarget.style.background = 'var(--bg-input)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.background = 'var(--bg-card)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
@@ -2361,6 +2340,7 @@ export default function Groups() {
             {/* Nút Tạo nhóm (nằm bên phải - CỐ ĐỊNH HOÀN TOÀN TRÊN CẢ DESKTOP & MOBILE) */}
             <button
               onClick={() => setShowModal(true)}
+              className="btn btn-create"
               style={{
                 padding: '0 20px',
                 height: '38px',
@@ -2371,26 +2351,15 @@ export default function Groups() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '7px',
-                background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
-                border: 'none',
-                color: '#fff',
-                fontWeight: 700,
                 fontSize: '13px',
                 borderRadius: '12px',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)',
-                cursor: 'pointer',
-                transition: 'background 0.2s ease, box-shadow 0.2s ease',
-                fontFamily: 'inherit',
-                letterSpacing: '-0.01em',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)';
               }}
             >
-              Lập nhóm học
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              <span>Lập nhóm học</span>
             </button>
           </div>
         </div>

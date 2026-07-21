@@ -70,10 +70,12 @@ export default function Schedule() {
     const groupIdStr = (dl.group_id || dl.groupId)?.toString();
     if (!groupIdStr) return false;
     const role = userGroupsRolesRef.current[groupIdStr];
-    if (!role) return true;
-    if (role === 'creator' || role === 'admin') return true;
+    if (role === 'creator' || role === 'admin' || role === 'deputy') {
+      // Leaders/creators do not have homework/submissions to complete
+      return false;
+    }
 
-    // Check assignee
+    // Check assignee for members
     const assigneeId = dl.assignee_id || dl.assigneeId;
     if (assigneeId && assigneeId !== 'all' && String(assigneeId) !== String(user?.id)) {
       return false;

@@ -167,27 +167,24 @@ function Btn({ children, onClick, variant = 'primary', disabled = false }) {
   const [hovered, setHovered] = useState(false);
   const styles = {
     primary: {
-      background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
-      color: 'white',
-      border: 'none',
-      boxShadow: hovered ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
+      background: hovered ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.12)',
+      color: '#22c55e',
+      border: '1px solid rgba(34,197,94,0.35)',
     },
     secondary: {
-      background: hovered ? 'rgba(255,255,255,0.06)' : 'transparent',
-      color: hovered ? 'var(--text-primary)' : 'var(--text-secondary)',
-      border: hovered ? '1px solid rgba(255,255,255,0.25)' : '1px solid var(--border)',
+      background: hovered ? 'rgba(0,0,0,0.06)' : 'transparent',
+      color: 'var(--text-primary)',
+      border: '1px solid var(--border)',
     },
     danger: {
-      background: hovered ? 'rgba(239,68,68,0.12)' : 'transparent',
-      color: 'var(--error)',
-      border: hovered ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(239,68,68,0.3)',
-      boxShadow: hovered ? '0 4px 12px rgba(239,68,68,0.15)' : 'none',
+      background: hovered ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.12)',
+      color: '#ef4444',
+      border: '1px solid rgba(239,68,68,0.35)',
     },
     success: {
-      background: hovered ? 'rgba(34,197,94,0.25)' : 'rgba(34,197,94,0.15)',
-      color: 'var(--success)',
-      border: hovered ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(34,197,94,0.3)',
-      boxShadow: hovered ? '0 4px 12px rgba(34,197,94,0.15)' : 'none',
+      background: hovered ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.12)',
+      color: '#22c55e',
+      border: '1px solid rgba(34,197,94,0.35)',
     },
   };
   return (

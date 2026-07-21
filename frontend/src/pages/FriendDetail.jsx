@@ -521,7 +521,7 @@ export default function FriendDetail() {
               }}
             >
               {actionLoading ? 'Đang xử lý...' : (
-                friendship && friendship.status === 'pending' && String(friendship.toUserId) === String(user.id) ? 'Chấp nhận kết bạn' : '+ Thêm bạn bè'
+                friendship && friendship.status === 'pending' && String(friendship.toUserId) === String(user.id) ? 'Chấp nhận kết bạn' : 'Thêm bạn bè'
               )}
             </button>
           )}

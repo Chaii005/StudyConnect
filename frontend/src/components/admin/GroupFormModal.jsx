@@ -731,8 +731,8 @@ export default function GroupFormModal({
 
         {/* Footer */}
         <div style={{ padding: '14px 22px 18px', borderTop: '1px solid var(--border)', flexShrink: 0, display: 'flex', gap: '10px' }}>
-          <button type="button" onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '12px', background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>Hủy</button>
-          <button type="button" onClick={onSubmit} disabled={submitting} style={{ flex: 1, padding: '11px', borderRadius: '12px', background: submitting ? 'var(--bg-input)' : 'linear-gradient(135deg, var(--primary), #3A3A3A)', border: 'none', color: submitting ? 'var(--text-muted)' : 'white', fontWeight: 700, fontSize: '14px', cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+          <button type="button" onClick={onClose} className="btn btn-secondary" style={{ flex: 1, padding: '11px', borderRadius: '12px' }}>Hủy</button>
+          <button type="button" onClick={onSubmit} disabled={submitting} className="btn btn-primary" style={{ flex: 1, padding: '11px', borderRadius: '12px' }}>
             {submitting ? 'Đang xử lý...' : currentEditGroup ? 'Lưu thay đổi' : 'Tạo phòng'}
           </button>
         </div>

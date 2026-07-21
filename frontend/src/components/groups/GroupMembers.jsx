@@ -53,18 +53,16 @@ export default function GroupMembers({
                       style={{
                         padding: '6px 14px',
                         borderRadius: 8,
-                        border: '1px solid var(--border)',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
                         cursor: 'pointer',
-                        background: 'var(--bg-card)',
-                        color: 'var(--text-primary)',
+                        background: 'rgba(34, 197, 94, 0.12)',
+                        color: '#22c55e',
                         fontWeight: 700,
                         fontSize: 12,
                         opacity: approvingIds[req.id] ? 0.6 : 1,
                         fontFamily: 'inherit',
                         transition: 'all 0.2s',
                       }}
-                      onMouseEnter={e => { if(!approvingIds[req.id]) { e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.color = '#10b981'; e.currentTarget.style.background = 'rgba(16, 185, 129, 0.04)'; } }}
-                      onMouseLeave={e => { if(!approvingIds[req.id]) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-card)'; } }}
                     >
                       {approvingIds[req.id] ? '...' : 'Duyệt'}
                     </button>
@@ -74,18 +72,16 @@ export default function GroupMembers({
                       style={{
                         padding: '6px 14px',
                         borderRadius: 8,
-                        border: '1px solid var(--border)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
                         cursor: 'pointer',
-                        background: 'var(--bg-card)',
-                        color: 'var(--text-secondary)',
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        color: '#ef4444',
                         fontWeight: 700,
                         fontSize: 12,
                         opacity: rejectingIds[req.id] ? 0.6 : 1,
                         fontFamily: 'inherit',
                         transition: 'all 0.2s',
                       }}
-                      onMouseEnter={e => { if(!rejectingIds[req.id]) { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.04)'; } }}
-                      onMouseLeave={e => { if(!rejectingIds[req.id]) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'var(--bg-card)'; } }}
                     >
                       {rejectingIds[req.id] ? '...' : 'Từ chối'}
                     </button>
@@ -305,15 +301,13 @@ export default function GroupMembers({
                       borderRadius: 'var(--radius-sm)',
                       border: '1px solid rgba(239, 68, 68, 0.3)',
                       cursor: 'pointer',
-                      background: 'var(--bg-card)',
+                      background: 'rgba(239, 68, 68, 0.12)',
                       color: '#ef4444',
-                      fontWeight: 600,
+                      fontWeight: 700,
                       fontSize: '13px',
                       fontFamily: 'inherit',
                       transition: 'all 0.2s',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                   >
                     {isAssigningDeputy ? '...' : 'Thu hồi phó nhóm'}
                   </button>
@@ -349,15 +343,13 @@ export default function GroupMembers({
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid rgba(239, 68, 68, 0.3)',
                     cursor: 'pointer',
-                    background: 'var(--bg-card)',
+                    background: 'rgba(239, 68, 68, 0.12)',
                     color: '#ef4444',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontSize: '13px',
                     fontFamily: 'inherit',
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'var(--bg-card)'; }}
                 >
                   {kickingIds[String(memberId)] ? '...' : 'Xóa khỏi nhóm'}
                 </button>

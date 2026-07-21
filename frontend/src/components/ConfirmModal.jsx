@@ -38,43 +38,49 @@ export default function ConfirmModal({
   const variantMap = {
     danger:  { 
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="3 6 5 6 21 6" />
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
         </svg>
       ), 
-      color: '#dc2626', 
-      bg: 'rgba(239, 68, 68, 0.08)',  
-      border: 'rgba(239, 68, 68, 0.25)',  
-      btnBg: '#ef4444', 
-      btnShadow: '0 4px 14px rgba(239, 68, 68, 0.35)' 
+      color: '#ef4444', 
+      bg: 'rgba(239, 68, 68, 0.12)',  
+      border: 'rgba(239, 68, 68, 0.3)',  
+      btnBg: 'rgba(239, 68, 68, 0.12)', 
+      btnBorder: '1px solid rgba(239, 68, 68, 0.3)',
+      btnColor: '#ef4444',
+      btnShadow: 'none' 
     },
     warning: { 
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
           <line x1="12" y1="9" x2="12" y2="13" />
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
       ), 
-      color: '#f59e0b', 
-      bg: 'rgba(245,158,11,0.08)', 
-      border: 'rgba(245,158,11,0.2)', 
-      btnBg: '#f59e0b', 
+      color: '#eab308', 
+      bg: 'rgba(234, 179, 8, 0.12)', 
+      border: 'rgba(234, 179, 8, 0.35)', 
+      btnBg: 'rgba(234, 179, 8, 0.12)', 
+      btnBorder: '1px solid rgba(234, 179, 8, 0.35)',
+      btnColor: '#eab308',
       btnShadow: 'none' 
     },
     info:    { 
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="16" x2="12" y2="12" />
           <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
       ), 
-      color: 'var(--text-primary)', 
-      bg: 'rgba(0,0,0,0.04)',  
-      border: 'var(--border)', 
-      btnBg: 'var(--primary)', 
+      color: '#3b82f6', 
+      bg: 'rgba(59, 130, 246, 0.12)',  
+      border: 'rgba(59, 130, 246, 0.3)', 
+      btnBg: '#18181b', 
+      btnBorder: '1px solid rgba(255,255,255,0.15)',
+      btnColor: '#ffffff',
       btnShadow: 'none' 
     },
   };
@@ -209,10 +215,10 @@ export default function ConfirmModal({
                 onClick={onConfirm}
                 style={{
                   flex: 1, padding: '10px', borderRadius: 10,
-                  border: 'none',
+                  border: v.btnBorder || 'none',
                   background: v.btnBg,
                   boxShadow: v.btnShadow,
-                  color: '#fff',
+                  color: v.btnColor || '#fff',
                   fontSize: 14, fontWeight: 700,
                   cursor: 'pointer', fontFamily: 'inherit',
                   transition: 'all 0.18s',

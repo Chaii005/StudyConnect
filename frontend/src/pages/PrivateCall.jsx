@@ -492,18 +492,18 @@ function CtrlBtn({ onClick, title, active = true, danger = false, children }) {
         fontSize: '22px',
         transition: 'all 0.2s ease',
         background: danger
-          ? (hov ? '#dc2626' : '#ef4444')
+          ? (hov ? 'rgba(239, 68, 68, 0.25)' : 'rgba(239, 68, 68, 0.15)')
           : active
             ? (hov ? '#e5e5e5' : '#ffffff')
             : (hov ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'),
         border: danger
-          ? '1.5px solid #ef4444'
+          ? '1.5px solid rgba(239, 68, 68, 0.5)'
           : active
             ? '1.5px solid #ffffff'
             : '1.5px solid rgba(255,255,255,0.2)',
         boxShadow: 'none',
         transform: hov ? (danger ? 'scale(1.1) rotate(-5deg)' : 'scale(1.08)') : 'scale(1)',
-        color: danger ? '#ffffff' : active ? '#000000' : '#ffffff',
+        color: danger ? '#ef4444' : active ? '#000000' : '#ffffff',
       }}
     >
       {children}
@@ -701,22 +701,25 @@ export default function PrivateCall() {
   const connectedRef = useRef(connected);
   useEffect(() => { connectedRef.current = connected; }, [connected]);
 
+  const cancelCallRef = useRef(cancelCall);
+  useEffect(() => { cancelCallRef.current = cancelCall; }, [cancelCall]);
+
   useEffect(() => {
     return () => {
       if (mode === 'caller' && !connectedRef.current) {
-        cancelCall(false).catch(() => {});
+        cancelCallRef.current?.(false).catch(() => {});
       }
     };
-  }, [mode, cancelCall]);
+  }, [mode]);
 
-  // Tự động kết thúc nếu không thể kết nối WebRTC sau 15 giây (chống kẹt màn hình chờ khi đối phương đã hủy cuộc gọi)
+  // Tự động kết thúc nếu không thể kết nối WebRTC sau 35 giây (chống kẹt màn hình chờ khi đối phương đã hủy cuộc gọi)
   useEffect(() => {
     if (connected || partnerHungUp || callEndedMsg) return;
 
     const connectionTimeout = setTimeout(() => {
       setCallEndedMsg('cancelled');
       setTimeout(() => navigate('/chat'), 1500);
-    }, 15000); // 15 giây timeout
+    }, 35000); // 35 giây timeout
 
     return () => clearTimeout(connectionTimeout);
   }, [connected, partnerHungUp, callEndedMsg, navigate]);
@@ -955,8 +958,8 @@ export default function PrivateCall() {
               <div style={{ fontWeight: 700, fontSize: '18px', color: '#ef4444' }}>Không thể kết nối</div>
               <div style={{ fontSize: '14px', color: '#a3a3a3', maxWidth: '300px', lineHeight: 1.6 }}>{error}</div>
               <button onClick={handleEndCall} style={{
-                padding: '10px 24px', background: '#ef4444',
-                border: '1.5px solid #ef4444', borderRadius: '12px', color: '#fff',
+                padding: '10px 24px', background: 'rgba(239, 68, 68, 0.15)',
+                border: '1.5px solid rgba(239, 68, 68, 0.4)', borderRadius: '12px', color: '#ef4444',
                 fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit',
                 boxShadow: 'none',
               }}>Quay lại</button>

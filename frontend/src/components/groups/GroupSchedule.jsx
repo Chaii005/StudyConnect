@@ -280,7 +280,7 @@ export default function GroupSchedule({
                           href={activeGeoPreview.mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn-mono"
+                          className="btn btn-goto"
                           style={{ flexShrink: 0, padding: '6px 12px', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}
                         >
                           Mở Maps
@@ -306,7 +306,7 @@ export default function GroupSchedule({
                     type="button"
                     onClick={generateRoomLink}
                     title="Tạo link phòng học trực tuyến"
-                    className="btn-mono"
+                    className="btn btn-create"
                     style={{
                       height: '38px',
                       boxSizing: 'border-box',
@@ -405,7 +405,7 @@ export default function GroupSchedule({
             </div>
             <button
               type="submit"
-              className="btn btn-mono"
+              className="btn btn-create"
               disabled={isSubmittingSchedule}
               style={{
                 width: 'max-content',
@@ -517,34 +517,32 @@ export default function GroupSchedule({
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button
                           onClick={() => openEditSchedule(sched)}
-                          className="btn-mono"
                           style={{
+                            background: 'rgba(234, 179, 8, 0.12)',
+                            border: '1px solid rgba(234, 179, 8, 0.35)',
+                            color: '#eab308',
                             padding: '4px 12px',
+                            borderRadius: '8px',
                             fontSize: '11px',
-                            fontWeight: 600,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
                           }}
                         >
                           Sửa
                         </button>
                         <button
                           onClick={() => handleScheduleDelete(sched.id)}
-                          className="btn-mono"
                           style={{
-                            padding: '4px 12px',
-                            fontSize: '11px',
-                            fontWeight: 600,
+                            background: 'rgba(239, 68, 68, 0.12)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
                             color: '#ef4444',
-                            borderColor: 'rgba(239, 68, 68, 0.3)',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = '#ef4444';
-                            e.currentTarget.style.borderColor = '#ef4444';
-                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = '#ef4444';
-                            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                            e.currentTarget.style.background = 'none';
+                            padding: '4px 12px',
+                            borderRadius: '8px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
                           }}
                         >
                           Hủy lịch
@@ -587,7 +585,7 @@ export default function GroupSchedule({
                           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                             <Link
                               to={`${sched.location}?group=${encodeURIComponent(group?.name || '')}&groupId=${group?.id || ''}`}
-                              className="btn-mono"
+                              className="btn btn-join"
                               style={{
                                 padding: '4px 10px',
                                 fontSize: '11px',

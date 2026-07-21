@@ -1864,23 +1864,23 @@ export default function MeetRoom() {
                 }}
                 title="Rời phòng"
                 style={{
-                  background: '#ef4444',
+                  background: 'rgba(239, 68, 68, 0.15)',
                   border: '1.5px solid rgba(239, 68, 68, 0.4)',
                   borderRadius: '50%',
                   width: isMobile ? '38px' : '46px',
                   height: isMobile ? '38px' : '46px',
-                  cursor: 'pointer', color: 'white',
+                  cursor: 'pointer', color: '#ef4444',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                   boxShadow: 'none',
                   flexShrink: 0,
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = '#dc2626';
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.28)';
                   e.currentTarget.style.transform = 'scale(1.12) rotate(-10deg)';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = '#ef4444';
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
                   e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
                 }}
               >

@@ -74,6 +74,14 @@ export default function GroupDeadlines({
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [gradeDropdownOpen, setGradeDropdownOpen] = useState(false);
+  const [expandedMembersMap, setExpandedMembersMap] = useState({});
+
+  const toggleMemberExpand = (memberId) => {
+    setExpandedMembersMap((prev) => ({
+      ...prev,
+      [memberId]: prev[memberId] !== undefined ? !prev[memberId] : true,
+    }));
+  };
 
   const openLightbox = (imgs, idx = 0) => {
     if (Array.isArray(imgs)) {
@@ -324,7 +332,7 @@ export default function GroupDeadlines({
             </div>
             <button
               type="submit"
-              className="btn btn-mono"
+              className="btn btn-add"
               disabled={isSubmittingDeadline}
               style={{
                 width: 'max-content',
@@ -343,13 +351,7 @@ export default function GroupDeadlines({
                   Đang thêm...
                 </>
               ) : (
-                <>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#fff' }}>
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
-                  Thêm deadline
-                </>
+                'Thêm deadline'
               )}
             </button>
           </form>
@@ -389,29 +391,36 @@ export default function GroupDeadlines({
               const nonCreatorMembersCount = (group?.members || []).filter((mId) => String(mId) !== String(group?.creatorId)).length || 1;
               const totalAssigned = d.assigneeId && d.assigneeId !== 'all' ? 1 : nonCreatorMembersCount;
 
-              return (
-                <div
-                  key={d.id}
-                  className="deadline-file-row"
-                  style={{
-                    background: isDone ? 'rgba(255,255,255,0.01)' : 'var(--bg-card)',
-                    border: dueSoon
-                      ? '1.5px solid var(--error)'
-                      : overdue
-                      ? '1.5px solid var(--text-muted)'
-                      : '1px solid var(--border)',
-                    borderRadius: '16px',
-                    padding: '16px 18px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                    opacity: isDone ? 0.7 : 1,
-                    boxShadow: dueSoon ? '0 0 10px rgba(239, 68, 68, 0.1)' : 'none',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    transition: 'all 0.2s',
-                  }}
-                >
+                const isAllSubmitted = isLeader && totalAssigned > 0 && subs.length >= totalAssigned;
+                return (
+                  <div
+                    key={d.id}
+                    className="deadline-file-row"
+                    style={{
+                      background: isDone ? 'rgba(255,255,255,0.01)' : 'var(--bg-card)',
+                      border: isAllSubmitted
+                        ? '1.5px solid rgba(34, 197, 94, 0.45)'
+                        : dueSoon
+                        ? '1.5px solid rgba(239, 68, 68, 0.45)'
+                        : overdue
+                        ? '1.5px solid rgba(239, 68, 68, 0.3)'
+                        : '1px solid var(--border)',
+                      borderRadius: '16px',
+                      padding: '16px 18px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '10px',
+                      opacity: isDone ? 0.7 : 1,
+                      boxShadow: isAllSubmitted
+                        ? '0 4px 14px rgba(34, 197, 94, 0.06)'
+                        : dueSoon
+                        ? '0 4px 14px rgba(239, 68, 68, 0.08)'
+                        : 'none',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      transition: 'all 0.2s',
+                    }}
+                  >
                   {/* Card Header & Content */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', width: '100%' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, flex: 1 }}>
@@ -628,7 +637,7 @@ export default function GroupDeadlines({
 
                     {isLeader && !overdue && !isDone && (
                       <button
-                        onClick={() => handleRemindDeadline(d.id)}
+                        onClick={() => handleRemindDeadline(d)}
                         disabled={remindingIds[d.id]}
                         style={{
                           background: remindingIds[d.id] ? 'rgba(255,255,255,0.05)' : 'rgba(234, 179, 8, 0.12)',
@@ -681,7 +690,7 @@ export default function GroupDeadlines({
                       </button>
                     )}
 
-                    {!isGroupCreator && (() => {
+                    {!isLeader && (() => {
                       if (hasSubmitted) {
                         return (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -771,7 +780,7 @@ export default function GroupDeadlines({
                           }}
                           disabled={overdue}
                           title={overdue ? 'Đã quá hạn, không thể nộp bài' : ''}
-                          className={overdue ? "" : "btn-mono"}
+                          className={overdue ? "" : "btn btn-upload"}
                           style={{
                             background: overdue ? 'rgba(255,255,255,0.03)' : undefined,
                             border: overdue ? '1px solid rgba(255,255,255,0.1)' : undefined,
@@ -1083,6 +1092,27 @@ disabled={isSubmittingDeadline}
                   <span style={{ fontSize: '12px', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '2px 10px', borderRadius: '12px', fontWeight: 700 }}>
                     {submittedCount}/{assignedMembers.length} đã nộp
                   </span>
+                  {submittedCount > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const allExpanded = assignedMembers.every(m => expandedMembersMap[m.id]);
+                        const nextMap = {};
+                        assignedMembers.forEach(m => { nextMap[m.id] = !allExpanded; });
+                        setExpandedMembersMap(nextMap);
+                      }}
+                      style={{
+                        fontSize: '12px',
+                        background: 'none',
+                        border: 'none',
+                        color: '#3b82f6',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {assignedMembers.every(m => expandedMembersMap[m.id]) ? 'Thu gọn tất cả' : 'Mở tất cả'}
+                    </button>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -1113,6 +1143,7 @@ disabled={isSubmittingDeadline}
                   const timing = sub ? getSubmissionTiming(sub.submittedAt, currDl?.dueDate) : null;
                   const isUserLeader = String(m.id) === String(group?.creatorId);
                   const isUserDeputy = group?.deputyIds ? group.deputyIds.some(id => String(id) === String(m.id)) : String(m.id) === String(group?.deputyId);
+                  const isExpanded = expandedMembersMap[m.id] ?? false;
 
                   return (
                     <div
@@ -1125,10 +1156,21 @@ disabled={isSubmittingDeadline}
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '10px',
+                        transition: 'all 0.2s ease',
                       }}
                     >
                       {/* Top row: Member Info & Submission timing status */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                      <div
+                        onClick={() => sub && toggleMemberExpand(m.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: '8px',
+                          cursor: sub ? 'pointer' : 'default',
+                        }}
+                      >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           {m.avatar ? (
                             <img src={m.avatar} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
@@ -1161,7 +1203,7 @@ disabled={isSubmittingDeadline}
                           </div>
                         </div>
 
-                        {/* Status badges */}
+                        {/* Status badges & Dropdown toggle */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                           {sub ? (
                             <>
@@ -1181,6 +1223,51 @@ disabled={isSubmittingDeadline}
                                   {timing.label}
                                 </span>
                               )}
+                              {sub.grade != null && (
+                                <span style={{ fontSize: '11px', background: 'rgba(234, 179, 8, 0.15)', color: '#eab308', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                                  {sub.grade}/10 điểm
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleMemberExpand(m.id);
+                                }}
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  border: '1px solid var(--border)',
+                                  color: 'var(--text-primary)',
+                                  borderRadius: '20px',
+                                  padding: '3px 10px',
+                                  fontSize: '12px',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  transition: 'all 0.2s',
+                                }}
+                                title={isExpanded ? 'Thu gọn bài nộp' : 'Xem bài nộp'}
+                              >
+                                <span style={{ fontSize: '11px' }}>{isExpanded ? 'Thu gọn' : 'Xem bài'}</span>
+                                <svg
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  style={{
+                                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.25s ease',
+                                  }}
+                                >
+                                  <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                              </button>
                             </>
                           ) : (
                             <span style={{ fontSize: '11px', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-muted)', border: '1px solid var(--border)', padding: '3px 8px', borderRadius: '12px', fontWeight: 600 }}>
@@ -1190,8 +1277,8 @@ disabled={isSubmittingDeadline}
                         </div>
                       </div>
 
-                      {/* Submission Content Details */}
-                      {sub && (
+                      {/* Submission Content Details (Dropdown Accordion) */}
+                      {sub && isExpanded && (
                         <div style={{ background: 'rgba(0,0,0,0.18)', padding: '12px 14px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '10px', border: '1px solid var(--border)' }}>
                           {/* File / Image Summary badge */}
                           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
@@ -1320,14 +1407,14 @@ disabled={isSubmittingDeadline}
                                 Điểm số: {sub.grade}/10
                               </div>
                               {sub.feedback && (
-                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.4 }}>
-                                  <strong>Nhận xét:</strong> "{sub.feedback}"
+                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', fontStyle: 'italic' }}>
+                                  Nhận xét: "{sub.feedback}"
                                 </div>
                               )}
                             </div>
                           )}
 
-                          {/* Grading Button for Leader/Deputy */}
+                          {/* Leader Grading trigger button */}
                           {isLeader && (
                             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                               <button
@@ -1696,7 +1783,7 @@ disabled={isSubmittingDeadline}
                           cursor: 'pointer',
                         }}
                       >
-                        + Thêm ảnh
+                        Thêm ảnh
                       </label>
                     )}
                   </div>
@@ -1965,14 +2052,14 @@ disabled={isSubmittingDeadline}
             inset: 0,
             width: '100vw',
             height: '100vh',
-            background: 'rgba(0, 0, 0, 0.94)',
-            backdropFilter: 'blur(12px)',
+            background: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(16px)',
             zIndex: 99999999,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '75px 16px 24px 16px',
+            padding: '20px 16px',
             boxSizing: 'border-box',
           }}
           onClick={closeLightbox}
@@ -1981,12 +2068,12 @@ disabled={isSubmittingDeadline}
           <div
             style={{
               width: '100%',
-              maxWidth: '850px',
+              maxWidth: '96vw',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '12px',
-              padding: '0 4px',
+              marginBottom: '10px',
+              padding: '0 8px',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -2012,15 +2099,16 @@ disabled={isSubmittingDeadline}
                 background: 'rgba(255,255,255,0.2)',
                 border: '1px solid rgba(255,255,255,0.4)',
                 color: '#fff',
-                fontSize: '18px',
+                fontSize: '20px',
                 cursor: 'pointer',
                 borderRadius: '50%',
-                width: '36px',
-                height: '36px',
+                width: '40px',
+                height: '40px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.2s',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
               }}
               title="Đóng xem ảnh (Esc)"
             >
@@ -2032,10 +2120,10 @@ disabled={isSubmittingDeadline}
           <div
             style={{
               position: 'relative',
-              maxWidth: '850px',
+              maxWidth: '96vw',
               width: '100%',
+              flex: 1,
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -2048,15 +2136,15 @@ disabled={isSubmittingDeadline}
                 onClick={() => setLightboxIndex((prev) => (prev > 0 ? prev - 1 : lightboxImages.length - 1))}
                 style={{
                   position: 'absolute',
-                  left: '8px',
+                  left: '12px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'rgba(0,0,0,0.75)',
                   border: '1px solid rgba(255,255,255,0.3)',
                   color: '#fff',
-                  fontSize: '22px',
-                  width: '44px',
-                  height: '44px',
+                  fontSize: '24px',
+                  width: '48px',
+                  height: '48px',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
@@ -2064,7 +2152,7 @@ disabled={isSubmittingDeadline}
                   justifyContent: 'center',
                   zIndex: 10,
                   transition: 'all 0.2s',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
                 }}
                 title="Ảnh trước (Mũi tên trái)"
               >
@@ -2078,10 +2166,10 @@ disabled={isSubmittingDeadline}
               alt={`Ảnh ${lightboxIndex + 1}`}
               style={{
                 maxWidth: '100%',
-                maxHeight: 'calc(100vh - 200px)',
+                maxHeight: 'calc(100vh - 100px)',
                 objectFit: 'contain',
                 borderRadius: '12px',
-                boxShadow: '0 16px 50px rgba(0,0,0,0.8)',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.9)',
                 border: '1px solid rgba(255,255,255,0.15)',
               }}
             />
@@ -2093,15 +2181,15 @@ disabled={isSubmittingDeadline}
                 onClick={() => setLightboxIndex((prev) => (prev < lightboxImages.length - 1 ? prev + 1 : 0))}
                 style={{
                   position: 'absolute',
-                  right: '8px',
+                  right: '12px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'rgba(0,0,0,0.75)',
                   border: '1px solid rgba(255,255,255,0.3)',
                   color: '#fff',
-                  fontSize: '22px',
-                  width: '44px',
-                  height: '44px',
+                  fontSize: '24px',
+                  width: '48px',
+                  height: '48px',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
@@ -2109,58 +2197,13 @@ disabled={isSubmittingDeadline}
                   justifyContent: 'center',
                   zIndex: 10,
                   transition: 'all 0.2s',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
                 }}
                 title="Ảnh tiếp theo (Mũi tên phải)"
               >
                 ❯
               </button>
             )}
-          </div>
-
-          {/* Bottom Actions Bar */}
-          <div
-            style={{ marginTop: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <a
-              href={lightboxImages[lightboxIndex]}
-              download={`bai_nop_anh_${lightboxIndex + 1}.webp`}
-              className="btn-mono"
-              style={{
-                padding: '7px 18px',
-                fontSize: '13px',
-                textDecoration: 'none',
-                borderRadius: '8px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontWeight: 600,
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Tải ảnh này về máy
-            </a>
-            <button
-              type="button"
-              onClick={closeLightbox}
-              style={{
-                padding: '7px 16px',
-                fontSize: '13px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#fff',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 500,
-              }}
-            >
-              Đóng
-            </button>
           </div>
         </div>,
         document.body

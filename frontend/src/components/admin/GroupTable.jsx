@@ -179,7 +179,7 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
                 <td style={{ padding: '12px 8px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'inline-flex', gap: '4px' }}>
                     <button
-                      className="btn btn-secondary"
+                      className="btn btn-info"
                       style={{ padding: '4px 8px', fontSize: '11.5px', minWidth: 'auto', borderRadius: '7px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                       onClick={() => onViewMembers(g)}
                     >
@@ -189,7 +189,7 @@ export default function GroupTable({ filteredGroups, groupSearch, setGroupSearch
                       Xem
                     </button>
                     <button
-                      className="btn btn-secondary"
+                      className="btn btn-warning"
                       style={{ padding: '4px 8px', fontSize: '11.5px', minWidth: 'auto', borderRadius: '7px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                       onClick={() => onEdit(g)}
                     >

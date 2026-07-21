@@ -638,19 +638,19 @@ export default function MyDocuments() {
                 padding: '12px',
                 borderRadius: '10px',
                 cursor: 'pointer',
-                background: '#ef4444',
-                border: '1.5px solid var(--border)',
-                color: 'white',
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                color: '#ef4444',
                 fontSize: '14px',
                 fontWeight: 700,
                 fontFamily: 'inherit',
                 transition: 'all 0.2s',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = '#dc2626';
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.22)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = '#ef4444';
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
               }}
               >Xóa</button>
             </div>

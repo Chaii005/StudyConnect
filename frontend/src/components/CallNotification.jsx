@@ -267,20 +267,20 @@ export default function CallNotification() {
                   onClick={rejectCall}
                   style={{
                     width: '56px', height: '56px', borderRadius: '50%',
-                    background: '#ef4444',
-                    border: 'none', cursor: 'pointer',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1.5px solid rgba(239, 68, 68, 0.4)', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     animation: 'cn-reject-pulse 1.8s ease-in-out infinite',
                     transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                    color: '#fff',
+                    color: '#ef4444',
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = 'scale(1.1) rotate(-8deg)';
-                    e.currentTarget.style.background = '#dc2626';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                    e.currentTarget.style.background = '#ef4444';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
                   }}
                   title="Từ chối"
                 >
@@ -299,20 +299,20 @@ export default function CallNotification() {
                   onClick={acceptCall}
                   style={{
                     width: '56px', height: '56px', borderRadius: '50%',
-                    background: '#22c55e',
-                    border: 'none', cursor: 'pointer',
+                    background: 'rgba(34, 197, 94, 0.15)',
+                    border: '1.5px solid rgba(34, 197, 94, 0.4)', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     animation: 'cn-ring-pulse 1.8s ease-in-out infinite',
                     transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                    color: '#fff',
+                    color: '#22c55e',
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = 'scale(1.1) rotate(8deg)';
-                    e.currentTarget.style.background = '#16a34a';
+                    e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                    e.currentTarget.style.background = '#22c55e';
+                    e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
                   }}
                   title="Chấp nhận"
                 >

@@ -31,6 +31,18 @@ import {
   saveDeadlineGrade
 } from '@/services/interactionService';
 
+const format24h = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return String(dateStr);
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${hh}:${mm} - ${dd}/${mo}/${yyyy}`;
+};
+
 const getProcessedDeadlines = (deadList) => {
   const now = Date.now();
   const oneDayMs = 24 * 60 * 60 * 1000;
@@ -1439,13 +1451,22 @@ export default function useGroupDetail(groupId, user, addToast) {
     });
   };
 
-  const handleRemindDeadline = async (deadline) => {
-    if (remindingIds[deadline.id]) return;
-    setRemindingIds(prev => ({ ...prev, [deadline.id]: true }));
+  const handleRemindDeadline = async (deadlineOrId) => {
+    let targetDl = deadlineOrId;
+    if (typeof deadlineOrId === 'string' || typeof deadlineOrId === 'number') {
+      targetDl = (deadlines || []).find(d => String(d.id) === String(deadlineOrId));
+    }
+    if (!targetDl) {
+      addToast('Không tìm thấy thông tin bài tập để gửi nhắc nhở.', 'error');
+      return;
+    }
+
+    if (remindingIds[targetDl.id]) return;
+    setRemindingIds(prev => ({ ...prev, [targetDl.id]: true }));
     try {
-      const dueStr = new Date(deadline.dueDate).toLocaleString('vi-VN');
+      const dueStr = format24h(targetDl.dueDate);
       const senderName = user.fullName || user.email || 'Trưởng/Phó nhóm';
-      const reminderText = `🔔 NHẮC NHỞ DEADLINE\n📌 Công việc: "${deadline.title}"\n⏰ Hạn chót: ${dueStr}\n${deadline.description ? `📝 Ghi chú: ${deadline.description}\n` : ''}👉 Các thành viên vui lòng hoàn thành đúng hạn! — ${senderName}`;
+      const reminderText = `🔔 NHẮC NHỞ DEADLINE\n📌 Công việc: "${targetDl.title}"\n⏰ Hạn chót: ${dueStr}\n${targetDl.description ? `📝 Ghi chú: ${targetDl.description}\n` : ''}👉 Các thành viên vui lòng hoàn thành đúng hạn! — ${senderName}`;
       await sendChatMessage(groupId, {
         content: reminderText,
         fileAttachment: null,
@@ -1454,13 +1475,12 @@ export default function useGroupDetail(groupId, user, addToast) {
         userAvatar: user.avatar
       });
 
-      // Save reminder to LocalStorage removed to comply with quota limits
-
       addToast('Đã gửi nhắc nhở đến chat nhóm!', 'success');
     } catch (err) {
-      addToast(err.message || 'Lỗi khi gửi nhắc nhở', 'error');
+      console.error('Remind deadline error:', err);
+      addToast('Có lỗi xảy ra khi gửi nhắc nhở. Vui lòng thử lại!', 'error');
     } finally {
-      setRemindingIds(prev => ({ ...prev, [deadline.id]: false }));
+      setRemindingIds(prev => ({ ...prev, [targetDl.id]: false }));
     }
   };
 

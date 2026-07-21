@@ -304,23 +304,16 @@ export default function GroupDocuments({
                     {canDelete && (
                       <button
                         onClick={() => handleFileDelete(file.id)}
-                        className="btn-mono"
                         style={{
-                          padding: '8px 16px',
-                          fontSize: '13px',
-                          fontWeight: 600,
+                          background: 'rgba(239, 68, 68, 0.12)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
                           color: '#ef4444',
-                          borderColor: 'rgba(239, 68, 68, 0.3)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = '#ef4444';
-                          e.currentTarget.style.borderColor = '#ef4444';
-                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = '#ef4444';
-                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                          e.currentTarget.style.background = 'none';
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
                         }}
                       >
                         Xóa

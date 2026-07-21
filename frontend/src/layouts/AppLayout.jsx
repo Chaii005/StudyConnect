@@ -909,15 +909,15 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                           </span>
                           {hasUnread && (
                             <span style={{ 
-                              background: '#ef4444', 
-                              color: 'white', 
+                              background: 'rgba(239, 68, 68, 0.15)', 
+                              color: '#ef4444', 
+                              border: '1px solid rgba(239, 68, 68, 0.35)',
                               fontSize: '10px', 
                               fontWeight: 800, 
                               padding: '2px 6px', 
                               borderRadius: '10px', 
                               minWidth: '18px', 
                               textAlign: 'center',
-                              boxShadow: '0 0 8px rgba(239, 68, 68, 0.45)',
                               lineHeight: 1
                             }}>
                               {unreadCount > 99 ? '99+' : unreadCount}
@@ -925,15 +925,15 @@ export default function AppLayout({ children, hideNavbar = false, hideSidebar = 
                           )}
                           {hasPending && (
                             <span style={{ 
-                              background: '#ef4444', 
-                              color: 'white', 
+                              background: 'rgba(239, 68, 68, 0.15)', 
+                              color: '#ef4444', 
+                              border: '1px solid rgba(239, 68, 68, 0.35)',
                               fontSize: '10px', 
                               fontWeight: 800, 
                               padding: '2px 6px', 
                               borderRadius: '10px', 
                               minWidth: '18px', 
                               textAlign: 'center',
-                              boxShadow: '0 0 8px rgba(239, 68, 68, 0.45)',
                               lineHeight: 1
                             }}>
                               {pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}

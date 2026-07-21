@@ -76,12 +76,33 @@ export const ToastProvider = ({ children }) => {
           const isMessage = toast.type === 'message';
           
           let borderLeftColor = '#000000';
+          let borderStyleColor = 'var(--border)';
+          let bgStyleColor = 'var(--bg-card)';
+          let badgeBg = 'rgba(0,0,0,0.06)';
+          let badgeColor = 'var(--text-primary)';
+          let iconSymbol = 'ℹ️';
+
           if (isError) {
             borderLeftColor = '#ef4444';
+            borderStyleColor = 'rgba(239, 68, 68, 0.35)';
+            bgStyleColor = 'var(--bg-card)';
+            badgeBg = 'rgba(239, 68, 68, 0.12)';
+            badgeColor = '#ef4444';
+            iconSymbol = '⚠️';
           } else if (isSuccess) {
             borderLeftColor = '#22c55e';
+            borderStyleColor = 'rgba(34, 197, 94, 0.35)';
+            bgStyleColor = 'var(--bg-card)';
+            badgeBg = 'rgba(34, 197, 94, 0.12)';
+            badgeColor = '#22c55e';
+            iconSymbol = '✓';
           } else if (isMessage) {
             borderLeftColor = '#3b82f6';
+            borderStyleColor = 'rgba(59, 130, 246, 0.35)';
+            bgStyleColor = 'var(--bg-card)';
+            badgeBg = 'rgba(59, 130, 246, 0.12)';
+            badgeColor = '#3b82f6';
+            iconSymbol = '💬';
           }
 
           return (
@@ -89,7 +110,8 @@ export const ToastProvider = ({ children }) => {
               key={toast.id}
               className={`toast-card ${toast.isDismissing ? 'dismissing' : ''}`}
               style={{
-                border: '1px solid var(--border)',
+                background: bgStyleColor,
+                border: `1px solid ${borderStyleColor}`,
                 borderLeft: `4px solid ${borderLeftColor}`,
                 cursor: toast.link ? 'pointer' : 'default',
               }}
@@ -100,6 +122,23 @@ export const ToastProvider = ({ children }) => {
                 }
               }}
             >
+              <span
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: badgeBg,
+                  color: badgeColor,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  flexShrink: 0
+                }}
+              >
+                {iconSymbol}
+              </span>
               <span style={{ flex: 1, lineHeight: 1.4 }}>{stripEmojis(toast.message)}</span>
               <button
                 onClick={(e) => {

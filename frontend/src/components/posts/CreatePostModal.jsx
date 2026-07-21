@@ -333,20 +333,16 @@ export default function CreatePostModal({ user, friends = [], myLeaderGroups = [
 
         {/* Footer */}
         <div style={{ padding: '12px 20px 18px', display: 'flex', gap: '10px', justifyContent: 'flex-end', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
-          <button onClick={onClose} style={{ padding: '10px 20px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', color: 'var(--text-secondary)' }}>
+          <button onClick={onClose} className="btn btn-secondary" style={{ padding: '10px 20px', borderRadius: '12px' }}>
             Hủy
           </button>
           <button
             onClick={handleSubmit}
             disabled={!text.trim() || loading}
+            className="btn btn-primary"
             style={{
               padding: '10px 24px',
-              background: text.trim() && !loading ? 'linear-gradient(135deg, var(--primary), #3A3A3A)' : 'var(--bg-input)',
-              border: 'none', borderRadius: '12px',
-              cursor: text.trim() && !loading ? 'pointer' : 'default',
-              fontFamily: 'inherit', fontSize: '14px', fontWeight: 700,
-              color: text.trim() && !loading ? 'white' : 'var(--text-muted)',
-              transition: 'var(--transition)',
+              borderRadius: '12px',
               display: 'flex', alignItems: 'center', gap: '8px',
             }}
           >
