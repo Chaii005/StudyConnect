@@ -845,7 +845,7 @@ const parseDeadlineItem = (d, fallbackType = 'all') => {
 export const getDeadlines = async (groupId) => {
   const { data, error } = await supabase
     .from('deadlines')
-    .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, submission_type, created_at')
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at')
     .eq('group_id', parseInt(groupId, 10))
     .order('due_date', { ascending: true })
     .limit(50);
@@ -853,7 +853,7 @@ export const getDeadlines = async (groupId) => {
   if (error) {
     const { data: fbData } = await supabase
       .from('deadlines')
-      .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at')
+      .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
       .eq('group_id', parseInt(groupId, 10))
       .limit(50);
     return (fbData || []).map(d => parseDeadlineItem(d));
@@ -882,7 +882,7 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
   let { data, error } = await supabase
     .from('deadlines')
     .insert([insertPayload])
-    .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, submission_type, created_at')
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at')
     .single();
 
   if (error) {
@@ -891,7 +891,7 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
     const fbRes = await supabase
       .from('deadlines')
       .insert([insertPayload])
-      .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at')
+      .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
       .single();
     if (fbRes.error) {
       throw new Error(`Tạo deadline thất bại: ${fbRes.error.message}`);
@@ -955,7 +955,7 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
     .from('deadlines')
     .update(updatePayload)
     .eq('id', parseInt(deadlineId, 10))
-    .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, submission_type, created_at')
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at')
     .single();
 
   if (error) {
@@ -964,7 +964,7 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
       .from('deadlines')
       .update(updatePayload)
       .eq('id', parseInt(deadlineId, 10))
-      .select('id, group_id, title, due_date, description, creator_id, assignee_id, assignee_name, completed, created_at')
+      .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
       .single();
     if (fbRes.error) {
       throw new Error(`Cập nhật deadline thất bại: ${fbRes.error.message}`);
@@ -1006,15 +1006,10 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
 
   const joinedGroupIds = joinedMemberships.map(m => m.group_id);
 
-  // Fetch schedules for these groups with study_groups joined
+  // Fetch schedules for these groups
   const { data: schedulesData } = await supabase
     .from('schedules')
-    .select(`
-      id, group_id, topic, date_time, location, description,
-      study_groups (
-        name
-      )
-    `)
+    .select('id, group_id, topic, date_time, location, description')
     .in('group_id', joinedGroupIds)
     .order('date_time', { ascending: true })
     .limit(50);
@@ -1023,7 +1018,7 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
     return {
       id: s.id.toString(),
       groupId: s.group_id.toString(),
-      groupName: s.study_groups?.name || 'Nhóm học',
+      groupName: 'Nhóm học',
       topic: s.topic,
       dateTime: s.date_time,
       location: s.location || 'Online',

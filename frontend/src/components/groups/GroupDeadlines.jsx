@@ -518,47 +518,19 @@ export default function GroupDeadlines({
                               </span>
                             )}
                             {hasSubmitted && (
-                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                                <span
-                                  style={{
-                                    background: 'rgba(34, 197, 94, 0.15)',
-                                    color: '#22c55e',
-                                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                                    padding: '2px 8px',
-                                    borderRadius: '12px',
-                                    fontSize: '11px',
-                                    fontWeight: 700,
-                                  }}
-                                >
-                                  Đã hoàn thành
-                                </span>
-                                {!overdue && (
-                                  <button
-                                    onClick={() => handleDeleteSubmission(d.id)}
-                                    style={{
-                                      background: 'rgba(239, 68, 68, 0.1)',
-                                      border: '1px solid rgba(239, 68, 68, 0.25)',
-                                      color: 'var(--error)',
-                                      borderRadius: '12px',
-                                      padding: '2px 8px',
-                                      fontSize: '11px',
-                                      fontWeight: 600,
-                                      cursor: 'pointer',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '3px',
-                                      transition: 'all 0.2s',
-                                    }}
-                                    title="Xóa bài nộp"
-                                  >
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                      <polyline points="3 6 5 6 21 6" />
-                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                    Xóa bài
-                                  </button>
-                                )}
-                              </div>
+                              <span
+                                style={{
+                                  background: 'rgba(34, 197, 94, 0.15)',
+                                  color: '#22c55e',
+                                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                Đã hoàn thành
+                              </span>
                             )}
                           </>
                         )}
@@ -732,6 +704,33 @@ export default function GroupDeadlines({
                               </svg>
                               Đã nộp bài
                             </span>
+                            {!overdue && (
+                              <button
+                                onClick={() => handleDeleteSubmission(d.id)}
+                                style={{
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  color: '#ef4444',
+                                  padding: '6px 14px',
+                                  borderRadius: '24px',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  whiteSpace: 'nowrap',
+                                  transition: 'all 0.2s',
+                                }}
+                                title="Xóa bài nộp để nộp lại"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="3 6 5 6 21 6" />
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                                Xóa bài
+                              </button>
+                            )}
                             {mySubmission?.grade != null && (
                               <span
                                 style={{

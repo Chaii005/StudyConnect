@@ -650,6 +650,23 @@ export default function useGroupDetail(groupId, user, addToast) {
           setDeadlines(prev => prev.filter(d => d.id !== payload.old.id.toString()));
         }
       )
+      // Deadline Submissions Realtime
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'deadline_submissions'
+        },
+        async () => {
+          try {
+            const submissionsData = await getDeadlineSubmissions(groupId);
+            setSubmissions(submissionsData || {});
+          } catch (err) {
+            if (import.meta.env.DEV) console.warn('Lỗi đồng bộ bài nộp Realtime:', err);
+          }
+        }
+      )
       // Schedules
       .on(
         'postgres_changes',
