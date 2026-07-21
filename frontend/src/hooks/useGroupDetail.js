@@ -754,7 +754,15 @@ export default function useGroupDetail(groupId, user, addToast) {
       )
       .subscribe();
 
+    const pollInterval = setInterval(async () => {
+      try {
+        const freshSubmissions = await getDeadlineSubmissions(groupId);
+        setSubmissions(freshSubmissions || {});
+      } catch { /* ignore */ }
+    }, 10000);
+
     return () => {
+      clearInterval(pollInterval);
       supabase.removeChannel(detailChannel);
     };
   }, [groupId, fetchGroupFiles]);

@@ -152,10 +152,11 @@ export async function fetchAllNotifications(uid, cutoff, now, ONE_DAY_MS, groupN
     }).catch(() => {}));
 
     // Schedules
-    wave2Promises.push(supabase.from('schedules').select('id, group_id, topic, date_time, created_at, study_groups(name)').in('group_id', joinedIds).gte('date_time', now.toISOString()).limit(50).then(({ data, error }) => {
+    wave2Promises.push(supabase.from('schedules').select('id, group_id, topic, date_time, created_at').in('group_id', joinedIds).limit(50).then(({ data, error }) => {
       if (!error && data) {
         data.filter(s => (now - new Date(s.created_at)) < ONE_DAY_MS).forEach(s => {
-          notifsList.push({ key: `schedule:${s.id}`, type: 'schedule', title: 'L\u1ecbch\u0020h\u1ecdc\u0020nh\u00f3m\u0020m\u1edbi', body: `Nh\u00f3m\u0020"${s.study_groups?.name || 'Nh\u00f3m\u0020h\u1ecdc'}"\u0020h\u1ecdc:\u0020${s.topic}\u0020\u00b7\u0020${new Date(s.date_time).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`, createdAt: s.created_at, groupId: s.group_id.toString() });
+          const gName = groupNamesRef.current[Number(s.group_id)] || 'Nh\u00f3m\u0020h\u1ecdc';
+          notifsList.push({ key: `schedule:${s.id}`, type: 'schedule', title: 'L\u1ecbch\u0020h\u1ecdc\u0020nh\u00f3m\u0020m\u1edbi', body: `Nh\u00f3m\u0020"${gName}"\u0020h\u1ecdc:\u0020${s.topic}\u0020\u00b7\u0020${s.date_time ? new Date(s.date_time).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}`, createdAt: s.created_at, groupId: s.group_id.toString() });
         });
       }
     }).catch(() => {}));
@@ -180,10 +181,11 @@ export async function fetchAllNotifications(uid, cutoff, now, ONE_DAY_MS, groupN
     }).catch(() => {}));
 
     // Files (24h)
-    wave2Promises.push(supabase.from('files').select('id, group_id, file_name, created_at, users:users(full_name), study_groups(name)').in('group_id', joinedIds).neq('user_id', uid).gte('created_at', cutoff).limit(20).then(({ data, error }) => {
+    wave2Promises.push(supabase.from('files').select('id, group_id, file_name, created_at, users:users!user_id(full_name)').in('group_id', joinedIds).neq('user_id', uid).gte('created_at', cutoff).limit(20).then(({ data, error }) => {
       if (!error && data) {
         data.filter(rf => rf.created_at && (now - new Date(rf.created_at)) < ONE_DAY_MS).forEach(rf => {
-          notifsList.push({ key: `file:upload:${rf.id}`, type: 'fileupload', title: 'T\u00e0i\u0020li\u1ec7u\u0020nh\u00f3m\u0020m\u1edbi', body: `${rf.users?.full_name || 'Th\u00e0nh\u0020vi\u00ean'}\u0020\u0111\u00e3\u0020chia\u0020s\u1ebb\u0020"${rf.file_name}"\u0020t\u1ea1i\u0020"${rf.study_groups?.name || 'Nh\u00f3m'}".`, createdAt: rf.created_at, groupId: rf.group_id.toString() });
+          const gName = groupNamesRef.current[Number(rf.group_id)] || 'Nh\u00f3m';
+          notifsList.push({ key: `file:upload:${rf.id}`, type: 'fileupload', title: 'T\u00e0i\u0020li\u1ec7u\u0020nh\u00f3m\u0020m\u1edbi', body: `${rf.users?.full_name || 'Th\u00e0nh\u0020vi\u00ean'}\u0020\u0111\u00e3\u0020chia\u0020s\u1ebb\u0020"${rf.file_name}"\u0020t\u1ea1i\u0020"${gName}".`, createdAt: rf.created_at, groupId: rf.group_id.toString() });
         });
       }
     }).catch(() => {}));
