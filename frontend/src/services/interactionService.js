@@ -845,18 +845,14 @@ const parseDeadlineItem = (d, fallbackType = 'all') => {
 export const getDeadlines = async (groupId) => {
   const { data, error } = await supabase
     .from('deadlines')
-    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at')
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
     .eq('group_id', parseInt(groupId, 10))
     .order('due_date', { ascending: true })
     .limit(50);
 
   if (error) {
-    const { data: fbData } = await supabase
-      .from('deadlines')
-      .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
-      .eq('group_id', parseInt(groupId, 10))
-      .limit(50);
-    return (fbData || []).map(d => parseDeadlineItem(d));
+    if (import.meta.env.DEV) console.error('[getDeadlines] Error:', error.message);
+    return [];
   }
 
   return (data || []).map(d => parseDeadlineItem(d));
@@ -875,30 +871,16 @@ export const createDeadline = async (groupId, { title, dueDate, description, cre
     creator_id: parseInt(creatorId, 10),
     assignee_id: assigneeId ? parseInt(assigneeId, 10) : null,
     completed: false,
-    submission_type: cleanType,
   };
 
-  let deadline;
-  let { data, error } = await supabase
+  const { data: deadline, error } = await supabase
     .from('deadlines')
     .insert([insertPayload])
-    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at')
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
     .single();
 
   if (error) {
-    // Retry without submission_type if table column does not exist in schema yet
-    delete insertPayload.submission_type;
-    const fbRes = await supabase
-      .from('deadlines')
-      .insert([insertPayload])
-      .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
-      .single();
-    if (fbRes.error) {
-      throw new Error(`Tạo deadline thất bại: ${fbRes.error.message}`);
-    }
-    deadline = fbRes.data;
-  } else {
-    deadline = data;
+    throw new Error(`Tạo deadline thất bại: ${error.message}`);
   }
 
   return parseDeadlineItem(deadline, cleanType);
@@ -947,31 +929,17 @@ export const updateDeadline = async (deadlineId, { title, dueDate, description, 
     due_date: dueDate,
     description: encodedDesc,
     assignee_id: assigneeId ? parseInt(assigneeId, 10) : null,
-    submission_type: cleanType,
   };
 
-  let deadline;
-  let { data, error } = await supabase
+  const { data: deadline, error } = await supabase
     .from('deadlines')
     .update(updatePayload)
     .eq('id', parseInt(deadlineId, 10))
-    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, submission_type, created_at')
+    .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
     .single();
 
   if (error) {
-    delete updatePayload.submission_type;
-    const fbRes = await supabase
-      .from('deadlines')
-      .update(updatePayload)
-      .eq('id', parseInt(deadlineId, 10))
-      .select('id, group_id, title, due_date, description, creator_id, assignee_id, completed, created_at')
-      .single();
-    if (fbRes.error) {
-      throw new Error(`Cập nhật deadline thất bại: ${fbRes.error.message}`);
-    }
-    deadline = fbRes.data;
-  } else {
-    deadline = data;
+    throw new Error(`Cập nhật deadline thất bại: ${error.message}`);
   }
 
   return parseDeadlineItem(deadline, cleanType);

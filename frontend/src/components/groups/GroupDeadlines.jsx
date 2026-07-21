@@ -816,17 +816,22 @@ export default function GroupDeadlines({
       </div>
 
       {/* Edit deadline modal */}
-      {editingDeadline && (
+      {editingDeadline && createPortal(
         <div
           style={{
             position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.55)',
-            zIndex: 200,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 99999999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '16px',
+            padding: '85px 16px 25px 16px',
+            boxSizing: 'border-box',
           }}
           onClick={() => setEditingDeadline(null)}
         >
@@ -834,11 +839,14 @@ export default function GroupDeadlines({
             style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '28px',
+              borderRadius: '20px',
+              padding: '24px 28px',
               width: '100%',
               maxWidth: '480px',
-              boxShadow: 'var(--shadow-lg)',
+              maxHeight: 'calc(100vh - 120px)',
+              overflowY: 'auto',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              boxSizing: 'border-box',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1009,7 +1017,8 @@ disabled={isSubmittingDeadline}
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Leader Submissions & Member Progress modal */}
@@ -1029,17 +1038,22 @@ disabled={isSubmittingDeadline}
 
         const submittedCount = assignedMembers.filter(m => dlSubmissions.some(s => String(s.userId) === String(m.id))).length;
 
-        return (
+        return createPortal(
           <div
             style={{
               position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.65)',
-              zIndex: 9999,
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.75)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 99999999,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '16px',
+              padding: '85px 16px 25px 16px',
+              boxSizing: 'border-box',
             }}
             onClick={(e) => {
               if (e.target === e.currentTarget) setShowSubmissionsFor(null);
@@ -1049,14 +1063,14 @@ disabled={isSubmittingDeadline}
               style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
-                borderRadius: '18px',
-                padding: '20px 24px',
+                borderRadius: '20px',
+                padding: '22px 26px',
                 width: '100%',
                 maxWidth: '640px',
-                maxHeight: 'calc(100vh - 80px)',
+                maxHeight: 'calc(100vh - 120px)',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
                 boxSizing: 'border-box',
               }}
             >
@@ -1345,22 +1359,28 @@ disabled={isSubmittingDeadline}
                 })}
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         );
       })()}
 
       {/* Leader Grading Modal */}
-      {gradingTarget && (
+      {gradingTarget && createPortal(
         <div
           style={{
             position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            zIndex: 10000,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 99999999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '16px',
+            padding: '85px 16px 25px 16px',
+            boxSizing: 'border-box',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setGradingTarget(null);
@@ -1370,14 +1390,17 @@ disabled={isSubmittingDeadline}
             style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
-              borderRadius: '18px',
+              borderRadius: '20px',
               padding: '24px',
               width: '100%',
               maxWidth: '460px',
+              maxHeight: 'calc(100vh - 120px)',
+              overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: '16px',
-              boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              boxSizing: 'border-box',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1563,22 +1586,26 @@ disabled={isSubmittingDeadline}
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Assignment Upload Modal */}
-      {showSubmitModal && (
+      {showSubmitModal && createPortal(
         <div
           style={{
             position: 'fixed',
-            inset: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             background: 'rgba(0, 0, 0, 0.75)',
             backdropFilter: 'blur(4px)',
-            zIndex: 999999,
+            zIndex: 99999999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '70px 16px 20px 16px',
+            padding: '85px 16px 25px 16px',
             boxSizing: 'border-box',
           }}
           onClick={(e) => {
@@ -1589,14 +1616,14 @@ disabled={isSubmittingDeadline}
             style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
-              borderRadius: '16px',
+              borderRadius: '20px',
               padding: '20px 24px',
               width: '100%',
               maxWidth: '480px',
-              maxHeight: 'min(580px, calc(100vh - 100px))',
+              maxHeight: 'calc(100vh - 120px)',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
               boxSizing: 'border-box',
               overflow: 'hidden',
             }}
@@ -1926,7 +1953,8 @@ disabled={isSubmittingDeadline}
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Full-screen Lightbox Image Preview Modal with Navigation */}
