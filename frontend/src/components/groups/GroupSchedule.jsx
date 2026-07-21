@@ -339,34 +339,6 @@ export default function GroupSchedule({
                     </span>
                   </div>
                   <div className="online-room-ready-actions">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard?.writeText(window.location.origin + newScheduleLocation);
-                        if (addToast) addToast('Đã sao chép link phòng học!', 'success');
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid var(--border)',
-                        color: 'var(--text-primary)',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        padding: '6px 12px',
-                        borderRadius: '7px',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                      </svg>
-                      Sao chép link
-                    </button>
                     <Link
                       to={`${newScheduleLocation}?group=${encodeURIComponent(group?.name || '')}&groupId=${group?.id || ''}`}
                       target="_blank"
@@ -594,22 +566,6 @@ export default function GroupSchedule({
                             >
                               Vào phòng học
                             </Link>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                navigator.clipboard?.writeText(window.location.origin + sched.location);
-                                if (addToast) addToast('Đã sao chép link phòng học!', 'success');
-                              }}
-                              className="btn-mono"
-                              style={{
-                                fontSize: '11px',
-                                fontWeight: 600,
-                                padding: '3px 8px',
-                                fontFamily: 'inherit',
-                              }}
-                            >
-                              Copy link
-                            </button>
                           </div>
                         </div>
                       ) : isLink ? (
@@ -650,9 +606,7 @@ export default function GroupSchedule({
                       </div>
                     )}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'right' }}>
-                    Lên lịch {sched.creatorName ? `bởi ${sched.creatorName}` : ''} vào {format24h(sched.createdAt)}
-                  </div>
+
                 </div>
               );
             })}
