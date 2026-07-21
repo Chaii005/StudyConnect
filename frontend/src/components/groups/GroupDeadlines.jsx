@@ -353,7 +353,7 @@ export default function GroupDeadlines({
               const subs = submissions[d.id] || [];
               const mySubmission = subs.find((s) => String(s.userId) === String(user.id));
               const hasSubmitted = !!mySubmission;
-              const isDone = hasSubmitted || d.completed;
+              const isDone = isLeader ? d.completed : (hasSubmitted || d.completed);
               const nonCreatorMembersCount = (group?.members || []).filter((mId) => String(mId) !== String(group?.creatorId)).length || 1;
               const totalAssigned = d.assigneeId && d.assigneeId !== 'all' ? 1 : nonCreatorMembersCount;
 
@@ -394,78 +394,142 @@ export default function GroupDeadlines({
                         >
                           {d.title}
                         </span>
-                        {dueSoon && !isDone && (
-                          <span
-                            style={{
-                              background: 'rgba(239, 68, 68, 0.15)',
-                              color: 'var(--error)',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              padding: '2px 8px',
-                              borderRadius: '12px',
-                              fontSize: '11px',
-                              fontWeight: 700,
-                            }}
-                          >
-                            Sắp hết hạn
-                          </span>
-                        )}
-                        {overdue && !isDone && (
-                          <span
-                            style={{
-                              background: 'rgba(255,255,255,0.05)',
-                              color: 'var(--text-muted)',
-                              border: '1px solid var(--border)',
-                              padding: '2px 8px',
-                              borderRadius: '12px',
-                              fontSize: '11px',
-                              fontWeight: 600,
-                            }}
-                          >
-                            Quá hạn
-                          </span>
-                        )}
-                        {isDone && (
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                            <span
-                              style={{
-                                background: 'rgba(34, 197, 94, 0.15)',
-                                color: '#22c55e',
-                                border: '1px solid rgba(34, 197, 94, 0.3)',
-                                padding: '2px 8px',
-                                borderRadius: '12px',
-                                fontSize: '11px',
-                                fontWeight: 700,
-                              }}
-                            >
-                              Đã hoàn thành
-                            </span>
-                            {!isLeader && hasSubmitted && !overdue && (
-                              <button
-                                onClick={() => handleDeleteSubmission(d.id)}
+                        {isLeader ? (
+                          <>
+                            {subs.length >= totalAssigned && totalAssigned > 0 ? (
+                              <span
                                 style={{
-                                  background: 'rgba(239, 68, 68, 0.1)',
-                                  border: '1px solid rgba(239, 68, 68, 0.25)',
-                                  color: 'var(--error)',
-                                  borderRadius: '12px',
+                                  background: 'rgba(34, 197, 94, 0.15)',
+                                  color: '#22c55e',
+                                  border: '1px solid rgba(34, 197, 94, 0.3)',
                                   padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                Đã nộp đủ ({subs.length}/{totalAssigned})
+                              </span>
+                            ) : dueSoon ? (
+                              <span
+                                style={{
+                                  background: 'rgba(239, 68, 68, 0.15)',
+                                  color: 'var(--error)',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                Sắp hết hạn
+                              </span>
+                            ) : overdue ? (
+                              <span
+                                style={{
+                                  background: 'rgba(255,255,255,0.05)',
+                                  color: 'var(--text-muted)',
+                                  border: '1px solid var(--border)',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
                                   fontSize: '11px',
                                   fontWeight: 600,
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '3px',
-                                  transition: 'all 0.2s',
                                 }}
-                                title="Xóa bài nộp"
                               >
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="3 6 5 6 21 6" />
-                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                </svg>
-                                Xóa bài
-                              </button>
+                                Quá hạn
+                              </span>
+                            ) : (
+                              <span
+                                style={{
+                                  background: 'rgba(59, 130, 246, 0.12)',
+                                  color: '#3b82f6',
+                                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Đang diễn ra
+                              </span>
                             )}
-                          </div>
+                          </>
+                        ) : (
+                          <>
+                            {dueSoon && !isDone && (
+                              <span
+                                style={{
+                                  background: 'rgba(239, 68, 68, 0.15)',
+                                  color: 'var(--error)',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                Sắp hết hạn
+                              </span>
+                            )}
+                            {overdue && !isDone && (
+                              <span
+                                style={{
+                                  background: 'rgba(255,255,255,0.05)',
+                                  color: 'var(--text-muted)',
+                                  border: '1px solid var(--border)',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Quá hạn
+                              </span>
+                            )}
+                            {hasSubmitted && (
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                <span
+                                  style={{
+                                    background: 'rgba(34, 197, 94, 0.15)',
+                                    color: '#22c55e',
+                                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    fontSize: '11px',
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  Đã hoàn thành
+                                </span>
+                                {!overdue && (
+                                  <button
+                                    onClick={() => handleDeleteSubmission(d.id)}
+                                    style={{
+                                      background: 'rgba(239, 68, 68, 0.1)',
+                                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                                      color: 'var(--error)',
+                                      borderRadius: '12px',
+                                      padding: '2px 8px',
+                                      fontSize: '11px',
+                                      fontWeight: 600,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '3px',
+                                      transition: 'all 0.2s',
+                                    }}
+                                    title="Xóa bài nộp"
+                                  >
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                      <polyline points="3 6 5 6 21 6" />
+                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                    Xóa bài
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </>
                         )}
                         {d.submissionType === 'image' && (
                           <span

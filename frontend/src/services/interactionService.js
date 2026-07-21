@@ -1064,17 +1064,31 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
     `)
     .in('group_id', joinedGroupIds)
     .order('due_date', { ascending: true })
-    .limit(50);
+    .limit(100);
+
+  // Fetch user's submissions directly from Supabase table
+  let userSubIds = new Set();
+  try {
+    const { data: userSubsData } = await supabase
+      .from('deadline_submissions')
+      .select('deadline_id')
+      .eq('user_id', uid);
+    if (userSubsData) {
+      userSubIds = new Set(userSubsData.map(s => String(s.deadline_id)));
+    }
+  } catch (e) {
+    if (import.meta.env.DEV) console.warn('Error fetching user submissions:', e);
+  }
 
   const deadlines = (deadlinesData || [])
     .filter(d => {
       // Leader/admin sees everything
       const membership = joinedMemberships.find(m => m.group_id === d.group_id);
       if (membership?.role === 'creator' || membership?.role === 'admin') return true;
-      // Global group deadline
-      if (!d.assignee_id) return true;
+      // Global group deadline (assigned to all or falsy)
+      if (!d.assignee_id || d.assignee_id === 'all') return true;
       // Assigned to current user
-      return Number(d.assignee_id) === uid;
+      return String(d.assignee_id) === String(uid);
     })
     .map(d => {
       let subType = d.submission_type || d.submissionType || 'all';
@@ -1084,7 +1098,7 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
         subType = match[1].toLowerCase();
         desc = desc.replace(/\s*\[SUBTYPE:(all|image|file)\]\s*$/i, '');
       }
-      const hasSubmitted = isDeadlineSubmittedByUser(d.group_id, d.id, userId);
+      const hasSubmitted = userSubIds.has(String(d.id));
       const isCompletedForUser = Boolean(d.completed || hasSubmitted);
       return {
         id: d.id.toString(),
@@ -1094,6 +1108,7 @@ export const getUserSchedulesAndDeadlines = async (userId) => {
         dueDate: d.due_date,
         description: desc,
         submissionType: subType,
+        assigneeId: d.assignee_id || 'all',
         completed: isCompletedForUser,
         hasSubmitted: hasSubmitted
       };
@@ -1334,6 +1349,16 @@ export const getUserPosts = async (friendId) => {
 // ─── DEADLINE SUBMISSIONS (NỘP BÀI TẬP VÀ CHẤM ĐIỂM) ───────────────────
 export const getDeadlineSubmissions = async (groupId) => {
   if (!groupId) return {};
+  
+  // First get deadline IDs belonging to this group
+  const { data: gDeadlines, error: gError } = await supabase
+    .from('deadlines')
+    .select('id')
+    .eq('group_id', parseInt(groupId, 10));
+
+  if (gError || !gDeadlines || gDeadlines.length === 0) return {};
+  const deadlineIds = gDeadlines.map(d => d.id);
+
   const { data, error } = await supabase
     .from('deadline_submissions')
     .select(`
@@ -1349,12 +1374,9 @@ export const getDeadlineSubmissions = async (groupId) => {
       submitted_at,
       grade,
       feedback,
-      graded_at,
-      deadlines!inner (
-        group_id
-      )
+      graded_at
     `)
-    .eq('deadlines.group_id', parseInt(groupId, 10))
+    .in('deadline_id', deadlineIds)
     .limit(300);
 
   if (error) {
